@@ -11,7 +11,7 @@ struct SSOLoginView: View {
     @EnvironmentObject var userManager: UserManager
 
     @Binding var showLoginPopover: Bool
-    @State private var selectedTab = 0
+    @State private var selectedTab = 1
 
     @State private var username: String = ""
     @State private var password: String = ""
@@ -22,6 +22,10 @@ struct SSOLoginView: View {
 
     @State private var showErrorAlert = false
     @State private var errorMessage: String = ""
+
+    @State private var captchaImageData: Data? = nil
+
+    @State private var countdown = 0
 
     var body: some View {
         VStack(spacing: 30) {
@@ -56,7 +60,12 @@ struct SSOLoginView: View {
         } message: {
             Text(errorMessage)
         }
+        .task {
+            loadCaptcha()
+        }
     }
+
+    // MARK: - Account Login View
 
     private var accountLoginView: some View {
         VStack(spacing: 20) {
@@ -136,6 +145,8 @@ struct SSOLoginView: View {
         }
     }
 
+    // MARK: - Verification Code Login View
+
     private var verificationCodeLoginView: some View {
         VStack(spacing: 20) {
             HStack(spacing: 12) {
@@ -174,10 +185,18 @@ struct SSOLoginView: View {
                         .disableAutocorrection(true)
                         .frame(height: 20)
 
-                    Image(systemName: "photo.on.rectangle.angled")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 20)
+                    if let data = captchaImageData, let image = UIImage(data: data) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 20)
+                            .onTapGesture {
+                                loadCaptcha()
+                            }
+                    } else {
+                        ProgressView()
+                            .frame(height: 20)
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -201,9 +220,10 @@ struct SSOLoginView: View {
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                         .frame(height: 20)
-                    Button(action: {}) {
-                        Text("获取验证码")
+                    Button(action: handleGetDynamicCode) {
+                        Text(countdown > 0 ? "\(countdown)秒后重新获取" : "获取验证码")
                     }
+                    .disabled(captcha.isEmpty || username.isEmpty || countdown > 0)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -215,11 +235,15 @@ struct SSOLoginView: View {
             }
             .padding(.horizontal)
 
-            Button(action: {}) {
+            Button(action: handleDynamicLogin) {
                 Text("登录")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 5)
+                if userManager.isLoggingIn {
+                    ProgressView()
+                }
             }
+            .disabled(username.isEmpty || captcha.isEmpty || smsCode.isEmpty || userManager.isLoggingIn)
             .padding(.horizontal)
             .padding(.top, 5)
             .buttonStyle(.borderedProminent)
@@ -227,6 +251,8 @@ struct SSOLoginView: View {
             Spacer()
         }
     }
+
+    // MARK: - Actions
 
     func handleAccountLogin() {
         Task {
@@ -238,6 +264,55 @@ struct SSOLoginView: View {
                 showErrorAlert = true
 
                 debugPrint("Login failed: \(error)")
+            }
+        }
+    }
+
+    func loadCaptcha() {
+        Task {
+            do {
+                captchaImageData = try await userManager.getCaptcha()
+            } catch {
+                errorMessage = error.localizedDescription
+                showErrorAlert = true
+
+                debugPrint("Failed to load captcha: \(error)")
+            }
+        }
+    }
+
+    func handleGetDynamicCode() {
+        Task {
+            do {
+                try await userManager.getDynamicCode(username: username, captcha: captcha)
+            } catch {
+                errorMessage = error.localizedDescription
+                showErrorAlert = true
+
+                debugPrint("Failed to get dynamic code: \(error)")
+            }
+            countdown = 120
+            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+                if countdown > 1 {
+                    countdown -= 1
+                } else {
+                    timer.invalidate()
+                    countdown = 0
+                }
+            }
+        }
+    }
+
+    func handleDynamicLogin() {
+        Task {
+            do {
+                try await userManager.dynamicLogin(username: username, captcha: captcha, dynamicCode: smsCode)
+                showLoginPopover = false
+            } catch {
+                errorMessage = error.localizedDescription
+                showErrorAlert = true
+
+                debugPrint("Dynamic login failed: \(error)")
             }
         }
     }

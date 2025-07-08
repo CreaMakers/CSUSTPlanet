@@ -76,4 +76,24 @@ class UserManager: ObservableObject {
             throw UserManagerError.logoutFailed("删除登录信息失败")
         }
     }
+
+    func getCaptcha() async throws -> Data {
+        return try await ssoHelper.getCaptcha()
+    }
+
+    func getDynamicCode(username: String, captcha: String) async throws {
+        try await ssoHelper.getDynamicCode(mobile: username, captcha: captcha)
+    }
+
+    func dynamicLogin(username: String, captcha: String, dynamicCode: String) async throws {
+        guard user == nil else { return }
+
+        isLoggingIn = true
+        defer {
+            isLoggingIn = false
+        }
+
+        try await ssoHelper.dynamicLogin(username: username, dynamicCode: dynamicCode, captcha: captcha)
+        user = try await ssoHelper.getLoginUser()
+    }
 }
