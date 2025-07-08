@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SSOLoginView: View {
+    @EnvironmentObject var userManager: UserManager
+
     @Binding var showLoginPopover: Bool
     @State private var selectedTab = 0
 
@@ -17,6 +19,9 @@ struct SSOLoginView: View {
 
     @State private var captcha: String = ""
     @State private var smsCode: String = ""
+
+    @State private var showErrorAlert = false
+    @State private var errorMessage: String = ""
 
     var body: some View {
         VStack(spacing: 30) {
@@ -46,6 +51,11 @@ struct SSOLoginView: View {
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
         }
         .padding(.top, 25)
+        .alert("错误", isPresented: $showErrorAlert) {
+            Button("确定", role: .cancel) {}
+        } message: {
+            Text(errorMessage)
+        }
     }
 
     private var accountLoginView: some View {
@@ -85,12 +95,12 @@ struct SSOLoginView: View {
                         .textFieldStyle(.plain)
                         .textContentType(.password)
                         .frame(height: 20)
-                }
-                else {
+                } else {
                     SecureField("请输入密码", text: $password)
                         .textFieldStyle(.plain)
                         .textContentType(.password)
                         .frame(height: 20)
+                        .autocorrectionDisabled(true)
                 }
 
                 Button(action: {
@@ -109,11 +119,15 @@ struct SSOLoginView: View {
             )
             .padding(.horizontal)
 
-            Button(action: {}) {
+            Button(action: handleAccountLogin) {
                 Text("登录")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 5)
+                if userManager.isLoggingIn {
+                    ProgressView()
+                }
             }
+            .disabled(username.isEmpty || password.isEmpty || userManager.isLoggingIn)
             .padding(.horizontal)
             .padding(.top, 5)
             .buttonStyle(.borderedProminent)
@@ -213,8 +227,23 @@ struct SSOLoginView: View {
             Spacer()
         }
     }
+
+    func handleAccountLogin() {
+        Task {
+            do {
+                try await userManager.login(username: username, password: password)
+                showLoginPopover = false
+            } catch {
+                errorMessage = error.localizedDescription
+                showErrorAlert = true
+
+                debugPrint("Login failed: \(error)")
+            }
+        }
+    }
 }
 
 #Preview {
     SSOLoginView(showLoginPopover: .constant(true))
+        .environmentObject(UserManager())
 }

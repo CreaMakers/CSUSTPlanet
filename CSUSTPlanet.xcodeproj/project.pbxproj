@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		007CF90A2E1CF0ED00E319F2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 007CF9092E1CF0ED00E319F2 /* CSUSTKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CSUSTPlanet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				007CF90A2E1CF0ED00E319F2 /* CSUSTKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = CSUSTPlanet;
 			packageProductDependencies = (
+				007CF9092E1CF0ED00E319F2 /* CSUSTKit */,
 			);
 			productName = CSUSTPlanet;
 			productReference = 007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 007CF8522E1BD68800E319F2;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				007CF9082E1CF0ED00E319F2 /* XCRemoteSwiftPackageReference "CSUSTKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 007CF85C2E1BD68900E319F2 /* Products */;
 			projectDirPath = "";
@@ -328,6 +337,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		007CF9082E1CF0ED00E319F2 /* XCRemoteSwiftPackageReference "CSUSTKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/zHElEARN/CSUSTKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		007CF9092E1CF0ED00E319F2 /* CSUSTKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 007CF9082E1CF0ED00E319F2 /* XCRemoteSwiftPackageReference "CSUSTKit" */;
+			productName = CSUSTKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 007CF8532E1BD68800E319F2 /* Project object */;
 }

@@ -8,23 +8,57 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @EnvironmentObject private var userManager: UserManager
     @State private var showLoginPopover = false
 
     var body: some View {
         Form {
             Section(header: Text("账号管理")) {
-                Button(action: {
-                    showLoginPopover = true
-                }) {
-                    Label("登录统一认证账号", systemImage: "person.crop.circle.badge.plus")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
+                if userManager.isLoggedIn, let user = userManager.user {
+                    HStack {
+                        AsyncImage(url: URL(string: user.defaultUserAvatar)) { image in
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 40, height: 40)
+                                .clipShape(Circle())
+                        } placeholder: {
+                            ProgressView()
+                        }
+
+                        VStack(alignment: .leading) {
+                            Text("\(user.userName) \(user.userAccount)")
+                                .font(.headline)
+                            Text(user.deptName)
+                                .font(.subheadline)
+                        }
+                    }
+                    Button(action: {
+                        Task {
+                            try await userManager.logout()
+                        }
+                    }) {
+                        Label("退出登录", systemImage: "arrow.right.circle")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
-                .buttonStyle(PlainButtonStyle())
-                .popover(isPresented: $showLoginPopover) {
-                    SSOLoginView(showLoginPopover: $showLoginPopover)
+                else {
+                    Button(action: {
+                        showLoginPopover = true
+                    }) {
+                        Label("登录统一认证账号", systemImage: "person.crop.circle.badge.plus")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .popover(isPresented: $showLoginPopover) {
+                        SSOLoginView(showLoginPopover: $showLoginPopover)
+                    }
                 }
             }
+
             Section(header: Text("帮助与支持")) {
                 NavigationLink {} label: {
                     Label("帮助中心", systemImage: "questionmark.circle")
@@ -45,4 +79,5 @@ struct ProfileView: View {
     NavigationStack {
         ProfileView()
     }
+    .environmentObject(UserManager())
 }

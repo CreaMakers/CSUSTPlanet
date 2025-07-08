@@ -1,0 +1,33 @@
+{
+  "originHash" : "9d62210c319a5e25d8c46097295a2f0c5f39b462780c551bc69fa7118aa7aa6f",
+  "pins" : [
+    {
+      "identity" : "alamofire",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alamofire/Alamofire.git",
+      "state" : {
+        "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
+        "version" : "5.10.2"
+      }
+    },
+    {
+      "identity" : "csustkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zHElEARN/CSUSTKit.git",
+      "state" : {
+        "revision" : "e002d06fd2e112902589b7497cdfe243ca15ffc1",
+        "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "swiftsoup",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/scinfu/SwiftSoup.git",
+      "state" : {
+        "revision" : "aa85ee96017a730031bafe411cde24a08a17a9c9",
+        "version" : "2.8.8"
+      }
+    }
+  ],
+  "version" : 3
+}
