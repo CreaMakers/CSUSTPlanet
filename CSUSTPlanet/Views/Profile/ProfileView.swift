@@ -19,7 +19,7 @@ struct ProfileView: View {
                         ProgressView()
                         Text("正在登录...")
                     }
-                } else if userManager.isLoggedIn, let user = userManager.user {
+                } else if let user = userManager.user {
                     NavigationLink {
                         ProfileDetailView()
                     } label: {

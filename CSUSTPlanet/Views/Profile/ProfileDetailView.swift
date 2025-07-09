@@ -35,21 +35,16 @@ struct ProfileDetailView: View {
     @State private var errorMessage: String = ""
 
     var body: some View {
-        if !userManager.isLoggedIn {
-            NotLoginView()
-                .navigationTitle("个人详情")
-        } else {
+        if let user = userManager.user {
             Form {
                 Section(header: Text("统一认证信息")) {
-                    if let user = userManager.user {
-                        RowView(title: "学生类型", value: user.categoryName)
-                        RowView(title: "账号", value: user.userAccount)
-                        RowView(title: "用户名", value: user.userName)
-                        RowView(title: "身份证", value: user.certCode)
-                        RowView(title: "手机号", value: user.phone)
-                        RowView(title: "邮箱", value: user.email ?? "未设置")
-                        RowView(title: "所属院系", value: user.deptName)
-                    }
+                    RowView(title: "学生类型", value: user.categoryName)
+                    RowView(title: "账号", value: user.userAccount)
+                    RowView(title: "用户名", value: user.userName)
+                    RowView(title: "身份证", value: user.certCode)
+                    RowView(title: "手机号", value: user.phone)
+                    RowView(title: "邮箱", value: user.email ?? "未设置")
+                    RowView(title: "所属院系", value: user.deptName)
                 }
 
                 Section(header: Text("教务信息")) {
@@ -139,6 +134,9 @@ struct ProfileDetailView: View {
                     debugPrint(error)
                 }
             }
+        } else {
+            NotLoginView()
+                .navigationTitle("个人详情")
         }
     }
 }

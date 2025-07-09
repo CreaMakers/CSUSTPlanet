@@ -8,23 +8,33 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var globalVars: GlobalVars
+
     var body: some View {
-        TabView {
-            Tab("功能", systemImage: "square.grid.2x2") {
-                NavigationStack {
-                    FeaturesView()
-                }
+        TabView(selection: $globalVars.selectedTab) {
+            NavigationStack {
+                FeaturesView()
             }
-            Tab("新鲜事", systemImage: "newspaper") {
-                NavigationStack {
-                    NewsView()
-                }
+            .tabItem {
+                Label("功能", systemImage: "square.grid.2x2")
             }
-            Tab("我的", systemImage: "person") {
-                NavigationStack {
-                    ProfileView()
-                }
+            .tag(0)
+
+            NavigationStack {
+                NewsView()
             }
+            .tabItem {
+                Label("新鲜事", systemImage: "newspaper")
+            }
+            .tag(1)
+
+            NavigationStack {
+                ProfileView()
+            }
+            .tabItem {
+                Label("我的", systemImage: "person")
+            }
+            .tag(2)
         }
     }
 }
@@ -32,4 +42,5 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .environmentObject(UserManager())
+        .environmentObject(GlobalVars())
 }

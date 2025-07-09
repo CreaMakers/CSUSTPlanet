@@ -10,11 +10,13 @@ import SwiftUI
 @main
 struct CSUSTPlanetApp: App {
     @StateObject private var userManager = UserManager()
+    @StateObject private var globalVars = GlobalVars()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(userManager)
+                .environmentObject(globalVars)
         }
     }
 }
