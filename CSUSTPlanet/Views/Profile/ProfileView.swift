@@ -71,13 +71,19 @@ struct ProfileView: View {
             }
 
             Section(header: Text("帮助与支持")) {
-                NavigationLink {} label: {
+                NavigationLink {
+                    HelpView()
+                } label: {
                     Label("帮助中心", systemImage: "questionmark.circle")
                 }
-                NavigationLink {} label: {
+                NavigationLink {
+                    AboutView()
+                } label: {
                     Label("关于我们", systemImage: "info.circle")
                 }
-                NavigationLink {} label: {
+                NavigationLink {
+                    FeedbackView()
+                } label: {
                     Label("意见反馈", systemImage: "bubble.left.and.bubble.right")
                 }
             }
