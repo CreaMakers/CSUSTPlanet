@@ -16,10 +16,18 @@ enum UserManagerError: Error {
 @MainActor
 class UserManager: ObservableObject {
     @Published var user: LoginUser?
+
     @Published var isLoggingIn: Bool = false
     @Published var isLoggingOut: Bool = false
 
-    private var ssoHelper = SSOHelper()
+    @Published var eduProfile: Profile?
+    @Published var isEduProfileLoading: Bool = false
+    @Published var moocProfile: MoocProfile?
+    @Published var isMoocProfileLoading: Bool = false
+
+    private var ssoHelper = SSOHelper(cookieStorage: KeychainCookieStorage())
+    private var eduHelper: EduHelper?
+    private var moocHelper: MoocHelper?
 
     public var isLoggedIn: Bool {
         user != nil
@@ -31,10 +39,35 @@ class UserManager: ObservableObject {
         }
     }
 
+    func loadEduProfile() async throws {
+        guard let eduHelper = eduHelper else { return }
+        guard eduProfile == nil else { return }
+        isEduProfileLoading = true
+        defer {
+            isEduProfileLoading = false
+        }
+
+        eduProfile = try await eduHelper.profileService.getProfile()
+    }
+
+    func loadMoocProfile() async throws {
+        guard let moocHelper = moocHelper else { return }
+        guard moocProfile == nil else { return }
+        isMoocProfileLoading = true
+        defer {
+            isMoocProfileLoading = false
+        }
+
+        moocProfile = try await moocHelper.getProfile()
+    }
+
     func loadUser() async {
+        ssoHelper.restoreCookies()
         user = try? await ssoHelper.getLoginUser()
 
-        if user != nil {
+        guard user == nil else {
+            eduHelper = try? EduHelper(session: await ssoHelper.loginToEducation())
+            moocHelper = try? MoocHelper(session: await ssoHelper.loginToMooc())
             return
         }
 
@@ -59,6 +92,10 @@ class UserManager: ObservableObject {
             throw UserManagerError.loginFailed("保存登录信息失败")
         }
         user = try await ssoHelper.getLoginUser()
+        ssoHelper.saveCookies()
+
+        eduHelper = try EduHelper(session: await ssoHelper.loginToEducation())
+        moocHelper = try MoocHelper(session: await ssoHelper.loginToMooc())
     }
 
     func logout() async throws {
@@ -75,6 +112,7 @@ class UserManager: ObservableObject {
         if !KeychainHelper.delete(key: "SSOUsername") || !KeychainHelper.delete(key: "SSOPassword") {
             throw UserManagerError.logoutFailed("删除登录信息失败")
         }
+        ssoHelper.clearCookies()
     }
 
     func getCaptcha() async throws -> Data {

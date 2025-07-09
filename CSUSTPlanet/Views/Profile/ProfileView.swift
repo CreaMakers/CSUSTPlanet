@@ -14,8 +14,15 @@ struct ProfileView: View {
     var body: some View {
         Form {
             Section(header: Text("账号管理")) {
-                if userManager.isLoggedIn, let user = userManager.user {
+                if userManager.isLoggingIn {
                     HStack {
+                        ProgressView()
+                        Text("正在登录...")
+                    }
+                } else if userManager.isLoggedIn, let user = userManager.user {
+                    NavigationLink {
+                        ProfileDetailView()
+                    } label: {
                         AsyncImage(url: URL(string: user.defaultUserAvatar)) { image in
                             image
                                 .resizable()
@@ -30,7 +37,7 @@ struct ProfileView: View {
                             Text("\(user.userName) \(user.userAccount)")
                                 .font(.headline)
                             Text(user.deptName)
-                                .font(.subheadline)
+                                .font(.caption)
                         }
                     }
                     Button(action: {
@@ -41,10 +48,14 @@ struct ProfileView: View {
                         Label("退出登录", systemImage: "arrow.right.circle")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .contentShape(Rectangle())
+                            .foregroundStyle(.red)
+                        if userManager.isLoggingOut {
+                            ProgressView()
+                        }
                     }
+                    .disabled(userManager.isLoggingOut)
                     .buttonStyle(PlainButtonStyle())
-                }
-                else {
+                } else {
                     Button(action: {
                         showLoginPopover = true
                     }) {

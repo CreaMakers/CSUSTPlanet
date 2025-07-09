@@ -11,7 +11,7 @@ struct SSOLoginView: View {
     @EnvironmentObject var userManager: UserManager
 
     @Binding var showLoginPopover: Bool
-    @State private var selectedTab = 1
+    @State private var selectedTab = 0
 
     @State private var username: String = ""
     @State private var password: String = ""
@@ -263,7 +263,7 @@ struct SSOLoginView: View {
                 errorMessage = error.localizedDescription
                 showErrorAlert = true
 
-                debugPrint("Login failed: \(error)")
+                debugPrint(error)
             }
         }
     }
@@ -276,7 +276,7 @@ struct SSOLoginView: View {
                 errorMessage = error.localizedDescription
                 showErrorAlert = true
 
-                debugPrint("Failed to load captcha: \(error)")
+                debugPrint(error)
             }
         }
     }
@@ -289,7 +289,7 @@ struct SSOLoginView: View {
                 errorMessage = error.localizedDescription
                 showErrorAlert = true
 
-                debugPrint("Failed to get dynamic code: \(error)")
+                debugPrint(error)
             }
             countdown = 120
             Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
@@ -312,7 +312,7 @@ struct SSOLoginView: View {
                 errorMessage = error.localizedDescription
                 showErrorAlert = true
 
-                debugPrint("Dynamic login failed: \(error)")
+                debugPrint(error)
             }
         }
     }

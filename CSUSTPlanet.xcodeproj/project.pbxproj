@@ -14,9 +14,22 @@
 		007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CSUSTPlanet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		007CF9192E1D44C400E319F2 /* Exceptions for "CSUSTPlanet" folder in "CSUSTPlanet" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 007CF85A2E1BD68900E319F2 /* CSUSTPlanet */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		007CF85D2E1BD68900E319F2 /* CSUSTPlanet */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				007CF9192E1D44C400E319F2 /* Exceptions for "CSUSTPlanet" folder in "CSUSTPlanet" target */,
+			);
 			path = CSUSTPlanet;
 			sourceTree = "<group>";
 		};
@@ -265,6 +278,7 @@
 				DEVELOPMENT_TEAM = 73L825Q786;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CSUSTPlanet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "长理星球";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -295,6 +309,7 @@
 				DEVELOPMENT_TEAM = 73L825Q786;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CSUSTPlanet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "长理星球";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
