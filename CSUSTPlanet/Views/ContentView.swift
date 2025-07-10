@@ -10,6 +10,17 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var globalVars: GlobalVars
 
+    var preferredColorScheme: ColorScheme? {
+        switch globalVars.appearance {
+        case "light":
+            return .light
+        case "dark":
+            return .dark
+        default:
+            return nil
+        }
+    }
+
     var body: some View {
         TabView(selection: $globalVars.selectedTab) {
             NavigationStack {
@@ -36,12 +47,13 @@ struct ContentView: View {
             }
             .tag(2)
         }
+        .preferredColorScheme(preferredColorScheme)
     }
 }
 
 #Preview {
     ContentView()
         .environmentObject(GlobalVars())
-        .environmentObject(UserManager())
+        .environmentObject(AuthManager.shared)
         .environmentObject(ElectricityManager())
 }

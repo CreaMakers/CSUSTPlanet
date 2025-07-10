@@ -7,38 +7,11 @@
 
 import SwiftUI
 
-struct FunctionItem<Destination: View>: View {
-    let icon: String
-    let title: String
-    let destination: Destination
-
-    var body: some View {
-        NavigationLink(destination: destination) {
-            VStack(spacing: 8) {
-                ZStack {
-                    Circle()
-                        .fill(Color.accent.opacity(0.1))
-                        .frame(width: 60, height: 60)
-
-                    Image(systemName: icon)
-                        .font(.system(size: 20))
-                        .foregroundColor(.accent)
-                }
-
-                Text(title)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            .frame(width: 70)
-        }
-    }
-}
-
 struct FeaturesView: View {
-    @EnvironmentObject var userManager: UserManager
+    @EnvironmentObject var authManager: AuthManager
 
     var body: some View {
-        if let _ = userManager.user {
+        if authManager.isLoggedIn {
             ScrollView {
                 VStack(spacing: 20) {
                     Text("常用功能")
@@ -67,8 +40,42 @@ struct FeaturesView: View {
                 .padding(.horizontal)
             }
             .navigationTitle("功能")
+        } else if authManager.isLoggingIn {
+            VStack {
+                ProgressView("正在登录...")
+                    .padding()
+                Text("请稍候")
+                    .foregroundColor(.secondary)
+            }
         } else {
             NotLoginView()
+        }
+    }
+
+    struct FunctionItem<Destination: View>: View {
+        let icon: String
+        let title: String
+        let destination: Destination
+
+        var body: some View {
+            NavigationLink(destination: destination) {
+                VStack(spacing: 8) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.accent.opacity(0.1))
+                            .frame(width: 60, height: 60)
+
+                        Image(systemName: icon)
+                            .font(.system(size: 20))
+                            .foregroundColor(.accent)
+                    }
+
+                    Text(title)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .frame(width: 70)
+            }
         }
     }
 }
@@ -77,5 +84,5 @@ struct FeaturesView: View {
     NavigationStack {
         FeaturesView()
     }
-    .environmentObject(UserManager())
+    .environmentObject(AuthManager.shared)
 }

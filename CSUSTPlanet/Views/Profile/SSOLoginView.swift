@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SSOLoginView: View {
-    @EnvironmentObject var userManager: UserManager
+    @EnvironmentObject var authManager: AuthManager
 
     @Binding var showLoginPopover: Bool
     @State private var selectedTab = 0
@@ -132,11 +132,11 @@ struct SSOLoginView: View {
                 Text("登录")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 5)
-                if userManager.isLoggingIn {
+                if authManager.isLoggingIn {
                     ProgressView()
                 }
             }
-            .disabled(username.isEmpty || password.isEmpty || userManager.isLoggingIn)
+            .disabled(username.isEmpty || password.isEmpty || authManager.isLoggingIn)
             .padding(.horizontal)
             .padding(.top, 5)
             .buttonStyle(.borderedProminent)
@@ -239,11 +239,11 @@ struct SSOLoginView: View {
                 Text("登录")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 5)
-                if userManager.isLoggingIn {
+                if authManager.isLoggingIn {
                     ProgressView()
                 }
             }
-            .disabled(username.isEmpty || captcha.isEmpty || smsCode.isEmpty || userManager.isLoggingIn)
+            .disabled(username.isEmpty || captcha.isEmpty || smsCode.isEmpty || authManager.isLoggingIn)
             .padding(.horizontal)
             .padding(.top, 5)
             .buttonStyle(.borderedProminent)
@@ -257,7 +257,7 @@ struct SSOLoginView: View {
     func handleAccountLogin() {
         Task {
             do {
-                try await userManager.login(username: username, password: password)
+                try await authManager.login(username: username, password: password)
                 showLoginPopover = false
             } catch {
                 errorMessage = error.localizedDescription
@@ -271,7 +271,7 @@ struct SSOLoginView: View {
     func loadCaptcha() {
         Task {
             do {
-                captchaImageData = try await userManager.getCaptcha()
+                captchaImageData = try await authManager.getCaptcha()
             } catch {
                 errorMessage = error.localizedDescription
                 showErrorAlert = true
@@ -284,7 +284,7 @@ struct SSOLoginView: View {
     func handleGetDynamicCode() {
         Task {
             do {
-                try await userManager.getDynamicCode(username: username, captcha: captcha)
+                try await authManager.getDynamicCode(username: username, captcha: captcha)
             } catch {
                 errorMessage = error.localizedDescription
                 showErrorAlert = true
@@ -306,7 +306,7 @@ struct SSOLoginView: View {
     func handleDynamicLogin() {
         Task {
             do {
-                try await userManager.dynamicLogin(username: username, captcha: captcha, dynamicCode: smsCode)
+                try await authManager.dynamicLogin(username: username, captcha: captcha, dynamicCode: smsCode)
                 showLoginPopover = false
             } catch {
                 errorMessage = error.localizedDescription
@@ -320,5 +320,5 @@ struct SSOLoginView: View {
 
 #Preview {
     SSOLoginView(showLoginPopover: .constant(true))
-        .environmentObject(UserManager())
+        .environmentObject(AuthManager.shared)
 }
