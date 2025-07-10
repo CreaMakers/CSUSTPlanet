@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct ProfileDetailView: View {
-    @StateObject private var viewModel: ProfileViewModel
+    @StateObject private var viewModel: ProfileDetailViewModel
 
     init(authManager: AuthManager) {
-        _viewModel = StateObject(wrappedValue: ProfileViewModel(
+        _viewModel = StateObject(wrappedValue: ProfileDetailViewModel(
             ssoHelper: authManager.ssoHelper,
             eduHelper: authManager.eduHelper,
             moocHelper: authManager.moocHelper,
@@ -138,6 +138,6 @@ struct ProfileDetailView: View {
 
 #Preview {
     NavigationStack {
-        ProfileDetailView(authManager: AuthManager.shared)
+        ProfileDetailView(authManager: AuthManager())
     }
 }

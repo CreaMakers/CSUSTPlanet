@@ -54,6 +54,6 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .environmentObject(GlobalVars())
-        .environmentObject(AuthManager.shared)
+        .environmentObject(AuthManager())
         .environmentObject(ElectricityManager())
 }

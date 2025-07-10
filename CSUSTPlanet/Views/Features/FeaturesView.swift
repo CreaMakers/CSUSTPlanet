@@ -84,5 +84,5 @@ struct FeaturesView: View {
     NavigationStack {
         FeaturesView()
     }
-    .environmentObject(AuthManager.shared)
+    .environmentObject(AuthManager())
 }

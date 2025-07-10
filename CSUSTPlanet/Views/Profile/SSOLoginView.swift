@@ -9,23 +9,11 @@ import SwiftUI
 
 struct SSOLoginView: View {
     @EnvironmentObject var authManager: AuthManager
+    @StateObject private var viewModel: SSOLoginViewModel
 
-    @Binding var showLoginPopover: Bool
-    @State private var selectedTab = 0
-
-    @State private var username: String = ""
-    @State private var password: String = ""
-    @State private var showPassword = false
-
-    @State private var captcha: String = ""
-    @State private var smsCode: String = ""
-
-    @State private var showErrorAlert = false
-    @State private var errorMessage: String = ""
-
-    @State private var captchaImageData: Data? = nil
-
-    @State private var countdown = 0
+    init(authManager: AuthManager, isShowingLoginPopover: Binding<Bool>) {
+        _viewModel = StateObject(wrappedValue: SSOLoginViewModel(authManager: authManager, isShowingLoginPopover: isShowingLoginPopover))
+    }
 
     var body: some View {
         VStack(spacing: 30) {
@@ -34,34 +22,32 @@ struct SSOLoginView: View {
                 .fontWeight(.bold)
 
             HStack(alignment: .center) {
-                Picker("登录方式", selection: $selectedTab) {
+                Picker("登录方式", selection: $viewModel.selectedTab) {
                     Text("账号登录").tag(0)
                     Text("验证码登录").tag(1)
                 }
                 .pickerStyle(.segmented)
 
-                Button(action: {
-                    showLoginPopover = false
-                }) {
+                Button(action: viewModel.closeLoginPopover) {
                     Text("关闭")
                 }
             }
             .padding(.horizontal)
 
-            TabView(selection: $selectedTab) {
+            TabView(selection: $viewModel.selectedTab) {
                 accountLoginView.tag(0)
                 verificationCodeLoginView.tag(1)
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
         }
         .padding(.top, 25)
-        .alert("错误", isPresented: $showErrorAlert) {
+        .alert("错误", isPresented: $viewModel.isShowingError) {
             Button("确定", role: .cancel) {}
         } message: {
-            Text(errorMessage)
+            Text(viewModel.errorMessage)
         }
         .task {
-            loadCaptcha()
+            viewModel.handleRefreshCaptcha()
         }
     }
 
@@ -75,7 +61,7 @@ struct SSOLoginView: View {
                     .scaledToFit()
                     .frame(height: 20)
                     .foregroundColor(.gray)
-                TextField("请输入账号", text: $username)
+                TextField("请输入账号", text: $viewModel.username)
                     .textFieldStyle(.plain)
                     .textContentType(.username)
                     .autocapitalization(.none)
@@ -99,13 +85,13 @@ struct SSOLoginView: View {
                     .frame(height: 20)
                     .foregroundColor(.gray)
 
-                if showPassword {
-                    TextField("请输入密码", text: $password)
+                if viewModel.isPasswordVisible {
+                    TextField("请输入密码", text: $viewModel.password)
                         .textFieldStyle(.plain)
                         .textContentType(.password)
                         .frame(height: 20)
                 } else {
-                    SecureField("请输入密码", text: $password)
+                    SecureField("请输入密码", text: $viewModel.password)
                         .textFieldStyle(.plain)
                         .textContentType(.password)
                         .frame(height: 20)
@@ -113,9 +99,9 @@ struct SSOLoginView: View {
                 }
 
                 Button(action: {
-                    showPassword.toggle()
+                    viewModel.isPasswordVisible.toggle()
                 }) {
-                    Image(systemName: showPassword ? "eye.slash.fill" : "eye.fill")
+                    Image(systemName: viewModel.isPasswordVisible ? "eye.slash.fill" : "eye.fill")
                         .foregroundColor(.gray)
                 }
             }
@@ -128,7 +114,7 @@ struct SSOLoginView: View {
             )
             .padding(.horizontal)
 
-            Button(action: handleAccountLogin) {
+            Button(action: viewModel.handleAccountLogin) {
                 Text("登录")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 5)
@@ -136,7 +122,7 @@ struct SSOLoginView: View {
                     ProgressView()
                 }
             }
-            .disabled(username.isEmpty || password.isEmpty || authManager.isLoggingIn)
+            .disabled(viewModel.isAccountLoginDisabled)
             .padding(.horizontal)
             .padding(.top, 5)
             .buttonStyle(.borderedProminent)
@@ -155,7 +141,7 @@ struct SSOLoginView: View {
                     .scaledToFit()
                     .frame(height: 20)
                     .foregroundColor(.gray)
-                TextField("请输入账号", text: $username)
+                TextField("请输入账号", text: $viewModel.username)
                     .textFieldStyle(.plain)
                     .textContentType(.username)
                     .autocapitalization(.none)
@@ -179,19 +165,19 @@ struct SSOLoginView: View {
                         .scaledToFit()
                         .frame(height: 20)
                         .foregroundColor(.gray)
-                    TextField("请输入图片验证码", text: $captcha)
+                    TextField("请输入图片验证码", text: $viewModel.captcha)
                         .textFieldStyle(.plain)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                         .frame(height: 20)
 
-                    if let data = captchaImageData, let image = UIImage(data: data) {
+                    if let data = viewModel.captchaImageData, let image = UIImage(data: data) {
                         Image(uiImage: image)
                             .resizable()
                             .scaledToFit()
                             .frame(height: 20)
                             .onTapGesture {
-                                loadCaptcha()
+                                viewModel.handleRefreshCaptcha()
                             }
                     } else {
                         ProgressView()
@@ -215,15 +201,15 @@ struct SSOLoginView: View {
                         .scaledToFit()
                         .frame(height: 20)
                         .foregroundColor(.gray)
-                    TextField("请输入短信验证码", text: $smsCode)
+                    TextField("请输入短信验证码", text: $viewModel.smsCode)
                         .textContentType(.oneTimeCode)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                         .frame(height: 20)
-                    Button(action: handleGetDynamicCode) {
-                        Text(countdown > 0 ? "\(countdown)秒后重新获取" : "获取验证码")
+                    Button(action: viewModel.handleGetDynamicCode) {
+                        Text(viewModel.countdown > 0 ? "\(viewModel.countdown)秒后重新获取" : "获取验证码")
                     }
-                    .disabled(captcha.isEmpty || username.isEmpty || countdown > 0)
+                    .disabled(viewModel.isGetDynamicCodeDisabled)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -235,7 +221,7 @@ struct SSOLoginView: View {
             }
             .padding(.horizontal)
 
-            Button(action: handleDynamicLogin) {
+            Button(action: viewModel.handleDynamicLogin) {
                 Text("登录")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 5)
@@ -243,7 +229,7 @@ struct SSOLoginView: View {
                     ProgressView()
                 }
             }
-            .disabled(username.isEmpty || captcha.isEmpty || smsCode.isEmpty || authManager.isLoggingIn)
+            .disabled(viewModel.isDynamicLoginDisabled)
             .padding(.horizontal)
             .padding(.top, 5)
             .buttonStyle(.borderedProminent)
@@ -251,74 +237,8 @@ struct SSOLoginView: View {
             Spacer()
         }
     }
-
-    // MARK: - Actions
-
-    func handleAccountLogin() {
-        Task {
-            do {
-                try await authManager.login(username: username, password: password)
-                showLoginPopover = false
-            } catch {
-                errorMessage = error.localizedDescription
-                showErrorAlert = true
-
-                debugPrint("Login error: \(error)")
-            }
-        }
-    }
-
-    func loadCaptcha() {
-        Task {
-            do {
-                captchaImageData = try await authManager.getCaptcha()
-            } catch {
-                errorMessage = error.localizedDescription
-                showErrorAlert = true
-
-                debugPrint(error)
-            }
-        }
-    }
-
-    func handleGetDynamicCode() {
-        Task {
-            do {
-                try await authManager.getDynamicCode(username: username, captcha: captcha)
-            } catch {
-                errorMessage = error.localizedDescription
-                showErrorAlert = true
-
-                debugPrint(error)
-            }
-            countdown = 120
-            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-                if countdown > 1 {
-                    countdown -= 1
-                } else {
-                    timer.invalidate()
-                    countdown = 0
-                }
-            }
-        }
-    }
-
-    func handleDynamicLogin() {
-        Task {
-            do {
-                try await authManager.dynamicLogin(username: username, captcha: captcha, dynamicCode: smsCode)
-                showLoginPopover = false
-            } catch {
-                errorMessage = error.localizedDescription
-                showErrorAlert = true
-
-                debugPrint(error)
-            }
-        }
-    }
 }
 
 #Preview {
-    SSOLoginView(showLoginPopover: .constant(true))
-        .environmentObject(AuthManager.shared)
+    SSOLoginView(authManager: AuthManager(), isShowingLoginPopover: .constant(true))
 }

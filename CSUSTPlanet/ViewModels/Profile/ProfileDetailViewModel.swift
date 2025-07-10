@@ -9,7 +9,7 @@ import CSUSTKit
 import Foundation
 
 @MainActor
-class ProfileViewModel: ObservableObject {
+class ProfileDetailViewModel: ObservableObject {
     private var ssoHelper: SSOHelper?
     private var eduHelper: EduHelper?
     private var moocHelper: MoocHelper?

@@ -22,9 +22,7 @@ class AuthManager: ObservableObject {
     var eduHelper: EduHelper?
     var moocHelper: MoocHelper?
 
-    static let shared = AuthManager()
-
-    private init() {
+    init() {
         Task {
             isLoggingIn = true
             defer {

@@ -115,7 +115,7 @@ struct ProfileView: View {
             }
         }
         .popover(isPresented: $showLoginPopover) {
-            SSOLoginView(showLoginPopover: $showLoginPopover)
+            SSOLoginView(authManager: authManager, isShowingLoginPopover: $showLoginPopover)
         }
         .navigationTitle("我的")
     }
@@ -125,6 +125,6 @@ struct ProfileView: View {
     NavigationStack {
         ProfileView()
     }
-    .environmentObject(AuthManager.shared)
+    .environmentObject(AuthManager())
     .environmentObject(GlobalVars())
 }

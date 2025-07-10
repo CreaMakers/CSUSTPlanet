@@ -11,7 +11,7 @@ import SwiftUI
 @main
 struct CSUSTPlanetApp: App {
     @StateObject private var globalVars = GlobalVars()
-    @StateObject private var authManager = AuthManager.shared
+    @StateObject private var authManager = AuthManager()
     @StateObject private var electricityManager = ElectricityManager()
 
     var container: ModelContainer
