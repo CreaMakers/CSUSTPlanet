@@ -5,18 +5,32 @@
 //  Created by Zhe_Learn on 2025/7/7.
 //
 
+import SwiftData
 import SwiftUI
 
 @main
 struct CSUSTPlanetApp: App {
-    @StateObject private var userManager = UserManager()
     @StateObject private var globalVars = GlobalVars()
+    @StateObject private var userManager = UserManager()
+    @StateObject private var electricityManager = ElectricityManager()
+
+    var container: ModelContainer
+
+    init() {
+        do {
+            container = try ModelContainer(for: Dorm.self, ElectricityRecord.self)
+        } catch {
+            fatalError("Failed to create model container: \(error)")
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(userManager)
                 .environmentObject(globalVars)
+                .environmentObject(userManager)
+                .environmentObject(electricityManager)
         }
+        .modelContainer(container)
     }
 }

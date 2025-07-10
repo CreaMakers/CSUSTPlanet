@@ -142,4 +142,19 @@ class UserManager: ObservableObject {
         eduHelper = try EduHelper(session: await ssoHelper.loginToEducation())
         moocHelper = try MoocHelper(session: await ssoHelper.loginToMooc())
     }
+
+    func clearCache() {
+        _ = KeychainHelper.delete(key: "SSOUsername")
+        _ = KeychainHelper.delete(key: "SSOPassword")
+
+        ssoHelper.clearCookies()
+
+        user = nil
+
+        eduProfile = nil
+        eduHelper = nil
+
+        moocProfile = nil
+        moocHelper = nil
+    }
 }

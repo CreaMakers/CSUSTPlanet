@@ -11,6 +11,8 @@ struct ProfileView: View {
     @EnvironmentObject private var userManager: UserManager
     @State private var showLoginPopover = false
 
+    @State private var showClearCacheAlert = false
+
     var body: some View {
         Form {
             Section(header: Text("账号管理")) {
@@ -64,9 +66,6 @@ struct ProfileView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .popover(isPresented: $showLoginPopover) {
-                        SSOLoginView(showLoginPopover: $showLoginPopover)
-                    }
                 }
             }
 
@@ -87,6 +86,27 @@ struct ProfileView: View {
                     Label("意见反馈", systemImage: "bubble.left.and.bubble.right")
                 }
             }
+
+            Section(header: Text("其他")) {
+                Button {
+                    showClearCacheAlert = true
+                }
+                label: {
+                    Label("清除缓存", systemImage: "trash")
+                }
+                .buttonStyle(.plain)
+                .alert("清除缓存", isPresented: $showClearCacheAlert) {
+                    Button("取消", role: .cancel) {}
+                    Button("清除") {
+                        userManager.clearCache()
+                    }
+                } message: {
+                    Text("确定要清除所有缓存吗？这将删除所有的登录缓存数据。")
+                }
+            }
+        }
+        .popover(isPresented: $showLoginPopover) {
+            SSOLoginView(showLoginPopover: $showLoginPopover)
         }
         .navigationTitle("我的")
     }

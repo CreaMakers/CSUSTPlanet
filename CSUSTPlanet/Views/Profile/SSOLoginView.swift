@@ -263,7 +263,7 @@ struct SSOLoginView: View {
                 errorMessage = error.localizedDescription
                 showErrorAlert = true
 
-                debugPrint(error)
+                debugPrint("Login error: \(error)")
             }
         }
     }

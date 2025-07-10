@@ -41,6 +41,7 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(UserManager())
         .environmentObject(GlobalVars())
+        .environmentObject(UserManager())
+        .environmentObject(ElectricityManager())
 }
