@@ -9,11 +9,10 @@ import SwiftData
 import SwiftUI
 
 struct ElectricityQueryView: View {
-    @State var isAddDormPopoverPresented: Bool = false
+    @State var isShowingAddDormPopover: Bool = false
+    @Environment(\.modelContext) private var modelContext
 
     @Query var dorms: [Dorm]
-
-    @EnvironmentObject var electricityManager: ElectricityManager
 
     var body: some View {
         ZStack {
@@ -24,7 +23,7 @@ struct ElectricityQueryView: View {
                         .font(.headline)
                         .padding()
                     Button(action: {
-                        isAddDormPopoverPresented.toggle()
+                        isShowingAddDormPopover.toggle()
                     }) {
                         Label("添加宿舍", systemImage: "plus")
                     }
@@ -32,20 +31,20 @@ struct ElectricityQueryView: View {
                 }
             } else {
                 List(dorms) { dorm in
-                    DormRowView(dorm: dorm)
+                    DormRowView(modelContext: modelContext, dorm: dorm)
                 }
             }
         }
         .navigationTitle("电量查询")
         .navigationBarItems(
             trailing: Button(action: {
-                isAddDormPopoverPresented.toggle()
+                isShowingAddDormPopover.toggle()
             }) {
                 Label("添加宿舍", systemImage: "plus")
             }
         )
-        .popover(isPresented: $isAddDormPopoverPresented) {
-            AddDormitoryView(dorms: dorms, isPresented: $isAddDormPopoverPresented)
+        .popover(isPresented: $isShowingAddDormPopover) {
+            AddDormitoryView(dorms: dorms, modelContext: modelContext, isShowingAddDormPopoverBinding: $isShowingAddDormPopover)
         }
     }
 }
@@ -54,6 +53,5 @@ struct ElectricityQueryView: View {
     NavigationStack {
         ElectricityQueryView()
     }
-    .environmentObject(ElectricityManager())
     .modelContainer((try? ModelContainer(for: Dorm.self, ElectricityRecord.self))!)
 }

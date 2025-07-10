@@ -9,42 +9,39 @@ import SwiftData
 import SwiftUI
 
 struct DormRowView: View {
-    @Environment(\.modelContext) private var modelContext: ModelContext
-    @EnvironmentObject var electricityManager: ElectricityManager
+    @StateObject var viewModel: DormElectricityViewModel
 
-    @Bindable var dorm: Dorm
-    @State var isConfirmationDialogPresented: Bool = false
-
-    @State var isLoading: Bool = false
-
-    @State var showErrorAlert = false
-    @State var errorMessage: String = ""
+    init(modelContext: ModelContext, dorm: Dorm) {
+        _viewModel = StateObject(
+            wrappedValue: DormElectricityViewModel(modelContext: modelContext, dorm: dorm)
+        )
+    }
 
     var body: some View {
         NavigationLink {
-            DormDetailView(dorm: dorm)
+            DormDetailView(viewModel: viewModel)
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("宿舍号：\(dorm.room)")
+                    Text("宿舍号：\(viewModel.dorm.room)")
                         .font(.headline)
-                    Text("楼栋：\(dorm.buildingName)")
+                    Text("楼栋：\(viewModel.dorm.buildingName)")
                         .font(.subheadline)
-                    Text("校区：\(dorm.campusName)")
+                    Text("校区：\(viewModel.dorm.campusName)")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
 
                 Spacer()
 
-                if isLoading {
+                if viewModel.isQueryingElectricity {
                     ProgressView()
-                } else if let record = electricityManager.getLastRecord(records: dorm.records) {
+                } else if let record = viewModel.getLastRecord() {
                     VStack(alignment: .trailing, spacing: 4) {
                         Text("\(String(format: "%.2f", record.electricity)) kWh")
                             .font(.headline)
                             .foregroundColor(.accentColor)
-                        Text(formatDate(record.date))
+                        Text(viewModel.formatDate(record.date))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -57,7 +54,7 @@ struct DormRowView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(action: {
-                isConfirmationDialogPresented = true
+                viewModel.isConfirmationDialogPresented = true
             }) {
                 Label("删除", systemImage: "trash")
             }
@@ -65,50 +62,26 @@ struct DormRowView: View {
         }
         .contextMenu {
             Button(action: {
-                isConfirmationDialogPresented = true
+                viewModel.isConfirmationDialogPresented = true
             }) {
                 Label("删除宿舍", systemImage: "trash")
                     .tint(.red)
             }
-            Button(action: handleQueryElectricity) {
+            Button(action: viewModel.handleQueryElectricity) {
                 Label("查询电量", systemImage: "bolt.fill")
                     .tint(.yellow)
             }
         }
-        .alert("删除宿舍", isPresented: $isConfirmationDialogPresented) {
+        .alert("删除宿舍", isPresented: $viewModel.isConfirmationDialogPresented) {
             Button("取消", role: .cancel) {}
-            Button("删除", role: .destructive) {
-                modelContext.delete(dorm)
-            }
+            Button("删除", role: .destructive, action: viewModel.deleteDorm)
         } message: {
-            Text("确定要删除 \(dorm.room) 宿舍吗？")
+            Text("确定要删除 \(viewModel.dorm.room) 宿舍吗？")
         }
-        .alert("错误", isPresented: $showErrorAlert) {
+        .alert("错误", isPresented: $viewModel.isShowingErrorAlert) {
             Button("确认", role: .cancel) {}
         } message: {
-            Text(errorMessage)
-        }
-    }
-
-    private let dateFormatter = DateFormatter()
-
-    func formatDate(_ date: Date) -> String {
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        return dateFormatter.string(from: date)
-    }
-
-    func handleQueryElectricity() {
-        isLoading = true
-        defer {
-            isLoading = false
-        }
-        Task {
-            do {
-                try await electricityManager.refreshElectricity(dorm: dorm, modelContext: modelContext)
-            } catch {
-                errorMessage = error.localizedDescription
-                showErrorAlert = true
-            }
+            Text(viewModel.errorMessage)
         }
     }
 }

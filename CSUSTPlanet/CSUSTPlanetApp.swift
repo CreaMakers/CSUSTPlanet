@@ -12,7 +12,6 @@ import SwiftUI
 struct CSUSTPlanetApp: App {
     @StateObject private var globalVars = GlobalVars()
     @StateObject private var authManager = AuthManager()
-    @StateObject private var electricityManager = ElectricityManager()
 
     var container: ModelContainer
 
@@ -29,7 +28,6 @@ struct CSUSTPlanetApp: App {
             ContentView()
                 .environmentObject(globalVars)
                 .environmentObject(authManager)
-                .environmentObject(electricityManager)
         }
         .modelContainer(container)
     }

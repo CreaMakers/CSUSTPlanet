@@ -10,221 +10,220 @@ import Charts
 import SwiftData
 import SwiftUI
 
-struct InfoRow: View {
-    let label: String
-    let value: String
+struct DormDetailView: View {
+    @ObservedObject var viewModel: DormElectricityViewModel
+    
+    struct InfoRow: View {
+        let label: String
+        let value: String
 
-    var body: some View {
-        HStack {
-            Text(label)
-                .foregroundColor(.secondary)
-            Spacer()
-            Text(value)
-                .fontWeight(.medium)
+        var body: some View {
+            HStack {
+                Text(label)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text(value)
+                    .fontWeight(.medium)
+            }
         }
     }
-}
-
-struct DormDetailView: View {
-    @Bindable var dorm: Dorm
-
-    @Environment(\.modelContext) private var modelContext: ModelContext
-    @EnvironmentObject var electricityManager: ElectricityManager
-
-    @State var showErrorAlert: Bool = false
-    @State var errorMessage: String = ""
-    @State var isLoading = false
-
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        return formatter
-    }()
 
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("宿舍信息")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                        
-                    Divider()
-                        
-                    InfoRow(label: "宿舍号", value: dorm.room)
-                    InfoRow(label: "楼栋", value: dorm.buildingName)
-                    InfoRow(label: "校区", value: dorm.campusName)
-                }
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(10)
-                .padding(.horizontal)
-                    
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("当前电量")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                            
-                        Spacer()
-                            
-                        if isLoading {
-                            ProgressView()
-                        }
-                    }
-                        
-                    Divider()
-                        
-                    if let record = electricityManager.getLastRecord(records: dorm.records) {
-                        VStack(spacing: 8) {
-                            HStack {
-                                Text("\(String(format: "%.2f", record.electricity))")
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                                    .foregroundColor(.blue)
-                                    
-                                Text("kWh")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                                
-                            Text("更新时间: \(formatDate(record.date))")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        .frame(maxWidth: .infinity)
-                    } else {
-                        Text("暂无电量记录")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(10)
-                .padding(.horizontal)
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("电量趋势")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                        
-                    Divider()
-                    
-                    if dorm.records.isEmpty {
-                        Text("暂无电量记录")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                    } else {
-                        Chart(dorm.records.sorted(by: { $0.date < $1.date })) { record in
-                            LineMark(
-                                x: .value("日期", record.date),
-                                y: .value("电量", record.electricity)
-                            )
-                            .interpolationMethod(.catmullRom)
-                            .symbol {
-                                Circle()
-                                    .fill(Color.accentColor)
-                                    .frame(width: 8)
-                            }
-                        }
-                        .chartXAxis {
-                            AxisMarks(values: .automatic) { _ in
-                                AxisValueLabel(format: .dateTime.year().month().day())
-                            }
-                        }
-                        .frame(height: 200)
-                        .padding(.vertical, 8)
-                    }
-                }
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(10)
-                .padding(.horizontal)
-                    
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("历史记录")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                        
-                    Divider()
-                        
-                    if dorm.records.isEmpty {
-                        Text("暂无历史记录")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                    } else {
-                        ForEach(dorm.records.sorted(by: { $0.date > $1.date })) { record in
-                            VStack(spacing: 4) {
-                                HStack {
-                                    Text("\(String(format: "%.2f", record.electricity)) kWh")
-                                        .fontWeight(.medium)
-                                        
-                                    Spacer()
-                                        
-                                    Text(formatDate(record.date))
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                .padding(.horizontal)
-                            }
-                            .padding(.vertical, 5)
-                            .contextMenu {
-                                Button(role: .destructive) {
-                                    modelContext.delete(record)
-                                } label: {
-                                    Label("删除记录", systemImage: "trash")
-                                }
-                            }
-                        }
-                    }
-                }
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(10)
-                .padding(.horizontal)
+                dormInfoSection
+                electricityInfoSection
+                electricityTrendSection
+                historyRecordsSection
             }
             .padding(.vertical)
         }
         .navigationTitle("宿舍电量")
         .navigationBarTitleDisplayMode(.inline)
-        .alert("错误", isPresented: $showErrorAlert) {
+        .alert("错误", isPresented: $viewModel.isShowingErrorAlert) {
             Button("确定", role: .cancel) {}
         } message: {
-            Text(errorMessage)
+            Text(viewModel.errorMessage)
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    Task {
-                        await refresh()
-                    }
-                } label: {
-                    Label("刷新", systemImage: "arrow.clockwise")
-                }
-                .disabled(isLoading)
+                refreshButton
             }
         }
     }
-    
-    private func refresh() async {
-        isLoading = true
-        defer { isLoading = false }
+
+    // MARK: - Subviews
+
+    private var dormInfoSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("宿舍信息")
+                .font(.headline)
+                .foregroundColor(.secondary)
                 
-        do {
-            try await electricityManager.refreshElectricity(dorm: dorm, modelContext: modelContext)
-        } catch {
-            errorMessage = error.localizedDescription
-            showErrorAlert = true
+            Divider()
+                
+            InfoRow(label: "宿舍号", value: viewModel.dorm.room)
+            InfoRow(label: "楼栋", value: viewModel.dorm.buildingName)
+            InfoRow(label: "校区", value: viewModel.dorm.campusName)
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(10)
+        .padding(.horizontal)
+    }
+
+    private var electricityInfoSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("当前电量")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+                    
+                Spacer()
+                    
+                if viewModel.isQueryingElectricity {
+                    ProgressView()
+                }
+            }
+                
+            Divider()
+                
+            if let record = viewModel.getLastRecord() {
+                currentElectricityView(record: record)
+            } else {
+                Text("暂无电量记录")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(10)
+        .padding(.horizontal)
+    }
+
+    private func currentElectricityView(record: ElectricityRecord) -> some View {
+        VStack(spacing: 8) {
+            HStack {
+                Text("\(String(format: "%.2f", record.electricity))")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(.blue)
+                    
+                Text("kWh")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+                
+            Text("更新时间: \(viewModel.formatDate(record.date))")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var electricityTrendSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("电量趋势")
+                .font(.headline)
+                .foregroundColor(.secondary)
+                
+            Divider()
+            
+            if viewModel.dorm.records.isEmpty {
+                Text("暂无电量记录")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            } else {
+                electricityChart
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(10)
+        .padding(.horizontal)
+    }
+
+    private var electricityChart: some View {
+        Chart(viewModel.dorm.records.sorted(by: { $0.date < $1.date })) { record in
+            LineMark(
+                x: .value("日期", record.date),
+                y: .value("电量", record.electricity)
+            )
+            .interpolationMethod(.catmullRom)
+            .symbol {
+                Circle()
+                    .fill(Color.accentColor)
+                    .frame(width: 8)
+            }
+        }
+        .chartXAxis {
+            AxisMarks(values: .automatic) { _ in
+                AxisValueLabel(format: .dateTime.year().month().day())
+            }
+        }
+        .frame(height: 200)
+        .padding(.vertical, 8)
+    }
+
+    private var historyRecordsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("历史记录")
+                .font(.headline)
+                .foregroundColor(.secondary)
+                
+            Divider()
+                
+            if viewModel.dorm.records.isEmpty {
+                Text("暂无历史记录")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            } else {
+                ForEach(viewModel.dorm.records.sorted(by: { $0.date > $1.date })) { record in
+                    historyRecordRow(record: record)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(10)
+        .padding(.horizontal)
+    }
+
+    private func historyRecordRow(record: ElectricityRecord) -> some View {
+        VStack(spacing: 4) {
+            HStack {
+                Text("\(String(format: "%.2f", record.electricity)) kWh")
+                    .fontWeight(.medium)
+                    
+                Spacer()
+                    
+                Text(viewModel.formatDate(record.date))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal)
+        }
+        .padding(.vertical, 5)
+        .contextMenu {
+            Button(role: .destructive) {
+                viewModel.deleteRecord(record: record)
+            } label: {
+                Label("删除记录", systemImage: "trash")
+            }
         }
     }
 
-    private func formatDate(_ date: Date) -> String {
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        return dateFormatter.string(from: date)
+    private var refreshButton: some View {
+        Button {
+            viewModel.handleQueryElectricity()
+        } label: {
+            Label("刷新", systemImage: "arrow.clockwise")
+        }
+        .disabled(viewModel.isQueryingElectricity)
     }
 }
