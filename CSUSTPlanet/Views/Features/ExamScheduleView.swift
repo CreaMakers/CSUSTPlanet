@@ -63,6 +63,14 @@ struct ExamScheduleView: View {
         } message: {
             Text(viewModel.errorMessage)
         }
+        .alert("添加日历", isPresented: $viewModel.isShowingAddToCalendarAlert) {
+            Button(action: viewModel.addAllToCalendar) {
+                Text("确认添加")
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("是否将所有考试安排添加到系统日历？")
+        }
         .task {
             viewModel.loadAvailableSemesters()
             viewModel.getExams()
@@ -70,7 +78,19 @@ struct ExamScheduleView: View {
         .navigationTitle("考试安排")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                refreshButton
+                Button {
+                    viewModel.getExams()
+                } label: {
+                    Label("刷新", systemImage: "arrow.clockwise")
+                }
+                .disabled(viewModel.isQuerying)
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    viewModel.isShowingAddToCalendarAlert = true
+                } label: {
+                    Label("添加到日历", systemImage: "calendar.badge.plus")
+                }
             }
         }
     }
@@ -156,6 +176,13 @@ struct ExamScheduleView: View {
                 Divider()
                 examCard(exam: exam)
                     .padding(.vertical, 8)
+                    .contextMenu {
+                        Button(action: {
+                            viewModel.addToCalendar(exam: exam)
+                        }) {
+                            Label("添加到日历", systemImage: "calendar.badge.plus")
+                        }
+                    }
             }
         }
         .padding()
@@ -203,15 +230,6 @@ struct ExamScheduleView: View {
             }
         }
         .padding(.horizontal)
-    }
-    
-    private var refreshButton: some View {
-        Button {
-            viewModel.getExams()
-        } label: {
-            Label("刷新", systemImage: "arrow.clockwise")
-        }
-        .disabled(viewModel.isQuerying)
     }
 }
 

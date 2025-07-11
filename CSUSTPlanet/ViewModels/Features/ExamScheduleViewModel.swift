@@ -12,6 +12,9 @@ import Foundation
 class ExamScheduleViewModel: ObservableObject {
     private var eduHelper: EduHelper?
 
+    private var calendarHelper = CalendarHelper()
+
+    @Published var isShowingAddToCalendarAlert = false
     @Published var isShowingError = false
     @Published var errorMessage = ""
 
@@ -43,6 +46,36 @@ class ExamScheduleViewModel: ObservableObject {
 
             do {
                 (availableSemesters, selectedSemesters) = try await eduHelper.examService.getAvailableSemestersForExamSchedule()
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
+            }
+        }
+    }
+
+    func addToCalendar(exam: Exam) {
+        Task {
+            do {
+                try await calendarHelper.addEvent(title: exam.courseName, startDate: exam.examTimeRange.start, endDate: exam.examTimeRange.end, notes: exam.teacher, location: exam.examRoom)
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
+            }
+        }
+    }
+
+    func addAllToCalendar() {
+        guard !examSchedule.isEmpty else {
+            errorMessage = "考试安排为空，无法添加到日历"
+            isShowingError = true
+
+            return
+        }
+        Task {
+            do {
+                for exam in examSchedule {
+                    try await calendarHelper.addEvent(title: exam.courseName, startDate: exam.examTimeRange.start, endDate: exam.examTimeRange.end, notes: exam.teacher, location: exam.examRoom)
+                }
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
