@@ -22,7 +22,14 @@ class CalendarHelper {
 
         let newCalendar = EKCalendar(for: .event, eventStore: eventStore)
         newCalendar.title = named
-        newCalendar.source = eventStore.defaultCalendarForNewEvents?.source
+
+        if let iCloudSource = eventStore.sources.first(where: { $0.sourceType == .calDAV && $0.title == "iCloud" }) {
+            newCalendar.source = iCloudSource
+        } else if let defaultSource = eventStore.sources.first {
+            newCalendar.source = defaultSource
+        } else {
+            throw CalendarHelperError.noAvailableSource
+        }
 
         try eventStore.saveCalendar(newCalendar, commit: true)
         return newCalendar
@@ -63,11 +70,14 @@ class CalendarHelper {
 
     enum CalendarHelperError: Error, LocalizedError {
         case permissionDenied
+        case noAvailableSource
 
         var errorDescription: String? {
             switch self {
             case .permissionDenied:
                 return "日历权限被拒绝，请在设置中开启权限。"
+            case .noAvailableSource:
+                return "未找到可用的日历账户，请前往系统设置添加 iCloud 或其他日历账户。"
             }
         }
     }
