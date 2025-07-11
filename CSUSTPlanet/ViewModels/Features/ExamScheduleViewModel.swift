@@ -56,7 +56,15 @@ class ExamScheduleViewModel: ObservableObject {
     func addToCalendar(exam: Exam) {
         Task {
             do {
-                try await calendarHelper.addEvent(title: exam.courseName, startDate: exam.examTimeRange.start, endDate: exam.examTimeRange.end, notes: exam.teacher, location: exam.examRoom)
+                let calendar = try await calendarHelper.getOrCreateCalendar(named: "考试")
+                try await calendarHelper.addEvent(
+                    title: "考试：\(exam.courseName)",
+                    startDate: exam.examTimeRange.start,
+                    endDate: exam.examTimeRange.end,
+                    notes: exam.teacher,
+                    location: exam.examRoom,
+                    calendar: calendar
+                )
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -73,8 +81,16 @@ class ExamScheduleViewModel: ObservableObject {
         }
         Task {
             do {
+                let calendar = try await calendarHelper.getOrCreateCalendar(named: "考试")
                 for exam in examSchedule {
-                    try await calendarHelper.addEvent(title: exam.courseName, startDate: exam.examTimeRange.start, endDate: exam.examTimeRange.end, notes: exam.teacher, location: exam.examRoom)
+                    try await calendarHelper.addEvent(
+                        title: "考试：\(exam.courseName)",
+                        startDate: exam.examTimeRange.start,
+                        endDate: exam.examTimeRange.end,
+                        notes: exam.teacher,
+                        location: exam.examRoom,
+                        calendar: calendar
+                    )
                 }
             } catch {
                 errorMessage = error.localizedDescription

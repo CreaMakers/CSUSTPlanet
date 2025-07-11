@@ -15,6 +15,19 @@ class CalendarHelper {
         return try await eventStore.requestFullAccessToEvents()
     }
 
+    func getOrCreateCalendar(named: String) async throws -> EKCalendar {
+        if let existingCalendar = eventStore.calendars(for: .event).first(where: { $0.title == named }) {
+            return existingCalendar
+        }
+
+        let newCalendar = EKCalendar(for: .event, eventStore: eventStore)
+        newCalendar.title = named
+        newCalendar.source = eventStore.defaultCalendarForNewEvents?.source
+
+        try eventStore.saveCalendar(newCalendar, commit: true)
+        return newCalendar
+    }
+
     func eventExists(title: String, startDate: Date, endDate: Date) async throws -> Bool {
         let granted = try await requestAccess()
         guard granted else {
@@ -27,7 +40,7 @@ class CalendarHelper {
         return events.contains { $0.title == title && $0.startDate == startDate && $0.endDate == endDate }
     }
 
-    func addEvent(title: String, startDate: Date, endDate: Date, notes: String? = nil, location: String? = nil) async throws {
+    func addEvent(title: String, startDate: Date, endDate: Date, notes: String? = nil, location: String? = nil, calendar: EKCalendar? = nil) async throws {
         let granted = try await requestAccess()
         guard granted else {
             throw CalendarHelperError.permissionDenied
@@ -43,7 +56,7 @@ class CalendarHelper {
         event.endDate = endDate
         event.notes = notes
         event.location = location
-        event.calendar = eventStore.defaultCalendarForNewEvents
+        event.calendar = calendar ?? eventStore.defaultCalendarForNewEvents
 
         try eventStore.save(event, span: .thisEvent)
     }
