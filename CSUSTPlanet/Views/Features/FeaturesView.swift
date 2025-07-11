@@ -20,7 +20,7 @@ struct FeaturesView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     HStack(spacing: 15) {
-                        FunctionItem(icon: "doc.text.magnifyingglass", title: "成绩查询", destination: GradeQueryView())
+                        FunctionItem(icon: "doc.text.magnifyingglass", title: "成绩查询", destination: GradeQueryView(authManager: authManager))
                         FunctionItem(icon: "calendar", title: "课表", destination: CourseScheduleView())
                         FunctionItem(icon: "map", title: "校园地图", destination: CampusMapView())
                         FunctionItem(icon: "character.book.closed", title: "四六级", destination: CETView())

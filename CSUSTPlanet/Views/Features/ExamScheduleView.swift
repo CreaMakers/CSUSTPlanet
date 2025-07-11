@@ -133,9 +133,9 @@ struct ExamScheduleView: View {
                 Spacer()
                 Picker("考试类型", selection: $viewModel.selectedSemesterType) {
                     Text("全部类型").tag(nil as SemesterType?)
-                    Text("期初考试").tag(SemesterType.beginning as SemesterType?)
-                    Text("期中考试").tag(SemesterType.middle as SemesterType?)
-                    Text("期末考试").tag(SemesterType.end as SemesterType?)
+                    ForEach(SemesterType.allCases, id: \.self) { semesterType in
+                        Text(semesterType.rawValue).tag(semesterType as SemesterType?)
+                    }
                 }
                 .pickerStyle(.menu)
             }
