@@ -32,20 +32,12 @@ struct ContentView: View {
             .tag(0)
 
             NavigationStack {
-                NewsView()
-            }
-            .tabItem {
-                Label("新鲜事", systemImage: "newspaper")
-            }
-            .tag(1)
-
-            NavigationStack {
                 ProfileView()
             }
             .tabItem {
                 Label("我的", systemImage: "person")
             }
-            .tag(2)
+            .tag(1)
         }
         .preferredColorScheme(preferredColorScheme)
     }

@@ -14,30 +14,36 @@ struct FeaturesView: View {
         if authManager.isLoggedIn {
             ScrollView {
                 VStack(spacing: 20) {
-                    Text("常用功能")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    HStack(spacing: 15) {
-                        FunctionItem(icon: "doc.text.magnifyingglass", title: "成绩查询", destination: GradeQueryView(authManager: authManager))
-                        FunctionItem(icon: "calendar", title: "课表", destination: CourseScheduleView())
-                        FunctionItem(icon: "map", title: "校园地图", destination: CampusMapView())
-                        FunctionItem(icon: "character.book.closed", title: "四六级", destination: CETView())
+                    GroupBox(label: Text("成绩相关").font(.headline)) {
+                        HStack(spacing: 15) {
+                            FunctionItem(icon: "doc.text.magnifyingglass", title: "成绩查询", destination: GradeQueryView(authManager: authManager))
+                            FunctionItem(icon: "chart.bar", title: "成绩分析", destination: GradeAnalysisView())
+                            FunctionItem(icon: "pencil.and.outline", title: "考试安排", destination: ExamScheduleView(authManager: authManager))
+                        }
                     }
 
-                    HStack(spacing: 15) {
-                        FunctionItem(icon: "pencil.and.outline", title: "考试安排", destination: ExamScheduleView(authManager: authManager))
-                        FunctionItem(icon: "calendar.badge.clock", title: "校历", destination: SchoolCalendarView())
-                        FunctionItem(icon: "bolt.fill", title: "电费查询", destination: ElectricityQueryView())
-                        FunctionItem(icon: "mic.fill", title: "普通话", destination: MandarinView())
+                    GroupBox(label: Text("课程相关").font(.headline)) {
+                        HStack(spacing: 15) {
+                            FunctionItem(icon: "calendar", title: "课表", destination: CourseScheduleView())
+                            FunctionItem(icon: "calendar.badge.clock", title: "校历", destination: SchoolCalendarView())
+                        }
+                    }
+
+                    GroupBox(label: Text("生活服务").font(.headline)) {
+                        HStack(spacing: 15) {
+                            FunctionItem(icon: "bolt.fill", title: "电费查询", destination: ElectricityQueryView())
+                            FunctionItem(icon: "map", title: "校园地图", destination: CampusMapView())
+                        }
+                    }
+
+                    GroupBox(label: Text("语言考试").font(.headline)) {
+                        HStack(spacing: 15) {
+                            FunctionItem(icon: "character.book.closed", title: "四六级", destination: CETView())
+                            FunctionItem(icon: "mic.fill", title: "普通话", destination: MandarinView())
+                        }
                     }
                 }
                 .padding()
-                .background(Color(.systemBackground))
-                .cornerRadius(15)
-                .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-                .padding(.horizontal)
             }
             .navigationTitle("功能")
         } else if authManager.isLoggingIn {
