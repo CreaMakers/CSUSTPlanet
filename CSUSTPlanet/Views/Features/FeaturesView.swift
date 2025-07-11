@@ -27,7 +27,7 @@ struct FeaturesView: View {
                     }
 
                     HStack(spacing: 15) {
-                        FunctionItem(icon: "pencil.and.outline", title: "考试安排", destination: ExamScheduleView())
+                        FunctionItem(icon: "pencil.and.outline", title: "考试安排", destination: ExamScheduleView(authManager: authManager))
                         FunctionItem(icon: "calendar.badge.clock", title: "校历", destination: Text("校历功能待开发"))
                         FunctionItem(icon: "bolt.fill", title: "电费查询", destination: ElectricityQueryView())
                         FunctionItem(icon: "mic.fill", title: "普通话", destination: Text("普通话功能待开发"))

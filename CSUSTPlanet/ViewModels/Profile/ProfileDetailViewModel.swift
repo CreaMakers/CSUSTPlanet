@@ -36,7 +36,7 @@ class ProfileDetailViewModel: ObservableObject {
 
     func loadSSOProfile() {
         guard let ssoHelper = ssoHelper else {
-            errorMessage = "SSOHelper未初始化"
+            errorMessage = "单点登录服务未初始化"
             isShowingError = true
             return
         }
@@ -58,7 +58,7 @@ class ProfileDetailViewModel: ObservableObject {
 
     func loadEduProfile() {
         guard let eduHelper = eduHelper else {
-            errorMessage = "EduHelper未初始化"
+            errorMessage = "教务服务未初始化"
             isShowingError = true
             return
         }
@@ -80,7 +80,7 @@ class ProfileDetailViewModel: ObservableObject {
 
     func loadMoocProfile() {
         guard let moocHelper = moocHelper else {
-            errorMessage = "MoocHelper未初始化"
+            errorMessage = "课程助手服务未初始化"
             isShowingError = true
             return
         }
