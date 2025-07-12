@@ -7,6 +7,7 @@
 
 import CSUSTKit
 import Foundation
+import SwiftUI
 
 @MainActor
 class GradeQueryViewModel: ObservableObject {
@@ -28,8 +29,41 @@ class GradeQueryViewModel: ObservableObject {
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
 
+    @Published var queryID = UUID()
+
     init(eduHelper: EduHelper? = nil) {
         self.eduHelper = eduHelper
+    }
+
+    struct Stats {
+        let gpa: Double
+        let totalCredits: Double
+        let averageGrade: Int
+        let courseCount: Int
+    }
+
+    func calculateStats() -> Stats {
+        let totalCredits = courseGrades.reduce(0) { $0 + $1.credit }
+        let totalGradePoints = courseGrades.reduce(0) { $0 + $1.gradePoint * $1.credit }
+        let gpa = totalCredits > 0 ? totalGradePoints / totalCredits : 0
+        let totalGrades = courseGrades.reduce(0) { $0 + $1.grade }
+        let averageGrade = courseGrades.isEmpty ? 0 : totalGrades / courseGrades.count
+
+        return Stats(
+            gpa: gpa,
+            totalCredits: totalCredits,
+            averageGrade: averageGrade,
+            courseCount: courseGrades.count
+        )
+    }
+
+    func gradeColor(grade: Int) -> Color {
+        switch grade {
+        case 90 ... 100: return .green
+        case 80..<90: return .blue
+        case 60..<80: return .orange
+        default: return .red
+        }
     }
 
     func loadAvailableSemesters() {
@@ -62,6 +96,7 @@ class GradeQueryViewModel: ObservableObject {
         }
 
         isQuerying = true
+        queryID = UUID()
         Task {
             defer {
                 isQuerying = false

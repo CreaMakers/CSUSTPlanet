@@ -43,20 +43,19 @@ struct ExamScheduleView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                filterSection
-                
-                if viewModel.isQuerying {
-                    ProgressView()
-                        .padding(.vertical, 40)
-                } else if viewModel.examSchedule.isEmpty {
-                    emptyStateView
-                } else {
-                    examListSection
-                }
+        Form {
+            filterSection
+            
+            if viewModel.isQuerying {
+                ProgressView("正在查询...")
+                    .progressViewStyle(.circular)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .id(viewModel.queryID)
+            } else if viewModel.examSchedule.isEmpty {
+                emptyStateSection
+            } else {
+                examListSection
             }
-            .padding(.vertical)
         }
         .alert("错误", isPresented: $viewModel.isShowingError) {
             Button("确认", role: .cancel) {}
@@ -77,11 +76,19 @@ struct ExamScheduleView: View {
         }
         .navigationTitle("考试安排")
         .toolbar {
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    viewModel.loadAvailableSemesters()
+                } label: {
+                    Label("刷新学期", systemImage: "arrow.clockwise")
+                }
+                .disabled(viewModel.isSemestersLoading)
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     viewModel.getExams()
                 } label: {
-                    Label("刷新", systemImage: "arrow.clockwise")
+                    Label("查询", systemImage: "magnifyingglass")
                 }
                 .disabled(viewModel.isQuerying)
             }
@@ -95,87 +102,59 @@ struct ExamScheduleView: View {
         }
     }
     
-    // MARK: - Subviews
+    // MARK: - Form Sections
     
     private var filterSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("筛选条件")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            
-            Divider()
-            
-            HStack {
-                Text("学期")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Spacer()
-                if viewModel.isSemestersLoading {
-                    ProgressView("加载中...")
-                } else {
-                    Button(action: viewModel.loadAvailableSemesters) {
-                        Label("刷新学期", systemImage: "arrow.clockwise")
+        Section(header: Text("筛选条件")) {
+            if viewModel.isSemestersLoading {
+                HStack {
+                    Text("学期")
+                    Spacer()
+                    ProgressView()
+                }
+            } else {
+                Picker("学期", selection: $viewModel.selectedSemesters) {
+                    Text("默认学期").tag(nil as String?)
+                    ForEach(viewModel.availableSemesters, id: \.self) { semester in
+                        Text(semester).tag(semester as String?)
                     }
-                    Picker("学期", selection: $viewModel.selectedSemesters) {
-                        Text("默认学期").tag(nil as String?)
-                        ForEach(viewModel.availableSemesters, id: \.self) { semester in
-                            Text(semester).tag(semester as String?)
-                        }
-                    }
-                    .pickerStyle(.menu)
                 }
             }
             
-            HStack {
-                Text("考试类型")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Picker("考试类型", selection: $viewModel.selectedSemesterType) {
-                    Text("全部类型").tag(nil as SemesterType?)
-                    ForEach(SemesterType.allCases, id: \.self) { semesterType in
-                        Text(semesterType.rawValue).tag(semesterType as SemesterType?)
-                    }
+            Picker("考试类型", selection: $viewModel.selectedSemesterType) {
+                Text("全部类型").tag(nil as SemesterType?)
+                ForEach(SemesterType.allCases, id: \.self) { semesterType in
+                    Text(semesterType.rawValue).tag(semesterType as SemesterType?)
                 }
-                .pickerStyle(.menu)
             }
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(10)
-        .padding(.horizontal)
     }
     
-    private var emptyStateView: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "calendar.badge.exclamationmark")
-                .font(.system(size: 40))
-                .foregroundColor(.secondary)
-                .padding(.bottom, 8)
-            
-            Text("暂无考试安排")
-                .font(.headline)
-            
-            Text("当前筛选条件下没有找到考试安排")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+    private var emptyStateSection: some View {
+        Section {
+            VStack(spacing: 8) {
+                Image(systemName: "calendar.badge.exclamationmark")
+                    .font(.system(size: 40))
+                    .foregroundColor(.secondary)
+                    .padding(.bottom, 8)
+                
+                Text("暂无考试安排")
+                    .font(.headline)
+                
+                Text("当前筛选条件下没有找到考试安排")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 40)
-        .padding(.horizontal)
     }
     
     private var examListSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("考试安排")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            
+        Section(header: Text("考试安排")) {
             ForEach(viewModel.examSchedule, id: \.courseID) { exam in
-                Divider()
                 examCard(exam: exam)
-                    .padding(.vertical, 8)
                     .contextMenu {
                         Button(action: {
                             viewModel.addToCalendar(exam: exam)
@@ -185,10 +164,6 @@ struct ExamScheduleView: View {
                     }
             }
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(10)
-        .padding(.horizontal)
     }
     
     private func examCard(exam: Exam) -> some View {
@@ -196,19 +171,23 @@ struct ExamScheduleView: View {
             Text(exam.courseName)
                 .font(.headline)
                 .lineLimit(1)
-                .padding(.bottom)
+                .padding(.bottom, 8)
             
             InfoRow(icon: "clock", iconColor: .blue, label: "考试时间", value: exam.examTime)
             InfoRow(icon: "building.columns", iconColor: .green, label: "考场", value: exam.examRoom)
+            
             if !exam.seatNumber.isEmpty {
                 InfoRow(icon: "number", iconColor: .orange, label: "座位号", value: exam.seatNumber)
             }
+            
             if !exam.teacher.isEmpty {
                 InfoRow(icon: "person", iconColor: .purple, label: "授课教师", value: exam.teacher)
             }
+            
             if !exam.admissionTicketNumber.isEmpty {
                 InfoRow(icon: "doc.text", iconColor: .red, label: "准考证号", value: exam.admissionTicketNumber)
             }
+            
             if !exam.remarks.isEmpty {
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "note.text")
@@ -229,7 +208,7 @@ struct ExamScheduleView: View {
                 .padding(.vertical, 8)
             }
         }
-        .padding(.horizontal)
+        .padding(.vertical, 8)
     }
 }
 

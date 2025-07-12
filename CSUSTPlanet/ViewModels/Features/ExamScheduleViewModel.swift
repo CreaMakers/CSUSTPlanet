@@ -19,6 +19,7 @@ class ExamScheduleViewModel: ObservableObject {
     @Published var errorMessage = ""
 
     @Published var isQuerying = false
+    @Published var queryID = UUID()
 
     @Published var isSemestersLoading = false
     @Published var availableSemesters: [String] = []
@@ -107,6 +108,7 @@ class ExamScheduleViewModel: ObservableObject {
         }
 
         isQuerying = true
+        queryID = UUID()
         Task {
             defer {
                 isQuerying = false

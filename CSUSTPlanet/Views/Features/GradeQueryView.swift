@@ -43,21 +43,20 @@ struct GradeQueryView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                filterSection
-                
-                if viewModel.isQuerying {
-                    ProgressView()
-                        .padding(.vertical, 40)
-                } else if viewModel.courseGrades.isEmpty {
-                    emptyStateView
-                } else {
-                    statsCard
-                    gradeListSection
-                }
+        Form {
+            filterSection
+            
+            if viewModel.isQuerying {
+                ProgressView("正在查询...")
+                    .progressViewStyle(.circular)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .id(viewModel.queryID)
+            } else if viewModel.courseGrades.isEmpty {
+                emptyStateSection
+            } else {
+                statsSection
+                gradeListSection
             }
-            .padding(.vertical)
         }
         .alert("错误", isPresented: $viewModel.isShowingError) {
             Button("确认", role: .cancel) {}
@@ -66,6 +65,7 @@ struct GradeQueryView: View {
         }
         .task {
             viewModel.loadAvailableSemesters()
+            viewModel.getCourseGrades()
         }
         .navigationTitle("成绩查询")
         .toolbar {
@@ -73,118 +73,85 @@ struct GradeQueryView: View {
                 Button {
                     viewModel.getCourseGrades()
                 } label: {
-                    Label("刷新", systemImage: "arrow.clockwise")
+                    Label("查询", systemImage: "magnifyingglass")
                 }
                 .disabled(viewModel.isQuerying)
             }
+            
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    viewModel.loadAvailableSemesters()
+                } label: {
+                    Label("刷新学期", systemImage: "arrow.clockwise")
+                }
+                .disabled(viewModel.isSemestersLoading)
+            }
         }
     }
     
-    // MARK: - Subviews
+    // MARK: - Form Sections
     
     private var filterSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("筛选条件")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            
-            Divider()
-            
-            HStack {
-                Text("学期")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Spacer()
-                if viewModel.isSemestersLoading {
-                    ProgressView("加载中...")
-                } else {
-                    Button(action: viewModel.loadAvailableSemesters) {
-                        Label("刷新学期", systemImage: "arrow.clockwise")
+        Section(header: Text("筛选条件")) {
+            if viewModel.isSemestersLoading {
+                HStack {
+                    Text("学期")
+                    Spacer()
+                    ProgressView()
+                }
+            } else {
+                Picker("学期", selection: $viewModel.selectedSemester) {
+                    Text("全部学期").tag("")
+                    ForEach(viewModel.availableSemesters, id: \.self) { semester in
+                        Text(semester).tag(semester)
                     }
-                    Picker("学期", selection: $viewModel.selectedSemester) {
-                        Text("全部学期").tag("")
-                        ForEach(viewModel.availableSemesters, id: \.self) { semester in
-                            Text(semester).tag(semester)
-                        }
-                    }
-                    .pickerStyle(.menu)
                 }
             }
             
-            HStack {
-                Text("课程性质")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Picker("课程性质", selection: $viewModel.selectedCourseNature) {
-                    Text("全部性质").tag(nil as CourseNature?)
-                    ForEach(CourseNature.allCases, id: \.self) { nature in
-                        Text(nature.rawValue).tag(nature as CourseNature?)
-                    }
+            Picker("课程性质", selection: $viewModel.selectedCourseNature) {
+                Text("全部性质").tag(nil as CourseNature?)
+                ForEach(CourseNature.allCases, id: \.self) { nature in
+                    Text(nature.rawValue).tag(nature as CourseNature?)
                 }
-                .pickerStyle(.menu)
             }
             
-            HStack {
-                Text("修读方式")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Picker("修读方式", selection: $viewModel.selectedStudyMode) {
-                    ForEach(StudyMode.allCases, id: \.self) { mode in
-                        Text(mode.rawValue).tag(mode)
-                    }
+            Picker("修读方式", selection: $viewModel.selectedStudyMode) {
+                ForEach(StudyMode.allCases, id: \.self) { mode in
+                    Text(mode.rawValue).tag(mode)
                 }
-                .pickerStyle(.menu)
             }
             
-            HStack {
-                Text("显示模式")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Picker("显示模式", selection: $viewModel.selectedDisplayMode) {
-                    ForEach(DisplayMode.allCases, id: \.self) { mode in
-                        Text(mode.rawValue).tag(mode)
-                    }
+            Picker("显示模式", selection: $viewModel.selectedDisplayMode) {
+                ForEach(DisplayMode.allCases, id: \.self) { mode in
+                    Text(mode.rawValue).tag(mode)
                 }
-                .pickerStyle(.menu)
             }
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(10)
-        .padding(.horizontal)
     }
     
-    private var emptyStateView: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "doc.text.magnifyingglass")
-                .font(.system(size: 40))
-                .foregroundColor(.secondary)
-                .padding(.bottom, 8)
-            
-            Text("暂无成绩记录")
-                .font(.headline)
-            
-            Text("当前筛选条件下没有找到成绩记录")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+    private var emptyStateSection: some View {
+        Section {
+            VStack(spacing: 8) {
+                Image(systemName: "doc.text.magnifyingglass")
+                    .font(.system(size: 40))
+                    .foregroundColor(.secondary)
+                    .padding(.bottom, 8)
+                
+                Text("暂无成绩记录")
+                    .font(.headline)
+                
+                Text("当前筛选条件下没有找到成绩记录")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 40)
-        .padding(.horizontal)
     }
     
-    private var statsCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("学业统计")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            
-            Divider()
-            
+    private var statsSection: some View {
+        Section(header: Text("学业统计")) {
             let stats = viewModel.calculateStats()
             
             HStack(spacing: 20) {
@@ -215,7 +182,7 @@ struct GradeQueryView: View {
                     Text("\(stats.averageGrade)")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(gradeColor(stats.averageGrade))
+                        .foregroundColor(viewModel.gradeColor(grade: stats.averageGrade))
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
@@ -231,28 +198,14 @@ struct GradeQueryView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(10)
-        .padding(.horizontal)
     }
     
     private var gradeListSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("成绩记录")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            
+        Section(header: Text("成绩记录")) {
             ForEach(viewModel.courseGrades, id: \.courseID) { courseGrade in
-                Divider()
                 gradeCard(courseGrade: courseGrade)
-                    .padding(.vertical, 8)
             }
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(10)
-        .padding(.horizontal)
     }
     
     private func gradeCard(courseGrade: CourseGrade) -> some View {
@@ -268,7 +221,7 @@ struct GradeQueryView: View {
                 Spacer()
                 Text("\(courseGrade.grade)分")
                     .font(.headline)
-                    .foregroundColor(gradeColor(courseGrade.grade))
+                    .foregroundColor(viewModel.gradeColor(grade: courseGrade.grade))
             }
             .padding(.bottom, 8)
             
@@ -283,41 +236,7 @@ struct GradeQueryView: View {
                 InfoRow(icon: "calendar", iconColor: .purple, label: "学期", value: courseGrade.semester)
             }
         }
-        .padding(.horizontal)
-    }
-    
-    private func gradeColor(_ grade: Int) -> Color {
-        switch grade {
-        case 90 ... 100: return .green
-        case 80..<90: return .blue
-        case 60..<80: return .orange
-        default: return .red
-        }
-    }
-}
-
-// 需要在 GradeQueryViewModel 中添加以下方法
-extension GradeQueryViewModel {
-    struct Stats {
-        let gpa: Double
-        let totalCredits: Double
-        let averageGrade: Int
-        let courseCount: Int
-    }
-    
-    func calculateStats() -> Stats {
-        let totalCredits = courseGrades.reduce(0) { $0 + $1.credit }
-        let totalGradePoints = courseGrades.reduce(0) { $0 + $1.gradePoint * $1.credit }
-        let gpa = totalCredits > 0 ? totalGradePoints / totalCredits : 0
-        let totalGrades = courseGrades.reduce(0) { $0 + $1.grade }
-        let averageGrade = courseGrades.isEmpty ? 0 : totalGrades / courseGrades.count
-        
-        return Stats(
-            gpa: gpa,
-            totalCredits: totalCredits,
-            averageGrade: averageGrade,
-            courseCount: courseGrades.count
-        )
+        .padding(.vertical, 8)
     }
 }
 
