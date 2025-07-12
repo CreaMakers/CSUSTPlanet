@@ -1,0 +1,51 @@
+//
+//  GradeDetailViewModel.swift
+//  CSUSTPlanet
+//
+//  Created by Zhe_Learn on 2025/7/12.
+//
+
+import CSUSTKit
+import Foundation
+
+@MainActor
+class GradeDetailViewModel: ObservableObject {
+    private var eduHelper: EduHelper?
+
+    @Published var courseGrade: CourseGrade
+
+    @Published var isLoadingDetail = false
+
+    @Published var isShowingError = false
+    @Published var errorMessage: String = ""
+
+    @Published var gradeDetail: GradeDetail?
+
+    init(eduHelper: EduHelper?, courseGrade: CourseGrade) {
+        self.eduHelper = eduHelper
+        self.courseGrade = courseGrade
+    }
+
+    func loadDetail() {
+        guard let eduHelper = eduHelper else {
+            errorMessage = "教务服务未初始化"
+            isShowingError = true
+            return
+        }
+
+        isLoadingDetail = true
+
+        Task {
+            defer {
+                isLoadingDetail = false
+            }
+
+            do {
+                gradeDetail = try await eduHelper.courseService.getGradeDetail(url: courseGrade.gradeDetailUrl)
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
+            }
+        }
+    }
+}

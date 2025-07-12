@@ -17,7 +17,7 @@ struct FeaturesView: View {
                     GroupBox(label: Text("成绩相关").font(.headline)) {
                         HStack(spacing: 15) {
                             FunctionItem(icon: "doc.text.magnifyingglass", title: "成绩查询", destination: GradeQueryView(authManager: authManager))
-                            FunctionItem(icon: "chart.bar", title: "成绩分析", destination: GradeAnalysisView())
+                            FunctionItem(icon: "chart.bar", title: "成绩分析", destination: GradeAnalysisView(authManager: authManager))
                             FunctionItem(icon: "pencil.and.outline", title: "考试安排", destination: ExamScheduleView(authManager: authManager))
                         }
                     }

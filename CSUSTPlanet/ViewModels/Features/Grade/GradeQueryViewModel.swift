@@ -31,6 +31,8 @@ class GradeQueryViewModel: ObservableObject {
 
     @Published var queryID = UUID()
 
+    @Published var isLoaded: Bool = false
+
     init(eduHelper: EduHelper? = nil) {
         self.eduHelper = eduHelper
     }

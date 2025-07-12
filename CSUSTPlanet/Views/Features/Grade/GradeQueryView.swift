@@ -11,6 +11,8 @@ import SwiftUI
 struct GradeQueryView: View {
     @StateObject var viewModel: GradeQueryViewModel
     
+    private var authManager: AuthManager
+    
     struct InfoRow: View {
         let icon: String
         let iconColor: Color
@@ -40,6 +42,7 @@ struct GradeQueryView: View {
     
     init(authManager: AuthManager) {
         _viewModel = StateObject(wrappedValue: GradeQueryViewModel(eduHelper: authManager.eduHelper))
+        self.authManager = authManager
     }
     
     var body: some View {
@@ -64,6 +67,8 @@ struct GradeQueryView: View {
             Text(viewModel.errorMessage)
         }
         .task {
+            guard !viewModel.isLoaded else { return }
+            viewModel.isLoaded = true
             viewModel.loadAvailableSemesters()
             viewModel.getCourseGrades()
         }
@@ -209,31 +214,33 @@ struct GradeQueryView: View {
     }
     
     private func gradeCard(courseGrade: CourseGrade) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Text(courseGrade.courseName)
-                    .font(.headline)
-                if !courseGrade.groupName.isEmpty {
-                    Text("(\(courseGrade.groupName))")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+        NavigationLink(destination: GradeDetailView(authManager: authManager, courseGrade: courseGrade)) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Text(courseGrade.courseName)
+                        .font(.headline)
+                    if !courseGrade.groupName.isEmpty {
+                        Text("(\(courseGrade.groupName))")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Text("\(courseGrade.grade)分")
+                        .font(.headline)
+                        .foregroundColor(viewModel.gradeColor(grade: courseGrade.grade))
                 }
-                Spacer()
-                Text("\(courseGrade.grade)分")
-                    .font(.headline)
-                    .foregroundColor(viewModel.gradeColor(grade: courseGrade.grade))
-            }
-            .padding(.bottom, 8)
-            
-            InfoRow(icon: "graduationcap", iconColor: .blue, label: "修读方式", value: courseGrade.studyMode)
-            
-            HStack(spacing: 20) {
-                InfoRow(icon: "number.square", iconColor: .green, label: "学分", value: String(format: "%.1f", courseGrade.credit))
-                InfoRow(icon: "star.fill", iconColor: .orange, label: "绩点", value: String(format: "%.1f", courseGrade.gradePoint))
-            }
-            
-            if !courseGrade.semester.isEmpty {
-                InfoRow(icon: "calendar", iconColor: .purple, label: "学期", value: courseGrade.semester)
+                .padding(.bottom, 8)
+                
+                InfoRow(icon: "graduationcap", iconColor: .blue, label: "修读方式", value: courseGrade.studyMode)
+                
+                HStack(spacing: 20) {
+                    InfoRow(icon: "number.square", iconColor: .green, label: "学分", value: String(format: "%.1f", courseGrade.credit))
+                    InfoRow(icon: "star.fill", iconColor: .orange, label: "绩点", value: String(format: "%.1f", courseGrade.gradePoint))
+                }
+                
+                if !courseGrade.semester.isEmpty {
+                    InfoRow(icon: "calendar", iconColor: .purple, label: "学期", value: courseGrade.semester)
+                }
             }
         }
         .padding(.vertical, 8)
