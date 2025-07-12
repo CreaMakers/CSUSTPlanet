@@ -54,7 +54,16 @@ struct GradeAnalysisView: View {
         .navigationTitle("成绩分析")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                refreshButton
+                Menu {
+                    Button {
+                        viewModel.getCourseGrades()
+                    } label: {
+                        Label("刷新成绩分析", systemImage: "arrow.clockwise")
+                    }
+                    .disabled(viewModel.isQuerying)
+                } label: {
+                    Label("操作", systemImage: "ellipsis.circle")
+                }
             }
         }
     }
@@ -246,15 +255,6 @@ struct GradeAnalysisView: View {
                 .padding()
             }
         }
-    }
-    
-    private var refreshButton: some View {
-        Button {
-            viewModel.getCourseGrades()
-        } label: {
-            Label("刷新", systemImage: "arrow.clockwise")
-        }
-        .disabled(viewModel.isQuerying)
     }
 }
 

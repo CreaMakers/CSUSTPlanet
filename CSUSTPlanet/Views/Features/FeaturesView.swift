@@ -31,7 +31,7 @@ struct FeaturesView: View {
 
                     GroupBox(label: Text("生活服务").font(.headline)) {
                         HStack(spacing: 15) {
-                            FunctionItem(icon: "bolt.fill", title: "电费查询", destination: ElectricityQueryView())
+                            FunctionItem(icon: "bolt.fill", title: "电量查询", destination: ElectricityQueryView())
                             FunctionItem(icon: "map", title: "校园地图", destination: CampusMapView())
                         }
                     }

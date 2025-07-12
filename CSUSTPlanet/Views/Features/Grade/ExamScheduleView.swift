@@ -76,27 +76,27 @@ struct ExamScheduleView: View {
         }
         .navigationTitle("考试安排")
         .toolbar {
-            ToolbarItem(placement: .automatic) {
-                Button {
-                    viewModel.loadAvailableSemesters()
-                } label: {
-                    Label("刷新学期", systemImage: "arrow.clockwise")
-                }
-                .disabled(viewModel.isSemestersLoading)
-            }
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    viewModel.getExams()
+                Menu {
+                    Button {
+                        viewModel.loadAvailableSemesters()
+                    } label: {
+                        Label("刷新可选学期列表", systemImage: "arrow.clockwise")
+                    }
+                    .disabled(viewModel.isSemestersLoading)
+                    Button {
+                        viewModel.getExams()
+                    } label: {
+                        Label("查询", systemImage: "magnifyingglass")
+                    }
+                    .disabled(viewModel.isQuerying)
+                    Button {
+                        viewModel.isShowingAddToCalendarAlert = true
+                    } label: {
+                        Label("全部添加到日历", systemImage: "calendar.badge.plus")
+                    }
                 } label: {
-                    Label("查询", systemImage: "magnifyingglass")
-                }
-                .disabled(viewModel.isQuerying)
-            }
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    viewModel.isShowingAddToCalendarAlert = true
-                } label: {
-                    Label("添加到日历", systemImage: "calendar.badge.plus")
+                    Label("操作", systemImage: "ellipsis.circle")
                 }
             }
         }

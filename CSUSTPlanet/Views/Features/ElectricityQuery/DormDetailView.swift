@@ -39,7 +39,6 @@ struct DormDetailView: View {
             .padding(.vertical)
         }
         .navigationTitle("宿舍电量")
-        .navigationBarTitleDisplayMode(.inline)
         .alert("错误", isPresented: $viewModel.isShowingErrorAlert) {
             Button("确定", role: .cancel) {}
         } message: {
@@ -47,7 +46,12 @@ struct DormDetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                refreshButton
+                Button {
+                    viewModel.handleQueryElectricity()
+                } label: {
+                    Label("刷新", systemImage: "arrow.clockwise")
+                }
+                .disabled(viewModel.isQueryingElectricity)
             }
         }
     }
@@ -216,14 +220,5 @@ struct DormDetailView: View {
                 Label("删除记录", systemImage: "trash")
             }
         }
-    }
-
-    private var refreshButton: some View {
-        Button {
-            viewModel.handleQueryElectricity()
-        } label: {
-            Label("刷新", systemImage: "arrow.clockwise")
-        }
-        .disabled(viewModel.isQueryingElectricity)
     }
 }

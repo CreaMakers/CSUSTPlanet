@@ -102,10 +102,14 @@ struct GradeDetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    viewModel.loadDetail()
+                Menu {
+                    Button {
+                        viewModel.loadDetail()
+                    } label: {
+                        Label("刷新成绩分布", systemImage: "arrow.clockwise")
+                    }
                 } label: {
-                    Label("刷新", systemImage: "arrow.clockwise")
+                    Label("操作", systemImage: "ellipsis.circle")
                 }
             }
         }

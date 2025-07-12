@@ -10,6 +10,8 @@ import SwiftUI
 struct SchoolCalendarView: View {
     var body: some View {
         WebView(url: URL(string: "https://www.csust.edu.cn/jwc/jxyx/jxxl.htm")!)
+            .navigationTitle("校历")
+            .navigationBarTitleDisplayMode(.inline)
     }
 }
 

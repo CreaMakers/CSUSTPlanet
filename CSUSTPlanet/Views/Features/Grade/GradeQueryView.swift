@@ -75,21 +75,22 @@ struct GradeQueryView: View {
         .navigationTitle("成绩查询")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    viewModel.getCourseGrades()
+                Menu {
+                    Button {
+                        viewModel.loadAvailableSemesters()
+                    } label: {
+                        Label("刷新可选学期列表", systemImage: "arrow.clockwise")
+                    }
+                    .disabled(viewModel.isSemestersLoading)
+                    Button {
+                        viewModel.getCourseGrades()
+                    } label: {
+                        Label("查询", systemImage: "magnifyingglass")
+                    }
+                    .disabled(viewModel.isQuerying)
                 } label: {
-                    Label("查询", systemImage: "magnifyingglass")
+                    Label("操作", systemImage: "ellipsis.circle")
                 }
-                .disabled(viewModel.isQuerying)
-            }
-            
-            ToolbarItem(placement: .automatic) {
-                Button {
-                    viewModel.loadAvailableSemesters()
-                } label: {
-                    Label("刷新学期", systemImage: "arrow.clockwise")
-                }
-                .disabled(viewModel.isSemestersLoading)
             }
         }
     }
