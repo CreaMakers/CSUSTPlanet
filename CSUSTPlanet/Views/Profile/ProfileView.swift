@@ -103,7 +103,7 @@ struct ProfileView: View {
                         ProgressView()
                     }
                 }
-                .disabled(authManager.isEducationLoggingIn)
+                .disabled(authManager.isEducationLoggingIn || !authManager.isLoggedIn)
                 .buttonStyle(.plain)
                 Button(action: authManager.loginToMooc) {
                     Label("重新登录网络课程中心", systemImage: "book.closed")
@@ -113,7 +113,7 @@ struct ProfileView: View {
                         ProgressView()
                     }
                 }
-                .disabled(authManager.isMoocLoggingIn)
+                .disabled(authManager.isMoocLoggingIn || !authManager.isLoggedIn)
                 .buttonStyle(.plain)
             }
         }

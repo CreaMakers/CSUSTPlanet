@@ -33,12 +33,20 @@ struct ContentView: View {
             .tag(0)
 
             NavigationStack {
+                MoocView()
+            }
+            .tabItem {
+                Label("网络课程中心", systemImage: "book")
+            }
+            .tag(1)
+
+            NavigationStack {
                 ProfileView()
             }
             .tabItem {
                 Label("我的", systemImage: "person")
             }
-            .tag(1)
+            .tag(2)
         }
         .preferredColorScheme(preferredColorScheme)
         .alert("教务登录错误", isPresented: $authManager.isShowingEducationError) {

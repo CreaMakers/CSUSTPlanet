@@ -23,12 +23,6 @@ struct FeaturesView: View {
                 Text("请稍候")
                     .foregroundColor(.secondary)
             }
-        } else if authManager.isMoocLoggingIn {
-            VStack {
-                ProgressView("正在登录网络课程中心...")
-                Text("请稍候")
-                    .foregroundColor(.secondary)
-            }
         } else if authManager.isLoggedIn {
             ScrollView {
                 VStack(spacing: 20) {
