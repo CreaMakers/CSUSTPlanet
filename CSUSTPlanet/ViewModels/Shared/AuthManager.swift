@@ -48,6 +48,7 @@ class AuthManager: ObservableObject {
             guard let username = KeychainHelper.retrieve(key: "SSOUsername"),
                   let password = KeychainHelper.retrieve(key: "SSOPassword")
             else {
+                isSSOLoggingIn = false
                 return
             }
             try? await login(username: username, password: password)
