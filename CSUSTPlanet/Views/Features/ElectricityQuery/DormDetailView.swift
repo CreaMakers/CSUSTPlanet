@@ -39,11 +39,6 @@ struct DormDetailView: View {
             .padding(.vertical)
         }
         .navigationTitle("宿舍电量")
-        .alert("错误", isPresented: $viewModel.isShowingErrorAlert) {
-            Button("确定", role: .cancel) {}
-        } message: {
-            Text(viewModel.errorMessage)
-        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
