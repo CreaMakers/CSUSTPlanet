@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var globalVars: GlobalVars
+    @EnvironmentObject var authManager: AuthManager
 
     var preferredColorScheme: ColorScheme? {
         switch globalVars.appearance {
@@ -40,6 +41,18 @@ struct ContentView: View {
             .tag(1)
         }
         .preferredColorScheme(preferredColorScheme)
+        .alert("教务登录错误", isPresented: $authManager.isShowingEducationError) {
+            Button("确定", role: .cancel) {}
+            Button("重试", action: authManager.loginToEducation)
+        } message: {
+            Text(authManager.educationErrorMessage)
+        }
+        .alert("网络课程中心登录错误", isPresented: $authManager.isShowingMoocError) {
+            Button("确定", role: .cancel) {}
+            Button("重试", action: authManager.loginToMooc)
+        } message: {
+            Text(authManager.moocErrorMessage)
+        }
     }
 }
 

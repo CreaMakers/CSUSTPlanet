@@ -80,7 +80,7 @@ class ProfileDetailViewModel: ObservableObject {
 
     func loadMoocProfile() {
         guard let moocHelper = moocHelper else {
-            errorMessage = "课程助手服务未初始化"
+            errorMessage = "网络课程中心服务未初始化"
             isShowingError = true
             return
         }

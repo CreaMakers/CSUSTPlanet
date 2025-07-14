@@ -36,15 +36,15 @@ class SSOLoginViewModel: ObservableObject {
     @Published var countdown = 0
 
     var isAccountLoginDisabled: Bool {
-        return username.isEmpty || password.isEmpty || authManager.isLoggingIn
+        return username.isEmpty || password.isEmpty || authManager.isSSOLoggingIn
     }
 
     var isGetDynamicCodeDisabled: Bool {
-        return captcha.isEmpty || username.isEmpty || countdown > 0 || authManager.isLoggingIn
+        return captcha.isEmpty || username.isEmpty || countdown > 0 || authManager.isSSOLoggingIn
     }
 
     var isDynamicLoginDisabled: Bool {
-        return username.isEmpty || captcha.isEmpty || smsCode.isEmpty || authManager.isLoggingIn
+        return username.isEmpty || captcha.isEmpty || smsCode.isEmpty || authManager.isSSOLoggingIn
     }
 
     init(authManager: AuthManager, isShowingLoginPopover: Binding<Bool>) {

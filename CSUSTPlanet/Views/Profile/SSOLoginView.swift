@@ -118,7 +118,7 @@ struct SSOLoginView: View {
                 Text("登录")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 5)
-                if authManager.isLoggingIn {
+                if authManager.isSSOLoggingIn {
                     ProgressView()
                 }
             }
@@ -225,7 +225,7 @@ struct SSOLoginView: View {
                 Text("登录")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 5)
-                if authManager.isLoggingIn {
+                if authManager.isSSOLoggingIn {
                     ProgressView()
                 }
             }

@@ -24,7 +24,7 @@ class AddDormitoryViewModel: ObservableObject {
 
     private var isShowingAddDormPopoverBinding: Binding<Bool>
 
-    @Published var isShowingErrorAlert: Bool = false
+    @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
 
     @Published var selectedCampus: Campus = .jinpenling
@@ -70,7 +70,7 @@ class AddDormitoryViewModel: ObservableObject {
                 }
             } catch {
                 errorMessage = error.localizedDescription
-                isShowingErrorAlert = true
+                isShowingError = true
             }
         }
     }
@@ -79,14 +79,14 @@ class AddDormitoryViewModel: ObservableObject {
         let building = buildings[selectedCampus]?.first(where: { $0.id == selectedBuildingID })
         guard let building = building else {
             errorMessage = "请选择有效的宿舍楼"
-            isShowingErrorAlert = true
+            isShowingError = true
             return
         }
 
         let dorm = Dorm(room: room, building: building)
         if dorms.contains(where: { $0.room == dorm.room && $0.buildingID == building.id && $0.buildingName == building.name }) {
             errorMessage = "该宿舍信息已存在"
-            isShowingErrorAlert = true
+            isShowingError = true
             return
         }
 

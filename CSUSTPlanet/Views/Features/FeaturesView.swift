@@ -11,7 +11,25 @@ struct FeaturesView: View {
     @EnvironmentObject var authManager: AuthManager
 
     var body: some View {
-        if authManager.isLoggedIn {
+        if authManager.isSSOLoggingIn {
+            VStack {
+                ProgressView("正在登录统一认证...")
+                Text("请稍候")
+                    .foregroundColor(.secondary)
+            }
+        } else if authManager.isEducationLoggingIn {
+            VStack {
+                ProgressView("正在登录教务...")
+                Text("请稍候")
+                    .foregroundColor(.secondary)
+            }
+        } else if authManager.isMoocLoggingIn {
+            VStack {
+                ProgressView("正在登录网络课程中心...")
+                Text("请稍候")
+                    .foregroundColor(.secondary)
+            }
+        } else if authManager.isLoggedIn {
             ScrollView {
                 VStack(spacing: 20) {
                     GroupBox(label: Text("成绩相关").font(.headline)) {
@@ -46,13 +64,6 @@ struct FeaturesView: View {
                 .padding()
             }
             .navigationTitle("功能")
-        } else if authManager.isLoggingIn {
-            VStack {
-                ProgressView("正在登录...")
-                    .padding()
-                Text("请稍候")
-                    .foregroundColor(.secondary)
-            }
         } else {
             NotLoginView()
         }

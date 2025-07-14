@@ -27,7 +27,7 @@ class DormElectricityViewModel: ObservableObject {
 
     @Published var dorm: Dorm
 
-    @Published var isShowingErrorAlert: Bool = false
+    @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
 
     @Published var isQueryingElectricity: Bool = false
@@ -54,7 +54,7 @@ class DormElectricityViewModel: ObservableObject {
         isQueryingElectricity = true
         guard let campus = Campus(rawValue: dorm.campusName) else {
             errorMessage = "无效的校区ID"
-            isShowingErrorAlert = true
+            isShowingError = true
             return
         }
         let building = Building(name: dorm.buildingName, id: dorm.buildingID, campus: campus)
@@ -74,7 +74,7 @@ class DormElectricityViewModel: ObservableObject {
                 modelContext.insert(record)
             } catch {
                 errorMessage = error.localizedDescription
-                isShowingErrorAlert = true
+                isShowingError = true
             }
         }
     }

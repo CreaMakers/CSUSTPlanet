@@ -12,7 +12,6 @@ struct ProfileView: View {
     @EnvironmentObject private var globalVars: GlobalVars
 
     @State private var showLoginPopover = false
-    @State private var showClearCacheAlert = false
 
     var body: some View {
         Form {
@@ -47,13 +46,13 @@ struct ProfileView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .contentShape(Rectangle())
                             .foregroundStyle(.red)
-                        if authManager.isLoggingOut {
+                        if authManager.isSSOLoggingOut {
                             ProgressView()
                         }
                     }
-                    .disabled(authManager.isLoggingOut)
+                    .disabled(authManager.isSSOLoggingOut)
                     .buttonStyle(PlainButtonStyle())
-                } else if authManager.isLoggingIn {
+                } else if authManager.isSSOLoggingIn {
                     HStack {
                         ProgressView()
                         Text("正在登录...")
@@ -89,22 +88,6 @@ struct ProfileView: View {
             }
 
             Section(header: Text("其他")) {
-                Button {
-                    showClearCacheAlert = true
-                }
-                label: {
-                    Label("清除缓存", systemImage: "trash")
-                }
-                .buttonStyle(.plain)
-                .alert("清除缓存", isPresented: $showClearCacheAlert) {
-                    Button("取消", role: .cancel) {}
-                    Button("清除") {
-                        authManager.clearCache()
-                    }
-                } message: {
-                    Text("确定要清除所有缓存吗？这将删除所有的登录缓存数据。")
-                }
-
                 Picker(selection: $globalVars.appearance) {
                     Text("浅色模式").tag("light")
                     Text("深色模式").tag("dark")
@@ -112,6 +95,26 @@ struct ProfileView: View {
                 } label: {
                     Label("外观主题", systemImage: "paintbrush")
                 }
+                Button(action: authManager.loginToEducation) {
+                    Label("重新登录教务系统", systemImage: "graduationcap")
+
+                    if authManager.isEducationLoggingIn {
+                        Spacer()
+                        ProgressView()
+                    }
+                }
+                .disabled(authManager.isEducationLoggingIn)
+                .buttonStyle(.plain)
+                Button(action: authManager.loginToMooc) {
+                    Label("重新登录网络课程中心", systemImage: "book.closed")
+
+                    if authManager.isMoocLoggingIn {
+                        Spacer()
+                        ProgressView()
+                    }
+                }
+                .disabled(authManager.isMoocLoggingIn)
+                .buttonStyle(.plain)
             }
         }
         .popover(isPresented: $showLoginPopover) {

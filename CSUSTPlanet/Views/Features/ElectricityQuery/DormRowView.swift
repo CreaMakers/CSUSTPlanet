@@ -78,7 +78,7 @@ struct DormRowView: View {
         } message: {
             Text("确定要删除 \(viewModel.dorm.room) 宿舍吗？")
         }
-        .alert("错误", isPresented: $viewModel.isShowingErrorAlert) {
+        .alert("错误", isPresented: $viewModel.isShowingError) {
             Button("确认", role: .cancel) {}
         } message: {
             Text(viewModel.errorMessage)

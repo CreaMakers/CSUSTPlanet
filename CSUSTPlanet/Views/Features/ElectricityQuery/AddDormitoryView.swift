@@ -135,7 +135,7 @@ struct AddDormitoryView: View {
             .task {
                 viewModel.loadBuildings()
             }
-            .alert("错误", isPresented: $viewModel.isShowingErrorAlert) {
+            .alert("错误", isPresented: $viewModel.isShowingError) {
                 Button("确定", role: .cancel) {}
             } message: {
                 Text(viewModel.errorMessage)
