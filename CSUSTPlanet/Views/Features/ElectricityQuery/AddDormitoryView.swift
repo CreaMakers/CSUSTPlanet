@@ -12,12 +12,12 @@ import SwiftUI
 struct AddDormitoryView: View {
     @StateObject var viewModel: AddDormitoryViewModel
     
-    init(dorms: [Dorm], modelContext: ModelContext, isShowingAddDormPopoverBinding: Binding<Bool>) {
+    init(dorms: [Dorm], modelContext: ModelContext, isShowingAddDormitorySheetBinding: Binding<Bool>) {
         _viewModel = StateObject(wrappedValue:
             AddDormitoryViewModel(
                 dorms: dorms,
                 modelContext: modelContext,
-                isShowingAddDormitoryPopoverBinding: isShowingAddDormPopoverBinding
+                isShowingAddDormitorySheetBinding: isShowingAddDormitorySheetBinding
             )
         )
     }

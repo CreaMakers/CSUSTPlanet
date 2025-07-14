@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct ElectricityQueryView: View {
-    @State var isShowingAddDormPopover: Bool = false
+    @State var isShowingAddDormSheet: Bool = false
     @Environment(\.modelContext) private var modelContext
 
     @Query var dorms: [Dorm]
@@ -23,7 +23,7 @@ struct ElectricityQueryView: View {
                         .font(.headline)
                         .padding()
                     Button(action: {
-                        isShowingAddDormPopover.toggle()
+                        isShowingAddDormSheet.toggle()
                     }) {
                         Label("添加宿舍", systemImage: "plus")
                     }
@@ -38,13 +38,13 @@ struct ElectricityQueryView: View {
         .navigationTitle("电量查询")
         .navigationBarItems(
             trailing: Button(action: {
-                isShowingAddDormPopover.toggle()
+                isShowingAddDormSheet.toggle()
             }) {
                 Label("添加宿舍", systemImage: "plus")
             }
         )
-        .popover(isPresented: $isShowingAddDormPopover) {
-            AddDormitoryView(dorms: dorms, modelContext: modelContext, isShowingAddDormPopoverBinding: $isShowingAddDormPopover)
+        .sheet(isPresented: $isShowingAddDormSheet) {
+            AddDormitoryView(dorms: dorms, modelContext: modelContext, isShowingAddDormitorySheetBinding: $isShowingAddDormSheet)
         }
     }
 }

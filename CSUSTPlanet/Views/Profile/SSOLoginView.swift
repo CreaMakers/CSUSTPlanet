@@ -11,8 +11,8 @@ struct SSOLoginView: View {
     @EnvironmentObject var authManager: AuthManager
     @StateObject private var viewModel: SSOLoginViewModel
 
-    init(authManager: AuthManager, isShowingLoginPopover: Binding<Bool>) {
-        _viewModel = StateObject(wrappedValue: SSOLoginViewModel(authManager: authManager, isShowingLoginPopover: isShowingLoginPopover))
+    init(authManager: AuthManager, isShowingLoginSheet: Binding<Bool>) {
+        _viewModel = StateObject(wrappedValue: SSOLoginViewModel(authManager: authManager, isShowingLoginSheet: isShowingLoginSheet))
     }
 
     var body: some View {
@@ -28,7 +28,7 @@ struct SSOLoginView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Button(action: viewModel.closeLoginPopover) {
+                Button(action: viewModel.closeLoginSheet) {
                     Text("关闭")
                 }
             }
@@ -240,5 +240,5 @@ struct SSOLoginView: View {
 }
 
 #Preview {
-    SSOLoginView(authManager: AuthManager(), isShowingLoginPopover: .constant(true))
+    SSOLoginView(authManager: AuthManager(), isShowingLoginSheet: .constant(true))
 }

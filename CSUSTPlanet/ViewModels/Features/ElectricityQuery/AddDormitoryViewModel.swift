@@ -16,13 +16,13 @@ class AddDormitoryViewModel: ObservableObject {
     private var modelContext: ModelContext
     private var dorms: [Dorm]
 
-    @Published var isShowingAddDormPopover: Bool {
+    @Published var isShowingAddDormSheet: Bool {
         didSet {
-            isShowingAddDormPopoverBinding.wrappedValue = isShowingAddDormPopover
+            isShowingAddDormSheetBinding.wrappedValue = isShowingAddDormSheet
         }
     }
 
-    private var isShowingAddDormPopoverBinding: Binding<Bool>
+    private var isShowingAddDormSheetBinding: Binding<Bool>
 
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
@@ -34,12 +34,12 @@ class AddDormitoryViewModel: ObservableObject {
     @Published var buildings: [Campus: [Building]] = [:]
     @Published var isBuildingsLoading: Bool = false
 
-    init(dorms: [Dorm], modelContext: ModelContext, isShowingAddDormitoryPopoverBinding: Binding<Bool>) {
+    init(dorms: [Dorm], modelContext: ModelContext, isShowingAddDormitorySheetBinding: Binding<Bool>) {
         self.campusCardHelper = CampusCardHelper()
         self.dorms = dorms
         self.modelContext = modelContext
-        self.isShowingAddDormPopover = isShowingAddDormitoryPopoverBinding.wrappedValue
-        self.isShowingAddDormPopoverBinding = isShowingAddDormitoryPopoverBinding
+        self.isShowingAddDormSheet = isShowingAddDormitorySheetBinding.wrappedValue
+        self.isShowingAddDormSheetBinding = isShowingAddDormitorySheetBinding
     }
 
     func handleCampusPickerChange(oldCampus: Campus, newCampus: Campus) {
@@ -89,6 +89,6 @@ class AddDormitoryViewModel: ObservableObject {
         }
 
         modelContext.insert(dorm)
-        isShowingAddDormPopover = false
+        isShowingAddDormSheet = false
     }
 }

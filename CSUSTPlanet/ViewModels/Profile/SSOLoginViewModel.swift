@@ -12,13 +12,13 @@ import SwiftUI
 class SSOLoginViewModel: ObservableObject {
     private var authManager: AuthManager
 
-    @Published var isShowingLoginPopover: Bool {
+    @Published var isShowingLoginSheet: Bool {
         didSet {
-            isShowingLoginPopoverBinding.wrappedValue = isShowingLoginPopover
+            isShowingLoginSheetBinding.wrappedValue = isShowingLoginSheet
         }
     }
 
-    private var isShowingLoginPopoverBinding: Binding<Bool>
+    private var isShowingLoginSheetBinding: Binding<Bool>
 
     @Published var selectedTab = 0
 
@@ -47,10 +47,10 @@ class SSOLoginViewModel: ObservableObject {
         return username.isEmpty || captcha.isEmpty || smsCode.isEmpty || authManager.isSSOLoggingIn
     }
 
-    init(authManager: AuthManager, isShowingLoginPopover: Binding<Bool>) {
+    init(authManager: AuthManager, isShowingLoginSheet: Binding<Bool>) {
         self.authManager = authManager
-        self.isShowingLoginPopover = isShowingLoginPopover.wrappedValue
-        self.isShowingLoginPopoverBinding = isShowingLoginPopover
+        self.isShowingLoginSheet = isShowingLoginSheet.wrappedValue
+        self.isShowingLoginSheetBinding = isShowingLoginSheet
     }
 
     func handleAccountLogin() {
@@ -63,7 +63,7 @@ class SSOLoginViewModel: ObservableObject {
         Task {
             do {
                 try await authManager.login(username: username, password: password)
-                isShowingLoginPopover = false
+                isShowingLoginSheet = false
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -119,12 +119,12 @@ class SSOLoginViewModel: ObservableObject {
         Task {
             do {
                 try await authManager.dynamicLogin(username: username, captcha: captcha, dynamicCode: smsCode)
-                isShowingLoginPopover = false
+                isShowingLoginSheet = false
             }
         }
     }
 
-    func closeLoginPopover() {
-        isShowingLoginPopover = false
+    func closeLoginSheet() {
+        isShowingLoginSheet = false
     }
 }

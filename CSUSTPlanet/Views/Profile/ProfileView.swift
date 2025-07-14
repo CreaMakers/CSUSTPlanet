@@ -11,7 +11,7 @@ struct ProfileView: View {
     @EnvironmentObject private var authManager: AuthManager
     @EnvironmentObject private var globalVars: GlobalVars
 
-    @State private var showLoginPopover = false
+    @State private var showLoginSheet = false
 
     var body: some View {
         Form {
@@ -59,7 +59,7 @@ struct ProfileView: View {
                     }
                 } else {
                     Button(action: {
-                        showLoginPopover = true
+                        showLoginSheet = true
                     }) {
                         Label("登录统一认证账号", systemImage: "person.crop.circle.badge.plus")
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -117,8 +117,8 @@ struct ProfileView: View {
                 .buttonStyle(.plain)
             }
         }
-        .popover(isPresented: $showLoginPopover) {
-            SSOLoginView(authManager: authManager, isShowingLoginPopover: $showLoginPopover)
+        .sheet(isPresented: $showLoginSheet) {
+            SSOLoginView(authManager: authManager, isShowingLoginSheet: $showLoginSheet)
         }
         .navigationTitle("我的")
     }
