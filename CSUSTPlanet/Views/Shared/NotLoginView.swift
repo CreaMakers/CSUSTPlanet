@@ -18,7 +18,7 @@ struct NotLoginView: View {
             HStack {
                 Text("前往")
                 Button(action: {
-                    globalVars.selectedTab = 2
+                    globalVars.selectedTab = 3
                 }) {
                     Text("登录")
                 }
