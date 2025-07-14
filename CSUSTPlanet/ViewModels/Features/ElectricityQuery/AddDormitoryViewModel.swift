@@ -51,8 +51,6 @@ class AddDormitoryViewModel: ObservableObject {
     }
 
     func loadBuildings() {
-        guard buildings.isEmpty else { return }
-
         isBuildingsLoading = true
         Task {
             defer {

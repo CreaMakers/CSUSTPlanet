@@ -56,16 +56,25 @@ struct AddDormitoryView: View {
                             .cornerRadius(10)
                             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                     } else {
-                        Picker(selection: $viewModel.selectedBuildingID, label: Text("选择宿舍楼")) {
-                            if let buildings = viewModel.buildings[viewModel.selectedCampus] {
-                                ForEach(buildings, id: \.id) { building in
-                                    Text(building.name).tag(building.id)
+                        HStack {
+                            Picker(selection: $viewModel.selectedBuildingID, label: Text("选择宿舍楼")) {
+                                if let buildings = viewModel.buildings[viewModel.selectedCampus] {
+                                    ForEach(buildings, id: \.id) { building in
+                                        Text(building.name).tag(building.id)
+                                    }
                                 }
                             }
+                            .pickerStyle(.menu)
+                            .disabled(viewModel.buildings[viewModel.selectedCampus]?.isEmpty ?? true)
+                            .padding()
+                            
+                            Spacer()
+                            
+                            Button(action: viewModel.loadBuildings) {
+                                Label("刷新", systemImage: "arrow.clockwise")
+                                    .padding()
+                            }
                         }
-                        .pickerStyle(.menu)
-                        .disabled(viewModel.buildings[viewModel.selectedCampus]?.isEmpty ?? true)
-                        .padding()
                         .frame(maxWidth: .infinity)
                         .background(Color(.systemBackground))
                         .cornerRadius(10)
