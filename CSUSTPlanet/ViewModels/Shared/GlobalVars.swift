@@ -9,7 +9,9 @@ import Foundation
 
 @MainActor
 class GlobalVars: ObservableObject {
-    init() {
+    public static let shared = GlobalVars()
+
+    private init() {
         appearance = UserDefaults.standard.string(forKey: "appearance") ?? "system"
     }
 
@@ -17,6 +19,15 @@ class GlobalVars: ObservableObject {
     @Published var appearance: String {
         didSet {
             UserDefaults.standard.set(appearance, forKey: "appearance")
+        }
+    }
+
+    var isElectricityTermAccepted: Bool {
+        set {
+            UserDefaults.standard.set(newValue, forKey: "isElectricityTermAccepted")
+        }
+        get {
+            UserDefaults.standard.bool(forKey: "isElectricityTermAccepted")
         }
     }
 }

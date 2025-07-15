@@ -10,7 +10,8 @@ import SwiftUI
 
 @main
 struct CSUSTPlanetApp: App {
-    @StateObject private var globalVars = GlobalVars()
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     @StateObject private var authManager = AuthManager()
 
     var container: ModelContainer
@@ -26,7 +27,7 @@ struct CSUSTPlanetApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(globalVars)
+                .environmentObject(GlobalVars.shared)
                 .environmentObject(authManager)
         }
         .modelContainer(container)

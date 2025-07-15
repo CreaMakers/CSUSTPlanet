@@ -33,6 +33,8 @@ class DormElectricityViewModel: ObservableObject {
     @Published var isQueryingElectricity: Bool = false
     @Published var isConfirmationDialogPresented: Bool = false
 
+    @Published var isTermsPresented: Bool = false
+
     private let dateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -89,5 +91,35 @@ class DormElectricityViewModel: ObservableObject {
 
     func deleteRecord(record: ElectricityRecord) {
         modelContext.delete(record)
+    }
+
+    func handleShowTerms() {
+        if GlobalVars.shared.isElectricityTermAccepted {
+            handleTermsAgree()
+        } else {
+            isTermsPresented = true
+        }
+    }
+
+    func handleTermsAgree() {
+        NotificationHelper.shared.requestAuthorization(onDeviceToken: onDeviceToken, onResult: onResult, onError: onError)
+    }
+
+    func onDeviceToken(token: String) {
+        debugPrint(token)
+    }
+
+    func onResult(granted: Bool) {
+        if !granted {
+            DispatchQueue.main.async {
+                self.errorMessage = "未能获取通知权限，请在设置中开启"
+                self.isShowingError = true
+            }
+        }
+    }
+
+    func onError(error: Error) {
+        errorMessage = error.localizedDescription
+        isShowingError = true
     }
 }

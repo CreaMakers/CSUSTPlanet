@@ -129,5 +129,5 @@ struct ProfileView: View {
         ProfileView()
     }
     .environmentObject(AuthManager())
-    .environmentObject(GlobalVars())
+    .environmentObject(GlobalVars.shared)
 }

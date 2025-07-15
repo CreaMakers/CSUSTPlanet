@@ -74,6 +74,6 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(GlobalVars())
+        .environmentObject(GlobalVars.shared)
         .environmentObject(AuthManager())
 }

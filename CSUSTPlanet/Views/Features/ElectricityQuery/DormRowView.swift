@@ -71,6 +71,10 @@ struct DormRowView: View {
                 Label("查询电量", systemImage: "bolt.fill")
                     .tint(.yellow)
             }
+            Button(action: viewModel.handleShowTerms) {
+                Label("定时通知", systemImage: "bell")
+                    .tint(.blue)
+            }
         }
         .alert("删除宿舍", isPresented: $viewModel.isConfirmationDialogPresented) {
             Button("取消", role: .cancel) {}
@@ -82,6 +86,9 @@ struct DormRowView: View {
             Button("确认", role: .cancel) {}
         } message: {
             Text(viewModel.errorMessage)
+        }
+        .sheet(isPresented: $viewModel.isTermsPresented) {
+            ElectricityTermsView(isPresented: $viewModel.isTermsPresented, onAgree: viewModel.handleTermsAgree)
         }
     }
 }
