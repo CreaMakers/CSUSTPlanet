@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/10.
 //
 
+import Alamofire
 import CSUSTKit
 import Foundation
 import SwiftData
@@ -13,6 +14,7 @@ import SwiftUI
 @MainActor
 class DormElectricityViewModel: ObservableObject {
     private var campusCardHelper: CampusCardHelper
+    private var authManager: AuthManager
     private var modelContext: ModelContext
 
     private var dormBinding: Binding<Dorm> {
@@ -35,6 +37,11 @@ class DormElectricityViewModel: ObservableObject {
 
     @Published var isTermsPresented: Bool = false
 
+    @Published var isShowNotificationSettings: Bool = false
+
+    private var scheduleHour: Int = 0
+    private var scheduleMinute: Int = 0
+
     private let dateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -42,8 +49,9 @@ class DormElectricityViewModel: ObservableObject {
         return dateFormatter
     }()
 
-    init(modelContext: ModelContext, dorm: Dorm) {
+    init(authManager: AuthManager, modelContext: ModelContext, dorm: Dorm) {
         campusCardHelper = CampusCardHelper()
+        self.authManager = authManager
         self.modelContext = modelContext
         self.dorm = dorm
     }
@@ -94,6 +102,11 @@ class DormElectricityViewModel: ObservableObject {
     }
 
     func handleShowTerms() {
+        guard authManager.isLoggedIn else {
+            errorMessage = "请先登录"
+            isShowingError = true
+            return
+        }
         if GlobalVars.shared.isElectricityTermAccepted {
             handleTermsAgree()
         } else {
@@ -102,11 +115,50 @@ class DormElectricityViewModel: ObservableObject {
     }
 
     func handleTermsAgree() {
-        NotificationHelper.shared.requestAuthorization(onDeviceToken: onDeviceToken, onResult: onResult, onError: onError)
+        isTermsPresented = false
+        isShowNotificationSettings = true
     }
 
     func onDeviceToken(token: String) {
-        debugPrint(token)
+        Task {
+            struct CreateElectricityBindingRequest: Encodable {
+                let studentId: String
+                let deviceToken: String
+                let campus: String
+                let building: String
+                let room: String
+                let scheduleHour: Int
+                let scheduleMinute: Int
+            }
+            guard let studentId = authManager.ssoProfile?.userAccount else {
+                errorMessage = "未能获取学号，请先登录"
+                isShowingError = true
+                return
+            }
+            let request = CreateElectricityBindingRequest(
+                studentId: studentId,
+                deviceToken: token,
+                campus: dorm.campusName,
+                building: dorm.buildingName,
+                room: dorm.room,
+                scheduleHour: scheduleHour,
+                scheduleMinute: scheduleMinute
+            )
+            let response = await AF.request("https://api.csustplanet.zhelearn.com/electricity-bindings", method: .post, parameters: request, encoder: .json).serializingData().response
+
+            guard let httpResponse = response.response, httpResponse.statusCode == 201 else {
+                errorMessage = "绑定失败，请稍后再试"
+                isShowingError = true
+                return
+            }
+            debugPrint("绑定成功")
+        }
+    }
+
+    func handleNotificationSettings(scheduleHour: Int, scheduleMinute: Int) {
+        self.scheduleHour = scheduleHour
+        self.scheduleMinute = scheduleMinute
+        NotificationHelper.shared.requestAuthorization(onDeviceToken: onDeviceToken, onResult: onResult, onError: onError)
     }
 
     func onResult(granted: Bool) {

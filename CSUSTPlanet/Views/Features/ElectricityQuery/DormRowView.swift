@@ -11,9 +11,9 @@ import SwiftUI
 struct DormRowView: View {
     @StateObject var viewModel: DormElectricityViewModel
 
-    init(modelContext: ModelContext, dorm: Dorm) {
+    init(authManager: AuthManager, modelContext: ModelContext, dorm: Dorm) {
         _viewModel = StateObject(
-            wrappedValue: DormElectricityViewModel(modelContext: modelContext, dorm: dorm)
+            wrappedValue: DormElectricityViewModel(authManager: authManager, modelContext: modelContext, dorm: dorm)
         )
     }
 
@@ -89,6 +89,9 @@ struct DormRowView: View {
         }
         .sheet(isPresented: $viewModel.isTermsPresented) {
             ElectricityTermsView(isPresented: $viewModel.isTermsPresented, onAgree: viewModel.handleTermsAgree)
+        }
+        .sheet(isPresented: $viewModel.isShowNotificationSettings) {
+            NotificationSettingsView(isPresented: $viewModel.isShowNotificationSettings, onConfirm: viewModel.handleNotificationSettings)
         }
     }
 }

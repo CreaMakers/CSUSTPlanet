@@ -11,6 +11,7 @@ import SwiftUI
 struct ElectricityQueryView: View {
     @State var isShowingAddDormSheet: Bool = false
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject var authManager: AuthManager
 
     @Query var dorms: [Dorm]
 
@@ -31,7 +32,7 @@ struct ElectricityQueryView: View {
                 }
             } else {
                 List(dorms) { dorm in
-                    DormRowView(modelContext: modelContext, dorm: dorm)
+                    DormRowView(authManager: authManager, modelContext: modelContext, dorm: dorm)
                 }
             }
         }
