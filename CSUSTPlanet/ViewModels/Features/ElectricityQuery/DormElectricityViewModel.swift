@@ -33,14 +33,16 @@ class DormElectricityViewModel: ObservableObject {
     @Published var errorMessage: String = ""
 
     @Published var isQueryingElectricity: Bool = false
+
     @Published var isConfirmationDialogPresented: Bool = false
-
     @Published var isTermsPresented: Bool = false
-
     @Published var isShowNotificationSettings: Bool = false
 
-    private var scheduleHour: Int = 0
-    private var scheduleMinute: Int = 0
+    @Published var isScheduleLoading: Bool = false
+
+    var isScheduleEnabled: Bool {
+        return dorm.scheduleId != nil
+    }
 
     private let dateFormatter = {
         let dateFormatter = DateFormatter()
@@ -58,6 +60,94 @@ class DormElectricityViewModel: ObservableObject {
 
     func formatDate(_ date: Date) -> String {
         return dateFormatter.string(from: date)
+    }
+
+    func loadSchedule() {
+        guard GlobalVars.shared.isElectricityTermAccepted else {
+            return
+        }
+        guard let scheduleId = dorm.scheduleId else {
+            return
+        }
+        isScheduleLoading = true
+        Task {
+            defer {
+                isScheduleLoading = false
+            }
+            do {
+                let deviceToken = try await NotificationHelper.shared.getDeviceToken()
+                let response = await AF.request("https://api.csustplanet.zhelearn.com/electricity-bindings/\(deviceToken)/\(scheduleId)", method: .get).serializingData().response
+
+                guard let httpResponse = response.response else {
+                    errorMessage = "网络请求失败"
+                    isShowingError = true
+                    return
+                }
+
+                guard httpResponse.statusCode == 200 else {
+                    do {
+                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: response.data ?? Data())
+                        errorMessage = errorResponse.reason
+                    } catch {
+                        errorMessage = "服务器返回错误"
+                    }
+                    dorm.scheduleId = nil
+                    try modelContext.save()
+                    isShowingError = true
+                    return
+                }
+
+                let successResponse = try JSONDecoder().decode(ElectricityBindingDTO.self, from: response.data ?? Data())
+                dorm.scheduleId = successResponse.id
+                dorm.scheduleHour = successResponse.scheduleHour
+                dorm.scheduleMinute = successResponse.scheduleMinute
+                try modelContext.save()
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
+            }
+        }
+    }
+
+    func removeSchedule() -> Task<Void, Never> {
+        guard let scheduleId = dorm.scheduleId else {
+            return Task {}
+        }
+        isScheduleLoading = true
+        return Task {
+            defer {
+                isScheduleLoading = false
+            }
+            do {
+                let deviceToken = try await NotificationHelper.shared.getDeviceToken()
+                let response = await AF.request("https://api.csustplanet.zhelearn.com/electricity-bindings/\(deviceToken)/\(scheduleId)", method: .delete).serializingData().response
+
+                guard let httpResponse = response.response else {
+                    errorMessage = "网络请求失败"
+                    isShowingError = true
+                    return
+                }
+
+                guard httpResponse.statusCode == 200 else {
+                    do {
+                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: response.data ?? Data())
+                        errorMessage = errorResponse.reason
+                    } catch {
+                        errorMessage = "服务器返回错误"
+                    }
+                    isShowingError = true
+                    return
+                }
+
+                dorm.scheduleId = nil
+                dorm.scheduleHour = nil
+                dorm.scheduleMinute = nil
+                try modelContext.save()
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
+            }
+        }
     }
 
     func handleQueryElectricity() {
@@ -94,7 +184,14 @@ class DormElectricityViewModel: ObservableObject {
     }
 
     func deleteDorm() {
-        modelContext.delete(dorm)
+        if isScheduleEnabled {
+            Task {
+                await removeSchedule().value
+                modelContext.delete(dorm)
+            }
+        } else {
+            modelContext.delete(dorm)
+        }
     }
 
     func deleteRecord(record: ElectricityRecord) {
@@ -120,8 +217,6 @@ class DormElectricityViewModel: ObservableObject {
     }
 
     func handleNotificationSettings(scheduleHour: Int, scheduleMinute: Int) {
-        self.scheduleHour = scheduleHour
-        self.scheduleMinute = scheduleMinute
         Task {
             do {
                 let granted = try await NotificationHelper.shared.requestAuthorization()
@@ -133,16 +228,6 @@ class DormElectricityViewModel: ObservableObject {
 
                 let token = try await NotificationHelper.shared.getDeviceToken()
 
-                struct ElectricityBindingDTO: Codable {
-                    let id: String?
-                    let studentId: String
-                    let deviceToken: String
-                    let campus: String
-                    let building: String
-                    let room: String
-                    let scheduleHour: Int
-                    let scheduleMinute: Int
-                }
                 guard let studentId = authManager.ssoProfile?.userAccount else {
                     errorMessage = "未能获取学号，请先登录"
                     isShowingError = true
@@ -159,11 +244,6 @@ class DormElectricityViewModel: ObservableObject {
                     scheduleMinute: scheduleMinute
                 )
 
-                struct ErrorResponse: Decodable {
-                    let reason: String
-                    let error: Bool
-                }
-
                 let response = await AF.request("https://api.csustplanet.zhelearn.com/electricity-bindings", method: .post, parameters: request, encoder: .json).serializingData().response
 
                 guard let httpResponse = response.response else {
@@ -172,7 +252,7 @@ class DormElectricityViewModel: ObservableObject {
                     return
                 }
 
-                if httpResponse.statusCode != 200 {
+                guard httpResponse.statusCode == 200 else {
                     do {
                         let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: response.data ?? Data())
                         errorMessage = errorResponse.reason
@@ -183,11 +263,30 @@ class DormElectricityViewModel: ObservableObject {
                     return
                 }
                 let successResponse = try JSONDecoder().decode(ElectricityBindingDTO.self, from: response.data ?? Data())
-                debugPrint(successResponse)
+                dorm.scheduleId = successResponse.id
+                dorm.scheduleHour = scheduleHour
+                dorm.scheduleMinute = scheduleMinute
+                try modelContext.save()
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
             }
         }
+    }
+
+    struct ElectricityBindingDTO: Codable {
+        let id: String?
+        let studentId: String
+        let deviceToken: String
+        let campus: String
+        let building: String
+        let room: String
+        let scheduleHour: Int
+        let scheduleMinute: Int
+    }
+
+    struct ErrorResponse: Decodable {
+        let reason: String
+        let error: Bool
     }
 }

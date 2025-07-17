@@ -71,19 +71,26 @@ struct DormRowView: View {
                 Label("查询电量", systemImage: "bolt.fill")
                     .tint(.yellow)
             }
+            .disabled(viewModel.isQueryingElectricity)
             Divider()
             Menu {
                 Button(action: viewModel.handleShowTerms) {
                     Label("设置定时查询", systemImage: "bell")
                         .tint(.blue)
                 }
-                Button(action: {}) {
+                .disabled(viewModel.isScheduleLoading || viewModel.isScheduleEnabled)
+                Button(action: { _ = viewModel.removeSchedule() }) {
                     Label("取消定时查询", systemImage: "bell.slash")
-                        .tint(.gray)
+                        .tint(.red)
                 }
+                .disabled(viewModel.isScheduleLoading || !viewModel.isScheduleEnabled)
             } label: {
                 Label("定时查询", systemImage: "clock")
                     .tint(.purple)
+                if viewModel.isScheduleLoading {
+                    ProgressView("加载中...")
+                        .progressViewStyle(.circular)
+                }
             }
         }
         .alert("删除宿舍", isPresented: $viewModel.isConfirmationDialogPresented) {
@@ -102,6 +109,9 @@ struct DormRowView: View {
         }
         .sheet(isPresented: $viewModel.isShowNotificationSettings) {
             NotificationSettingsView(isPresented: $viewModel.isShowNotificationSettings, onConfirm: viewModel.handleNotificationSettings)
+        }
+        .task {
+            viewModel.loadSchedule()
         }
     }
 }

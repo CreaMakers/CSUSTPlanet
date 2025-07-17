@@ -20,7 +20,12 @@ class Dorm: Identifiable {
     var campusID: String
     var campusName: String
 
+    @Relationship(deleteRule: .cascade)
     var records: [ElectricityRecord] = []
+
+    var scheduleId: String?
+    var scheduleHour: Int?
+    var scheduleMinute: Int?
 
     init(room: String, building: Building) {
         self.room = room

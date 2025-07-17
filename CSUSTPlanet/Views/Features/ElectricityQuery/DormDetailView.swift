@@ -41,12 +41,35 @@ struct DormDetailView: View {
         .navigationTitle("宿舍电量")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    viewModel.handleQueryElectricity()
+                Menu {
+                    Button(action: viewModel.handleQueryElectricity) {
+                        Label("查询电量", systemImage: "bolt.fill")
+                            .tint(.yellow)
+                    }
+                    .disabled(viewModel.isQueryingElectricity)
+                    Divider()
+                    Menu {
+                        Button(action: viewModel.handleShowTerms) {
+                            Label("设置定时查询", systemImage: "bell")
+                                .tint(.blue)
+                        }
+                        .disabled(viewModel.isScheduleLoading || viewModel.isScheduleEnabled)
+                        Button(action: { _ = viewModel.removeSchedule() }) {
+                            Label("取消定时查询", systemImage: "bell.slash")
+                                .tint(.red)
+                        }
+                        .disabled(viewModel.isScheduleLoading || !viewModel.isScheduleEnabled)
+                    } label: {
+                        Label("定时查询", systemImage: "clock")
+                            .tint(.purple)
+                        if viewModel.isScheduleLoading {
+                            ProgressView("加载中...")
+                                .progressViewStyle(.circular)
+                        }
+                    }
                 } label: {
-                    Label("刷新", systemImage: "arrow.clockwise")
+                    Label("操作", systemImage: "ellipsis.circle")
                 }
-                .disabled(viewModel.isQueryingElectricity)
             }
         }
     }
@@ -64,6 +87,10 @@ struct DormDetailView: View {
             InfoRow(label: "宿舍号", value: viewModel.dorm.room)
             InfoRow(label: "楼栋", value: viewModel.dorm.buildingName)
             InfoRow(label: "校区", value: viewModel.dorm.campusName)
+            if viewModel.isScheduleEnabled, let scheduleHour = viewModel.dorm.scheduleHour, let scheduleMinute = viewModel.dorm.scheduleMinute {
+                InfoRow(label: "定时查询", value: "已启用")
+                InfoRow(label: "定时查询时间", value: String(format: "%02d:%02d", scheduleHour, scheduleMinute))
+            }
         }
         .padding()
         .background(Color(.secondarySystemBackground))
