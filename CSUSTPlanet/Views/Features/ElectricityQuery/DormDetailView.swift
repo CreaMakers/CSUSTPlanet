@@ -105,7 +105,6 @@ struct DormDetailView: View {
             InfoRow(icon: "map.fill", iconColor: .orange, label: "校区", value: viewModel.dorm.campusName)
             
             if viewModel.isScheduleEnabled, let scheduleHour = viewModel.dorm.scheduleHour, let scheduleMinute = viewModel.dorm.scheduleMinute {
-                InfoRow(icon: "clock.fill", iconColor: .purple, label: "定时查询", value: "已启用")
                 InfoRow(icon: "clock.fill", iconColor: .purple, label: "定时查询时间", value: String(format: "%02d:%02d", scheduleHour, scheduleMinute))
             }
         }
