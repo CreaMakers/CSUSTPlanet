@@ -119,59 +119,75 @@ class DormElectricityViewModel: ObservableObject {
         isShowNotificationSettings = true
     }
 
-    func onDeviceToken(token: String) {
-        Task {
-            struct CreateElectricityBindingRequest: Encodable {
-                let studentId: String
-                let deviceToken: String
-                let campus: String
-                let building: String
-                let room: String
-                let scheduleHour: Int
-                let scheduleMinute: Int
-            }
-            guard let studentId = authManager.ssoProfile?.userAccount else {
-                errorMessage = "未能获取学号，请先登录"
-                isShowingError = true
-                return
-            }
-            let request = CreateElectricityBindingRequest(
-                studentId: studentId,
-                deviceToken: token,
-                campus: dorm.campusName,
-                building: dorm.buildingName,
-                room: dorm.room,
-                scheduleHour: scheduleHour,
-                scheduleMinute: scheduleMinute
-            )
-            let response = await AF.request("https://api.csustplanet.zhelearn.com/electricity-bindings", method: .post, parameters: request, encoder: .json).serializingData().response
-
-            guard let httpResponse = response.response, httpResponse.statusCode == 201 else {
-                errorMessage = "绑定失败，请稍后再试"
-                isShowingError = true
-                return
-            }
-            debugPrint("绑定成功")
-        }
-    }
-
     func handleNotificationSettings(scheduleHour: Int, scheduleMinute: Int) {
         self.scheduleHour = scheduleHour
         self.scheduleMinute = scheduleMinute
-        NotificationHelper.shared.requestAuthorization(onDeviceToken: onDeviceToken, onResult: onResult, onError: onError)
-    }
+        Task {
+            do {
+                let granted = try await NotificationHelper.shared.requestAuthorization()
+                guard granted else {
+                    errorMessage = "未能获取通知权限，请在设置中开启"
+                    isShowingError = true
+                    return
+                }
 
-    func onResult(granted: Bool) {
-        if !granted {
-            DispatchQueue.main.async {
-                self.errorMessage = "未能获取通知权限，请在设置中开启"
-                self.isShowingError = true
+                let token = try await NotificationHelper.shared.getDeviceToken()
+
+                struct ElectricityBindingDTO: Codable {
+                    let id: String?
+                    let studentId: String
+                    let deviceToken: String
+                    let campus: String
+                    let building: String
+                    let room: String
+                    let scheduleHour: Int
+                    let scheduleMinute: Int
+                }
+                guard let studentId = authManager.ssoProfile?.userAccount else {
+                    errorMessage = "未能获取学号，请先登录"
+                    isShowingError = true
+                    return
+                }
+                let request = ElectricityBindingDTO(
+                    id: nil,
+                    studentId: studentId,
+                    deviceToken: token,
+                    campus: dorm.campusName,
+                    building: dorm.buildingName,
+                    room: dorm.room,
+                    scheduleHour: scheduleHour,
+                    scheduleMinute: scheduleMinute
+                )
+
+                struct ErrorResponse: Decodable {
+                    let reason: String
+                    let error: Bool
+                }
+
+                let response = await AF.request("https://api.csustplanet.zhelearn.com/electricity-bindings", method: .post, parameters: request, encoder: .json).serializingData().response
+
+                guard let httpResponse = response.response else {
+                    errorMessage = "网络请求失败"
+                    isShowingError = true
+                    return
+                }
+
+                if httpResponse.statusCode != 200 {
+                    do {
+                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: response.data ?? Data())
+                        errorMessage = errorResponse.reason
+                    } catch {
+                        errorMessage = "服务器返回错误"
+                    }
+                    isShowingError = true
+                    return
+                }
+                let successResponse = try JSONDecoder().decode(ElectricityBindingDTO.self, from: response.data ?? Data())
+                debugPrint(successResponse)
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
             }
         }
-    }
-
-    func onError(error: Error) {
-        errorMessage = error.localizedDescription
-        isShowingError = true
     }
 }

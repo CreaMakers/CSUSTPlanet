@@ -71,9 +71,19 @@ struct DormRowView: View {
                 Label("查询电量", systemImage: "bolt.fill")
                     .tint(.yellow)
             }
-            Button(action: viewModel.handleShowTerms) {
-                Label("定时通知", systemImage: "bell")
-                    .tint(.blue)
+            Divider()
+            Menu {
+                Button(action: viewModel.handleShowTerms) {
+                    Label("设置定时查询", systemImage: "bell")
+                        .tint(.blue)
+                }
+                Button(action: {}) {
+                    Label("取消定时查询", systemImage: "bell.slash")
+                        .tint(.gray)
+                }
+            } label: {
+                Label("定时查询", systemImage: "clock")
+                    .tint(.purple)
             }
         }
         .alert("删除宿舍", isPresented: $viewModel.isConfirmationDialogPresented) {
