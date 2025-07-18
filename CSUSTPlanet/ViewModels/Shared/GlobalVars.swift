@@ -13,12 +13,19 @@ class GlobalVars: ObservableObject {
 
     private init() {
         appearance = UserDefaults.standard.string(forKey: "appearance") ?? "system"
+        isUserAgreementAccepted = UserDefaults.standard.bool(forKey: "isUserAgreementAccepted")
     }
 
     @Published var selectedTab: Int = 0
     @Published var appearance: String {
         didSet {
             UserDefaults.standard.set(appearance, forKey: "appearance")
+        }
+    }
+
+    @Published var isUserAgreementAccepted: Bool {
+        didSet {
+            UserDefaults.standard.set(isUserAgreementAccepted, forKey: "isUserAgreementAccepted")
         }
     }
 

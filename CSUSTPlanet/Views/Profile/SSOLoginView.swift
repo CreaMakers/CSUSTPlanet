@@ -17,20 +17,26 @@ struct SSOLoginView: View {
 
     var body: some View {
         VStack(spacing: 30) {
-            Text("统一认证登录")
-                .font(.title)
-                .fontWeight(.bold)
+            Picker("登录方式", selection: $viewModel.selectedTab) {
+                Text("账号登录").tag(0)
+                Text("验证码登录").tag(1)
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
 
-            HStack(alignment: .center) {
-                Picker("登录方式", selection: $viewModel.selectedTab) {
-                    Text("账号登录").tag(0)
-                    Text("验证码登录").tag(1)
-                }
-                .pickerStyle(.segmented)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .top, spacing: 5) {
+                    Image(systemName: "info.circle.fill")
+                        .foregroundColor(.blue)
+                        .font(.system(size: 16))
 
-                Button(action: viewModel.closeLoginSheet) {
-                    Text("关闭")
+                    Text("推荐使用账号密码登录方式，当登录状态丢失后，应用会自动尝试重新使用账号密码来登录。\n而验证码登录方式当登录状态丢失后则需要重新登录。")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
+                .padding()
+                .background(Color.accent.opacity(0.1))
+                .cornerRadius(10)
             }
             .padding(.horizontal)
 
@@ -40,7 +46,15 @@ struct SSOLoginView: View {
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
         }
-        .padding(.top, 25)
+        .navigationTitle("统一认证登录")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("取消") {
+                    viewModel.closeLoginSheet()
+                }
+            }
+        }
         .alert("错误", isPresented: $viewModel.isShowingError) {
             Button("确定", role: .cancel) {}
         } message: {
@@ -240,5 +254,7 @@ struct SSOLoginView: View {
 }
 
 #Preview {
-    SSOLoginView(authManager: AuthManager(), isShowingLoginSheet: .constant(true))
+    NavigationStack {
+        SSOLoginView(authManager: AuthManager(), isShowingLoginSheet: .constant(true))
+    }
 }

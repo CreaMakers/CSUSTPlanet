@@ -71,19 +71,19 @@ struct ProfileView: View {
 
             Section(header: Text("帮助与支持")) {
                 NavigationLink {
-                    HelpView()
-                } label: {
-                    Label("帮助中心", systemImage: "questionmark.circle")
-                }
-                NavigationLink {
                     AboutView()
                 } label: {
-                    Label("关于我们", systemImage: "info.circle")
+                    Label("关于", systemImage: "info.circle")
                 }
                 NavigationLink {
                     FeedbackView()
                 } label: {
                     Label("意见反馈", systemImage: "bubble.left.and.bubble.right")
+                }
+                NavigationLink {
+                    UserAgreementView()
+                } label: {
+                    Label("用户协议", systemImage: "doc.text")
                 }
             }
 
@@ -118,7 +118,9 @@ struct ProfileView: View {
             }
         }
         .sheet(isPresented: $showLoginSheet) {
-            SSOLoginView(authManager: authManager, isShowingLoginSheet: $showLoginSheet)
+            NavigationStack {
+                SSOLoginView(authManager: authManager, isShowingLoginSheet: $showLoginSheet)
+            }
         }
         .navigationTitle("我的")
     }

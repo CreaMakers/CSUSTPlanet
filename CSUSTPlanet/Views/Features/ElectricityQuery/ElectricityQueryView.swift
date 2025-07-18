@@ -45,7 +45,9 @@ struct ElectricityQueryView: View {
             }
         )
         .sheet(isPresented: $isShowingAddDormSheet) {
-            AddDormitoryView(dorms: dorms, modelContext: modelContext, isShowingAddDormitorySheetBinding: $isShowingAddDormSheet)
+            NavigationStack {
+                AddDormitoryView(dorms: dorms, modelContext: modelContext, isShowingAddDormitorySheetBinding: $isShowingAddDormSheet)
+            }
         }
     }
 }

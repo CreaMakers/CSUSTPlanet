@@ -69,6 +69,15 @@ struct ContentView: View {
         } message: {
             Text(authManager.moocErrorMessage)
         }
+        .sheet(isPresented: Binding(
+            get: { !globalVars.isUserAgreementAccepted },
+            set: { globalVars.isUserAgreementAccepted = !$0 }
+        )) {
+            NavigationStack {
+                UserAgreementView()
+                    .interactiveDismissDisabled(true)
+            }
+        }
     }
 }
 
