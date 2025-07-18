@@ -11,7 +11,7 @@ import SwiftUI
 struct GradeQueryView: View {
     @StateObject var viewModel: GradeQueryViewModel
     
-    private var authManager: AuthManager
+    private var eduHelper: EduHelper
     
     struct InfoRow: View {
         let icon: String
@@ -40,9 +40,9 @@ struct GradeQueryView: View {
         }
     }
     
-    init(authManager: AuthManager) {
-        _viewModel = StateObject(wrappedValue: GradeQueryViewModel(eduHelper: authManager.eduHelper))
-        self.authManager = authManager
+    init(eduHelper: EduHelper) {
+        _viewModel = StateObject(wrappedValue: GradeQueryViewModel(eduHelper: eduHelper))
+        self.eduHelper = eduHelper
     }
     
     var body: some View {
@@ -215,7 +215,7 @@ struct GradeQueryView: View {
     }
     
     private func gradeCard(courseGrade: CourseGrade) -> some View {
-        NavigationLink(destination: GradeDetailView(authManager: authManager, courseGrade: courseGrade)) {
+        NavigationLink(destination: GradeDetailView(eduHelper: eduHelper, courseGrade: courseGrade)) {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
                     Text(courseGrade.courseName)
@@ -245,11 +245,5 @@ struct GradeQueryView: View {
             }
         }
         .padding(.vertical, 8)
-    }
-}
-
-#Preview {
-    NavigationStack {
-        GradeQueryView(authManager: AuthManager())
     }
 }

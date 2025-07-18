@@ -10,7 +10,7 @@ import Foundation
 
 @MainActor
 class GradeDetailViewModel: ObservableObject {
-    private var eduHelper: EduHelper?
+    private var eduHelper: EduHelper
 
     @Published var courseGrade: CourseGrade
 
@@ -21,18 +21,12 @@ class GradeDetailViewModel: ObservableObject {
 
     @Published var gradeDetail: GradeDetail?
 
-    init(eduHelper: EduHelper?, courseGrade: CourseGrade) {
+    init(eduHelper: EduHelper, courseGrade: CourseGrade) {
         self.eduHelper = eduHelper
         self.courseGrade = courseGrade
     }
 
     func loadDetail() {
-        guard let eduHelper = eduHelper else {
-            errorMessage = "教务服务未初始化"
-            isShowingError = true
-            return
-        }
-
         isLoadingDetail = true
 
         Task {

@@ -10,7 +10,7 @@ import Foundation
 
 @MainActor
 class GradeAnalysisViewModel: ObservableObject {
-    private var eduHelper: EduHelper?
+    private var eduHelper: EduHelper
 
     @Published var isQuerying: Bool = false
 
@@ -100,17 +100,11 @@ class GradeAnalysisViewModel: ObservableObject {
         courseGrades.reduce(0) { $0 + $1.totalHours }
     }
 
-    init(eduHelper: EduHelper? = nil) {
+    init(eduHelper: EduHelper) {
         self.eduHelper = eduHelper
     }
 
     func getCourseGrades() {
-        guard let eduHelper = eduHelper else {
-            errorMessage = "教务服务未初始化"
-            isShowingError = true
-            return
-        }
-
         isQuerying = true
         Task {
             defer {

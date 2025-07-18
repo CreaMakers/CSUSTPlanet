@@ -38,8 +38,8 @@ struct ExamScheduleView: View {
         }
     }
     
-    init(authManager: AuthManager) {
-        _viewModel = StateObject(wrappedValue: ExamScheduleViewModel(eduHelper: authManager.eduHelper))
+    init(eduHelper: EduHelper) {
+        _viewModel = StateObject(wrappedValue: ExamScheduleViewModel(eduHelper: eduHelper))
     }
     
     var body: some View {
@@ -209,11 +209,5 @@ struct ExamScheduleView: View {
             }
         }
         .padding(.vertical, 8)
-    }
-}
-
-#Preview {
-    NavigationStack {
-        ExamScheduleView(authManager: AuthManager())
     }
 }

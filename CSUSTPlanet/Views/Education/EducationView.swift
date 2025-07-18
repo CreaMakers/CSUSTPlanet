@@ -24,26 +24,40 @@ struct EducationView: View {
                     .foregroundColor(.secondary)
             }
         } else if authManager.isLoggedIn {
-            Form {
-                Section(header: Text("成绩")) {
-                    NavigationLink(destination: GradeQueryView(authManager: authManager)) {
-                        Label("成绩查询", systemImage: "doc.text.magnifyingglass")
+            if let eduHelper = authManager.eduHelper {
+                Form {
+                    Section(header: Text("成绩")) {
+                        NavigationLink(destination: GradeQueryView(eduHelper: eduHelper)) {
+                            Label("成绩查询", systemImage: "doc.text.magnifyingglass")
+                        }
+                        NavigationLink(destination: GradeAnalysisView(eduHelper: eduHelper)) {
+                            Label("成绩分析", systemImage: "chart.bar")
+                        }
+                        NavigationLink(destination: ExamScheduleView(eduHelper: eduHelper)) {
+                            Label("考试安排", systemImage: "pencil.and.outline")
+                        }
                     }
-                    NavigationLink(destination: GradeAnalysisView(authManager: authManager)) {
-                        Label("成绩分析", systemImage: "chart.bar")
-                    }
-                    NavigationLink(destination: ExamScheduleView(authManager: authManager)) {
-                        Label("考试安排", systemImage: "pencil.and.outline")
+
+                    Section(header: Text("课程")) {
+                        NavigationLink(destination: CourseScheduleView(eduHelper: eduHelper)) {
+                            Label("课表", systemImage: "calendar")
+                        }
                     }
                 }
-
-                Section(header: Text("课程")) {
-                    NavigationLink(destination: CourseScheduleView(authManager: authManager)) {
-                        Label("课表", systemImage: "calendar")
+                .navigationTitle("教务系统")
+            } else {
+                VStack {
+                    Text("教务系统未初始化")
+                        .font(.largeTitle)
+                        .padding()
+                    Button(action: {
+                        authManager.loginToEducation()
+                    }) {
+                        Text("重试初始化")
                     }
+                    .buttonStyle(.borderedProminent)
                 }
             }
-            .navigationTitle("教务系统")
         } else {
             NotLoginView()
         }

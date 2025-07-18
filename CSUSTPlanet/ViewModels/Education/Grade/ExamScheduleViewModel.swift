@@ -10,7 +10,7 @@ import Foundation
 
 @MainActor
 class ExamScheduleViewModel: ObservableObject {
-    private var eduHelper: EduHelper?
+    private var eduHelper: EduHelper
 
     private var calendarHelper = CalendarHelper()
 
@@ -28,17 +28,11 @@ class ExamScheduleViewModel: ObservableObject {
 
     @Published var examSchedule: [Exam] = []
 
-    init(eduHelper: EduHelper?) {
+    init(eduHelper: EduHelper) {
         self.eduHelper = eduHelper
     }
 
     func loadAvailableSemesters() {
-        guard let eduHelper = eduHelper else {
-            errorMessage = "教务服务未初始化"
-            isShowingError = true
-            return
-        }
-
         isSemestersLoading = true
         Task {
             defer {
@@ -101,12 +95,6 @@ class ExamScheduleViewModel: ObservableObject {
     }
 
     func getExams() {
-        guard let eduHelper = eduHelper else {
-            errorMessage = "教务服务未初始化"
-            isShowingError = true
-            return
-        }
-
         isQuerying = true
         queryID = UUID()
         Task {

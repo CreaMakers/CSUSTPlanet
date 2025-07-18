@@ -11,7 +11,7 @@ import SwiftUI
 
 @MainActor
 class GradeQueryViewModel: ObservableObject {
-    private var eduHelper: EduHelper?
+    private var eduHelper: EduHelper
 
     @Published var availableSemesters: [String] = []
     @Published var selectedSemester: String = ""
@@ -33,7 +33,7 @@ class GradeQueryViewModel: ObservableObject {
 
     @Published var isLoaded: Bool = false
 
-    init(eduHelper: EduHelper? = nil) {
+    init(eduHelper: EduHelper) {
         self.eduHelper = eduHelper
     }
 
@@ -69,12 +69,6 @@ class GradeQueryViewModel: ObservableObject {
     }
 
     func loadAvailableSemesters() {
-        guard let eduHelper = eduHelper else {
-            errorMessage = "教务服务未初始化"
-            isShowingError = true
-            return
-        }
-
         isSemestersLoading = true
         Task {
             defer {
@@ -91,12 +85,6 @@ class GradeQueryViewModel: ObservableObject {
     }
 
     func getCourseGrades() {
-        guard let eduHelper = eduHelper else {
-            errorMessage = "教务服务未初始化"
-            isShowingError = true
-            return
-        }
-
         isQuerying = true
         queryID = UUID()
         Task {

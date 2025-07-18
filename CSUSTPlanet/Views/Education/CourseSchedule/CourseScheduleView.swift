@@ -11,8 +11,8 @@ import SwiftUI
 struct CourseScheduleView: View {
     @StateObject var viewModel: CourseScheduleViewModel
 
-    init(authManager: AuthManager) {
-        _viewModel = StateObject(wrappedValue: CourseScheduleViewModel(eduHelper: authManager.eduHelper))
+    init(eduHelper: EduHelper) {
+        _viewModel = StateObject(wrappedValue: CourseScheduleViewModel(eduHelper: eduHelper))
     }
 
     var body: some View {
@@ -256,11 +256,5 @@ struct CourseScheduleView: View {
             }
         }
         .padding(.vertical)
-    }
-}
-
-#Preview {
-    NavigationStack {
-        CourseScheduleView(authManager: AuthManager())
     }
 }

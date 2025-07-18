@@ -17,7 +17,7 @@ struct CourseDisplayInfo: Identifiable {
 
 @MainActor
 class CourseScheduleViewModel: ObservableObject {
-    private var eduHelper: EduHelper?
+    private var eduHelper: EduHelper
 
     // TabView显示的第几周
     @Published var currentWeek: Int = 1
@@ -69,7 +69,7 @@ class CourseScheduleViewModel: ObservableObject {
         return formatter
     }()
 
-    init(eduHelper: EduHelper? = nil) {
+    init(eduHelper: EduHelper) {
         self.eduHelper = eduHelper
         processCourses()
     }
@@ -79,12 +79,6 @@ class CourseScheduleViewModel: ObservableObject {
     }
 
     func loadAvailableSemesters() {
-        guard let eduHelper = eduHelper else {
-            errorMessage = "教务服务未初始化"
-            isShowingError = true
-            return
-        }
-
         isSemestersLoading = true
         Task {
             defer {
@@ -101,12 +95,6 @@ class CourseScheduleViewModel: ObservableObject {
     }
 
     func loadCourses() {
-        guard let eduHelper = eduHelper else {
-            errorMessage = "教务服务未初始化"
-            isShowingError = true
-            return
-        }
-
         isCoursesLoading = true
         Task {
             defer {

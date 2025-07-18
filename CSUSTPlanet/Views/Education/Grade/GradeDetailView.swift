@@ -12,8 +12,8 @@ import SwiftUI
 struct GradeDetailView: View {
     @StateObject var viewModel: GradeDetailViewModel
     
-    init(authManager: AuthManager, courseGrade: CourseGrade) {
-        _viewModel = StateObject(wrappedValue: GradeDetailViewModel(eduHelper: authManager.eduHelper, courseGrade: courseGrade))
+    init(eduHelper: EduHelper, courseGrade: CourseGrade) {
+        _viewModel = StateObject(wrappedValue: GradeDetailViewModel(eduHelper: eduHelper, courseGrade: courseGrade))
     }
     
     var body: some View {

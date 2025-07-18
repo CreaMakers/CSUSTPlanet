@@ -6,13 +6,14 @@
 //
 
 import Charts
+import CSUSTKit
 import SwiftUI
 
 struct GradeAnalysisView: View {
     @StateObject var viewModel: GradeAnalysisViewModel
     
-    init(authManager: AuthManager) {
-        self._viewModel = StateObject(wrappedValue: GradeAnalysisViewModel(eduHelper: authManager.eduHelper))
+    init(eduHelper: EduHelper) {
+        self._viewModel = StateObject(wrappedValue: GradeAnalysisViewModel(eduHelper: eduHelper))
     }
     
     var body: some View {
@@ -255,11 +256,5 @@ struct GradeAnalysisView: View {
                 .padding()
             }
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        GradeAnalysisView(authManager: AuthManager())
     }
 }
