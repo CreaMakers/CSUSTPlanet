@@ -20,34 +20,37 @@ struct ProfileView: View {
                     NavigationLink {
                         ProfileDetailView(authManager: authManager)
                     } label: {
-                        AsyncImage(url: URL(string: ssoProfile.defaultUserAvatar)) { image in
-                            image
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 40, height: 40)
-                                .clipShape(Circle())
-                        } placeholder: {
-                            ProgressView()
-                        }
+                        HStack {
+                            AsyncImage(url: URL(string: ssoProfile.defaultUserAvatar)) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                            } placeholder: {
+                                ProgressView()
+                            }
 
-                        VStack(alignment: .leading) {
-                            Text("\(ssoProfile.userName) \(ssoProfile.userAccount)")
-                                .font(.headline)
-                            Text(ssoProfile.deptName)
-                                .font(.caption)
+                            VStack(alignment: .leading) {
+                                Text("\(ssoProfile.userName) \(ssoProfile.userAccount)")
+                                    .font(.headline)
+                                Text(ssoProfile.deptName)
+                                    .font(.caption)
+                            }
                         }
                     }
+
                     Button(action: {
                         Task {
                             try await authManager.logout()
                         }
                     }) {
-                        Label("退出登录", systemImage: "arrow.right.circle")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .contentShape(Rectangle())
-                            .foregroundStyle(.red)
-                        if authManager.isSSOLoggingOut {
-                            ProgressView()
+                        HStack {
+                            ColoredLabel(title: "退出登录", iconName: "arrow.right.circle", color: .red)
+                            if authManager.isSSOLoggingOut {
+                                Spacer()
+                                ProgressView()
+                            }
                         }
                     }
                     .disabled(authManager.isSSOLoggingOut)
@@ -61,9 +64,7 @@ struct ProfileView: View {
                     Button(action: {
                         showLoginSheet = true
                     }) {
-                        Label("登录统一认证账号", systemImage: "person.crop.circle.badge.plus")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .contentShape(Rectangle())
+                        ColoredLabel(title: "登录统一认证账号", iconName: "person.crop.circle.badge.plus", color: .blue)
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -73,17 +74,19 @@ struct ProfileView: View {
                 NavigationLink {
                     AboutView()
                 } label: {
-                    Label("关于", systemImage: "info.circle")
+                    ColoredLabel(title: "关于", iconName: "info.circle", color: .teal)
                 }
+
                 NavigationLink {
                     FeedbackView()
                 } label: {
-                    Label("意见反馈", systemImage: "bubble.left.and.bubble.right")
+                    ColoredLabel(title: "意见反馈", iconName: "bubble.left.and.bubble.right", color: .green)
                 }
+
                 NavigationLink {
                     UserAgreementView()
                 } label: {
-                    Label("用户协议", systemImage: "doc.text")
+                    ColoredLabel(title: "用户协议", iconName: "doc.text", color: .indigo)
                 }
             }
 
@@ -93,24 +96,28 @@ struct ProfileView: View {
                     Text("深色模式").tag("dark")
                     Text("跟随系统").tag("system")
                 } label: {
-                    Label("外观主题", systemImage: "paintbrush")
+                    ColoredLabel(title: "外观主题", iconName: "paintbrush", color: .purple)
                 }
-                Button(action: authManager.loginToEducation) {
-                    Label("重新登录教务系统", systemImage: "graduationcap")
 
-                    if authManager.isEducationLoggingIn {
-                        Spacer()
-                        ProgressView()
+                Button(action: authManager.loginToEducation) {
+                    HStack {
+                        ColoredLabel(title: "重新登录教务系统", iconName: "graduationcap", color: .orange)
+                        if authManager.isEducationLoggingIn {
+                            Spacer()
+                            ProgressView()
+                        }
                     }
                 }
                 .disabled(authManager.isEducationLoggingIn || !authManager.isLoggedIn)
                 .buttonStyle(.plain)
-                Button(action: authManager.loginToMooc) {
-                    Label("重新登录网络课程中心", systemImage: "book.closed")
 
-                    if authManager.isMoocLoggingIn {
-                        Spacer()
-                        ProgressView()
+                Button(action: authManager.loginToMooc) {
+                    HStack {
+                        ColoredLabel(title: "重新登录网络课程中心", iconName: "book.closed", color: .mint)
+                        if authManager.isMoocLoggingIn {
+                            Spacer()
+                            ProgressView()
+                        }
                     }
                 }
                 .disabled(authManager.isMoocLoggingIn || !authManager.isLoggedIn)

@@ -111,8 +111,6 @@ class AuthManager: ObservableObject {
     }
 
     func loginToEducation() {
-        guard eduHelper == nil else { return }
-
         isEducationLoggingIn = true
         Task {
             defer {
@@ -129,7 +127,6 @@ class AuthManager: ObservableObject {
     }
 
     func loginToMooc() {
-        guard moocHelper == nil else { return }
         isMoocLoggingIn = true
         Task {
             defer {

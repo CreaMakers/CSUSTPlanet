@@ -27,27 +27,27 @@ struct FeaturesView: View {
                 } else if authManager.isLoggedIn {
                     if let eduHelper = authManager.eduHelper {
                         NavigationLink(destination: GradeQueryView(eduHelper: eduHelper)) {
-                            Label("成绩查询", systemImage: "doc.text.magnifyingglass")
+                            ColoredLabel(title: "成绩查询", iconName: "doc.text.magnifyingglass", color: .blue)
                         }
                         NavigationLink(destination: GradeAnalysisView(eduHelper: eduHelper)) {
-                            Label("成绩分析", systemImage: "chart.bar")
+                            ColoredLabel(title: "成绩分析", iconName: "chart.bar", color: .green)
                         }
                         NavigationLink(destination: ExamScheduleView(eduHelper: eduHelper)) {
-                            Label("考试安排", systemImage: "pencil.and.outline")
+                            ColoredLabel(title: "考试安排", iconName: "pencil.and.outline", color: .orange)
                         }
                         NavigationLink(destination: CourseScheduleView(eduHelper: eduHelper)) {
-                            Label("课表", systemImage: "calendar")
+                            ColoredLabel(title: "课表", iconName: "calendar", color: .purple)
                         }
                     } else {
                         Button(action: authManager.loginToEducation) {
-                            Label("重新初始化教务系统", systemImage: "arrow.clockwise")
+                            ColoredLabel(title: "重新初始化教务系统", iconName: "arrow.clockwise", color: .gray)
                         }
                     }
                 } else {
                     Button(action: {
                         globalVars.selectedTab = 1
                     }) {
-                        Label("前往登录统一认证", systemImage: "person.crop.circle.badge.plus")
+                        ColoredLabel(title: "前往登录统一认证", iconName: "person.crop.circle.badge.plus", color: .red)
                     }
                     .buttonStyle(.plain)
                 }
@@ -67,18 +67,18 @@ struct FeaturesView: View {
                 } else if authManager.isLoggedIn {
                     if let moocHelper = authManager.moocHelper {
                         NavigationLink(destination: CoursesView(moocHelper: moocHelper)) {
-                            Label("课程列表", systemImage: "book")
+                            ColoredLabel(title: "课程列表", iconName: "book", color: .indigo)
                         }
                     } else {
                         Button(action: authManager.loginToMooc) {
-                            Label("重新初始化网络课程中心", systemImage: "arrow.clockwise")
+                            ColoredLabel(title: "重新初始化网络课程中心", iconName: "arrow.clockwise", color: .gray)
                         }
                     }
                 } else {
                     Button(action: {
                         globalVars.selectedTab = 1
                     }) {
-                        Label("前往登录统一认证", systemImage: "person.crop.circle.badge.plus")
+                        ColoredLabel(title: "前往登录统一认证", iconName: "person.crop.circle.badge.plus", color: .red)
                     }
                     .buttonStyle(.plain)
                 }
@@ -86,22 +86,22 @@ struct FeaturesView: View {
 
             Section(header: Text("生活服务")) {
                 NavigationLink(destination: ElectricityQueryView()) {
-                    Label("电量查询", systemImage: "bolt.fill")
+                    ColoredLabel(title: "电量查询", iconName: "bolt.fill", color: .yellow)
                 }
                 NavigationLink(destination: CampusMapView()) {
-                    Label("校园地图", systemImage: "map")
+                    ColoredLabel(title: "校园地图", iconName: "map", color: .mint)
                 }
                 NavigationLink(destination: SchoolCalendarView()) {
-                    Label("校历", systemImage: "calendar")
+                    ColoredLabel(title: "校历", iconName: "calendar", color: .pink)
                 }
             }
 
             Section(header: Text("考试查询")) {
                 NavigationLink(destination: CETView()) {
-                    Label("四六级", systemImage: "character.book.closed")
+                    ColoredLabel(title: "四六级", iconName: "character.book.closed", color: .brown)
                 }
                 NavigationLink(destination: MandarinView()) {
-                    Label("普通话", systemImage: "mic.fill")
+                    ColoredLabel(title: "普通话", iconName: "mic.fill", color: .teal)
                 }
             }
         }
