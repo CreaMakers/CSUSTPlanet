@@ -25,28 +25,12 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $globalVars.selectedTab) {
             NavigationStack {
-                EducationView()
-            }
-            .tabItem {
-                Label("教务系统", systemImage: "graduationcap")
-            }
-            .tag(0)
-
-            NavigationStack {
-                MoocView()
-            }
-            .tabItem {
-                Label("网络课程中心", systemImage: "book")
-            }
-            .tag(1)
-
-            NavigationStack {
                 FeaturesView()
             }
             .tabItem {
-                Label("其他功能", systemImage: "square.grid.2x2")
+                Label("全部功能", systemImage: "square.grid.2x2")
             }
-            .tag(2)
+            .tag(0)
 
             NavigationStack {
                 ProfileView()
@@ -54,7 +38,7 @@ struct ContentView: View {
             .tabItem {
                 Label("我的", systemImage: "person")
             }
-            .tag(3)
+            .tag(1)
         }
         .preferredColorScheme(preferredColorScheme)
         .alert("教务登录错误", isPresented: $authManager.isShowingEducationError) {
