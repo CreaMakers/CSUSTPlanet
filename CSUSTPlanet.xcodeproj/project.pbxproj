@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0041FC6A2E2A91E0007F383F /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 0041FC692E2A91E0007F383F /* Zoomable */; };
 		007CF90A2E1CF0ED00E319F2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 007CF9092E1CF0ED00E319F2 /* CSUSTKit */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +42,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				007CF90A2E1CF0ED00E319F2 /* CSUSTKit in Frameworks */,
+				0041FC6A2E2A91E0007F383F /* Zoomable in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +86,7 @@
 			name = CSUSTPlanet;
 			packageProductDependencies = (
 				007CF9092E1CF0ED00E319F2 /* CSUSTKit */,
+				0041FC692E2A91E0007F383F /* Zoomable */,
 			);
 			productName = CSUSTPlanet;
 			productReference = 007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */;
@@ -115,6 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				007CF9082E1CF0ED00E319F2 /* XCRemoteSwiftPackageReference "CSUSTKit" */,
+				0041FC682E2A91E0007F383F /* XCRemoteSwiftPackageReference "Zoomable" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 007CF85C2E1BD68900E319F2 /* Products */;
@@ -358,6 +362,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0041FC682E2A91E0007F383F /* XCRemoteSwiftPackageReference "Zoomable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ryohey/Zoomable.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		007CF9082E1CF0ED00E319F2 /* XCRemoteSwiftPackageReference "CSUSTKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/zHElEARN/CSUSTKit.git";
@@ -369,6 +381,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0041FC692E2A91E0007F383F /* Zoomable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0041FC682E2A91E0007F383F /* XCRemoteSwiftPackageReference "Zoomable" */;
+			productName = Zoomable;
+		};
 		007CF9092E1CF0ED00E319F2 /* CSUSTKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 007CF9082E1CF0ED00E319F2 /* XCRemoteSwiftPackageReference "CSUSTKit" */;
