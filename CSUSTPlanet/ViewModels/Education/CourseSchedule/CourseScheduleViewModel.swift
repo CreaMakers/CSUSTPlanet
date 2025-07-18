@@ -74,6 +74,10 @@ class CourseScheduleViewModel: ObservableObject {
         processCourses()
     }
 
+    func handleSemesterChange(oldSemester: String?, newSemester: String?) {
+        loadCourses()
+    }
+
     func loadAvailableSemesters() {
         guard let eduHelper = eduHelper else {
             errorMessage = "教务服务未初始化"

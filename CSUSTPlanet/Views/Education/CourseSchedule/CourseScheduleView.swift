@@ -114,6 +114,7 @@ struct CourseScheduleView: View {
                             Text(semester).tag(semester as String?)
                         }
                     }
+                    .onChange(of: viewModel.selectedSemester, viewModel.handleSemesterChange)
                 }
 
                 Button(action: viewModel.goToCurrentWeek) {
