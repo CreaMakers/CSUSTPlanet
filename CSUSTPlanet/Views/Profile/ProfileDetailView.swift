@@ -81,6 +81,24 @@ struct ProfileDetailView: View {
         } message: {
             Text(viewModel.errorMessage)
         }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    Button {
+                        viewModel.loadEduProfile()
+                    } label: {
+                        Label("刷新教务信息", systemImage: "arrow.clockwise")
+                    }
+                    Button {
+                        viewModel.loadMoocProfile()
+                    } label: {
+                        Label("刷新网络课程中心信息", systemImage: "arrow.clockwise")
+                    }
+                } label: {
+                    Label("更多操作", systemImage: "ellipsis.circle")
+                }
+            }
+        }
         .navigationTitle("个人详情")
         .onAppear {
             viewModel.loadEduProfile()
