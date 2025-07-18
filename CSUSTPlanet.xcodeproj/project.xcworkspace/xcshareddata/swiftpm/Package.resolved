@@ -11,12 +11,21 @@
       }
     },
     {
+      "identity" : "cryptoswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
+      "state" : {
+        "revision" : "e45a26384239e028ec87fbcc788f513b67e10d8f",
+        "version" : "1.9.0"
+      }
+    },
+    {
       "identity" : "csustkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zHElEARN/CSUSTKit.git",
       "state" : {
-        "revision" : "93010932fb4e6bdba8e0867d22e8e8e6d4b2010c",
-        "version" : "1.0.16"
+        "revision" : "8ecefa780bcd7b33cb5ce4081817a691139c640c",
+        "version" : "1.0.21"
       }
     },
     {
