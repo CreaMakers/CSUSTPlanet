@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/18.
 //
 
+import CSUSTKit
 import SwiftUI
 
 struct CourseCardView: View {

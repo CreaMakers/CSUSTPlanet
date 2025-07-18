@@ -38,7 +38,7 @@ struct EducationView: View {
                 }
 
                 Section(header: Text("课程")) {
-                    NavigationLink(destination: CourseScheduleView()) {
+                    NavigationLink(destination: CourseScheduleView(authManager: authManager)) {
                         Label("课表", systemImage: "calendar")
                     }
                 }
