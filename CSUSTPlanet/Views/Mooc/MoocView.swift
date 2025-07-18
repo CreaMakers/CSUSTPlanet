@@ -24,16 +24,30 @@ struct MoocView: View {
                     .foregroundColor(.secondary)
             }
         } else if authManager.isLoggedIn {
-            Form {
-                Section {
-                    NavigationLink {
-                        CoursesView(authManager: authManager)
-                    } label: {
-                        Label("课程列表", systemImage: "book.fill")
+            if let moocHelper = authManager.moocHelper {
+                Form {
+                    Section {
+                        NavigationLink {
+                            CoursesView(moocHelper: moocHelper)
+                        } label: {
+                            Label("课程列表", systemImage: "book.fill")
+                        }
                     }
                 }
+                .navigationTitle("网络课程中心")
+            } else {
+                VStack {
+                    Text("网络课程中心系统未初始化")
+                        .font(.largeTitle)
+                        .padding()
+                    Button(action: {
+                        authManager.loginToMooc()
+                    }) {
+                        Text("重试初始化")
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
             }
-            .navigationTitle("网络课程中心")
         } else {
             NotLoginView()
         }

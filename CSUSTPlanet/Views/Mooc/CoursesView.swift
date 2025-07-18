@@ -38,8 +38,8 @@ struct CoursesView: View {
         }
     }
     
-    init(authManager: AuthManager) {
-        _viewModel = StateObject(wrappedValue: CoursesViewModel(moocHelper: authManager.moocHelper))
+    init(moocHelper: MoocHelper) {
+        _viewModel = StateObject(wrappedValue: CoursesViewModel(moocHelper: moocHelper))
     }
     
     var body: some View {
@@ -117,11 +117,5 @@ struct CoursesView: View {
             InfoRow(icon: "person", iconColor: .purple, label: "授课教师", value: course.teacher)
         }
         .padding(.vertical, 8)
-    }
-}
-
-#Preview {
-    NavigationStack {
-        CoursesView(authManager: AuthManager())
     }
 }

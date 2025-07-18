@@ -10,7 +10,7 @@ import Foundation
 
 @MainActor
 class CoursesViewModel: ObservableObject {
-    private var moocHelper: MoocHelper?
+    private var moocHelper: MoocHelper
 
     @Published var courses: [MoocCourse] = []
 
@@ -20,17 +20,11 @@ class CoursesViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var loadingID = UUID()
 
-    init(moocHelper: MoocHelper? = nil) {
+    init(moocHelper: MoocHelper) {
         self.moocHelper = moocHelper
     }
 
     func loadCourses() {
-        guard let moocHelper = moocHelper else {
-            errorMessage = "网络课程中心服务未初始化"
-            isShowingError = true
-            return
-        }
-
         isLoading = true
         loadingID = UUID()
         Task {
