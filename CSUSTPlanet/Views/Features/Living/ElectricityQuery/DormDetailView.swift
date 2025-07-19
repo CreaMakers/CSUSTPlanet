@@ -161,8 +161,8 @@ struct DormDetailView: View {
                 }
             }
             .chartXAxis {
-                AxisMarks(values: .automatic) { _ in
-                    AxisValueLabel(format: .dateTime.year().month().day())
+                AxisMarks(values: .automatic(desiredCount: 4)) { _ in
+                    AxisValueLabel(format: .dateTime.month().day())
                 }
             }
             .frame(height: 200)
