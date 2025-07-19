@@ -151,7 +151,12 @@ struct CourseScheduleView: View {
 
     private func headerView(for week: Int, semesterStartDate: Date) -> some View {
         let dates = viewModel.getDatesForWeek(week, semesterStartDate: semesterStartDate)
-        let monthString = dates.first?.formatted(.dateTime.month(.defaultDigits)) ?? ""
+        let monthFormatter = DateFormatter()
+        monthFormatter.dateFormat = "M"
+        let monthString = monthFormatter.string(from: dates.first ?? Date())
+
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "d"
 
         return HStack(spacing: viewModel.colSpacing) {
             // 左上角月份显示区
@@ -173,7 +178,7 @@ struct CourseScheduleView: View {
                         .foregroundColor(Calendar.current.isDateInToday(date) ? .primary : .secondary)
                         .fontWeight(Calendar.current.isDateInToday(date) ? .bold : .regular)
 
-                    Text(date.formatted(.dateTime.day()))
+                    Text(dayFormatter.string(from: date))
                         .font(.subheadline)
                         .foregroundColor(Calendar.current.isDateInToday(date) ? .primary : .secondary)
                         .fontWeight(Calendar.current.isDateInToday(date) ? .bold : .regular)
