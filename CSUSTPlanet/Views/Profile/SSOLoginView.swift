@@ -24,27 +24,30 @@ struct SSOLoginView: View {
             .pickerStyle(.segmented)
             .padding(.horizontal)
 
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .top, spacing: 5) {
-                    Image(systemName: "info.circle.fill")
-                        .foregroundColor(.blue)
-                        .font(.system(size: 16))
+            ScrollView {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .top, spacing: 5) {
+                        Image(systemName: "info.circle.fill")
+                            .foregroundColor(.blue)
+                            .font(.system(size: 16))
 
-                    Text("推荐使用账号密码登录方式，当登录状态丢失后，应用会自动尝试重新使用账号密码来登录。\n而验证码登录方式当登录状态丢失后则需要重新登录。")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        Text("推荐使用账号密码登录方式，当登录状态丢失后，应用会自动尝试重新使用账号密码来登录。\n而验证码登录方式当登录状态丢失后则需要重新登录。")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(Color.accent.opacity(0.1))
+                    .cornerRadius(10)
                 }
-                .padding()
-                .background(Color.accent.opacity(0.1))
-                .cornerRadius(10)
-            }
-            .padding(.horizontal)
+                .padding(.horizontal)
 
-            TabView(selection: $viewModel.selectedTab) {
-                accountLoginView.tag(0)
-                verificationCodeLoginView.tag(1)
+                TabView(selection: $viewModel.selectedTab) {
+                    accountLoginView.tag(0)
+                    verificationCodeLoginView.tag(1)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(height: 300)
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
         }
         .navigationTitle("统一认证登录")
         .navigationBarTitleDisplayMode(.inline)
@@ -73,7 +76,7 @@ struct SSOLoginView: View {
                 Image(systemName: "person.circle.fill")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 20)
+                    .frame(width: 20, height: 20)
                     .foregroundColor(.gray)
                 TextField("请输入账号", text: $viewModel.username)
                     .textFieldStyle(.plain)
@@ -96,7 +99,7 @@ struct SSOLoginView: View {
                 Image(systemName: "lock.fill")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 20)
+                    .frame(width: 20, height: 20)
                     .foregroundColor(.gray)
 
                 if viewModel.isPasswordVisible {
@@ -153,7 +156,7 @@ struct SSOLoginView: View {
                 Image(systemName: "person.circle.fill")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 20)
+                    .frame(width: 20, height: 20)
                     .foregroundColor(.gray)
                 TextField("请输入账号", text: $viewModel.username)
                     .textFieldStyle(.plain)
@@ -177,7 +180,7 @@ struct SSOLoginView: View {
                     Image(systemName: "photo.on.rectangle.angled")
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 20)
+                        .frame(width: 20, height: 20)
                         .foregroundColor(.gray)
                     TextField("请输入图片验证码", text: $viewModel.captcha)
                         .textFieldStyle(.plain)
@@ -213,7 +216,7 @@ struct SSOLoginView: View {
                     Image(systemName: "message.fill")
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 20)
+                        .frame(width: 20, height: 20)
                         .foregroundColor(.gray)
                     TextField("请输入短信验证码", text: $viewModel.smsCode)
                         .textContentType(.oneTimeCode)
