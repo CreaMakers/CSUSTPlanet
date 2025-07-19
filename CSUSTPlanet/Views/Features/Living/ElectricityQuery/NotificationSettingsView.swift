@@ -10,8 +10,8 @@ import SwiftUI
 struct NotificationSettingsView: View {
     @Binding var isPresented: Bool
 
-    @State private var selectedHour: Int = 20
-    @State private var selectedMinute: Int = 0
+    @State private var selectedHour: Int = Calendar.current.component(.hour, from: .now)
+    @State private var selectedMinute: Int = Calendar.current.component(.minute, from: .now)
 
     var onConfirm: (Int, Int) -> Void
 

@@ -44,16 +44,34 @@ BobH开发的i乐学助手为长理星球iOS端提供了部分功能与设计灵
 
 struct AboutView: View {
     var body: some View {
-        ScrollView {
+        Form {
             Markdown(aboutMarkdown)
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(.secondarySystemBackground))
-                )
-                .padding()
-        }
 
+            Section("应用信息") {
+                HStack {
+                    Text("版本号")
+                    Spacer()
+                    Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "未知版本")
+                }
+                HStack {
+                    Text("构建号")
+                    Spacer()
+                    Text(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "未知构建")
+                }
+                HStack {
+                    Text("运行环境")
+                    Spacer()
+                    switch AppEnvironmentHelper.currentEnvironment() {
+                    case .debug:
+                        Text("Debug")
+                    case .appStore:
+                        Text("App Store")
+                    case .testFlight:
+                        Text("TestFlight")
+                    }
+                }
+            }
+        }
         .background(Color(.systemBackground))
         .navigationTitle("关于")
     }

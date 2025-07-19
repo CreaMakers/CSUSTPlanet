@@ -233,10 +233,13 @@ class DormElectricityViewModel: ObservableObject {
                     isShowingError = true
                     return
                 }
+
+                let environment = AppEnvironmentHelper.currentEnvironment()
                 let request = ElectricityBindingDTO(
                     id: nil,
                     studentId: studentId,
                     deviceToken: token,
+                    isDebug: environment == .debug,
                     campus: dorm.campusName,
                     building: dorm.buildingName,
                     room: dorm.room,
@@ -278,6 +281,7 @@ class DormElectricityViewModel: ObservableObject {
         let id: String?
         let studentId: String
         let deviceToken: String
+        let isDebug: Bool
         let campus: String
         let building: String
         let room: String
