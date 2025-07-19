@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var globalVars: GlobalVars
     @EnvironmentObject var authManager: AuthManager
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
     var preferredColorScheme: ColorScheme? {
         switch globalVars.appearance {
@@ -24,16 +25,28 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $globalVars.selectedTab) {
-            NavigationStack {
-                FeaturesView()
+            Group {
+                if horizontalSizeClass == .regular {
+                    FeaturesSplitView()
+                } else {
+                    NavigationStack {
+                        FeaturesListView()
+                    }
+                }
             }
             .tabItem {
                 Label("全部功能", systemImage: "square.grid.2x2")
             }
             .tag(0)
 
-            NavigationStack {
-                ProfileView()
+            Group {
+                if horizontalSizeClass == .regular {
+                    ProfileSplitView()
+                } else {
+                    NavigationStack {
+                        ProfileListView()
+                    }
+                }
             }
             .tabItem {
                 Label("我的", systemImage: "person")

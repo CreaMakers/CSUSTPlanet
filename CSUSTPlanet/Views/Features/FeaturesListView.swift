@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct FeaturesView: View {
+struct FeaturesListView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var globalVars: GlobalVars
 
@@ -111,6 +111,6 @@ struct FeaturesView: View {
 
 #Preview {
     NavigationStack {
-        FeaturesView()
+        FeaturesListView()
     }
 }

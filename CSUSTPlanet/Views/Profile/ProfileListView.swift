@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ProfileView: View {
+struct ProfileListView: View {
     @EnvironmentObject private var authManager: AuthManager
     @EnvironmentObject private var globalVars: GlobalVars
 
@@ -135,7 +135,7 @@ struct ProfileView: View {
 
 #Preview {
     NavigationStack {
-        ProfileView()
+        ProfileListView()
     }
     .environmentObject(AuthManager())
     .environmentObject(GlobalVars.shared)
