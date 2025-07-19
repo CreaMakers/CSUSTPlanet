@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>我们需要访问您的日历以添加事件</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
@@ -31,5 +29,7 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>我们需要访问您的日历以添加事件</string>
 </dict>
 </plist>

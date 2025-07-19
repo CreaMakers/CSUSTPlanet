@@ -111,11 +111,11 @@
 				};
 			};
 			buildConfigurationList = 007CF8562E1BD68800E319F2 /* Build configuration list for PBXProject "CSUSTPlanet" */;
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = 007CF8522E1BD68800E319F2;
 			minimizedProjectReferenceProxies = 1;
@@ -289,6 +289,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CSUSTPlanet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "长理星球";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -322,6 +323,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CSUSTPlanet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "长理星球";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
