@@ -99,29 +99,35 @@ struct ProfileListView: View {
                     ColoredLabel(title: "外观主题", iconName: "paintbrush", color: .purple)
                 }
 
-                Button(action: authManager.loginToEducation) {
-                    HStack {
+                if authManager.isEducationLoggingIn {
+                    Button(action: authManager.loginToEducation) {
+                        HStack {
+                            ProgressView().padding(.horizontal, 6).id(authManager.eduLoginID)
+                            Text("正在登录教务系统 (点击重试)")
+                        }
+                    }
+                } else {
+                    Button(action: authManager.loginToEducation) {
                         ColoredLabel(title: "重新登录教务系统", iconName: "graduationcap", color: .orange)
-                        if authManager.isEducationLoggingIn {
-                            Spacer()
-                            ProgressView()
-                        }
                     }
+                    .buttonStyle(.plain)
+                    .disabled(!authManager.isLoggedIn)
                 }
-                .disabled(authManager.isEducationLoggingIn || !authManager.isLoggedIn)
-                .buttonStyle(.plain)
 
-                Button(action: authManager.loginToMooc) {
-                    HStack {
-                        ColoredLabel(title: "重新登录网络课程中心", iconName: "book.closed", color: .mint)
-                        if authManager.isMoocLoggingIn {
-                            Spacer()
-                            ProgressView()
+                if authManager.isMoocLoggingIn {
+                    Button(action: authManager.loginToMooc) {
+                        HStack {
+                            ProgressView().padding(.horizontal, 6).id(authManager.moocLoginID)
+                            Text("正在登录网络课程中心 (点击重试)")
                         }
                     }
+                } else {
+                    Button(action: authManager.loginToMooc) {
+                        ColoredLabel(title: "重新登录网络课程中心", iconName: "book.closed", color: .mint)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!authManager.isLoggedIn)
                 }
-                .disabled(authManager.isMoocLoggingIn || !authManager.isLoggedIn)
-                .buttonStyle(.plain)
             }
         }
         .sheet(isPresented: $showLoginSheet) {

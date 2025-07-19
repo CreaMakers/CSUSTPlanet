@@ -26,13 +26,15 @@ struct FeaturesSplitView: View {
                 Section("教务系统") {
                     if authManager.isSSOLoggingIn {
                         HStack {
-                            ProgressView().padding(.trailing, 8)
+                            ProgressView().padding(.horizontal, 6)
                             Text("正在登录统一认证...")
                         }
                     } else if authManager.isEducationLoggingIn {
-                        HStack {
-                            ProgressView().padding(.trailing, 8)
-                            Text("正在登录教务系统...")
+                        Button(action: authManager.loginToEducation) {
+                            HStack {
+                                ProgressView().padding(.horizontal, 6).id(authManager.eduLoginID)
+                                Text("正在登录教务系统 (点击重试)")
+                            }
                         }
                     } else if authManager.isLoggedIn {
                         if let _ = authManager.eduHelper {
@@ -50,8 +52,9 @@ struct FeaturesSplitView: View {
                             }
                         } else {
                             Button(action: authManager.loginToEducation) {
-                                ColoredLabel(title: "重新初始化教务系统", iconName: "arrow.clockwise", color: .gray)
+                                ColoredLabel(title: "重新登录教务系统", iconName: "graduationcap", color: .orange)
                             }
+                            .buttonStyle(.plain)
                         }
                     } else {
                         Button(action: {
@@ -59,19 +62,20 @@ struct FeaturesSplitView: View {
                         }) {
                             ColoredLabel(title: "前往登录统一认证", iconName: "person.crop.circle.badge.plus", color: .blue)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
                 Section("网络课程中心") {
                     if authManager.isSSOLoggingIn {
                         HStack {
-                            ProgressView().padding(.trailing, 8)
+                            ProgressView().padding(.horizontal, 6)
                             Text("正在登录统一认证...")
                         }
                     } else if authManager.isMoocLoggingIn {
-                        HStack {
-                            ProgressView().padding(.trailing, 8)
-                            Text("正在登录网络课程中心...")
+                        Button(action: authManager.loginToMooc) {
+                            HStack {
+                                ProgressView().padding(.horizontal, 6).id(authManager.moocLoginID)
+                                Text("正在登录网络课程中心 (点击重试)")
+                            }
                         }
                     } else if authManager.isLoggedIn {
                         if let _ = authManager.moocHelper {
@@ -80,8 +84,9 @@ struct FeaturesSplitView: View {
                             }
                         } else {
                             Button(action: authManager.loginToMooc) {
-                                ColoredLabel(title: "重新初始化网络课程中心", iconName: "arrow.clockwise", color: .gray)
+                                ColoredLabel(title: "重新登录网络课程中心", iconName: "book.closed", color: .mint)
                             }
+                            .buttonStyle(.plain)
                         }
                     } else {
                         Button(action: {
@@ -89,7 +94,6 @@ struct FeaturesSplitView: View {
                         }) {
                             ColoredLabel(title: "前往登录统一认证", iconName: "person.crop.circle.badge.plus", color: .blue)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
                 Section("生活服务") {

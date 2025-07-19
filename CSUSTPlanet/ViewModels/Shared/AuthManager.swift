@@ -27,6 +27,11 @@ class AuthManager: ObservableObject {
     @Published var isShowingMoocError: Bool = false
     @Published var moocErrorMessage: String = ""
 
+    private var eduLoginTask: Task<Void, Error>?
+    var eduLoginID = UUID()
+    private var moocLoginTask: Task<Void, Error>?
+    var moocLoginID = UUID()
+
     var ssoHelper = SSOHelper(cookieStorage: KeychainCookieStorage())
     var eduHelper: EduHelper?
     var moocHelper: MoocHelper?
@@ -111,33 +116,57 @@ class AuthManager: ObservableObject {
     }
 
     func loginToEducation() {
-        isEducationLoggingIn = true
-        Task {
+        let isAlreadyLoggingIn = eduLoginTask != nil
+        eduLoginTask?.cancel()
+        eduLoginID = UUID()
+
+        if !isAlreadyLoggingIn {
+            isEducationLoggingIn = true
+        }
+        eduLoginTask = Task {
             defer {
-                isEducationLoggingIn = false
+                if !Task.isCancelled {
+                    isEducationLoggingIn = false
+                    eduLoginTask = nil
+                }
             }
             do {
                 let eduSession = try await ssoHelper.loginToEducation()
+                if Task.isCancelled { return }
                 eduHelper = EduHelper(session: eduSession)
             } catch {
-                educationErrorMessage = "教务服务初始化失败: \(error.localizedDescription)"
-                isShowingEducationError = true
+                if !Task.isCancelled && !(error is CancellationError) {
+                    educationErrorMessage = "教务服务初始化失败: \(error.localizedDescription)"
+                    isShowingEducationError = true
+                }
             }
         }
     }
 
     func loginToMooc() {
-        isMoocLoggingIn = true
-        Task {
+        let isAlreadyLoggingIn = moocLoginTask != nil
+        moocLoginTask?.cancel()
+        moocLoginID = UUID()
+
+        if !isAlreadyLoggingIn {
+            isMoocLoggingIn = true
+        }
+        moocLoginTask = Task {
             defer {
-                isMoocLoggingIn = false
+                if !Task.isCancelled {
+                    isMoocLoggingIn = false
+                    moocLoginTask = nil
+                }
             }
             do {
                 let moocSession = try await ssoHelper.loginToMooc()
+                if Task.isCancelled { return }
                 moocHelper = MoocHelper(session: moocSession)
             } catch {
-                moocErrorMessage = "网络课程中心服务初始化失败: \(error.localizedDescription)"
-                isShowingMoocError = true
+                if !Task.isCancelled && !(error is CancellationError) {
+                    moocErrorMessage = "网络课程中心服务初始化失败: \(error.localizedDescription)"
+                    isShowingMoocError = true
+                }
             }
         }
     }
