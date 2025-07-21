@@ -154,6 +154,12 @@ struct FeaturesSplitView: View {
                 }
             }
         }
+        .onChange(of: globalVars.isFromElectricityWidget) {
+            if globalVars.isFromElectricityWidget {
+                selectedFeature = .electricity
+                globalVars.isFromElectricityWidget = false
+            }
+        }
     }
 }
 
