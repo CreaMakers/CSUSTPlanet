@@ -75,6 +75,16 @@ struct ContentView: View {
                     .interactiveDismissDisabled(true)
             }
         }
+        .onOpenURL { url in
+            guard url.scheme == "csustplanet", url.host == "widgets" else { return }
+            switch url.pathComponents.dropFirst().first {
+            case "electricity":
+                globalVars.selectedTab = 0
+                globalVars.isFromElectricityWidget = true
+            default:
+                break
+            }
+        }
     }
 }
 

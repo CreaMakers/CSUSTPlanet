@@ -203,6 +203,7 @@ struct DormElectricityEntryView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .widgetURL(URL(string: "csustplanet://widgets/electricity"))
     }
 
     private func electricityColor(electricity: Double) -> Color {

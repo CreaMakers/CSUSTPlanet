@@ -37,4 +37,6 @@ class GlobalVars: ObservableObject {
             UserDefaults.standard.bool(forKey: "isElectricityTermAccepted")
         }
     }
+
+    @Published var isFromElectricityWidget: Bool = false
 }

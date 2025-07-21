@@ -110,6 +110,9 @@ struct FeaturesListView: View {
             }
         }
         .navigationTitle("全部功能")
+        .navigationDestination(isPresented: $globalVars.isFromElectricityWidget) {
+            ElectricityQueryView()
+        }
     }
 }
 
