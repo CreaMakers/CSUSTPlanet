@@ -10,6 +10,7 @@ import CSUSTKit
 import Foundation
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 @MainActor
 class DormElectricityViewModel: ObservableObject {
@@ -172,6 +173,10 @@ class DormElectricityViewModel: ObservableObject {
 
                 let record = ElectricityRecord(electricity: electricity, date: Date(), dorm: dorm)
                 modelContext.insert(record)
+
+                try modelContext.save()
+
+                WidgetCenter.shared.reloadTimelines(ofKind: "DormElectricityWidget")
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -192,10 +197,22 @@ class DormElectricityViewModel: ObservableObject {
         } else {
             modelContext.delete(dorm)
         }
+        do {
+            try modelContext.save()
+        } catch {
+            errorMessage = error.localizedDescription
+            isShowingError = true
+        }
     }
 
     func deleteRecord(record: ElectricityRecord) {
         modelContext.delete(record)
+        do {
+            try modelContext.save()
+        } catch {
+            errorMessage = error.localizedDescription
+            isShowingError = true
+        }
     }
 
     func handleShowTerms() {

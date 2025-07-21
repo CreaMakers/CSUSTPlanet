@@ -10,19 +10,78 @@
 		0041FC6A2E2A91E0007F383F /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 0041FC692E2A91E0007F383F /* Zoomable */; };
 		0041FC6D2E2AA269007F383F /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0041FC6C2E2AA269007F383F /* MarkdownUI */; };
 		007CF90A2E1CF0ED00E319F2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 007CF9092E1CF0ED00E319F2 /* CSUSTKit */; };
+		00B659442E2D054C0037048C /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00B659432E2D054C0037048C /* CSUSTKit */; };
+		00E89C632E2C88D800B43162 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C622E2C88D800B43162 /* WidgetKit.framework */; };
+		00E89C652E2C88D800B43162 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C642E2C88D800B43162 /* SwiftUI.framework */; };
+		00E89C722E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		00E89C702E2C88D800B43162 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 007CF8532E1BD68800E319F2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 00E89C5F2E2C88D800B43162;
+			remoteInfo = CSUSTPlanetWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		00E89C732E2C88D800B43162 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				00E89C722E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		006CA2AC2E2CFCC000340655 /* CSUSTPlanetWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CSUSTPlanetWidgetExtension.entitlements; sourceTree = "<group>"; };
 		007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CSUSTPlanet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CSUSTPlanetWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		00E89C622E2C88D800B43162 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		00E89C642E2C88D800B43162 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		006CA2A72E2CDF8700340655 /* Exceptions for "CSUSTPlanetWidget" folder in "CSUSTPlanet" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Widgets/DormElectricity/DormElectricityAppIntent.swift,
+				Widgets/DormElectricity/DormElectricityWidget.swift,
+				Widgets/DormElectricity/DormEntity.swift,
+				Widgets/DormElectricity/DormQuery.swift,
+				Widgets/DormElectricity/RefreshElectricityTimelineIntent.swift,
+			);
+			target = 007CF85A2E1BD68900E319F2 /* CSUSTPlanet */;
+		};
+		006CA2AE2E2D01F300340655 /* Exceptions for "CSUSTPlanet" folder in "CSUSTPlanetWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models/Dorm.swift,
+				Models/ElectricityRecord.swift,
+				Utils/SharedModel.swift,
+			);
+			target = 00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */;
+		};
 		007CF9192E1D44C400E319F2 /* Exceptions for "CSUSTPlanet" folder in "CSUSTPlanet" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
 			target = 007CF85A2E1BD68900E319F2 /* CSUSTPlanet */;
+		};
+		00E89C772E2C88D800B43162 /* Exceptions for "CSUSTPlanetWidget" folder in "CSUSTPlanetWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -31,8 +90,18 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				007CF9192E1D44C400E319F2 /* Exceptions for "CSUSTPlanet" folder in "CSUSTPlanet" target */,
+				006CA2AE2E2D01F300340655 /* Exceptions for "CSUSTPlanet" folder in "CSUSTPlanetWidgetExtension" target */,
 			);
 			path = CSUSTPlanet;
+			sourceTree = "<group>";
+		};
+		00E89C662E2C88D800B43162 /* CSUSTPlanetWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				006CA2A72E2CDF8700340655 /* Exceptions for "CSUSTPlanetWidget" folder in "CSUSTPlanet" target */,
+				00E89C772E2C88D800B43162 /* Exceptions for "CSUSTPlanetWidget" folder in "CSUSTPlanetWidgetExtension" target */,
+			);
+			path = CSUSTPlanetWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -48,6 +117,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		00E89C5D2E2C88D800B43162 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00B659442E2D054C0037048C /* CSUSTKit in Frameworks */,
+				00E89C652E2C88D800B43162 /* SwiftUI.framework in Frameworks */,
+				00E89C632E2C88D800B43162 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -55,7 +134,10 @@
 			isa = PBXGroup;
 			children = (
 				007CF85D2E1BD68900E319F2 /* CSUSTPlanet */,
+				00E89C662E2C88D800B43162 /* CSUSTPlanetWidget */,
+				00E89C612E2C88D800B43162 /* Frameworks */,
 				007CF85C2E1BD68900E319F2 /* Products */,
+				006CA2AC2E2CFCC000340655 /* CSUSTPlanetWidgetExtension.entitlements */,
 			);
 			sourceTree = "<group>";
 		};
@@ -63,8 +145,18 @@
 			isa = PBXGroup;
 			children = (
 				007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */,
+				00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		00E89C612E2C88D800B43162 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				00E89C622E2C88D800B43162 /* WidgetKit.framework */,
+				00E89C642E2C88D800B43162 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -77,10 +169,12 @@
 				007CF8572E1BD68900E319F2 /* Sources */,
 				007CF8582E1BD68900E319F2 /* Frameworks */,
 				007CF8592E1BD68900E319F2 /* Resources */,
+				00E89C732E2C88D800B43162 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				00E89C712E2C88D800B43162 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				007CF85D2E1BD68900E319F2 /* CSUSTPlanet */,
@@ -95,6 +189,29 @@
 			productReference = 007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */;
 			productType = "com.apple.product-type.application";
 		};
+		00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00E89C762E2C88D800B43162 /* Build configuration list for PBXNativeTarget "CSUSTPlanetWidgetExtension" */;
+			buildPhases = (
+				00E89C5C2E2C88D800B43162 /* Sources */,
+				00E89C5D2E2C88D800B43162 /* Frameworks */,
+				00E89C5E2E2C88D800B43162 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				00E89C662E2C88D800B43162 /* CSUSTPlanetWidget */,
+			);
+			name = CSUSTPlanetWidgetExtension;
+			packageProductDependencies = (
+				00B659432E2D054C0037048C /* CSUSTKit */,
+			);
+			productName = CSUSTPlanetWidgetExtension;
+			productReference = 00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -106,6 +223,9 @@
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					007CF85A2E1BD68900E319F2 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					00E89C5F2E2C88D800B43162 = {
 						CreatedOnToolsVersion = 16.4;
 					};
 				};
@@ -130,12 +250,20 @@
 			projectRoot = "";
 			targets = (
 				007CF85A2E1BD68900E319F2 /* CSUSTPlanet */,
+				00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		007CF8592E1BD68900E319F2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		00E89C5E2E2C88D800B43162 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -152,7 +280,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		00E89C5C2E2C88D800B43162 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		00E89C712E2C88D800B43162 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */;
+			targetProxy = 00E89C702E2C88D800B43162 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		007CF8642E1BD68A00E319F2 /* Debug */ = {
@@ -344,6 +487,64 @@
 			};
 			name = Release;
 		};
+		00E89C742E2C88D800B43162 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = CSUSTPlanetWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7GPA4WLM3W;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CSUSTPlanetWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CSUSTPlanetWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zhelearn.CSUSTPlanet.CSUSTPlanetWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		00E89C752E2C88D800B43162 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = CSUSTPlanetWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7GPA4WLM3W;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CSUSTPlanetWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CSUSTPlanetWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zhelearn.CSUSTPlanet.CSUSTPlanetWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -361,6 +562,15 @@
 			buildConfigurations = (
 				007CF8672E1BD68A00E319F2 /* Debug */,
 				007CF8682E1BD68A00E319F2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		00E89C762E2C88D800B43162 /* Build configuration list for PBXNativeTarget "CSUSTPlanetWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00E89C742E2C88D800B43162 /* Debug */,
+				00E89C752E2C88D800B43162 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -406,6 +616,11 @@
 			productName = MarkdownUI;
 		};
 		007CF9092E1CF0ED00E319F2 /* CSUSTKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 007CF9082E1CF0ED00E319F2 /* XCRemoteSwiftPackageReference "CSUSTKit" */;
+			productName = CSUSTKit;
+		};
+		00B659432E2D054C0037048C /* CSUSTKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 007CF9082E1CF0ED00E319F2 /* XCRemoteSwiftPackageReference "CSUSTKit" */;
 			productName = CSUSTKit;
