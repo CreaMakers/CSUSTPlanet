@@ -46,7 +46,7 @@ struct DormEntity: AppEntity, Identifiable {
         self.campusID = dorm.campusID
         self.campusName = dorm.campusName
 
-        self.records = dorm.records.map { ElectricityRecord(electricity: $0.electricity, date: $0.date) }
+        self.records = dorm.records?.map { ElectricityRecord(electricity: $0.electricity, date: $0.date) } ?? []
     }
 
     var last: ElectricityRecord? {

@@ -185,7 +185,7 @@ class DormElectricityViewModel: ObservableObject {
     }
 
     func getLastRecord() -> ElectricityRecord? {
-        return dorm.records.sorted { $0.date > $1.date }.first
+        return dorm.records?.sorted { $0.date > $1.date }.first
     }
 
     func deleteDorm() {

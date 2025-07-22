@@ -44,5 +44,9 @@
 	</dict>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>我们需要访问您的日历以添加事件</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

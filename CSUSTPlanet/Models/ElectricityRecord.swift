@@ -10,8 +10,9 @@ import SwiftData
 
 @Model
 class ElectricityRecord {
-    var electricity: Double
-    var date: Date
+    var electricity: Double = 0
+    var date: Date = Date()
+
     var dorm: Dorm?
 
     init(electricity: Double, date: Date, dorm: Dorm? = nil) {

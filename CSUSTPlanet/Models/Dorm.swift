@@ -11,17 +11,17 @@ import SwiftData
 
 @Model
 class Dorm: Identifiable {
-    @Attribute(.unique) var id: UUID = UUID()
+    var id: UUID = UUID()
 
-    var room: String
+    var room: String = ""
 
-    var buildingID: String
-    var buildingName: String
-    var campusID: String
-    var campusName: String
+    var buildingID: String = ""
+    var buildingName: String = ""
+    var campusID: String = ""
+    var campusName: String = ""
 
-    @Relationship(deleteRule: .cascade)
-    var records: [ElectricityRecord] = []
+    @Relationship(deleteRule: .cascade, inverse: \ElectricityRecord.dorm)
+    var records: [ElectricityRecord]? = []
 
     var scheduleId: String?
     var scheduleHour: Int?

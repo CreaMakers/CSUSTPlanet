@@ -53,7 +53,7 @@ struct DormDetailView: View {
             } else {
                 currentElectricitySection
                 
-                if !viewModel.dorm.records.isEmpty {
+                if let records = viewModel.dorm.records, !records.isEmpty {
                     electricityTrendSection
                     historyRecordsSection
                 } else {
@@ -148,7 +148,7 @@ struct DormDetailView: View {
     
     private var electricityTrendSection: some View {
         Section(header: Text("电量趋势")) {
-            Chart(viewModel.dorm.records.sorted(by: { $0.date < $1.date })) { record in
+            Chart(viewModel.dorm.records?.sorted(by: { $0.date < $1.date }) ?? []) { record in
                 LineMark(
                     x: .value("日期", record.date),
                     y: .value("电量", record.electricity)
@@ -172,7 +172,7 @@ struct DormDetailView: View {
     
     private var historyRecordsSection: some View {
         Section(header: Text("历史记录")) {
-            ForEach(viewModel.dorm.records.sorted(by: { $0.date > $1.date })) { record in
+            ForEach(viewModel.dorm.records?.sorted(by: { $0.date > $1.date }) ?? []) { record in
                 HStack {
                     Image(systemName: "bolt.fill")
                         .foregroundColor(.yellow)

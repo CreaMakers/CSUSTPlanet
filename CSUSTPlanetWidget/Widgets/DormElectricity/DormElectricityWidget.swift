@@ -54,7 +54,7 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
             let descriptor = FetchDescriptor<Dorm>(predicate: #Predicate<Dorm> { $0.id == dormID })
 
             if let dormToUpdate = try modelContext.fetch(descriptor).first {
-                let lastRecord = dormToUpdate.records.sorted { $0.date > $1.date }.first
+                let lastRecord = dormToUpdate.records?.sorted { $0.date > $1.date }.first
 
                 if let lastRecord = lastRecord, lastRecord.electricity == newElectricity {
                     debugPrint("DormElectricityProvider: No update needed, electricity is the same as last record")
@@ -223,7 +223,7 @@ struct DormElectricityWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: DormElectricityAppIntent.self, provider: DormElectricityProvider()) { entry in
             DormElectricityEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
-                .modelContainer(for: [Dorm.self, ElectricityRecord.self])
+                .modelContainer(SharedModel.container)
         }
         .configurationDisplayName("宿舍电量")
         .description("查询宿舍电量使用情况")

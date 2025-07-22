@@ -9,13 +9,26 @@ import Foundation
 import SwiftData
 
 class SharedModel {
+    static let schema = Schema([Dorm.self, ElectricityRecord.self])
+
     static let container: ModelContainer = {
-        let schema = Schema([Dorm.self, ElectricityRecord.self])
-        let config = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false,
-            groupContainer: .identifier("group.com.zhelearn.CSUSTPlanet")
-        )
+        #if WIDGET
+            let config = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                groupContainer: .identifier("group.com.zhelearn.CSUSTPlanet"),
+            )
+            debugPrint("Using shared group container for widget: \(config.groupContainer)")
+        #else
+            let config = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                groupContainer: .identifier("group.com.zhelearn.CSUSTPlanet"),
+                cloudKitDatabase: .private("iCloud.com.zhelearn.CSUSTPlanet"),
+            )
+            debugPrint("Using iCloud container for app: \(config.cloudKitDatabase)")
+        #endif
+
         return try! ModelContainer(for: schema, configurations: [config])
     }()
 
