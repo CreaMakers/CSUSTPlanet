@@ -17,8 +17,6 @@ class GradeAnalysisViewModel: ObservableObject {
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
 
-    @Published var selectedTab: Int = 0
-
     @Published var courseGrades: [CourseGrade] = []
 
     var semesterAverageGrades: [(semester: String, average: Double)] {
@@ -51,28 +49,6 @@ class GradeAnalysisViewModel: ObservableObject {
             .map { (gradePoint: $0.key, count: $0.value) }
             .filter { $0.count > 0 }
             .sorted { $0.gradePoint > $1.gradePoint }
-    }
-
-    var gradeRangeDistribution: [(range: String, count: Int)] {
-        let ranges = [
-            (range: "90-100", min: 90, max: 100),
-            (range: "85-89", min: 85, max: 89),
-            (range: "82-84", min: 82, max: 84),
-            (range: "78-81", min: 78, max: 81),
-            (range: "75-77", min: 75, max: 77),
-            (range: "72-74", min: 72, max: 74),
-            (range: "68-71", min: 68, max: 71),
-            (range: "64-67", min: 64, max: 67),
-            (range: "60-63", min: 60, max: 63),
-            (range: "≤59", min: 0, max: 59)
-        ]
-
-        return ranges.compactMap { range in
-            let count = courseGrades.filter { grade in
-                grade.grade >= range.min && grade.grade <= range.max
-            }.count
-            return count > 0 ? (range: range.range, count: count) : nil
-        }
     }
 
     var overallAverageGrade: Double {

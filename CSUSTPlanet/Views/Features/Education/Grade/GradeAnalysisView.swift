@@ -25,21 +25,7 @@ struct GradeAnalysisView: View {
                 } else {
                     summaryCard
                     
-                    Picker("分析类型", selection: $viewModel.selectedTab) {
-                        Text("学期分析").tag(0)
-                        Text("成绩分布").tag(1)
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    
-                    switch viewModel.selectedTab {
-                    case 0:
-                        semesterAnalysisSection
-                    case 1:
-                        distributionAnalysisSection
-                    default:
-                        EmptyView()
-                    }
+                    semesterAnalysisSection
                 }
             }
             .padding(.vertical)
@@ -80,33 +66,33 @@ struct GradeAnalysisView: View {
                 StatisticItem(
                     title: "课程总数",
                     value: "\(viewModel.totalCourses)",
-                    color: .blue
+                    color: .purple
                 )
                 Spacer()
                 StatisticItem(
                     title: "总学分",
                     value: String(format: "%.1f", viewModel.totalCredits),
-                    color: .green
+                    color: .blue
                 )
                 Spacer()
                 StatisticItem(
                     title: "总学时",
                     value: "\(viewModel.totalHours)",
-                    color: .orange
+                    color: .red
                 )
             }
             Divider()
             HStack {
                 StatisticItem(
                     title: "平均成绩",
-                    value: String(format: "%.1f", viewModel.overallAverageGrade),
-                    color: .red
+                    value: String(format: "%.2f", viewModel.overallAverageGrade),
+                    color: ColorHelper.dynamicColor(grade: viewModel.overallAverageGrade)
                 )
                 Spacer()
                 StatisticItem(
                     title: "平均绩点",
                     value: String(format: "%.2f", viewModel.overallGPA),
-                    color: .purple
+                    color: ColorHelper.dynamicColor(point: viewModel.overallGPA)
                 )
             }
         }
@@ -145,18 +131,18 @@ struct GradeAnalysisView: View {
                         x: .value("学期", item.semester),
                         y: .value("平均成绩", item.average)
                     )
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(ColorHelper.dynamicColor(grade: item.average))
                     .lineStyle(StrokeStyle(lineWidth: 3))
                     PointMark(
                         x: .value("学期", item.semester),
                         y: .value("平均成绩", item.average)
                     )
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(ColorHelper.dynamicColor(grade: item.average))
                     .annotation(position: .top) {
                         Text(String(format: "%.1f", item.average))
                             .font(.system(size: 10))
                             .padding(4)
-                            .background(Color.blue.opacity(0.2))
+                            .background(ColorHelper.dynamicColor(grade: item.average).opacity(0.2))
                             .cornerRadius(4)
                     }
                 }
@@ -177,18 +163,18 @@ struct GradeAnalysisView: View {
                         x: .value("学期", item.semester),
                         y: .value("GPA", item.gpa)
                     )
-                    .foregroundStyle(.green)
+                    .foregroundStyle(ColorHelper.dynamicColor(point: item.gpa))
                     .lineStyle(StrokeStyle(lineWidth: 3))
                     PointMark(
                         x: .value("学期", item.semester),
                         y: .value("GPA", item.gpa)
                     )
-                    .foregroundStyle(.green)
+                    .foregroundStyle(ColorHelper.dynamicColor(point: item.gpa))
                     .annotation(position: .top) {
                         Text(String(format: "%.2f", item.gpa))
                             .font(.system(size: 10))
                             .padding(4)
-                            .background(Color.green.opacity(0.2))
+                            .background(ColorHelper.dynamicColor(point: item.gpa).opacity(0.2))
                             .cornerRadius(4)
                     }
                 }
@@ -198,12 +184,8 @@ struct GradeAnalysisView: View {
                 .frame(height: 250)
                 .padding()
             }
-        }
-    }
-    
-    private var distributionAnalysisSection: some View {
-        VStack(spacing: 30) {
-            VStack(alignment: .leading) {
+            
+            VStack(alignment: .leading, spacing: 8) {
                 Text("绩点分布")
                     .font(.headline)
                     .padding(.horizontal)
@@ -212,40 +194,13 @@ struct GradeAnalysisView: View {
                         x: .value("绩点", String(format: "%.1f", item.gradePoint)),
                         y: .value("课程数", item.count)
                     )
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(ColorHelper.dynamicColor(point: item.gradePoint))
                     .annotation(position: .top) {
                         Text("\(item.count)")
                             .font(.system(size: 10).bold())
-                            .foregroundColor(.orange)
+                            .foregroundColor(ColorHelper.dynamicColor(point: item.gradePoint))
                             .padding(4)
                             .background(Color.orange.opacity(0.1))
-                            .cornerRadius(4)
-                    }
-                }
-                .chartYAxis {
-                    AxisMarks(values: .automatic(desiredCount: 5))
-                }
-                .frame(height: 220)
-                .padding()
-            }
-            
-            VStack(alignment: .leading) {
-                Text("成绩段分布")
-                    .font(.headline)
-                    .padding(.horizontal)
-                
-                Chart(viewModel.gradeRangeDistribution, id: \.range) { item in
-                    BarMark(
-                        x: .value("成绩段", item.range),
-                        y: .value("课程数", item.count)
-                    )
-                    .foregroundStyle(.purple)
-                    .annotation(position: .top) {
-                        Text("\(item.count)")
-                            .font(.system(size: 10).bold())
-                            .foregroundColor(.purple)
-                            .padding(4)
-                            .background(Color.purple.opacity(0.1))
                             .cornerRadius(4)
                     }
                 }

@@ -40,7 +40,7 @@ class GradeQueryViewModel: ObservableObject {
     struct Stats {
         let gpa: Double
         let totalCredits: Double
-        let averageGrade: Int
+        let averageGrade: Double
         let courseCount: Int
     }
 
@@ -49,7 +49,7 @@ class GradeQueryViewModel: ObservableObject {
         let totalGradePoints = courseGrades.reduce(0) { $0 + $1.gradePoint * $1.credit }
         let gpa = totalCredits > 0 ? totalGradePoints / totalCredits : 0
         let totalGrades = courseGrades.reduce(0) { $0 + $1.grade }
-        let averageGrade = courseGrades.isEmpty ? 0 : totalGrades / courseGrades.count
+        let averageGrade = courseGrades.isEmpty ? 0 : Double(totalGrades) / Double(courseGrades.count)
 
         return Stats(
             gpa: gpa,
@@ -57,15 +57,6 @@ class GradeQueryViewModel: ObservableObject {
             averageGrade: averageGrade,
             courseCount: courseGrades.count
         )
-    }
-
-    func gradeColor(grade: Int) -> Color {
-        switch grade {
-        case 90 ... 100: return .green
-        case 80..<90: return .blue
-        case 60..<80: return .orange
-        default: return .red
-        }
     }
 
     func loadAvailableSemesters() {

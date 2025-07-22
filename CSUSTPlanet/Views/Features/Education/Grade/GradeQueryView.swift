@@ -168,7 +168,17 @@ struct GradeQueryView: View {
                     Text(String(format: "%.2f", stats.gpa))
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.blue)
+                        .foregroundColor(ColorHelper.dynamicColor(point: stats.gpa))
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("平均成绩")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(String(format: "%.2f", stats.averageGrade))
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(ColorHelper.dynamicColor(grade: stats.averageGrade))
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
@@ -178,17 +188,7 @@ struct GradeQueryView: View {
                     Text(String(format: "%.1f", stats.totalCredits))
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.green)
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("平均成绩")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("\(stats.averageGrade)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(viewModel.gradeColor(grade: stats.averageGrade))
+                        .foregroundColor(.blue)
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
@@ -228,7 +228,7 @@ struct GradeQueryView: View {
                     Spacer()
                     Text("\(courseGrade.grade)分")
                         .font(.headline)
-                        .foregroundColor(viewModel.gradeColor(grade: courseGrade.grade))
+                        .foregroundColor(ColorHelper.dynamicColor(grade: Double(courseGrade.grade)))
                 }
                 .padding(.bottom, 8)
                 
@@ -236,7 +236,7 @@ struct GradeQueryView: View {
                 
                 HStack(spacing: 20) {
                     InfoRow(icon: "number.square", iconColor: .green, label: "学分", value: String(format: "%.1f", courseGrade.credit))
-                    InfoRow(icon: "star.fill", iconColor: .orange, label: "绩点", value: String(format: "%.1f", courseGrade.gradePoint))
+                    InfoRow(icon: "star.fill", iconColor: .orange, label: "绩点", value: String(format: "%.1f", courseGrade.gradePoint)).foregroundColor(ColorHelper.dynamicColor(point: courseGrade.gradePoint))
                 }
                 
                 if !courseGrade.semester.isEmpty {
