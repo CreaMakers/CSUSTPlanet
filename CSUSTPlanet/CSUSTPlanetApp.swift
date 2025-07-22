@@ -15,6 +15,11 @@ struct CSUSTPlanetApp: App {
     @StateObject private var authManager = AuthManager()
 
     init() {
+        if !UserDefaults.standard.bool(forKey: "hasLaunchedBefore") {
+            KeychainHelper.deleteAll()
+            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+        }
+
         let asyncDependency: @Sendable () async -> ModelContainer = { @MainActor in
             return SharedModel.container
         }

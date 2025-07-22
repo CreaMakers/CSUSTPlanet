@@ -49,4 +49,21 @@ enum KeychainHelper {
         let status = SecItemDelete(query as CFDictionary)
         return status == errSecSuccess
     }
+
+    static func deleteAll() {
+        let secClasses: [CFTypeRef] = [
+            kSecClassGenericPassword,
+            kSecClassInternetPassword,
+            kSecClassCertificate,
+            kSecClassKey,
+            kSecClassIdentity
+        ]
+        for secClass in secClasses {
+            let query: [String: Any] = [
+                kSecClass as String: secClass,
+                kSecAttrSynchronizable as String: kSecAttrSynchronizableAny
+            ]
+            SecItemDelete(query as CFDictionary)
+        }
+    }
 }
