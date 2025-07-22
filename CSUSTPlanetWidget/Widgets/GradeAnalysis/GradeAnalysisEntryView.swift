@@ -15,16 +15,16 @@ struct GradeAnalysisEntryView: View {
     var entry: GradeAnalysisProvider.Entry
 
     var body: some View {
-        if let gradeAnalysis = entry.gradeAnalysis {
+        if let data = entry.data {
             switch family {
             case .systemSmall:
-                systemSmall(gradeAnalysis: gradeAnalysis)
+                systemSmall(data)
             case .systemMedium:
-                systemMedium(gradeAnalysis: gradeAnalysis)
+                systemMedium(data)
             case .systemLarge:
-                systemLarge(gradeAnalysis: gradeAnalysis)
+                systemLarge(data)
             default:
-                systemSmall(gradeAnalysis: gradeAnalysis)
+                systemSmall(data)
             }
         } else {
             Text("请先在App内查询成绩分析")
@@ -39,7 +39,7 @@ struct GradeAnalysisEntryView: View {
         return dateFormatter
     }()
 
-    func systemSmall(gradeAnalysis: GradeAnalysisEntry.GradeAnalysis) -> some View {
+    func systemSmall(_ data: GradeAnalysisData) -> some View {
         VStack(spacing: 4) {
             HStack {
                 Image(systemName: "chart.bar.xaxis")
@@ -64,7 +64,7 @@ struct GradeAnalysisEntryView: View {
                     Text("课程数")
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
-                    Text("\(gradeAnalysis.totalCourses)")
+                    Text("\(data.totalCourses)")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.purple)
                 }
@@ -73,7 +73,7 @@ struct GradeAnalysisEntryView: View {
                     Text("总学分")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text(String(format: "%.1f", gradeAnalysis.totalCredits))
+                    Text(String(format: "%.1f", data.totalCredits))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.blue)
                 }
@@ -82,7 +82,7 @@ struct GradeAnalysisEntryView: View {
                     Text("总学时")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text("\(gradeAnalysis.totalHours)")
+                    Text("\(data.totalHours)")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.red)
                 }
@@ -97,9 +97,9 @@ struct GradeAnalysisEntryView: View {
                     Text("平均成绩")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text(String(format: "%.2f", gradeAnalysis.overallAverageGrade))
+                    Text(String(format: "%.2f", data.overallAverageGrade))
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(ColorHelper.dynamicColor(grade: gradeAnalysis.overallAverageGrade))
+                        .foregroundStyle(ColorHelper.dynamicColor(grade: data.overallAverageGrade))
                 }
                 .frame(maxWidth: .infinity)
                 Spacer()
@@ -107,28 +107,28 @@ struct GradeAnalysisEntryView: View {
                     Text("平均绩点")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text(String(format: "%.2f", gradeAnalysis.overallGPA))
+                    Text(String(format: "%.2f", data.overallGPA))
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(ColorHelper.dynamicColor(point: gradeAnalysis.overallGPA))
+                        .foregroundStyle(ColorHelper.dynamicColor(point: data.overallGPA))
                 }
                 .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity)
 
-            Text("更新时间: \(dateFormatter.string(from: gradeAnalysis.lastUpdated))")
+            Text(dateFormatter.string(from: data.lastUpdated))
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.secondary)
         }
     }
 
-    func systemMedium(gradeAnalysis: GradeAnalysisEntry.GradeAnalysis) -> some View {
+    func systemMedium(_ data: GradeAnalysisData) -> some View {
         HStack {
-            systemSmall(gradeAnalysis: gradeAnalysis)
-            chartView(gradeAnalysis: gradeAnalysis)
+            systemSmall(data)
+            chartView(data)
         }
     }
 
-    func systemLarge(gradeAnalysis: GradeAnalysisEntry.GradeAnalysis) -> some View {
+    func systemLarge(_ data: GradeAnalysisData) -> some View {
         VStack(spacing: 12) {
             HStack {
                 Image(systemName: "chart.bar.xaxis")
@@ -138,7 +138,7 @@ struct GradeAnalysisEntryView: View {
                     .foregroundStyle(.purple)
                 Text("成绩分析")
                     .font(.system(size: 16, weight: .bold))
-                Text("更新时间: \(dateFormatter.string(from: gradeAnalysis.lastUpdated))")
+                Text(dateFormatter.string(from: data.lastUpdated))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -153,7 +153,7 @@ struct GradeAnalysisEntryView: View {
                     Text("课程数")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text("\(gradeAnalysis.totalCourses)")
+                    Text("\(data.totalCourses)")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.purple)
                 }
@@ -162,7 +162,7 @@ struct GradeAnalysisEntryView: View {
                     Text("总学分")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text(String(format: "%.1f", gradeAnalysis.totalCredits))
+                    Text(String(format: "%.1f", data.totalCredits))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.blue)
                 }
@@ -171,7 +171,7 @@ struct GradeAnalysisEntryView: View {
                     Text("总学时")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text("\(gradeAnalysis.totalHours)")
+                    Text("\(data.totalHours)")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.red)
                 }
@@ -180,31 +180,31 @@ struct GradeAnalysisEntryView: View {
                     Text("平均成绩")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text(String(format: "%.2f", gradeAnalysis.overallAverageGrade))
+                    Text(String(format: "%.2f", data.overallAverageGrade))
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(ColorHelper.dynamicColor(grade: gradeAnalysis.overallAverageGrade))
+                        .foregroundStyle(ColorHelper.dynamicColor(grade: data.overallAverageGrade))
                 }
                 .frame(maxWidth: .infinity)
                 VStack {
                     Text("平均绩点")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text(String(format: "%.2f", gradeAnalysis.overallGPA))
+                    Text(String(format: "%.2f", data.overallGPA))
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(ColorHelper.dynamicColor(point: gradeAnalysis.overallGPA))
+                        .foregroundStyle(ColorHelper.dynamicColor(point: data.overallGPA))
                 }
                 .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity)
-            chartView(gradeAnalysis: gradeAnalysis)
+            chartView(data)
         }
     }
 
-    func chartView(gradeAnalysis: GradeAnalysisEntry.GradeAnalysis) -> some View {
+    func chartView(_ data: GradeAnalysisData) -> some View {
         Group {
             switch entry.configuration.chartType {
             case .semesterAverage:
-                Chart(gradeAnalysis.semesterAverageGrades, id: \.semester) { item in
+                Chart(data.semesterAverageGrades, id: \.semester) { item in
                     LineMark(
                         x: .value("学期", item.semester),
                         y: .value("平均成绩", item.average)
@@ -224,8 +224,9 @@ struct GradeAnalysisEntryView: View {
                             .cornerRadius(4)
                     }
                 }
+                .chartXAxis(.hidden)
             case .semesterGPA:
-                Chart(gradeAnalysis.semesterGPAs, id: \.semester) { item in
+                Chart(data.semesterGPAs, id: \.semester) { item in
                     LineMark(
                         x: .value("学期", item.semester),
                         y: .value("GPA", item.gpa)
@@ -245,8 +246,9 @@ struct GradeAnalysisEntryView: View {
                             .cornerRadius(4)
                     }
                 }
+                .chartXAxis(.hidden)
             case .gpaDistribution:
-                Chart(gradeAnalysis.gradePointDistribution, id: \.gradePoint) { item in
+                Chart(data.gradePointDistribution, id: \.gradePoint) { item in
                     BarMark(
                         x: .value("绩点", String(format: "%.1f", item.gradePoint)),
                         y: .value("课程数", item.count)
@@ -259,6 +261,16 @@ struct GradeAnalysisEntryView: View {
                             .padding(4)
                             .background(Color.orange.opacity(0.1))
                             .cornerRadius(4)
+                    }
+                }
+                .chartXAxis {
+                    if family == .systemMedium {
+                        AxisMarks(values: .automatic) {
+                            AxisValueLabel()
+                                .font(.system(size: 8))
+                        }
+                    } else {
+                        AxisMarks()
                     }
                 }
             }
@@ -277,7 +289,7 @@ struct GradeAnalysisEntryView: View {
 } timeline: {
     let intent = {
         let intent = GradeAnalysisIntent()
-        intent.chartType = .gpaDistribution
+        intent.chartType = .semesterGPA
         return intent
     }()
     mockEntry(configuration: intent)
