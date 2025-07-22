@@ -7,6 +7,8 @@
 
 import CSUSTKit
 import Foundation
+import SwiftData
+import WidgetKit
 
 @MainActor
 class GradeAnalysisViewModel: ObservableObject {
@@ -89,6 +91,30 @@ class GradeAnalysisViewModel: ObservableObject {
 
             do {
                 courseGrades = try await eduHelper.courseService.getCourseGrades()
+
+                if !courseGrades.isEmpty {
+                    let context = SharedModel.context
+                    let gradeAnalysis = GradeAnalysis(
+                        totalCourses: totalCourses,
+                        totalHours: totalHours,
+                        totalCredits: totalCredits,
+                        overallAverageGrade: overallAverageGrade,
+                        overallGPA: overallGPA,
+                        gradePointDistribution: gradePointDistribution.map { GradeAnalysis.GradePointEntry(gradePoint: $0.gradePoint, count: $0.count) },
+                        semesterAverageGrades: semesterAverageGrades.map { GradeAnalysis.SemesterAverageGrade(semester: $0.semester, average: $0.average) },
+                        semesterGPAs: semesterGPAs.map { GradeAnalysis.SemesterGPA(semester: $0.semester, gpa: $0.gpa) },
+                        lastUpdated: .now
+                    )
+
+                    let analyses = try context.fetch(FetchDescriptor<GradeAnalysis>())
+                    for analysis in analyses {
+                        context.delete(analysis)
+                    }
+                    context.insert(gradeAnalysis)
+                    try context.save()
+
+                    WidgetCenter.shared.reloadTimelines(ofKind: "GradeAnalysisWidget")
+                }
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true

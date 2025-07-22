@@ -65,6 +65,8 @@
 			membershipExceptions = (
 				Models/Dorm.swift,
 				Models/ElectricityRecord.swift,
+				Models/GradeAnalysis.swift,
+				Utils/ColorHelper.swift,
 				Utils/SharedModel.swift,
 			);
 			target = 00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */;
