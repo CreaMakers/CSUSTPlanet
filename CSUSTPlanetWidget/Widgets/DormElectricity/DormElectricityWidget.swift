@@ -34,7 +34,7 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
         guard let selectedDormEntity = configuration.dormitory else {
             debugPrint("DormElectricityProvider: No dormitory selected in configuration")
             let entry = DormElectricityEntry(date: .now, configuration: configuration)
-            return Timeline(entries: [entry], policy: .atEnd)
+            return Timeline(entries: [entry], policy: .never)
         }
 
         var finalDormEntity = selectedDormEntity
@@ -76,8 +76,9 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
         updatedConfiguration.dormitory = finalDormEntity
 
         let entry = DormElectricityEntry(date: .now, configuration: updatedConfiguration)
-        debugPrint("DormElectricityProvider: Returning timeline with updated entry")
-        return Timeline(entries: [entry], policy: .never)
+        let nextUpdate = Date().addingTimeInterval(2 * 3600) // 2 hours
+        debugPrint("DormElectricityProvider: Next update scheduled for \(nextUpdate)")
+        return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
 }
 
