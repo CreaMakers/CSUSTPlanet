@@ -22,7 +22,9 @@ struct GradeDetailView: View {
                 DetailRow(label: "课程名称", value: viewModel.courseGrade.courseName)
                 DetailRow(label: "课程编号", value: viewModel.courseGrade.courseID)
                 DetailRow(label: "开课学期", value: viewModel.courseGrade.semester)
-                DetailRow(label: "分组名", value: viewModel.courseGrade.groupName)
+                if !viewModel.courseGrade.groupName.isEmpty {
+                    DetailRow(label: "分组名", value: viewModel.courseGrade.groupName)
+                }
                 DetailRow(label: "修读方式", value: viewModel.courseGrade.studyMode)
             }
             
@@ -84,7 +86,9 @@ struct GradeDetailView: View {
             
             Section(header: Text("课程属性")) {
                 DetailRow(label: "课程性质", value: viewModel.courseGrade.courseNature.rawValue)
-                DetailRow(label: "课程类别", value: viewModel.courseGrade.courseCategory)
+                if !viewModel.courseGrade.courseCategory.isEmpty {
+                    DetailRow(label: "课程类别", value: viewModel.courseGrade.courseCategory)
+                }
                 DetailRow(label: "课程属性", value: viewModel.courseGrade.courseAttribute)
                 DetailRow(label: "考核方式", value: viewModel.courseGrade.assessmentMethod)
                 DetailRow(label: "考试性质", value: viewModel.courseGrade.examNature)
