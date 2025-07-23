@@ -144,7 +144,7 @@ struct FeaturesSplitView: View {
                 case .map:
                     CampusMapView()
                 case .calendar:
-                    SchoolCalendarView()
+                    SchoolCalendarListView()
                 case .cet:
                     CETView()
                 case .mandarin:

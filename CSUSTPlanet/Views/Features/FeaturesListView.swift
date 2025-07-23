@@ -95,7 +95,7 @@ struct FeaturesListView: View {
                 NavigationLink(destination: CampusMapView()) {
                     ColoredLabel(title: "校园地图", iconName: "map", color: .mint)
                 }
-                NavigationLink(destination: SchoolCalendarView()) {
+                NavigationLink(destination: SchoolCalendarListView()) {
                     ColoredLabel(title: "校历", iconName: "calendar", color: .pink)
                 }
             }
