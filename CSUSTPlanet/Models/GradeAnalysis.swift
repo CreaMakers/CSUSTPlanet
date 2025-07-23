@@ -85,9 +85,7 @@ struct GradeAnalysisData: Codable {
 class GradeAnalysis {
     var data: GradeAnalysisData = GradeAnalysisData.empty()
 
-    init(
-        data: GradeAnalysisData,
-    ) {
+    init(data: GradeAnalysisData) {
         self.data = data
     }
 }

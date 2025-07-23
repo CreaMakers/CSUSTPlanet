@@ -20,6 +20,7 @@ struct CourseScheduleData: Codable {
     var semester: String?
     var semesterStartDate: Date
     var weeklyCourses: [Int: [CourseDisplayInfo]]
+    var lastUpdated: Date
 
     static func fromCourses(courses: [Course], semester: String?, semesterStartDate: Date) -> CourseScheduleData {
         var processedCourses: [Int: [CourseDisplayInfo]] = [:]
@@ -33,11 +34,11 @@ struct CourseScheduleData: Codable {
                 }
             }
         }
-        return CourseScheduleData(semester: semester, semesterStartDate: semesterStartDate, weeklyCourses: processedCourses)
+        return CourseScheduleData(semester: semester, semesterStartDate: semesterStartDate, weeklyCourses: processedCourses, lastUpdated: .now)
     }
 
     static func empty() -> CourseScheduleData {
-        return CourseScheduleData(semester: "", semesterStartDate: .now, weeklyCourses: [:])
+        return CourseScheduleData(semester: "", semesterStartDate: .now, weeklyCourses: [:], lastUpdated: .now)
     }
 }
 

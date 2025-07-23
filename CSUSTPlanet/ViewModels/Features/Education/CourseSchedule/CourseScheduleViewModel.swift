@@ -7,7 +7,9 @@
 
 import CSUSTKit
 import Foundation
+import SwiftData
 import SwiftUI
+import WidgetKit
 
 @MainActor
 class CourseScheduleViewModel: ObservableObject {
@@ -118,12 +120,25 @@ class CourseScheduleViewModel: ObservableObject {
                 }
 
                 // publish the course schedule data
-                courseScheduleData = CourseScheduleData.fromCourses(courses: courses, semester: selectedSemester, semesterStartDate: semesterStartDate)
+                let courseScheduleData = CourseScheduleData.fromCourses(courses: courses, semester: selectedSemester, semesterStartDate: semesterStartDate)
+                self.courseScheduleData = courseScheduleData
                 if let week = calculatedWeek {
                     withAnimation {
                         self.currentWeek = week
                     }
                 }
+
+                let context = SharedModel.context
+                let courseSchedules = try context.fetch(FetchDescriptor<CourseSchedule>())
+                for courseSchedule in courseSchedules {
+                    context.delete(courseSchedule)
+                }
+                let courseSchedule = CourseSchedule(data: courseScheduleData)
+                context.insert(courseSchedule)
+
+                try context.save()
+
+                WidgetCenter.shared.reloadTimelines(ofKind: "CourseScheduleWidget")
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true

@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 class SharedModel {
-    static let schema = Schema([Dorm.self, ElectricityRecord.self, GradeAnalysis.self])
+    static let schema = Schema([Dorm.self, ElectricityRecord.self, GradeAnalysis.self, CourseSchedule.self])
 
     static let container: ModelContainer = {
         #if WIDGET
