@@ -9,22 +9,13 @@ import CSUSTKit
 import Foundation
 import SwiftUI
 
-struct CourseDisplayInfo: Identifiable {
-    let id = UUID()
-    let course: Course
-    let session: ScheduleSession
-    let color: Color
-}
-
 @MainActor
 class CourseScheduleViewModel: ObservableObject {
     private var eduHelper: EduHelper
 
     // TabView显示的第几周
     @Published var currentWeek: Int = 1
-    private var courses: [Course] = []
-
-    @Published var weeklyCourses: [Int: [CourseDisplayInfo]] = [:]
+    var courseColors: [String: Color] = [:]
 
     @Published var isCoursesLoading: Bool = false
 
@@ -35,13 +26,14 @@ class CourseScheduleViewModel: ObservableObject {
     @Published var selectedSemester: String? = nil
     @Published var isSemestersLoading: Bool = false
 
-    // 开学日期
-    @Published var semesterStartDate: Date? = nil
+    @Published var courseScheduleData: CourseScheduleData? = nil
+
     // 当日日期
     #if DEBUG
     let today: Date = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
+        // 调试时使用固定日期
         return dateFormatter.date(from: "2025-09-15")!
     }()
     #else
@@ -79,7 +71,6 @@ class CourseScheduleViewModel: ObservableObject {
 
     init(eduHelper: EduHelper) {
         self.eduHelper = eduHelper
-        processCourses()
     }
 
     func handleSemesterChange(oldSemester: String?, newSemester: String?) {
@@ -104,25 +95,35 @@ class CourseScheduleViewModel: ObservableObject {
 
     func loadCourses() {
         isCoursesLoading = true
+        courseScheduleData = nil
         Task {
             defer {
                 isCoursesLoading = false
             }
 
             do {
-                courses = try await eduHelper.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
+                let courses = try await eduHelper.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
                 let semesterStartDate = try await eduHelper.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
-                self.semesterStartDate = semesterStartDate
                 let calculatedWeek = calculateCurrentWeek(from: semesterStartDate, for: today)
                 self.realCurrentWeek = calculatedWeek
 
+                courseColors = [:]
+                var colorIndex = 0
+
+                for course in courses.sorted(by: { $0.courseName < $1.courseName }) {
+                    if courseColors[course.courseName] == nil {
+                        courseColors[course.courseName] = ColorHelper.courseColors[colorIndex % ColorHelper.courseColors.count]
+                        colorIndex += 1
+                    }
+                }
+
+                // publish the course schedule data
+                courseScheduleData = CourseScheduleData.fromCourses(courses: courses, semester: selectedSemester, semesterStartDate: semesterStartDate)
                 if let week = calculatedWeek {
                     withAnimation {
                         self.currentWeek = week
                     }
                 }
-
-                processCourses()
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -140,31 +141,6 @@ class CourseScheduleViewModel: ObservableObject {
                 self.currentWeek = 1
             }
         }
-    }
-
-    func processCourses() {
-        var courseColorMap: [String: Color] = [:]
-        var colorIndex = 0
-
-        for course in courses.sorted(by: { $0.courseName < $1.courseName }) {
-            if courseColorMap[course.courseName] == nil {
-                courseColorMap[course.courseName] = ColorHelper.courseColors[colorIndex % ColorHelper.courseColors.count]
-                colorIndex += 1
-            }
-        }
-
-        var processedCourses: [Int: [CourseDisplayInfo]] = [:]
-
-        for course in courses {
-            for session in course.sessions {
-                let displayInfo = CourseDisplayInfo(course: course, session: session, color: courseColorMap[course.courseName] ?? .gray)
-
-                for week in session.weeks {
-                    processedCourses[week, default: []].append(displayInfo)
-                }
-            }
-        }
-        weeklyCourses = processedCourses
     }
 
     // 计算指定日期属于第几周

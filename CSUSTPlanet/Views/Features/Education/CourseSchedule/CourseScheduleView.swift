@@ -24,11 +24,11 @@ struct CourseScheduleView: View {
                 }
                 .padding()
                 .frame(maxHeight: .infinity)
-            } else if let semesterStartDate = viewModel.semesterStartDate {
+            } else if let courseScheduleData = viewModel.courseScheduleData {
                 // 课表的每一周翻页
                 TabView(selection: $viewModel.currentWeek) {
                     ForEach(1 ... viewModel.weekCount, id: \.self) { week in
-                        tableView(for: week, semesterStartDate: semesterStartDate)
+                        tableView(for: week, semesterStartDate: courseScheduleData.semesterStartDate, weeklyCourses: courseScheduleData.weeklyCourses)
                             .tag(week)
                     }
                 }
@@ -129,7 +129,7 @@ struct CourseScheduleView: View {
 
     // MARK: - 单周课表页面
 
-    private func tableView(for week: Int, semesterStartDate: Date) -> some View {
+    private func tableView(for week: Int, semesterStartDate: Date, weeklyCourses: [Int: [CourseDisplayInfo]]) -> some View {
         VStack(spacing: 0) {
             // 星期头部（日期和周几）
             headerView(for: week, semesterStartDate: semesterStartDate)
@@ -141,7 +141,7 @@ struct CourseScheduleView: View {
                     backgroundGrid
 
                     // 课程视图
-                    coursesOverlay(for: week)
+                    coursesOverlay(for: week, weeklyCourses: weeklyCourses)
                 }
             }
         }
@@ -231,7 +231,7 @@ struct CourseScheduleView: View {
 
     // MARK: - 课程浮层视图
 
-    private func coursesOverlay(for week: Int) -> some View {
+    private func coursesOverlay(for week: Int, weeklyCourses: [Int: [CourseDisplayInfo]]) -> some View {
         GeometryReader { geometry in
             // 计算每日的列宽
             let horizontalPadding: CGFloat = 5
@@ -246,9 +246,9 @@ struct CourseScheduleView: View {
             let dayColumnWidth = (contentWidth - viewModel.timeColWidth - totalSpacingWidth) / 7
 
             ZStack(alignment: .topLeading) {
-                if let coursesForWeek = viewModel.weeklyCourses[week] {
+                if let coursesForWeek = weeklyCourses[week] {
                     ForEach(coursesForWeek) { courseInfo in
-                        CourseCardView(course: courseInfo.course, session: courseInfo.session, color: courseInfo.color)
+                        CourseCardView(course: courseInfo.course, session: courseInfo.session, color: viewModel.courseColors[courseInfo.course.courseName] ?? .gray)
                             .frame(width: dayColumnWidth)
                             .frame(height: viewModel.calculateHeight(for: courseInfo.session))
                             .offset(
