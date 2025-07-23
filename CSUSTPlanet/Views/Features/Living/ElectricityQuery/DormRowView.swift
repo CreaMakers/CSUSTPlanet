@@ -40,7 +40,7 @@ struct DormRowView: View {
                     VStack(alignment: .trailing, spacing: 4) {
                         Text("\(String(format: "%.2f", record.electricity)) kWh")
                             .font(.headline)
-                            .foregroundColor(.accentColor)
+                            .foregroundStyle(ColorHelper.electricityColor(electricity: record.electricity))
                         Text(viewModel.formatDate(record.date))
                             .font(.caption)
                             .foregroundColor(.secondary)

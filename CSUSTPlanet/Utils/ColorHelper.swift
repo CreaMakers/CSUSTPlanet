@@ -88,4 +88,12 @@ class ColorHelper {
 
         return UIColor(red: newR, green: newG, blue: newB, alpha: newA)
     }
+
+    static func electricityColor(electricity: Double) -> Color {
+        switch electricity {
+        case ..<10: return .red
+        case 10 ..< 30: return .orange
+        default: return .green
+        }
+    }
 }

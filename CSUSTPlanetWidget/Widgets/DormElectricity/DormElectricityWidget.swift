@@ -133,7 +133,7 @@ struct DormElectricityEntryView: View {
                                 VStack {
                                     Text(String(format: "%.2f", last.electricity))
                                         .font(.system(size: 16, weight: .bold, design: .rounded))
-                                        .foregroundColor(electricityColor(electricity: last.electricity))
+                                        .foregroundColor(ColorHelper.electricityColor(electricity: last.electricity))
                                         + Text("度")
                                         .font(.system(size: 14))
                                         .foregroundColor(.secondary)
@@ -164,7 +164,7 @@ struct DormElectricityEntryView: View {
 
                             Text(String(format: "%.2f", last.electricity))
                                 .font(.system(size: 24, weight: .bold, design: .rounded))
-                                .foregroundColor(electricityColor(electricity: last.electricity))
+                                .foregroundColor(ColorHelper.electricityColor(electricity: last.electricity))
                                 + Text("度")
                                 .font(.system(size: 14))
                                 .foregroundColor(.secondary)
@@ -205,14 +205,6 @@ struct DormElectricityEntryView: View {
             }
         }
         .widgetURL(URL(string: "csustplanet://widgets/electricity"))
-    }
-
-    private func electricityColor(electricity: Double) -> Color {
-        switch electricity {
-        case ..<10: return .red
-        case 10 ..< 30: return .orange
-        default: return .green
-        }
     }
 }
 

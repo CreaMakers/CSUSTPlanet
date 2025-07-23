@@ -117,7 +117,7 @@ struct DormDetailView: View {
                     HStack {
                         Text("\(String(format: "%.2f", record.electricity))")
                             .font(.system(size: 24, weight: .bold, design: .rounded))
-                            .foregroundColor(.blue)
+                            .foregroundStyle(ColorHelper.electricityColor(electricity: record.electricity))
                         
                         Text("kWh")
                             .font(.subheadline)
@@ -156,8 +156,8 @@ struct DormDetailView: View {
                 .interpolationMethod(.catmullRom)
                 .symbol {
                     Circle()
-                        .fill(Color.accentColor)
                         .frame(width: 8)
+                        .foregroundStyle(.primary)
                 }
             }
             .chartXAxis {
