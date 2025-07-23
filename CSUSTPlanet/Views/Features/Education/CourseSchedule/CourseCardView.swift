@@ -16,23 +16,21 @@ struct CourseCardView: View {
     let color: Color
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             Text(course.courseName)
-                .font(.system(size: 13, weight: .bold))
+                .font(.system(size: 12, weight: .bold))
                 .foregroundColor(.white)
                 .padding(.horizontal, 0)
 
             Text("@\(session.classroom ?? "待定")")
-                .font(.system(size: 13))
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.white)
                 .padding(.horizontal, 0)
 
             Text(course.teacher)
-                .font(.system(size: 10))
+                .font(.system(size: 10, weight: .regular))
                 .foregroundColor(.white)
                 .padding(.horizontal, 0)
-
-            Spacer()
         }
         .onTapGesture {
             isShowingDetail = true
@@ -41,7 +39,7 @@ struct CourseCardView: View {
             courseDetailView
         }
         .padding(2)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(color)
         .cornerRadius(5)
     }

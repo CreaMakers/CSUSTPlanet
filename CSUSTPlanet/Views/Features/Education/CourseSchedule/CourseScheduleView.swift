@@ -89,15 +89,15 @@ struct CourseScheduleView: View {
     private var topControlBar: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(viewModel.formatDate(viewModel.today))
+                Text("今日 \(viewModel.formatDate(viewModel.today))")
                     .font(.headline)
                     .foregroundColor(.primary)
 
                 if let realCurrentWeek = viewModel.realCurrentWeek {
-                    Text("第 \(viewModel.currentWeek) 周" + (viewModel.currentWeek == realCurrentWeek ? " (本周)" : ""))
+                    Text("第 \(viewModel.currentWeek) 周 \(viewModel.currentWeek == realCurrentWeek ? " (本周)" : " (非本周)")")
                         .font(.subheadline)
                 } else {
-                    Text("第 \(viewModel.currentWeek) 周")
+                    Text("第 \(viewModel.currentWeek) 周 (不在学期内)")
                         .font(.subheadline)
                 }
             }
@@ -118,7 +118,7 @@ struct CourseScheduleView: View {
                 }
 
                 Button(action: viewModel.goToCurrentWeek) {
-                    Text("回到本周")
+                    Text("本周")
                 }
                 .disabled(viewModel.realCurrentWeek == nil)
             }
@@ -175,13 +175,13 @@ struct CourseScheduleView: View {
                 VStack {
                     Text(viewModel.dayOfWeekToString(day))
                         .font(.subheadline)
-                        .foregroundColor(Calendar.current.isDateInToday(date) ? .primary : .secondary)
-                        .fontWeight(Calendar.current.isDateInToday(date) ? .bold : .regular)
+                        .foregroundColor(viewModel.isToday(date) ? .primary : .secondary)
+                        .fontWeight(viewModel.isToday(date) ? .bold : .regular)
 
                     Text(dayFormatter.string(from: date))
                         .font(.subheadline)
-                        .foregroundColor(Calendar.current.isDateInToday(date) ? .primary : .secondary)
-                        .fontWeight(Calendar.current.isDateInToday(date) ? .bold : .regular)
+                        .foregroundColor(viewModel.isToday(date) ? .primary : .secondary)
+                        .fontWeight(viewModel.isToday(date) ? .bold : .regular)
                 }
                 .frame(maxWidth: .infinity)
             }

@@ -38,8 +38,15 @@ class CourseScheduleViewModel: ObservableObject {
     // 开学日期
     @Published var semesterStartDate: Date? = nil
     // 当日日期
-    // 假设2025-09-25
+    #if DEBUG
+    let today: Date = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        return dateFormatter.date(from: "2025-09-15")!
+    }()
+    #else
     let today: Date = .now
+    #endif
 
     // 当前日期在第几周
     @Published var realCurrentWeek: Int? = nil
@@ -146,8 +153,6 @@ class CourseScheduleViewModel: ObservableObject {
             }
         }
 
-        debugPrint(courseColorMap)
-
         var processedCourses: [Int: [CourseDisplayInfo]] = [:]
 
         for course in courses {
@@ -234,5 +239,10 @@ class CourseScheduleViewModel: ObservableObject {
 
     func formatDate(_ date: Date) -> String {
         return dateFormatter.string(from: date)
+    }
+
+    func isToday(_ date: Date) -> Bool {
+        let calendar = Calendar.current
+        return calendar.isDate(date, inSameDayAs: today)
     }
 }
