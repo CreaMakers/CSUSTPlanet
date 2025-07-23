@@ -79,8 +79,8 @@ struct CourseCardView: View {
                 }
 
                 Section(header: Text("课程安排")) {
-                    InfoRow(label: "课程周次", value: session.weeks.map { "\($0)" }.joined(separator: ", "))
-                    InfoRow(label: "课程节次", value: "\(session.startSection) - \(session.endSection)")
+                    InfoRow(label: "课程周次", value: formatWeeks(session.weeks))
+                    InfoRow(label: "课程节次", value: "第\(session.startSection)节-第\(session.endSection)节")
                     InfoRow(label: "每周日期", value: "周\(dayOfWeekToString(session.dayOfWeek))")
                     InfoRow(label: "上课教室", value: session.classroom ?? "待定")
                 }
@@ -94,6 +94,36 @@ struct CourseCardView: View {
                 }
             }
         }
+    }
+
+    func formatWeeks(_ weeks: [Int]) -> String {
+        guard !weeks.isEmpty else { return "" }
+
+        var result = [String]()
+        var start = weeks[0]
+        var prev = weeks[0]
+
+        for week in weeks.dropFirst() {
+            if week == prev + 1 {
+                prev = week
+            } else {
+                if start == prev {
+                    result.append("第\(start)周")
+                } else {
+                    result.append("第\(start)周-第\(prev)周")
+                }
+                start = week
+                prev = week
+            }
+        }
+
+        if start == prev {
+            result.append("第\(start)周")
+        } else {
+            result.append("第\(start)周-第\(prev)周")
+        }
+
+        return result.joined(separator: ", ")
     }
 
     func dayOfWeekToString(_ day: DayOfWeek) -> String {
