@@ -19,7 +19,7 @@ class ColorHelper {
         (range: "68-71", min: 68, max: 71, point: 2.0),
         (range: "64-67", min: 64, max: 67, point: 1.5),
         (range: "60-63", min: 60, max: 63, point: 1.0),
-        (range: "≤59", min: 0, max: 59, point: 0.0)
+        (range: "≤59", min: 0, max: 59, point: 0.0),
     ]
 
     static func dynamicColor(grade: Double) -> Color {
@@ -96,4 +96,38 @@ class ColorHelper {
         default: return .green
         }
     }
+
+    static func color(hex: UInt) -> Color {
+        return Color(
+            .sRGB,
+            red: Double((hex >> 16) & 0xFF) / 255.0,
+            green: Double((hex >> 8) & 0xFF) / 255.0,
+            blue: Double(hex & 0xFF) / 255.0,
+            opacity: 1.0
+        )
+    }
+
+    static let courseColors: [Color] = [
+        .blue,
+        .green,
+        .orange,
+        .purple,
+        .pink,
+        .red,
+        .yellow,
+        .cyan,
+        .mint,
+        .indigo,
+        .teal,
+        .brown,
+
+        color(hex: 0x6CBE45),
+        color(hex: 0xFF6F61),
+        color(hex: 0x845EC2),
+        color(hex: 0xFFC75F),
+        color(hex: 0x008E9B),
+        color(hex: 0xFF9671),
+        color(hex: 0x00B4D8),
+        color(hex: 0xC34A36),
+    ]
 }

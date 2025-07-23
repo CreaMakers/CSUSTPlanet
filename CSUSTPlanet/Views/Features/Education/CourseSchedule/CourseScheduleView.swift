@@ -248,7 +248,7 @@ struct CourseScheduleView: View {
             ZStack(alignment: .topLeading) {
                 if let coursesForWeek = viewModel.weeklyCourses[week] {
                     ForEach(coursesForWeek) { courseInfo in
-                        CourseCardView(course: courseInfo.course, session: courseInfo.session)
+                        CourseCardView(course: courseInfo.course, session: courseInfo.session, color: courseInfo.color)
                             .frame(width: dayColumnWidth)
                             .frame(height: viewModel.calculateHeight(for: courseInfo.session))
                             .offset(

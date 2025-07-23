@@ -13,17 +13,7 @@ struct CourseCardView: View {
 
     let course: Course
     let session: ScheduleSession
-
-    private var cardColor: Color {
-        let hash = course.courseName.count
-        let colorIndex = abs(hash) % 13
-        let colors: [Color] = [
-            .blue, .green, .orange, .purple, .pink,
-            .red, .yellow, .cyan, .mint, .indigo,
-            .teal, .brown, .gray,
-        ]
-        return colors[colorIndex].opacity(0.8)
-    }
+    let color: Color
 
     var body: some View {
         VStack {
@@ -52,7 +42,7 @@ struct CourseCardView: View {
         }
         .padding(2)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(cardColor)
+        .background(color)
         .cornerRadius(5)
     }
 

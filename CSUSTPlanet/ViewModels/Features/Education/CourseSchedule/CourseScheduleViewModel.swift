@@ -13,6 +13,7 @@ struct CourseDisplayInfo: Identifiable {
     let id = UUID()
     let course: Course
     let session: ScheduleSession
+    let color: Color
 }
 
 @MainActor
@@ -135,11 +136,23 @@ class CourseScheduleViewModel: ObservableObject {
     }
 
     func processCourses() {
+        var courseColorMap: [String: Color] = [:]
+        var colorIndex = 0
+
+        for course in courses.sorted(by: { $0.courseName < $1.courseName }) {
+            if courseColorMap[course.courseName] == nil {
+                courseColorMap[course.courseName] = ColorHelper.courseColors[colorIndex % ColorHelper.courseColors.count]
+                colorIndex += 1
+            }
+        }
+
+        debugPrint(courseColorMap)
+
         var processedCourses: [Int: [CourseDisplayInfo]] = [:]
 
         for course in courses {
             for session in course.sessions {
-                let displayInfo = CourseDisplayInfo(course: course, session: session)
+                let displayInfo = CourseDisplayInfo(course: course, session: session, color: courseColorMap[course.courseName] ?? .gray)
 
                 for week in session.weeks {
                     processedCourses[week, default: []].append(displayInfo)
