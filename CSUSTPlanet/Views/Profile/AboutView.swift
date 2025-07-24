@@ -17,6 +17,12 @@ struct AboutView: View {
                 Text("无法加载关于信息")
             }
 
+            Section {
+                NavigationLink(destination: TesterListView()) {
+                    Label("测试人员名单", systemImage: "person.3.fill")
+                }
+            }
+
             Section("应用信息") {
                 HStack {
                     Text("版本号")
