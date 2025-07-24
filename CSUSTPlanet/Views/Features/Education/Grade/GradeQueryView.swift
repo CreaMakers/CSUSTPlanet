@@ -160,13 +160,15 @@ struct GradeQueryView: View {
         Section(header: Text("学业统计")) {
             let stats = viewModel.calculateStats()
             
-            HStack(spacing: 20) {
+            HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("GPA")
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                     Text(String(format: "%.2f", stats.gpa))
-                        .font(.title2)
+                        .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(ColorHelper.dynamicColor(point: stats.gpa))
                 }
@@ -175,18 +177,34 @@ struct GradeQueryView: View {
                     Text("平均成绩")
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                     Text(String(format: "%.2f", stats.averageGrade))
-                        .font(.title2)
+                        .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(ColorHelper.dynamicColor(grade: stats.averageGrade))
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("加权平均成绩")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Text(String(format: "%.2f", stats.weightedAverageGrade))
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(ColorHelper.dynamicColor(grade: stats.weightedAverageGrade))
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("已修总学分")
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                     Text(String(format: "%.1f", stats.totalCredits))
-                        .font(.title2)
+                        .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(.blue)
                 }
@@ -195,14 +213,15 @@ struct GradeQueryView: View {
                     Text("课程总数")
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                     Text("\(stats.courseCount)")
-                        .font(.title2)
+                        .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(.purple)
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
         }
     }
     

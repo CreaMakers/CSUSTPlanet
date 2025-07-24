@@ -40,6 +40,7 @@ class GradeQueryViewModel: ObservableObject {
     struct Stats {
         let gpa: Double
         let totalCredits: Double
+        let weightedAverageGrade: Double
         let averageGrade: Double
         let courseCount: Int
     }
@@ -49,11 +50,13 @@ class GradeQueryViewModel: ObservableObject {
         let totalGradePoints = courseGrades.reduce(0) { $0 + $1.gradePoint * $1.credit }
         let gpa = totalCredits > 0 ? totalGradePoints / totalCredits : 0
         let totalGrades = courseGrades.reduce(0) { $0 + $1.grade }
+        let weightedAverageGrade = courseGrades.reduce(0) { $0 + Double($1.grade) * $1.credit } / totalCredits
         let averageGrade = courseGrades.isEmpty ? 0 : Double(totalGrades) / Double(courseGrades.count)
 
         return Stats(
             gpa: gpa,
             totalCredits: totalCredits,
+            weightedAverageGrade: weightedAverageGrade,
             averageGrade: averageGrade,
             courseCount: courseGrades.count
         )

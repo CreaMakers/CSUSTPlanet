@@ -23,9 +23,14 @@ struct GradeAnalysisView: View {
                     ProgressView("正在加载成绩数据...")
                         .padding()
                 } else {
-                    summaryCard
-                    
-                    semesterAnalysisSection
+                    if let gradeAnalysisData = viewModel.gradeAnalysisData, let weightedAverageGrade = viewModel.weightedAverageGrade {
+                        summaryCard(gradeAnalysisData, weightedAverageGrade)
+                        semesterAnalysisSection(gradeAnalysisData)
+                    } else {
+                        Text("暂无成绩数据")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
             .padding(.vertical)
@@ -57,7 +62,7 @@ struct GradeAnalysisView: View {
     
     // MARK: - Subviews
     
-    private var summaryCard: some View {
+    private func summaryCard(_ gradeAnalysisData: GradeAnalysisData, _ weightedAverageGrade: Double) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("学习总览")
                 .font(.headline)
@@ -65,19 +70,19 @@ struct GradeAnalysisView: View {
             HStack {
                 StatisticItem(
                     title: "课程总数",
-                    value: "\(viewModel.gradeAnalysisData.totalCourses)",
+                    value: "\(gradeAnalysisData.totalCourses)",
                     color: .purple
                 )
                 Spacer()
                 StatisticItem(
                     title: "总学分",
-                    value: String(format: "%.1f", viewModel.gradeAnalysisData.totalCredits),
+                    value: String(format: "%.1f", gradeAnalysisData.totalCredits),
                     color: .blue
                 )
                 Spacer()
                 StatisticItem(
                     title: "总学时",
-                    value: "\(viewModel.gradeAnalysisData.totalHours)",
+                    value: "\(gradeAnalysisData.totalHours)",
                     color: .red
                 )
             }
@@ -85,14 +90,20 @@ struct GradeAnalysisView: View {
             HStack {
                 StatisticItem(
                     title: "平均成绩",
-                    value: String(format: "%.2f", viewModel.gradeAnalysisData.overallAverageGrade),
-                    color: ColorHelper.dynamicColor(grade: viewModel.gradeAnalysisData.overallAverageGrade)
+                    value: String(format: "%.2f", gradeAnalysisData.overallAverageGrade),
+                    color: ColorHelper.dynamicColor(grade: gradeAnalysisData.overallAverageGrade)
+                )
+                Spacer()
+                StatisticItem(
+                    title: "加权平均成绩",
+                    value: String(format: "%.2f", weightedAverageGrade),
+                    color: ColorHelper.dynamicColor(grade: weightedAverageGrade)
                 )
                 Spacer()
                 StatisticItem(
                     title: "平均绩点",
-                    value: String(format: "%.2f", viewModel.gradeAnalysisData.overallGPA),
-                    color: ColorHelper.dynamicColor(point: viewModel.gradeAnalysisData.overallGPA)
+                    value: String(format: "%.2f", gradeAnalysisData.overallGPA),
+                    color: ColorHelper.dynamicColor(point: gradeAnalysisData.overallGPA)
                 )
             }
         }
@@ -119,14 +130,14 @@ struct GradeAnalysisView: View {
         }
     }
     
-    private var semesterAnalysisSection: some View {
+    private func semesterAnalysisSection(_ gradeAnalysisData: GradeAnalysisData) -> some View {
         VStack(spacing: 30) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("学期平均成绩")
                     .font(.headline)
                     .padding(.horizontal)
                     
-                Chart(viewModel.gradeAnalysisData.semesterAverageGrades, id: \.semester) { item in
+                Chart(gradeAnalysisData.semesterAverageGrades, id: \.semester) { item in
                     LineMark(
                         x: .value("学期", item.semester),
                         y: .value("平均成绩", item.average)
@@ -158,7 +169,7 @@ struct GradeAnalysisView: View {
                     .font(.headline)
                     .padding(.horizontal)
                     
-                Chart(viewModel.gradeAnalysisData.semesterGPAs, id: \.semester) { item in
+                Chart(gradeAnalysisData.semesterGPAs, id: \.semester) { item in
                     LineMark(
                         x: .value("学期", item.semester),
                         y: .value("GPA", item.gpa)
@@ -189,7 +200,7 @@ struct GradeAnalysisView: View {
                 Text("绩点分布")
                     .font(.headline)
                     .padding(.horizontal)
-                Chart(viewModel.gradeAnalysisData.gradePointDistribution, id: \.gradePoint) { item in
+                Chart(gradeAnalysisData.gradePointDistribution, id: \.gradePoint) { item in
                     BarMark(
                         x: .value("绩点", String(format: "%.1f", item.gradePoint)),
                         y: .value("课程数", item.count)

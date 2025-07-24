@@ -19,7 +19,8 @@ class GradeAnalysisViewModel: ObservableObject {
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
 
-    @Published var gradeAnalysisData: GradeAnalysisData = .empty()
+    @Published var gradeAnalysisData: GradeAnalysisData?
+    @Published var weightedAverageGrade: Double?
 
     init(eduHelper: EduHelper) {
         self.eduHelper = eduHelper
@@ -34,7 +35,11 @@ class GradeAnalysisViewModel: ObservableObject {
 
             do {
                 let courseGrades = try await eduHelper.courseService.getCourseGrades()
-                gradeAnalysisData = GradeAnalysisData.fromCourseGrades(courseGrades)
+                let gradeAnalysisData = GradeAnalysisData.fromCourseGrades(courseGrades)
+
+                let totalCredits = courseGrades.reduce(0) { $0 + $1.credit }
+                weightedAverageGrade = courseGrades.reduce(0) { $0 + (Double($1.grade) * $1.credit) } / totalCredits
+                self.gradeAnalysisData = gradeAnalysisData
 
                 if !courseGrades.isEmpty {
                     let context = SharedModel.context
