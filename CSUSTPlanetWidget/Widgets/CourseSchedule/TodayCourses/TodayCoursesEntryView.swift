@@ -1,0 +1,177 @@
+//
+//  TodayCoursesEntryView.swift
+//  CSUSTPlanetWidgetExtension
+//
+//  Created by Zhe_Learn on 2025/7/23.
+//
+
+import CSUSTKit
+import SwiftUI
+import WidgetKit
+
+let courses = [Course(courseName: "软件工程概论", groupName: nil, teacher: "胡立辉高级实验师", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], startSection: 3, endSection: 4, dayOfWeek: DayOfWeek.thursday, classroom: Optional("金6-102")), ScheduleSession(weeks: [1, 3, 5, 7, 9, 11, 13], startSection: 7, endSection: 8, dayOfWeek: DayOfWeek.monday, classroom: Optional("金12-205"))]), Course(courseName: "体育(三)", groupName: Optional("(24计算机跆拳道男11)"), teacher: "余新畅无", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], startSection: 3, endSection: 4, dayOfWeek: DayOfWeek.monday, classroom: Optional("金西田径场1"))]), Course(courseName: "美术鉴赏(艺术及其他)", groupName: nil, teacher: "赵晖(14)讲师", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 9, endSection: 10, dayOfWeek: DayOfWeek.wednesday, classroom: Optional("金12-215"))]), Course(courseName: "无人机设计与空天科技导论（自然科学）", groupName: nil, teacher: "张云菲副教授,陈良宇讲师", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8], startSection: 9, endSection: 10, dayOfWeek: DayOfWeek.tuesday, classroom: nil), ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8], startSection: 9, endSection: 10, dayOfWeek: DayOfWeek.thursday, classroom: nil)]), Course(courseName: "大学物理B（下）", groupName: nil, teacher: "张华林讲师", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 5, endSection: 6, dayOfWeek: DayOfWeek.monday, classroom: Optional("金12-106"))]), Course(courseName: "离散结构", groupName: nil, teacher: "肖红光副教授", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], startSection: 1, endSection: 2, dayOfWeek: DayOfWeek.wednesday, classroom: Optional("金12-106")), ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], startSection: 7, endSection: 8, dayOfWeek: DayOfWeek.friday, classroom: Optional("金13-105"))]), Course(courseName: "写作与沟通", groupName: nil, teacher: "陈璐（12）副教授", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], startSection: 3, endSection: 4, dayOfWeek: DayOfWeek.wednesday, classroom: Optional("金6-304"))]), Course(courseName: "程序设计、算法与数据结构（三）", groupName: nil, teacher: "陈曦(小)副教授", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], startSection: 3, endSection: 4, dayOfWeek: DayOfWeek.friday, classroom: Optional("金12-107")), ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], startSection: 5, endSection: 6, dayOfWeek: DayOfWeek.wednesday, classroom: Optional("金12-107"))]), Course(courseName: "操作系统", groupName: nil, teacher: "胡晋彬副教授", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 1, endSection: 2, dayOfWeek: DayOfWeek.tuesday, classroom: Optional("金12-109"))]), Course(courseName: "马克思主义基本原理", groupName: nil, teacher: "廖苗副教授", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 5, endSection: 6, dayOfWeek: DayOfWeek.thursday, classroom: Optional("金12-116"))]), Course(courseName: "大学物理实验B", groupName: nil, teacher: "蔡爱军讲师", sessions: [ScheduleSession(weeks: [2], startSection: 7, endSection: 8, dayOfWeek: DayOfWeek.wednesday, classroom: Optional("金12-500"))]), Course(courseName: "操作系统实验（开源）", groupName: nil, teacher: "胡晋彬副教授", sessions: [ScheduleSession(weeks: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15], startSection: 3, endSection: 4, dayOfWeek: DayOfWeek.tuesday, classroom: nil), ScheduleSession(weeks: [6, 8, 10, 12, 14], startSection: 5, endSection: 6, dayOfWeek: DayOfWeek.friday, classroom: nil)]), Course(courseName: "线性代数", groupName: nil, teacher: "李铭副教授", sessions: [ScheduleSession(weeks: [2, 4, 6, 8, 10, 12, 14], startSection: 1, endSection: 2, dayOfWeek: DayOfWeek.monday, classroom: Optional("金6-107")), ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], startSection: 7, endSection: 8, dayOfWeek: DayOfWeek.thursday, classroom: Optional("金6-107"))])]
+
+func mockTodayCoursesEntry() -> TodayCoursesEntry {
+    let semesterDateFormatter = DateFormatter()
+    semesterDateFormatter.dateFormat = "yyyy-MM-dd"
+
+    let data = CourseScheduleData.fromCourses(courses: courses, semester: "2025-2026-1", semesterStartDate: semesterDateFormatter.date(from: "2025-09-07")!)
+
+    let timeDateFormatter = DateFormatter()
+    timeDateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+
+    return TodayCoursesEntry(
+        date: timeDateFormatter.date(from: "2025-09-11 04:00")!,
+        configuration: TodayCoursesIntent(),
+        data: data
+    )
+}
+
+struct TodayCoursesEntryView: View {
+    @Environment(\.widgetFamily) var widgetFamily
+
+    var entry: TodayCoursesProvider.Entry
+
+    var body: some View {
+        if let data = entry.data {
+            VStack {
+                HStack {
+                    Text("今日剩余课程")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.primary)
+                    Text(data.semester ?? "默认学期")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.secondary)
+                    Text(ScheduleHelper.getWeekday(from: entry.date))
+                        .font(.system(size: 14))
+                        .foregroundStyle(.red)
+
+                    Spacer()
+
+                    switch ScheduleHelper.getSemesterStatus(for: entry.date, semesterStartDate: data.semesterStartDate) {
+                    case .beforeSemester:
+                        Text("学期未开始")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.secondary)
+                    case .afterSemester:
+                        Text("学期已结束")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.secondary)
+                    case .inSemester:
+                        if let currentWeek = ScheduleHelper.calculateCurrentWeek(from: data.semesterStartDate, for: entry.date) {
+                            Text("第 \(currentWeek) 周")
+                                .font(.system(size: 14))
+                                .foregroundStyle(.primary)
+                        } else {
+                            Text("无法计算当前周")
+                                .font(.system(size: 14))
+                                .foregroundStyle(.red)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                coursesView(data: data, date: entry.date)
+            }
+        } else {
+            Text("请先在App中查询课表")
+                .multilineTextAlignment(.center)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    func coursesView(data: CourseScheduleData, date: Date) -> some View {
+        Group {
+            switch ScheduleHelper.getSemesterStatus(for: entry.date, semesterStartDate: data.semesterStartDate) {
+            case .beforeSemester:
+                VStack {
+                    Text("学期未开始")
+                    if let daysUntilStart = ScheduleHelper.daysUntilSemesterStart(from: data.semesterStartDate, currentDate: entry.date) {
+                        Text("还有 \(daysUntilStart) 天开学")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.primary)
+                            .padding(.top, 2)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            case .afterSemester:
+                Text("学期已结束")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            case .inSemester:
+                let courseColors = getCourseColors(courses: data.courses)
+                let courseDisplayInfos = ScheduleHelper.getUnfinishedCourses(
+                    for: entry.date,
+                    in: data,
+                    maxCount: widgetFamily == .systemMedium ? 2 : 5,
+                    at: entry.date
+                )
+
+                if courseDisplayInfos.isEmpty {
+                    Text("今天已经没有课程啦")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                } else {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(courseDisplayInfos) { courseDisplayInfo in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(courseDisplayInfo.course.courseName)
+                                        .font(.system(size: 16, weight: .bold))
+                                    HStack {
+                                        Text(courseDisplayInfo.session.classroom ?? "未知教室")
+                                        Text(courseDisplayInfo.course.teacher)
+                                    }
+                                    .font(.system(size: 14))
+                                }
+                                Spacer()
+                                VStack(alignment: .trailing) {
+                                    Text(ScheduleHelper.sectionTimes[courseDisplayInfo.session.startSection - 1].0)
+                                        .font(.system(size: 16))
+                                    Text(ScheduleHelper.sectionTimes[courseDisplayInfo.session.endSection - 1].1)
+                                        .font(.system(size: 16))
+                                }
+                            }
+                            .padding(8)
+                            .frame(height: 50)
+                            .background((courseColors[courseDisplayInfo.course.courseName] ?? .gray).opacity(0.1))
+                            .cornerRadius(4)
+                            .overlay(
+                                Rectangle()
+                                    .frame(width: 4)
+                                    .foregroundStyle(courseColors[courseDisplayInfo.course.courseName] ?? .gray)
+                                    .cornerRadius(2)
+                                    .padding(.leading, -8),
+                                alignment: .leading
+                            )
+                            .padding(.leading, 8)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                }
+            }
+        }
+    }
+
+    func getCourseColors(courses: [Course]) -> [String: Color] {
+        var courseColors: [String: Color] = [:]
+        var colorIndex = 0
+        for course in courses.sorted(by: { $0.courseName < $1.courseName }) {
+            if courseColors[course.courseName] == nil {
+                courseColors[course.courseName] = ColorHelper.courseColors[colorIndex % ColorHelper.courseColors.count]
+                colorIndex += 1
+            }
+        }
+        return courseColors
+    }
+}
+
+#Preview(as: .systemMedium) {
+    TodayCoursesWidget()
+} timeline: {
+    mockTodayCoursesEntry()
+}
+
+#Preview(as: .systemLarge) {
+    TodayCoursesWidget()
+} timeline: {
+    mockTodayCoursesEntry()
+}

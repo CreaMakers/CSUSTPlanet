@@ -12,7 +12,7 @@ import SwiftData
 import SwiftUI
 import WidgetKit
 
-func mockEntry(configuration: GradeAnalysisIntent?) -> GradeAnalysisEntry {
+func mockGradeAnalysisEntry(configuration: GradeAnalysisIntent?) -> GradeAnalysisEntry {
     return GradeAnalysisEntry(
         date: .now,
         configuration: configuration ?? GradeAnalysisIntent(),
@@ -51,11 +51,11 @@ func mockEntry(configuration: GradeAnalysisIntent?) -> GradeAnalysisEntry {
 
 struct GradeAnalysisProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> GradeAnalysisEntry {
-        mockEntry(configuration: nil)
+        mockGradeAnalysisEntry(configuration: nil)
     }
 
     func snapshot(for configuration: GradeAnalysisIntent, in context: Context) async -> GradeAnalysisEntry {
-        mockEntry(configuration: configuration)
+        mockGradeAnalysisEntry(configuration: configuration)
     }
 
     func timeline(for configuration: GradeAnalysisIntent, in context: Context) async -> Timeline<GradeAnalysisEntry> {

@@ -281,7 +281,7 @@ struct GradeAnalysisEntryView: View {
 #Preview(as: .systemSmall) {
     GradeAnalysisWidget()
 } timeline: {
-    mockEntry(configuration: nil)
+    mockGradeAnalysisEntry(configuration: nil)
 }
 
 #Preview(as: .systemMedium) {
@@ -292,7 +292,7 @@ struct GradeAnalysisEntryView: View {
         intent.chartType = .semesterGPA
         return intent
     }()
-    mockEntry(configuration: intent)
+    mockGradeAnalysisEntry(configuration: intent)
 }
 
 #Preview(as: .systemLarge) {
@@ -303,5 +303,5 @@ struct GradeAnalysisEntryView: View {
         intent.chartType = .gpaDistribution
         return intent
     }()
-    mockEntry(configuration: intent)
+    mockGradeAnalysisEntry(configuration: intent)
 }
