@@ -23,5 +23,6 @@ struct CSUSTPlanetWidgetBundle: WidgetBundle {
         DormElectricityWidget()
         GradeAnalysisWidget()
         TodayCoursesWidget()
+        WeeklyCoursesWidget()
     }
 }
