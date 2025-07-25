@@ -503,7 +503,7 @@
 				DEVELOPMENT_TEAM = 7GPA4WLM3W;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CSUSTPlanetWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = CSUSTPlanetWidget;
+				INFOPLIST_KEY_CFBundleDisplayName = "长理星球小组件";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -533,7 +533,7 @@
 				DEVELOPMENT_TEAM = 7GPA4WLM3W;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CSUSTPlanetWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = CSUSTPlanetWidget;
+				INFOPLIST_KEY_CFBundleDisplayName = "长理星球小组件";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -17,7 +17,11 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
         let intent = {
             let intent = DormElectricityAppIntent()
             intent.dormitory = DormEntity(dorm: Dorm(room: "A544", building: Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
-            intent.dormitory!.records = [DormEntity.ElectricityRecord(electricity: 233.33, date: .now)]
+            intent.dormitory!.records = [
+                DormEntity.ElectricityRecord(electricity: 240, date: .now.addingTimeInterval(-86400)),
+                DormEntity.ElectricityRecord(electricity: 233.33, date: .now.addingTimeInterval(-43200)),
+                DormEntity.ElectricityRecord(electricity: 220.00, date: .now)
+            ]
             return intent
 
         }()
