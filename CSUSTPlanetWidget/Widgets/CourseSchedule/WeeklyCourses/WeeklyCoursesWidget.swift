@@ -63,10 +63,6 @@ struct WeeklyCoursesProvider: AppIntentTimelineProvider {
             }
         }
 
-        if entries.isEmpty {
-            entries.append(WeeklyCoursesEntry(date: currentDate, configuration: configuration, data: data))
-        }
-
         let tomorrowStart = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
         return Timeline(entries: entries, policy: .after(tomorrowStart))
     }

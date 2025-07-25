@@ -19,75 +19,53 @@ struct TodayCoursesProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: TodayCoursesIntent, in context: Context) async -> Timeline<TodayCoursesEntry> {
-        debugPrint("TodayCoursesProvider: Fetching course schedule data for widget timeline")
-        
+        let currentDate: Date = .now
+
         let descriptor = FetchDescriptor<CourseSchedule>()
         let modelContext = SharedModel.context
         let courseSchedule = try? modelContext.fetch(descriptor).first
-        
+
         guard let data = courseSchedule?.data else {
-            debugPrint("TodayCoursesProvider: No course data found. Refreshing in 1 hour.")
             let entry = TodayCoursesEntry(date: .now, configuration: configuration, data: nil)
             let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: .now)!
             return Timeline(entries: [entry], policy: .after(nextUpdate))
         }
-        
-        let now: Date = .now
-        let calendar = Calendar.current
-        var entries: [TodayCoursesEntry] = []
-        
-        let semesterStatus = ScheduleHelper.getSemesterStatus(for: now, semesterStartDate: data.semesterStartDate)
-        
-        debugPrint("TodayCoursesProvider: Current date is \(now), Semester status is \(semesterStatus)")
-        
-        switch semesterStatus {
-        case .beforeSemester, .afterSemester:
-            debugPrint("TodayCoursesProvider: Semester is not active. Refreshing in 12 hours.")
-            let entry = TodayCoursesEntry(date: now, configuration: configuration, data: data)
-            let nextUpdate = now.addingTimeInterval(12 * 60 * 60)
-            return Timeline(entries: [entry], policy: .after(nextUpdate))
-            
-        case .inSemester:
-            debugPrint("TodayCoursesProvider: Semester is active. Generating daily timeline.")
-            
-            entries.append(TodayCoursesEntry(date: now, configuration: configuration, data: data))
-            
-            let todaysCourses = ScheduleHelper.getCourses(for: now, in: data)
-            
-            let refreshTimes: Set<Date> = todaysCourses.reduce(into: Set<Date>()) { resultSet, courseInfo in
-                let startSectionIndex = courseInfo.session.startSection - 1
-                let endSectionIndex = courseInfo.session.endSection - 1
 
-                guard startSectionIndex >= 0, startSectionIndex < ScheduleHelper.sectionTimes.count,
-                      endSectionIndex >= 0, endSectionIndex < ScheduleHelper.sectionTimes.count else { return }
-                        
-                let startTimeString = ScheduleHelper.sectionTimes[startSectionIndex].0
-                if let courseStartTime = ScheduleHelper.date(from: startTimeString, on: now, using: calendar), courseStartTime > now {
-                    resultSet.insert(courseStartTime)
-                }
-                        
-                let endTimeString = ScheduleHelper.sectionTimes[endSectionIndex].1
-                if let courseEndTime = ScheduleHelper.date(from: endTimeString, on: now, using: calendar), courseEndTime > now {
-                    resultSet.insert(courseEndTime)
-                }
-            }
-            
-            for time in refreshTimes.sorted() {
-                entries.append(TodayCoursesEntry(date: time, configuration: configuration, data: data))
-            }
-            
-            let startOfToday = calendar.startOfDay(for: now)
-            guard let startOfNextDay = calendar.date(byAdding: .day, value: 1, to: startOfToday) else {
-                let lastEntryDate = entries.last?.date ?? now
-                let fallbackUpdate = lastEntryDate.addingTimeInterval(6 * 3600)
-                return Timeline(entries: entries, policy: .after(fallbackUpdate))
-            }
-            
-            entries.append(TodayCoursesEntry(date: startOfNextDay, configuration: configuration, data: data))
-            
-            debugPrint("TodayCoursesProvider: Generated \(entries.count) entries for the timeline.")
-            return Timeline(entries: entries, policy: .atEnd)
+        let semesterStatus = ScheduleHelper.getSemesterStatus(for: currentDate, semesterStartDate: data.semesterStartDate)
+
+        if semesterStatus == .beforeSemester || semesterStatus == .afterSemester {
+            let entry = TodayCoursesEntry(date: currentDate, configuration: configuration, data: data)
+            let refreshDate = Calendar.current.date(byAdding: .hour, value: 12, to: currentDate)!
+            return Timeline(entries: [entry], policy: .after(refreshDate))
         }
+
+        var entries: [TodayCoursesEntry] = []
+        let calendar = Calendar.current
+
+        entries.append(TodayCoursesEntry(date: currentDate, configuration: configuration, data: data))
+
+        let startOfDay = calendar.startOfDay(for: currentDate)
+        let refreshTimes: [(hour: Int, minute: Int)] = [
+            (9, 41),
+            (11, 51),
+            (15, 41),
+            (17, 51),
+            (21, 11)
+        ]
+
+        for time in refreshTimes {
+            if let entryDate = calendar.date(bySettingHour: time.hour, minute: time.minute, second: 0, of: startOfDay) {
+                if entryDate > currentDate {
+                    let entry = TodayCoursesEntry(date: entryDate, configuration: configuration, data: data)
+                    entries.append(entry)
+                }
+            }
+        }
+
+        debugPrint(entries.map { $0.date })
+
+        let tomorrowStart = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        return Timeline(entries: entries, policy: .after(tomorrowStart))
     }
 }
 
