@@ -107,6 +107,6 @@ struct TodayCoursesWidget: Widget {
         }
         .configurationDisplayName("今日课程")
         .description("显示今天的课程安排")
-        .supportedFamilies([.systemMedium, .systemLarge])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }

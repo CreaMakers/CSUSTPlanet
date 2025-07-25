@@ -21,7 +21,7 @@ func mockTodayCoursesEntry() -> TodayCoursesEntry {
     timeDateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
 
     return TodayCoursesEntry(
-        date: timeDateFormatter.date(from: "2025-09-11 04:00")!,
+        date: timeDateFormatter.date(from: "2025-09-17 04:00")!,
         configuration: TodayCoursesIntent(),
         data: data
     )
@@ -36,12 +36,14 @@ struct TodayCoursesEntryView: View {
         if let data = entry.data {
             VStack {
                 HStack {
-                    Text("今日剩余课程")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(.primary)
-                    Text(data.semester ?? "默认学期")
-                        .font(.system(size: 14))
-                        .foregroundStyle(.secondary)
+                    if widgetFamily != .systemSmall {
+                        Text("今日剩余课程")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(.primary)
+                        Text(data.semester ?? "默认学期")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.secondary)
+                    }
                     Text(ScheduleHelper.getWeekday(from: entry.date))
                         .font(.system(size: 14))
                         .foregroundStyle(.red)
@@ -71,7 +73,7 @@ struct TodayCoursesEntryView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                coursesView(data: data, date: entry.date)
+                coursesView(data: data)
             }
         } else {
             Text("请先在App中查询课表")
@@ -80,7 +82,7 @@ struct TodayCoursesEntryView: View {
         }
     }
 
-    func coursesView(data: CourseScheduleData, date: Date) -> some View {
+    func coursesView(data: CourseScheduleData) -> some View {
         Group {
             switch ScheduleHelper.getSemesterStatus(for: entry.date, semesterStartDate: data.semesterStartDate) {
             case .beforeSemester:
@@ -98,11 +100,11 @@ struct TodayCoursesEntryView: View {
                 Text("学期已结束")
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             case .inSemester:
-                let courseColors = getCourseColors(courses: data.courses)
+                let courseColors = ScheduleHelper.getCourseColors(courses: data.courses)
                 let courseDisplayInfos = ScheduleHelper.getUnfinishedCourses(
                     for: entry.date,
                     in: data,
-                    maxCount: widgetFamily == .systemMedium ? 2 : 5,
+                    maxCount: widgetFamily == .systemLarge ? 5 : 2,
                     at: entry.date
                 )
 
@@ -112,37 +114,7 @@ struct TodayCoursesEntryView: View {
                 } else {
                     VStack(alignment: .leading, spacing: 8) {
                         ForEach(courseDisplayInfos) { courseDisplayInfo in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(courseDisplayInfo.course.courseName)
-                                        .font(.system(size: 16, weight: .bold))
-                                    HStack {
-                                        Text(courseDisplayInfo.session.classroom ?? "未知教室")
-                                        Text(courseDisplayInfo.course.teacher)
-                                    }
-                                    .font(.system(size: 14))
-                                }
-                                Spacer()
-                                VStack(alignment: .trailing) {
-                                    Text(ScheduleHelper.sectionTimes[courseDisplayInfo.session.startSection - 1].0)
-                                        .font(.system(size: 16))
-                                    Text(ScheduleHelper.sectionTimes[courseDisplayInfo.session.endSection - 1].1)
-                                        .font(.system(size: 16))
-                                }
-                            }
-                            .padding(8)
-                            .frame(height: 50)
-                            .background((courseColors[courseDisplayInfo.course.courseName] ?? .gray).opacity(0.1))
-                            .cornerRadius(4)
-                            .overlay(
-                                Rectangle()
-                                    .frame(width: 4)
-                                    .foregroundStyle(courseColors[courseDisplayInfo.course.courseName] ?? .gray)
-                                    .cornerRadius(2)
-                                    .padding(.leading, -8),
-                                alignment: .leading
-                            )
-                            .padding(.leading, 8)
+                            courseCard(courseDisplayInfo: courseDisplayInfo, courseColors: courseColors)
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -151,17 +123,54 @@ struct TodayCoursesEntryView: View {
         }
     }
 
-    func getCourseColors(courses: [Course]) -> [String: Color] {
-        var courseColors: [String: Color] = [:]
-        var colorIndex = 0
-        for course in courses.sorted(by: { $0.courseName < $1.courseName }) {
-            if courseColors[course.courseName] == nil {
-                courseColors[course.courseName] = ColorHelper.courseColors[colorIndex % ColorHelper.courseColors.count]
-                colorIndex += 1
+    private func courseCard(courseDisplayInfo: CourseDisplayInfo, courseColors: [String: Color]) -> some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(courseDisplayInfo.course.courseName)
+                    .font(.system(size: 16, weight: .bold))
+                HStack {
+                    Text(courseDisplayInfo.session.classroom ?? "未知教室")
+                        .fixedSize()
+                    Text(courseDisplayInfo.course.teacher)
+                }
+                .font(.system(size: widgetFamily == .systemSmall ? 12 : 14))
+                if widgetFamily == .systemSmall {
+                    Text("\(ScheduleHelper.sectionTimes[courseDisplayInfo.session.startSection - 1].0) - \(ScheduleHelper.sectionTimes[courseDisplayInfo.session.endSection - 1].1)")
+                        .font(.system(size: 12))
+                }
+            }
+            if widgetFamily != .systemSmall {
+                Spacer()
+                VStack(alignment: .trailing) {
+                    Text(ScheduleHelper.sectionTimes[courseDisplayInfo.session.startSection - 1].0)
+                        .font(.system(size: 16))
+                    Text(ScheduleHelper.sectionTimes[courseDisplayInfo.session.endSection - 1].1)
+                        .font(.system(size: 16))
+                }
             }
         }
-        return courseColors
+        .padding(4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(height: 50)
+        .background((courseColors[courseDisplayInfo.course.courseName] ?? .gray).opacity(0.1))
+        .cornerRadius(4)
+        .overlay(
+            Rectangle()
+                .frame(width: 4)
+                .foregroundStyle(courseColors[courseDisplayInfo.course.courseName] ?? .gray)
+                .cornerRadius(2)
+                .padding(.leading, -8),
+            alignment: .leading
+        )
+        .padding(.leading, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
+}
+
+#Preview(as: .systemSmall) {
+    TodayCoursesWidget()
+} timeline: {
+    mockTodayCoursesEntry()
 }
 
 #Preview(as: .systemMedium) {

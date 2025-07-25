@@ -138,7 +138,7 @@ class CourseScheduleViewModel: ObservableObject {
 
                 try context.save()
 
-                WidgetCenter.shared.reloadTimelines(ofKind: "CourseScheduleWidget")
+                WidgetCenter.shared.reloadTimelines(ofKind: "TodayCoursesWidget")
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true

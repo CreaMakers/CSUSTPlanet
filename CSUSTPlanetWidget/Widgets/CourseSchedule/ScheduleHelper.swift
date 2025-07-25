@@ -7,6 +7,7 @@
 
 import CSUSTKit
 import Foundation
+import SwiftUI
 
 enum SemesterStatus {
     case beforeSemester
@@ -194,5 +195,17 @@ class ScheduleHelper {
         let components = calendar.dateComponents([.day], from: today, to: startDate)
         guard let days = components.day else { return nil }
         return days > 0 ? days : nil
+    }
+
+    static func getCourseColors(courses: [Course]) -> [String: Color] {
+        var courseColors: [String: Color] = [:]
+        var colorIndex = 0
+        for course in courses.sorted(by: { $0.courseName < $1.courseName }) {
+            if courseColors[course.courseName] == nil {
+                courseColors[course.courseName] = ColorHelper.courseColors[colorIndex % ColorHelper.courseColors.count]
+                colorIndex += 1
+            }
+        }
+        return courseColors
     }
 }
