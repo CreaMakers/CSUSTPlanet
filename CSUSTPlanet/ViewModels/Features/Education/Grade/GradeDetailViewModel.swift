@@ -12,16 +12,16 @@ import Foundation
 class GradeDetailViewModel: ObservableObject {
     private var eduHelper: EduHelper
 
-    @Published var courseGrade: CourseGrade
+    @Published var courseGrade: EduHelper.CourseGrade
 
     @Published var isLoadingDetail = false
 
     @Published var isShowingError = false
     @Published var errorMessage: String = ""
 
-    @Published var gradeDetail: GradeDetail?
+    @Published var gradeDetail: EduHelper.GradeDetail?
 
-    init(eduHelper: EduHelper, courseGrade: CourseGrade) {
+    init(eduHelper: EduHelper, courseGrade: EduHelper.CourseGrade) {
         self.eduHelper = eduHelper
         self.courseGrade = courseGrade
     }

@@ -11,8 +11,8 @@ import SwiftUI
 struct CourseCardView: View {
     @State var isShowingDetail = false
 
-    let course: Course
-    let session: ScheduleSession
+    let course: EduHelper.Course
+    let session: EduHelper.ScheduleSession
     let color: Color
 
     var body: some View {
@@ -124,7 +124,7 @@ struct CourseCardView: View {
         return result.joined(separator: ", ")
     }
 
-    func dayOfWeekToString(_ day: DayOfWeek) -> String {
+    func dayOfWeekToString(_ day: EduHelper.DayOfWeek) -> String {
         switch day {
         case .monday: return "一"
         case .tuesday: return "二"

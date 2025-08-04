@@ -17,12 +17,12 @@ class GradeQueryViewModel: ObservableObject {
     @Published var selectedSemester: String = ""
     @Published var isSemestersLoading: Bool = false
 
-    @Published var courseGrades: [CourseGrade] = []
+    @Published var courseGrades: [EduHelper.CourseGrade] = []
     @Published var isQuerying: Bool = false
 
-    @Published var selectedCourseNature: CourseNature? = nil
-    @Published var selectedDisplayMode: DisplayMode = .bestGrade
-    @Published var selectedStudyMode: StudyMode = .major
+    @Published var selectedCourseNature: EduHelper.CourseNature? = nil
+    @Published var selectedDisplayMode: EduHelper.DisplayMode = .bestGrade
+    @Published var selectedStudyMode: EduHelper.StudyMode = .major
 
     @Published var courseName: String = ""
 

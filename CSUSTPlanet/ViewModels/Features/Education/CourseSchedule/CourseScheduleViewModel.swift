@@ -198,7 +198,7 @@ class CourseScheduleViewModel: ObservableObject {
         return dates
     }
 
-    func dayOfWeekToString(_ day: DayOfWeek) -> String {
+    func dayOfWeekToString(_ day: EduHelper.DayOfWeek) -> String {
         switch day {
         case .monday: return "一"
         case .tuesday: return "二"
@@ -211,19 +211,19 @@ class CourseScheduleViewModel: ObservableObject {
     }
 
     // 计算课程卡片的高度
-    func calculateHeight(for session: ScheduleSession) -> CGFloat {
+    func calculateHeight(for session: EduHelper.ScheduleSession) -> CGFloat {
         let sections = CGFloat(session.endSection - session.startSection + 1)
         return sections * sectionHeight + (sections - 1) * rowSpacing
     }
 
     // 计算课程卡片的 Y 轴偏移
-    func calculateYOffset(for session: ScheduleSession) -> CGFloat {
+    func calculateYOffset(for session: EduHelper.ScheduleSession) -> CGFloat {
         let y = CGFloat(session.startSection - 1)
         return y * sectionHeight + y * rowSpacing
     }
 
     // 计算课程卡片的 X 轴偏移
-    func calculateXOffset(for day: DayOfWeek, columnWidth: CGFloat) -> CGFloat {
+    func calculateXOffset(for day: EduHelper.DayOfWeek, columnWidth: CGFloat) -> CGFloat {
         let x = CGFloat(day.rawValue)
         return timeColWidth + colSpacing + (x * columnWidth) + (x * colSpacing)
     }

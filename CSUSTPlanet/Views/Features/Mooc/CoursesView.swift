@@ -105,7 +105,7 @@ struct CoursesView: View {
         }
     }
     
-    private func courseCard(course: MoocCourse) -> some View {
+    private func courseCard(course: MoocHelper.Course) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(course.name)
                 .font(.headline)

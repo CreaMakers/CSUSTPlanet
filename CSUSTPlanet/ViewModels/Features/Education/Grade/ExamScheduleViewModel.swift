@@ -24,9 +24,9 @@ class ExamScheduleViewModel: ObservableObject {
     @Published var isSemestersLoading = false
     @Published var availableSemesters: [String] = []
     @Published var selectedSemesters: String? = nil
-    @Published var selectedSemesterType: SemesterType? = nil
+    @Published var selectedSemesterType: EduHelper.SemesterType? = nil
 
-    @Published var examSchedule: [Exam] = []
+    @Published var examSchedule: [EduHelper.Exam] = []
 
     init(eduHelper: EduHelper) {
         self.eduHelper = eduHelper
@@ -48,7 +48,7 @@ class ExamScheduleViewModel: ObservableObject {
         }
     }
 
-    func addToCalendar(exam: Exam) {
+    func addToCalendar(exam: EduHelper.Exam) {
         Task {
             do {
                 let calendar = try await calendarHelper.getOrCreateCalendar(named: "考试")

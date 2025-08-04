@@ -171,7 +171,7 @@ struct CourseScheduleView: View {
             .frame(width: viewModel.timeColWidth)
 
             // "周日" 到 "周六"
-            ForEach(Array(zip(DayOfWeek.allCases, dates)), id: \.0) { day, date in
+            ForEach(Array(zip(EduHelper.DayOfWeek.allCases, dates)), id: \.0) { day, date in
                 VStack {
                     Text(viewModel.dayOfWeekToString(day))
                         .font(.subheadline)
@@ -214,7 +214,7 @@ struct CourseScheduleView: View {
             }
 
             // 右侧课程区域背景
-            ForEach(DayOfWeek.allCases, id: \.self) { _ in
+            ForEach(EduHelper.DayOfWeek.allCases, id: \.self) { _ in
                 VStack(spacing: viewModel.rowSpacing) {
                     ForEach(1 ... 5, id: \.self) { _ in
                         Rectangle()

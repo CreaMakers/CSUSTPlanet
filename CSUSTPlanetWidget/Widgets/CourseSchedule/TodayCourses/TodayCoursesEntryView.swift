@@ -9,7 +9,149 @@ import CSUSTKit
 import SwiftUI
 import WidgetKit
 
-let courses = [Course(courseName: "软件工程概论", groupName: nil, teacher: "胡立辉高级实验师", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], startSection: 3, endSection: 4, dayOfWeek: DayOfWeek.thursday, classroom: Optional("金6-102")), ScheduleSession(weeks: [1, 3, 5, 7, 9, 11, 13], startSection: 7, endSection: 8, dayOfWeek: DayOfWeek.monday, classroom: Optional("金12-205"))]), Course(courseName: "体育(三)", groupName: Optional("(24计算机跆拳道男11)"), teacher: "余新畅无", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], startSection: 3, endSection: 4, dayOfWeek: DayOfWeek.monday, classroom: Optional("金西田径场1"))]), Course(courseName: "美术鉴赏(艺术及其他)", groupName: nil, teacher: "赵晖(14)讲师", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 9, endSection: 10, dayOfWeek: DayOfWeek.wednesday, classroom: Optional("金12-215"))]), Course(courseName: "无人机设计与空天科技导论（自然科学）", groupName: nil, teacher: "张云菲副教授,陈良宇讲师", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8], startSection: 9, endSection: 10, dayOfWeek: DayOfWeek.tuesday, classroom: nil), ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8], startSection: 9, endSection: 10, dayOfWeek: DayOfWeek.thursday, classroom: nil)]), Course(courseName: "大学物理B（下）", groupName: nil, teacher: "张华林讲师", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 5, endSection: 6, dayOfWeek: DayOfWeek.monday, classroom: Optional("金12-106"))]), Course(courseName: "离散结构", groupName: nil, teacher: "肖红光副教授", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], startSection: 1, endSection: 2, dayOfWeek: DayOfWeek.wednesday, classroom: Optional("金12-106")), ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], startSection: 7, endSection: 8, dayOfWeek: DayOfWeek.friday, classroom: Optional("金13-105"))]), Course(courseName: "写作与沟通", groupName: nil, teacher: "陈璐（12）副教授", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], startSection: 3, endSection: 4, dayOfWeek: DayOfWeek.wednesday, classroom: Optional("金6-304"))]), Course(courseName: "程序设计、算法与数据结构（三）", groupName: nil, teacher: "陈曦(小)副教授", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], startSection: 3, endSection: 4, dayOfWeek: DayOfWeek.friday, classroom: Optional("金12-107")), ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], startSection: 5, endSection: 6, dayOfWeek: DayOfWeek.wednesday, classroom: Optional("金12-107"))]), Course(courseName: "操作系统", groupName: nil, teacher: "胡晋彬副教授", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 1, endSection: 2, dayOfWeek: DayOfWeek.tuesday, classroom: Optional("金12-109"))]), Course(courseName: "马克思主义基本原理", groupName: nil, teacher: "廖苗副教授", sessions: [ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 5, endSection: 6, dayOfWeek: DayOfWeek.thursday, classroom: Optional("金12-116"))]), Course(courseName: "大学物理实验B", groupName: nil, teacher: "蔡爱军讲师", sessions: [ScheduleSession(weeks: [2], startSection: 7, endSection: 8, dayOfWeek: DayOfWeek.wednesday, classroom: Optional("金12-500"))]), Course(courseName: "操作系统实验（开源）", groupName: nil, teacher: "胡晋彬副教授", sessions: [ScheduleSession(weeks: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15], startSection: 3, endSection: 4, dayOfWeek: DayOfWeek.tuesday, classroom: nil), ScheduleSession(weeks: [6, 8, 10, 12, 14], startSection: 5, endSection: 6, dayOfWeek: DayOfWeek.friday, classroom: nil)]), Course(courseName: "线性代数", groupName: nil, teacher: "李铭副教授", sessions: [ScheduleSession(weeks: [2, 4, 6, 8, 10, 12, 14], startSection: 1, endSection: 2, dayOfWeek: DayOfWeek.monday, classroom: Optional("金6-107")), ScheduleSession(weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], startSection: 7, endSection: 8, dayOfWeek: DayOfWeek.thursday, classroom: Optional("金6-107"))])]
+let courses = [
+    EduHelper.Course(
+        courseName: "软件工程概论", groupName: nil, teacher: "胡立辉高级实验师",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], startSection: 3, endSection: 4,
+                dayOfWeek: EduHelper.DayOfWeek.thursday, classroom: Optional("金6-102")
+            ),
+            EduHelper.ScheduleSession(
+                weeks: [1, 3, 5, 7, 9, 11, 13], startSection: 7, endSection: 8,
+                dayOfWeek: EduHelper.DayOfWeek.monday, classroom: Optional("金12-205")
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "体育(三)", groupName: Optional("(24计算机跆拳道男11)"), teacher: "余新畅无",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], startSection: 3,
+                endSection: 4, dayOfWeek: EduHelper.DayOfWeek.monday, classroom: Optional("金西田径场1")
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "美术鉴赏(艺术及其他)", groupName: nil, teacher: "赵晖(14)讲师",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 9,
+                endSection: 10, dayOfWeek: EduHelper.DayOfWeek.wednesday, classroom: Optional("金12-215")
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "无人机设计与空天科技导论（自然科学）", groupName: nil, teacher: "张云菲副教授,陈良宇讲师",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8], startSection: 9, endSection: 10,
+                dayOfWeek: EduHelper.DayOfWeek.tuesday, classroom: nil
+            ),
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8], startSection: 9, endSection: 10,
+                dayOfWeek: EduHelper.DayOfWeek.thursday, classroom: nil
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "大学物理B（下）", groupName: nil, teacher: "张华林讲师",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 5,
+                endSection: 6, dayOfWeek: EduHelper.DayOfWeek.monday, classroom: Optional("金12-106")
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "离散结构", groupName: nil, teacher: "肖红光副教授",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], startSection: 1,
+                endSection: 2, dayOfWeek: EduHelper.DayOfWeek.wednesday, classroom: Optional("金12-106")
+            ),
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], startSection: 7,
+                endSection: 8, dayOfWeek: EduHelper.DayOfWeek.friday, classroom: Optional("金13-105")
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "写作与沟通", groupName: nil, teacher: "陈璐（12）副教授",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], startSection: 3, endSection: 4,
+                dayOfWeek: EduHelper.DayOfWeek.wednesday, classroom: Optional("金6-304")
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "程序设计、算法与数据结构（三）", groupName: nil, teacher: "陈曦(小)副教授",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], startSection: 3, endSection: 4,
+                dayOfWeek: EduHelper.DayOfWeek.friday, classroom: Optional("金12-107")
+            ),
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], startSection: 5, endSection: 6,
+                dayOfWeek: EduHelper.DayOfWeek.wednesday, classroom: Optional("金12-107")
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "操作系统", groupName: nil, teacher: "胡晋彬副教授",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 1,
+                endSection: 2, dayOfWeek: EduHelper.DayOfWeek.tuesday, classroom: Optional("金12-109")
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "马克思主义基本原理", groupName: nil, teacher: "廖苗副教授",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 5,
+                endSection: 6, dayOfWeek: EduHelper.DayOfWeek.thursday, classroom: Optional("金12-116")
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "大学物理实验B", groupName: nil, teacher: "蔡爱军讲师",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [2], startSection: 7, endSection: 8, dayOfWeek: EduHelper.DayOfWeek.wednesday,
+                classroom: Optional("金12-500")
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "操作系统实验（开源）", groupName: nil, teacher: "胡晋彬副教授",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15], startSection: 3, endSection: 4,
+                dayOfWeek: EduHelper.DayOfWeek.tuesday, classroom: nil
+            ),
+            EduHelper.ScheduleSession(
+                weeks: [6, 8, 10, 12, 14], startSection: 5, endSection: 6,
+                dayOfWeek: EduHelper.DayOfWeek.friday, classroom: nil
+            ),
+        ]
+    ),
+    EduHelper.Course(
+        courseName: "线性代数", groupName: nil, teacher: "李铭副教授",
+        sessions: [
+            EduHelper.ScheduleSession(
+                weeks: [2, 4, 6, 8, 10, 12, 14], startSection: 1, endSection: 2,
+                dayOfWeek: EduHelper.DayOfWeek.monday, classroom: Optional("金6-107")
+            ),
+            EduHelper.ScheduleSession(
+                weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], startSection: 7, endSection: 8,
+                dayOfWeek: EduHelper.DayOfWeek.thursday, classroom: Optional("金6-107")
+            ),
+        ]
+    ),
+]
 
 func mockTodayCoursesEntry() -> TodayCoursesEntry {
     let semesterDateFormatter = DateFormatter()

@@ -153,12 +153,12 @@ class DormElectricityViewModel: ObservableObject {
 
     func handleQueryElectricity() {
         isQueryingElectricity = true
-        guard let campus = Campus(rawValue: dorm.campusName) else {
+        guard let campus = CampusCardHelper.Campus(rawValue: dorm.campusName) else {
             errorMessage = "无效的校区ID"
             isShowingError = true
             return
         }
-        let building = Building(name: dorm.buildingName, id: dorm.buildingID, campus: campus)
+        let building = CampusCardHelper.Building(name: dorm.buildingName, id: dorm.buildingID, campus: campus)
         Task {
             do {
                 defer {

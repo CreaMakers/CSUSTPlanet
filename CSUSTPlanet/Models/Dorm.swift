@@ -27,7 +27,7 @@ class Dorm: Identifiable {
     var scheduleHour: Int?
     var scheduleMinute: Int?
 
-    init(room: String, building: Building) {
+    init(room: String, building: CampusCardHelper.Building) {
         self.room = room
         self.buildingID = building.id
         self.buildingName = building.name

@@ -12,7 +12,7 @@ import SwiftUI
 struct GradeDetailView: View {
     @StateObject var viewModel: GradeDetailViewModel
     
-    init(eduHelper: EduHelper, courseGrade: CourseGrade) {
+    init(eduHelper: EduHelper, courseGrade: EduHelper.CourseGrade) {
         _viewModel = StateObject(wrappedValue: GradeDetailViewModel(eduHelper: eduHelper, courseGrade: courseGrade))
     }
     

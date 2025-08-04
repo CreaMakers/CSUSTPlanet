@@ -35,7 +35,7 @@ struct GradeAnalysisData: Codable {
     var semesterGPAs: [SemesterGPA]
     var lastUpdated: Date
 
-    static func fromCourseGrades(_ courseGrades: [CourseGrade]) -> GradeAnalysisData {
+    static func fromCourseGrades(_ courseGrades: [EduHelper.CourseGrade]) -> GradeAnalysisData {
         let totalCourses = courseGrades.count
         let totalHours = courseGrades.reduce(0) { $0 + $1.totalHours }
         let totalCredits = courseGrades.reduce(0) { $0 + $1.credit }

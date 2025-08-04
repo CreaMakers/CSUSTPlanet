@@ -12,7 +12,7 @@ import Foundation
 class CoursesViewModel: ObservableObject {
     private var moocHelper: MoocHelper
 
-    @Published var courses: [MoocCourse] = []
+    @Published var courses: [MoocHelper.Course] = []
 
     @Published var isShowingError = false
     @Published var errorMessage = ""

@@ -115,20 +115,20 @@ struct GradeQueryView: View {
             }
             
             Picker("课程性质", selection: $viewModel.selectedCourseNature) {
-                Text("全部性质").tag(nil as CourseNature?)
-                ForEach(CourseNature.allCases, id: \.self) { nature in
-                    Text(nature.rawValue).tag(nature as CourseNature?)
+                Text("全部性质").tag(nil as EduHelper.CourseNature?)
+                ForEach(EduHelper.CourseNature.allCases, id: \.self) { nature in
+                    Text(nature.rawValue).tag(nature as EduHelper.CourseNature?)
                 }
             }
             
             Picker("修读方式", selection: $viewModel.selectedStudyMode) {
-                ForEach(StudyMode.allCases, id: \.self) { mode in
+                ForEach(EduHelper.StudyMode.allCases, id: \.self) { mode in
                     Text(mode.rawValue).tag(mode)
                 }
             }
             
             Picker("显示模式", selection: $viewModel.selectedDisplayMode) {
-                ForEach(DisplayMode.allCases, id: \.self) { mode in
+                ForEach(EduHelper.DisplayMode.allCases, id: \.self) { mode in
                     Text(mode.rawValue).tag(mode)
                 }
             }
@@ -233,7 +233,7 @@ struct GradeQueryView: View {
         }
     }
     
-    private func gradeCard(courseGrade: CourseGrade) -> some View {
+    private func gradeCard(courseGrade: EduHelper.CourseGrade) -> some View {
         NavigationLink(destination: GradeDetailView(eduHelper: eduHelper, courseGrade: courseGrade)) {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {

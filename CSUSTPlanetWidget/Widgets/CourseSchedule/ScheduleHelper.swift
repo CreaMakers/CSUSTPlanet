@@ -100,7 +100,7 @@ class ScheduleHelper {
         let currentWeek = (dayDifference / 7) + 1
 
         let weekdayComponent = calendar.component(.weekday, from: targetDate)
-        guard let currentDayOfWeek = DayOfWeek(rawValue: weekdayComponent - 1) else {
+        guard let currentDayOfWeek = EduHelper.DayOfWeek(rawValue: weekdayComponent - 1) else {
             return []
         }
 
@@ -197,7 +197,7 @@ class ScheduleHelper {
         return days > 0 ? days : nil
     }
 
-    static func getCourseColors(courses: [Course]) -> [String: Color] {
+    static func getCourseColors(courses: [EduHelper.Course]) -> [String: Color] {
         var courseColors: [String: Color] = [:]
         var colorIndex = 0
         for course in courses.sorted(by: { $0.courseName < $1.courseName }) {

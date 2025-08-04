@@ -16,7 +16,7 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> DormElectricityEntry {
         let intent = {
             let intent = DormElectricityAppIntent()
-            intent.dormitory = DormEntity(dorm: Dorm(room: "A544", building: Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
+            intent.dormitory = DormEntity(dorm: Dorm(room: "A544", building: CampusCardHelper.Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
             intent.dormitory!.records = [
                 DormEntity.ElectricityRecord(electricity: 240, date: .now.addingTimeInterval(-86400)),
                 DormEntity.ElectricityRecord(electricity: 233.33, date: .now.addingTimeInterval(-43200)),
@@ -44,8 +44,8 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
         var finalDormEntity = selectedDormEntity
 
         do {
-            let campus = Campus(rawValue: selectedDormEntity.campusName)!
-            let building = Building(name: selectedDormEntity.buildingName, id: selectedDormEntity.buildingID, campus: campus)
+            let campus = CampusCardHelper.Campus(rawValue: selectedDormEntity.campusName)!
+            let building = CampusCardHelper.Building(name: selectedDormEntity.buildingName, id: selectedDormEntity.buildingID, campus: campus)
             let room = selectedDormEntity.room
 
             let campusCardHelper = CampusCardHelper()
@@ -232,7 +232,7 @@ struct DormElectricityWidget: Widget {
 } timeline: {
     let intent = {
         let intent = DormElectricityAppIntent()
-        intent.dormitory = DormEntity(dorm: Dorm(room: "A544", building: Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
+        intent.dormitory = DormEntity(dorm: Dorm(room: "A544", building: CampusCardHelper.Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
         intent.dormitory!.records = [DormEntity.ElectricityRecord(electricity: 233.33, date: .now)]
         return intent
     }()
@@ -244,7 +244,7 @@ struct DormElectricityWidget: Widget {
 } timeline: {
     let intent = {
         let intent = DormElectricityAppIntent()
-        intent.dormitory = DormEntity(dorm: Dorm(room: "A544", building: Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
+        intent.dormitory = DormEntity(dorm: Dorm(room: "A544", building: CampusCardHelper.Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
         intent.dormitory!.records = [
             DormEntity.ElectricityRecord(electricity: 233.33, date: .now),
             DormEntity.ElectricityRecord(electricity: 220.00, date: Date().addingTimeInterval(-86400)),

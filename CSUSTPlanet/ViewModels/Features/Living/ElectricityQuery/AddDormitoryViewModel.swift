@@ -27,11 +27,11 @@ class AddDormitoryViewModel: ObservableObject {
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
 
-    @Published var selectedCampus: Campus = .jinpenling
+    @Published var selectedCampus: CampusCardHelper.Campus = .jinpenling
     @Published var selectedBuildingID: String = ""
     @Published var room: String = ""
 
-    @Published var buildings: [Campus: [Building]] = [:]
+    @Published var buildings: [CampusCardHelper.Campus: [CampusCardHelper.Building]] = [:]
     @Published var isBuildingsLoading: Bool = false
 
     init(dorms: [Dorm], modelContext: ModelContext, isShowingAddDormitorySheetBinding: Binding<Bool>) {
@@ -42,7 +42,7 @@ class AddDormitoryViewModel: ObservableObject {
         self.isShowingAddDormSheetBinding = isShowingAddDormitorySheetBinding
     }
 
-    func handleCampusPickerChange(oldCampus: Campus, newCampus: Campus) {
+    func handleCampusPickerChange(oldCampus: CampusCardHelper.Campus, newCampus: CampusCardHelper.Campus) {
         if let firstBuilding = buildings[newCampus]?.first {
             selectedBuildingID = firstBuilding.id
         } else {

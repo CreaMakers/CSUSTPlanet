@@ -14,19 +14,19 @@ class ProfileDetailViewModel: ObservableObject {
     private var eduHelper: EduHelper?
     private var moocHelper: MoocHelper?
 
-    @Published var ssoProfile: LoginUser?
+    @Published var ssoProfile: SSOHelper.Profile?
     @Published var isSSOProfileLoading: Bool = false
 
-    @Published var eduProfile: Profile?
+    @Published var eduProfile: EduHelper.Profile?
     @Published var isEduProfileLoading: Bool = false
 
-    @Published var moocProfile: MoocProfile?
+    @Published var moocProfile: MoocHelper.Profile?
     @Published var isMoocProfileLoading: Bool = false
 
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
 
-    init(ssoHelper: SSOHelper? = nil, eduHelper: EduHelper? = nil, moocHelper: MoocHelper? = nil, ssoProfile: LoginUser? = nil) {
+    init(ssoHelper: SSOHelper? = nil, eduHelper: EduHelper? = nil, moocHelper: MoocHelper? = nil, ssoProfile: SSOHelper.Profile? = nil) {
         self.ssoHelper = ssoHelper
         self.eduHelper = eduHelper
         self.moocHelper = moocHelper

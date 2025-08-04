@@ -12,18 +12,18 @@ import SwiftUI
 
 struct CourseDisplayInfo: Identifiable, Codable {
     var id = UUID()
-    let course: Course
-    let session: ScheduleSession
+    let course: EduHelper.Course
+    let session: EduHelper.ScheduleSession
 }
 
 struct CourseScheduleData: Codable {
     var semester: String?
     var semesterStartDate: Date
     var weeklyCourses: [Int: [CourseDisplayInfo]]
-    var courses: [Course]
+    var courses: [EduHelper.Course]
     var lastUpdated: Date
 
-    static func fromCourses(courses: [Course], semester: String?, semesterStartDate: Date) -> CourseScheduleData {
+    static func fromCourses(courses: [EduHelper.Course], semester: String?, semesterStartDate: Date) -> CourseScheduleData {
         var processedCourses: [Int: [CourseDisplayInfo]] = [:]
 
         for course in courses {

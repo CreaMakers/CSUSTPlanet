@@ -132,7 +132,7 @@ struct WeeklyCoursesEntryView: View {
             }
             .frame(width: timeColWidth)
 
-            ForEach(Array(zip(DayOfWeek.allCases, dates)), id: \.0) { day, date in
+            ForEach(Array(zip(EduHelper.DayOfWeek.allCases, dates)), id: \.0) { day, date in
                 VStack {
                     Text(dayOfWeekToString(day))
                         .font(.subheadline)
@@ -168,7 +168,7 @@ struct WeeklyCoursesEntryView: View {
                     .frame(width: timeColWidth, height: sectionHeight)
                 }
             }
-            ForEach(DayOfWeek.allCases, id: \.self) { _ in
+            ForEach(EduHelper.DayOfWeek.allCases, id: \.self) { _ in
                 VStack(spacing: rowSpacing) {
                     ForEach(1 ... 2, id: \.self) { _ in
                         Rectangle()
@@ -224,8 +224,8 @@ struct WeeklyCoursesEntryView: View {
     // MARK: - 课程卡片视图
 
     struct CourseCardView: View {
-        let course: Course
-        let session: ScheduleSession
+        let course: EduHelper.Course
+        let session: EduHelper.ScheduleSession
         let color: Color
 
         var body: some View {
@@ -287,7 +287,7 @@ struct WeeklyCoursesEntryView: View {
     }
 
     // 计算课程卡片的高度，考虑课程是否被截断
-    func calculateHeight(for session: ScheduleSession, firstVisibleSection: Int) -> CGFloat {
+    func calculateHeight(for session: EduHelper.ScheduleSession, firstVisibleSection: Int) -> CGFloat {
         let start = max(session.startSection, firstVisibleSection)
         let end = min(session.endSection, firstVisibleSection + 3)
         let sections = CGFloat(end - start + 1)
@@ -297,7 +297,7 @@ struct WeeklyCoursesEntryView: View {
     }
 
     // 计算课程卡片的 Y 轴偏移
-    func calculateYOffset(for session: ScheduleSession, firstVisibleSection: Int) -> CGFloat {
+    func calculateYOffset(for session: EduHelper.ScheduleSession, firstVisibleSection: Int) -> CGFloat {
         let start = max(session.startSection, firstVisibleSection)
         // 偏移量是相对于可见区域的起始节次
         let y = CGFloat(start - firstVisibleSection)
@@ -305,7 +305,7 @@ struct WeeklyCoursesEntryView: View {
     }
 
     // 计算课程卡片的 X 轴偏移
-    func calculateXOffset(for day: DayOfWeek, columnWidth: CGFloat) -> CGFloat {
+    func calculateXOffset(for day: EduHelper.DayOfWeek, columnWidth: CGFloat) -> CGFloat {
         let x = CGFloat(day.rawValue)
         return timeColWidth + colSpacing + (x * columnWidth) + (x * colSpacing)
     }
@@ -327,7 +327,7 @@ struct WeeklyCoursesEntryView: View {
         return dates
     }
 
-    func dayOfWeekToString(_ day: DayOfWeek) -> String {
+    func dayOfWeekToString(_ day: EduHelper.DayOfWeek) -> String {
         switch day {
         case .sunday: return "日"
         case .monday: return "一"

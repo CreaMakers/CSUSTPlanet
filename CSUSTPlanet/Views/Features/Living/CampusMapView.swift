@@ -10,7 +10,7 @@ import SwiftUI
 import Zoomable
 
 struct CampusMapView: View {
-    @State private var selectedCampus: Campus = .jinpenling
+    @State private var selectedCampus: CampusCardHelper.Campus = .jinpenling
 
     private var mapImageName: String {
         switch selectedCampus {
@@ -22,8 +22,8 @@ struct CampusMapView: View {
     var body: some View {
         VStack(spacing: 10) {
             Picker("选择校区", selection: $selectedCampus) {
-                Text("金盆岭校区").tag(Campus.jinpenling)
-                Text("云塘校区").tag(Campus.yuntang)
+                Text("金盆岭校区").tag(CampusCardHelper.Campus.jinpenling)
+                Text("云塘校区").tag(CampusCardHelper.Campus.yuntang)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)

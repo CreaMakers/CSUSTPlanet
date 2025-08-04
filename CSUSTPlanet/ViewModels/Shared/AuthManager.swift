@@ -10,7 +10,7 @@ import Foundation
 
 @MainActor
 class AuthManager: ObservableObject {
-    @Published var ssoProfile: LoginUser?
+    @Published var ssoProfile: SSOHelper.Profile?
     var isLoggedIn: Bool {
         return ssoProfile != nil
     }

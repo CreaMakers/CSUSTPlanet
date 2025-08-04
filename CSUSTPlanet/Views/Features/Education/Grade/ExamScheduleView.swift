@@ -122,9 +122,9 @@ struct ExamScheduleView: View {
             }
             
             Picker("考试类型", selection: $viewModel.selectedSemesterType) {
-                Text("全部类型").tag(nil as SemesterType?)
-                ForEach(SemesterType.allCases, id: \.self) { semesterType in
-                    Text(semesterType.rawValue).tag(semesterType as SemesterType?)
+                Text("全部类型").tag(nil as EduHelper.SemesterType?)
+                ForEach(EduHelper.SemesterType.allCases, id: \.self) { semesterType in
+                    Text(semesterType.rawValue).tag(semesterType as EduHelper.SemesterType?)
                 }
             }
         }
@@ -166,7 +166,7 @@ struct ExamScheduleView: View {
         }
     }
     
-    private func examCard(exam: Exam) -> some View {
+    private func examCard(exam: EduHelper.Exam) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(exam.courseName)
                 .font(.headline)

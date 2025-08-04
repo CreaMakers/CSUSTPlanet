@@ -30,8 +30,8 @@ struct AddDormitoryView: View {
                         .font(.headline)
                         .foregroundColor(.secondary)
                     Picker(selection: $viewModel.selectedCampus, label: Text("选择校区")) {
-                        Text("金盆岭校区").tag(Campus.jinpenling)
-                        Text("云塘校区").tag(Campus.yuntang)
+                        Text("金盆岭校区").tag(CampusCardHelper.Campus.jinpenling)
+                        Text("云塘校区").tag(CampusCardHelper.Campus.yuntang)
                     }
                     .pickerStyle(.segmented)
                     .onChange(of: viewModel.selectedCampus, viewModel.handleCampusPickerChange)
