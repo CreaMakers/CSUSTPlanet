@@ -61,6 +61,8 @@ struct CoursesView: View {
             Text(viewModel.errorMessage)
         }
         .task {
+            guard !viewModel.isLoaded else { return }
+            viewModel.isLoaded = true
             viewModel.loadCourses()
         }
         .navigationTitle("课程列表")
@@ -100,7 +102,9 @@ struct CoursesView: View {
     private var courseListSection: some View {
         Section {
             ForEach(viewModel.courses, id: \.self) { course in
-                courseCard(course: course)
+                NavigationLink(destination: CourseDetailView(moocHelper: viewModel.moocHelper, course: course)) {
+                    courseCard(course: course)
+                }
             }
         }
     }
@@ -112,7 +116,7 @@ struct CoursesView: View {
                 .lineLimit(1)
                 .padding(.bottom, 8)
             
-            InfoRow(icon: "number", iconColor: .blue, label: "课程编号", value: course.id)
+            InfoRow(icon: "number", iconColor: .blue, label: "课程编号", value: course.number)
             InfoRow(icon: "building.columns", iconColor: .green, label: "开课院系", value: course.department)
             InfoRow(icon: "person", iconColor: .purple, label: "授课教师", value: course.teacher)
         }

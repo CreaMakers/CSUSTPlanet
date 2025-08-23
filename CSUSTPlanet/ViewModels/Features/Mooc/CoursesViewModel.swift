@@ -10,7 +10,7 @@ import Foundation
 
 @MainActor
 class CoursesViewModel: ObservableObject {
-    private var moocHelper: MoocHelper
+    var moocHelper: MoocHelper
 
     @Published var courses: [MoocHelper.Course] = []
 
@@ -19,6 +19,8 @@ class CoursesViewModel: ObservableObject {
 
     @Published var isLoading = false
     @Published var loadingID = UUID()
+
+    var isLoaded = false
 
     init(moocHelper: MoocHelper) {
         self.moocHelper = moocHelper
