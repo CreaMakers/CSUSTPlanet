@@ -13,54 +13,216 @@ struct GradeQueryView: View {
     
     private var eduHelper: EduHelper
     
-    struct InfoRow: View {
-        let icon: String
-        let iconColor: Color
-        let label: String
-        let value: String
-        
-        var body: some View {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .foregroundColor(iconColor)
-                    .frame(width: 20)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(label)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text(value)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                }
-                
-                Spacer()
-            }
-            .padding(.vertical, 4)
-        }
-    }
-    
     init(eduHelper: EduHelper) {
         _viewModel = StateObject(wrappedValue: GradeQueryViewModel(eduHelper: eduHelper))
         self.eduHelper = eduHelper
     }
     
+    // MARK: - Stat Item
+    
+    private func statItem(title: String, value: String, color: Color) -> some View {
+        VStack(alignment: .center, spacing: 8) {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            Text(value)
+                .font(.headline)
+                .fontWeight(.bold)
+                .foregroundColor(color)
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    // MARK: - Stats Section
+
+    private var statsSection: some View {
+        VStack(alignment: .center) {
+            if let stats = viewModel.stats {
+                HStack(spacing: 10) {
+                    statItem(title: "GPA", value: String(format: "%.2f", stats.gpa), color: ColorHelper.dynamicColor(point: stats.gpa))
+                    statItem(title: "平均成绩", value: String(format: "%.2f", stats.averageGrade), color: ColorHelper.dynamicColor(grade: stats.averageGrade))
+                    statItem(title: "加权平均成绩", value: String(format: "%.2f", stats.weightedAverageGrade), color: ColorHelper.dynamicColor(grade: stats.weightedAverageGrade))
+                    statItem(title: "已修总学分", value: String(format: "%.1f", stats.totalCredits), color: .blue)
+                    statItem(title: "课程总数", value: "\(stats.courseCount)", color: .purple)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+    
+    // MARK: - Filter View
+    
+    private var filterView: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("学期选择")) {
+                    if viewModel.isSemestersLoading {
+                        HStack {
+                            Text("学期")
+                            Spacer()
+                            ProgressView()
+                        }
+                    } else {
+                        Picker("学期", selection: $viewModel.selectedSemester) {
+                            Text("全部学期").tag("")
+                            ForEach(viewModel.availableSemesters, id: \.self) { semester in
+                                Text(semester).tag(semester)
+                            }
+                        }
+                        .pickerStyle(.wheel)
+                    }
+                }
+                Section(header: Text("筛选条件")) {
+                    Picker("课程性质", selection: $viewModel.selectedCourseNature) {
+                        Text("全部性质").tag(nil as EduHelper.CourseNature?)
+                        ForEach(EduHelper.CourseNature.allCases, id: \.self) { nature in
+                            Text(nature.rawValue).tag(nature as EduHelper.CourseNature?)
+                        }
+                    }
+                    Picker("修读方式", selection: $viewModel.selectedStudyMode) {
+                        ForEach(EduHelper.StudyMode.allCases, id: \.self) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    }
+                    Picker("显示模式", selection: $viewModel.selectedDisplayMode) {
+                        ForEach(EduHelper.DisplayMode.allCases, id: \.self) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("筛选")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+//                    Button {
+//                        viewModel.loadAvailableSemesters()
+//                    } label: {
+//                        Label("刷新可选学期列表", systemImage: "arrow.clockwise")
+//                    }
+//                    .disabled(viewModel.isSemestersLoading)
+                    Button("取消") {
+                        viewModel.isShowingFilter = false
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("完成") {
+                        viewModel.isShowingFilter = false
+                        viewModel.getCourseGrades()
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Empty State Section
+    
+    private var emptyStateSection: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "doc.text.magnifyingglass")
+                .font(.system(size: 40))
+                .foregroundColor(.secondary)
+                .padding(.bottom, 8)
+            
+            Text("暂无成绩记录")
+                .font(.headline)
+            
+            Text(viewModel.searchText.isEmpty ? "当前筛选条件下没有找到成绩记录" : "没有找到匹配的课程")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.vertical, 20)
+    }
+    
+    // MARK: - Grade Card
+    
+    private func gradeCard(courseGrade: EduHelper.CourseGrade) -> some View {
+        NavigationLink(destination: GradeDetailView(eduHelper: eduHelper, courseGrade: courseGrade)) {
+            HStack {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text(courseGrade.courseAttribute)
+                            .font(.caption2)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 2)
+                            .background(Color.accentColor.opacity(0.2))
+                            .foregroundColor(Color.accentColor)
+                            .cornerRadius(4)
+                        Text(courseGrade.courseName)
+                            .font(.headline)
+                    }
+                    if !courseGrade.groupName.isEmpty {
+                        Text("(\(courseGrade.groupName))")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    HStack(spacing: 20) {
+                        HStack(spacing: 4) {
+                            Text("学分：")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text(String(format: "%.1f", courseGrade.credit))
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(.secondary)
+                        }
+                        HStack(spacing: 4) {
+                            Text("绩点：")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text(String(format: "%.1f", courseGrade.gradePoint))
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(ColorHelper.dynamicColor(point: courseGrade.gradePoint))
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                Text("\(courseGrade.grade)分")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(ColorHelper.dynamicColor(grade: Double(courseGrade.grade)))
+            }
+            .padding(.vertical, 8)
+        }
+    }
+    
+    // MARK: - Body
+    
     var body: some View {
-        Form {
-            filterSection
+        VStack(spacing: 0) {
+            if viewModel.stats != nil, !viewModel.isQuerying {
+                statsSection
+                    .padding(.horizontal)
+                    .padding(.vertical)
+                    .background(Color(.secondarySystemBackground))
+            }
             
             if viewModel.isQuerying {
                 ProgressView("正在查询...")
                     .progressViewStyle(.circular)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .id(viewModel.queryID)
-            } else if viewModel.courseGrades.isEmpty {
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(.systemGroupedBackground))
+            } else if viewModel.filteredCourseGrades.isEmpty {
                 emptyStateSection
+                    .background(Color(.systemGroupedBackground))
             } else {
-                statsSection
-                gradeListSection
+                List {
+                    ForEach(viewModel.filteredCourseGrades, id: \.courseID) { courseGrade in
+                        gradeCard(courseGrade: courseGrade)
+                    }
+                }
+                .listStyle(.insetGrouped)
             }
         }
+        .searchable(text: $viewModel.searchText, prompt: "搜索课程")
         .alert("错误", isPresented: $viewModel.isShowingError) {
             Button("确认", role: .cancel) {}
         } message: {
@@ -72,197 +234,25 @@ struct GradeQueryView: View {
             viewModel.loadAvailableSemesters()
             viewModel.getCourseGrades()
         }
-        .navigationTitle("成绩查询")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Button {
-                        viewModel.loadAvailableSemesters()
-                    } label: {
-                        Label("刷新可选学期列表", systemImage: "arrow.clockwise")
-                    }
-                    .disabled(viewModel.isSemestersLoading)
-                    Button {
-                        viewModel.getCourseGrades()
-                    } label: {
-                        Label("查询", systemImage: "magnifyingglass")
-                    }
-                    .disabled(viewModel.isQuerying)
+                Button {
+                    viewModel.isShowingFilter.toggle()
                 } label: {
-                    Label("操作", systemImage: "ellipsis.circle")
+                    Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
                 }
+                .popover(isPresented: $viewModel.isShowingFilter) { filterView }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    viewModel.getCourseGrades()
+                } label: {
+                    Label("查询", systemImage: "magnifyingglass")
+                }
+                .disabled(viewModel.isQuerying)
             }
         }
-    }
-    
-    // MARK: - Form Sections
-    
-    private var filterSection: some View {
-        Section(header: Text("筛选条件")) {
-            if viewModel.isSemestersLoading {
-                HStack {
-                    Text("学期")
-                    Spacer()
-                    ProgressView()
-                }
-            } else {
-                Picker("学期", selection: $viewModel.selectedSemester) {
-                    Text("全部学期").tag("")
-                    ForEach(viewModel.availableSemesters, id: \.self) { semester in
-                        Text(semester).tag(semester)
-                    }
-                }
-            }
-            
-            Picker("课程性质", selection: $viewModel.selectedCourseNature) {
-                Text("全部性质").tag(nil as EduHelper.CourseNature?)
-                ForEach(EduHelper.CourseNature.allCases, id: \.self) { nature in
-                    Text(nature.rawValue).tag(nature as EduHelper.CourseNature?)
-                }
-            }
-            
-            Picker("修读方式", selection: $viewModel.selectedStudyMode) {
-                ForEach(EduHelper.StudyMode.allCases, id: \.self) { mode in
-                    Text(mode.rawValue).tag(mode)
-                }
-            }
-            
-            Picker("显示模式", selection: $viewModel.selectedDisplayMode) {
-                ForEach(EduHelper.DisplayMode.allCases, id: \.self) { mode in
-                    Text(mode.rawValue).tag(mode)
-                }
-            }
-        }
-    }
-    
-    private var emptyStateSection: some View {
-        Section {
-            VStack(spacing: 8) {
-                Image(systemName: "doc.text.magnifyingglass")
-                    .font(.system(size: 40))
-                    .foregroundColor(.secondary)
-                    .padding(.bottom, 8)
-                
-                Text("暂无成绩记录")
-                    .font(.headline)
-                
-                Text("当前筛选条件下没有找到成绩记录")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 20)
-        }
-    }
-    
-    private var statsSection: some View {
-        Section(header: Text("学业统计")) {
-            let stats = viewModel.calculateStats()
-            
-            HStack(spacing: 10) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("GPA")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                    Text(String(format: "%.2f", stats.gpa))
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(ColorHelper.dynamicColor(point: stats.gpa))
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("平均成绩")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                    Text(String(format: "%.2f", stats.averageGrade))
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(ColorHelper.dynamicColor(grade: stats.averageGrade))
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("加权平均成绩")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                    Text(String(format: "%.2f", stats.weightedAverageGrade))
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(ColorHelper.dynamicColor(grade: stats.weightedAverageGrade))
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("已修总学分")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                    Text(String(format: "%.1f", stats.totalCredits))
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.blue)
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("课程总数")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                    Text("\(stats.courseCount)")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.purple)
-                }
-            }
-            .frame(maxWidth: .infinity)
-        }
-    }
-    
-    private var gradeListSection: some View {
-        Section(header: Text("成绩记录")) {
-            ForEach(viewModel.courseGrades, id: \.courseID) { courseGrade in
-                gradeCard(courseGrade: courseGrade)
-            }
-        }
-    }
-    
-    private func gradeCard(courseGrade: EduHelper.CourseGrade) -> some View {
-        NavigationLink(destination: GradeDetailView(eduHelper: eduHelper, courseGrade: courseGrade)) {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack {
-                    Text(courseGrade.courseName)
-                        .font(.headline)
-                    if !courseGrade.groupName.isEmpty {
-                        Text("(\(courseGrade.groupName))")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    Spacer()
-                    Text("\(courseGrade.grade)分")
-                        .font(.headline)
-                        .foregroundColor(ColorHelper.dynamicColor(grade: Double(courseGrade.grade)))
-                }
-                .padding(.bottom, 8)
-                
-                InfoRow(icon: "graduationcap", iconColor: .blue, label: "修读方式", value: courseGrade.studyMode)
-                
-                HStack(spacing: 20) {
-                    InfoRow(icon: "number.square", iconColor: .green, label: "学分", value: String(format: "%.1f", courseGrade.credit))
-                    InfoRow(icon: "star.fill", iconColor: .orange, label: "绩点", value: String(format: "%.1f", courseGrade.gradePoint)).foregroundColor(ColorHelper.dynamicColor(point: courseGrade.gradePoint))
-                }
-                
-                if !courseGrade.semester.isEmpty {
-                    InfoRow(icon: "calendar", iconColor: .purple, label: "学期", value: courseGrade.semester)
-                }
-            }
-        }
-        .padding(.vertical, 8)
+        .navigationTitle("成绩查询")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
