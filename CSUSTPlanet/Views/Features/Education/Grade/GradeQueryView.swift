@@ -39,16 +39,24 @@ struct GradeQueryView: View {
 
     private var statsSection: some View {
         VStack(alignment: .center) {
-            if let stats = viewModel.stats {
-                HStack(spacing: 10) {
+            HStack(spacing: 10) {
+                if let stats = viewModel.stats {
                     statItem(title: "GPA", value: String(format: "%.2f", stats.gpa), color: ColorHelper.dynamicColor(point: stats.gpa))
                     statItem(title: "平均成绩", value: String(format: "%.2f", stats.averageGrade), color: ColorHelper.dynamicColor(grade: stats.averageGrade))
                     statItem(title: "加权平均成绩", value: String(format: "%.2f", stats.weightedAverageGrade), color: ColorHelper.dynamicColor(grade: stats.weightedAverageGrade))
                     statItem(title: "已修总学分", value: String(format: "%.1f", stats.totalCredits), color: .blue)
                     statItem(title: "课程总数", value: "\(stats.courseCount)", color: .purple)
+                } else {
+                    // Placeholder items for initial redacted state
+                    statItem(title: "GPA", value: "0.0", color: .primary)
+                    statItem(title: "平均成绩", value: "0.0", color: .primary)
+                    statItem(title: "加权平均成绩", value: "0.0", color: .primary)
+                    statItem(title: "已修总学分", value: "0.0", color: .primary)
+                    statItem(title: "课程总数", value: "0", color: .primary)
                 }
-                .frame(maxWidth: .infinity)
             }
+            .frame(maxWidth: .infinity)
+            .redacted(reason: viewModel.isQuerying ? .placeholder : [])
         }
     }
     
@@ -198,12 +206,10 @@ struct GradeQueryView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            if viewModel.stats != nil, !viewModel.isQuerying {
-                statsSection
-                    .padding(.horizontal)
-                    .padding(.vertical)
-                    .background(Color(.secondarySystemBackground))
-            }
+            statsSection
+                .padding(.horizontal)
+                .padding(.vertical)
+                .background(Color(.secondarySystemBackground))
             
             if viewModel.isQuerying {
                 ProgressView("正在查询...")
