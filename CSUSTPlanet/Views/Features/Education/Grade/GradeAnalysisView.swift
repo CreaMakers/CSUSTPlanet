@@ -193,6 +193,7 @@ struct GradeAnalysisView: View {
     private var shareableView: some View {
         analysisContent
             .padding(.vertical)
+            .frame(width: UIScreen.main.bounds.width)
             .background(Color(.systemGroupedBackground))
             .environment(\.colorScheme, colorScheme)
     }
