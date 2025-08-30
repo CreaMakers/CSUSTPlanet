@@ -228,6 +228,7 @@ struct GradeQueryView: View {
             }
         }
         .padding(.vertical)
+        .frame(width: UIScreen.main.bounds.width)
         .background(Color(.systemGroupedBackground))
         .environment(\.colorScheme, colorScheme)
     }
