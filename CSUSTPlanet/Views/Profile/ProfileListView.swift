@@ -21,7 +21,7 @@ struct ProfileListView: View {
                         ProfileDetailView(authManager: authManager)
                     } label: {
                         HStack {
-                            AsyncImage(url: URL(string: ssoProfile.defaultUserAvatar)) { image in
+                            AsyncImage(url: URL(string: ssoProfile.avatar)) { image in
                                 image
                                     .resizable()
                                     .scaledToFill()

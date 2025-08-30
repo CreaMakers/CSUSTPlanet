@@ -25,7 +25,7 @@ struct ProfileSplitView: View {
                     if let ssoProfile = authManager.ssoProfile {
                         NavigationLink(value: ProfileSection.detail) {
                             HStack {
-                                AsyncImage(url: URL(string: ssoProfile.defaultUserAvatar)) { image in
+                                AsyncImage(url: URL(string: ssoProfile.avatar)) { image in
                                     image
                                         .resizable()
                                         .scaledToFill()
