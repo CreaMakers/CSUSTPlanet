@@ -7,9 +7,10 @@
 
 import CSUSTKit
 import Foundation
+import SwiftUI
 
 @MainActor
-class ExamScheduleViewModel: ObservableObject {
+class ExamScheduleViewModel: NSObject, ObservableObject {
     private var eduHelper: EduHelper
 
     private var calendarHelper = CalendarHelper()
@@ -28,8 +29,25 @@ class ExamScheduleViewModel: ObservableObject {
 
     @Published var examSchedule: [EduHelper.Exam] = []
 
+    @Published var isShowingFilter: Bool = false
+
+    @Published var isShowingSuccess: Bool = false
+
+    @Published var isShowingShareSheet: Bool = false
+    var shareContent: UIImage? = nil
+
+    var isLoaded: Bool = false
+
     init(eduHelper: EduHelper) {
         self.eduHelper = eduHelper
+        super.init()
+    }
+
+    func task() {
+        guard !isLoaded else { return }
+        isLoaded = true
+        loadAvailableSemesters()
+        getExams()
     }
 
     func loadAvailableSemesters() {
@@ -107,6 +125,39 @@ class ExamScheduleViewModel: ObservableObject {
                 errorMessage = error.localizedDescription
                 isShowingError = true
             }
+        }
+    }
+
+    func showShareSheet(_ shareableView: some View) {
+        let renderer = ImageRenderer(content: shareableView)
+        renderer.scale = UIScreen.main.scale
+        if let uiImage = renderer.uiImage {
+            shareContent = uiImage
+            isShowingShareSheet = true
+        } else {
+            errorMessage = "生成图片失败"
+            isShowingError = true
+        }
+    }
+
+    func saveToPhotoAlbum(_ shareableView: some View) {
+        let renderer = ImageRenderer(content: shareableView)
+        renderer.scale = UIScreen.main.scale
+        if let uiImage = renderer.uiImage {
+            UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(saveToPhotoAlbumCallback(_:didFinishSavingWithError:contextInfo:)), nil)
+        } else {
+            errorMessage = "生成图片失败"
+            isShowingError = true
+        }
+    }
+
+    @objc
+    func saveToPhotoAlbumCallback(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            errorMessage = "保存图片失败，可能是没有权限: \(error.localizedDescription)"
+            isShowingError = true
+        } else {
+            isShowingSuccess = true
         }
     }
 }
