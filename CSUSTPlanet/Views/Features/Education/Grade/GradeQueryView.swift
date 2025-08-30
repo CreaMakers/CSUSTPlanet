@@ -9,6 +9,8 @@ import CSUSTKit
 import SwiftUI
 
 struct GradeQueryView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     @StateObject var viewModel: GradeQueryViewModel
     
     private var eduHelper: EduHelper
@@ -148,69 +150,96 @@ struct GradeQueryView: View {
     
     // MARK: - Grade Card
     
-    private func gradeCard(courseGrade: EduHelper.CourseGrade) -> some View {
-        NavigationLink(destination: GradeDetailView(eduHelper: eduHelper, courseGrade: courseGrade)) {
-            HStack {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text(courseGrade.courseAttribute)
-                            .font(.caption2)
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 2)
-                            .background(Color.accentColor.opacity(0.2))
-                            .foregroundColor(Color.accentColor)
-                            .cornerRadius(4)
-                        Text(courseGrade.courseName)
-                            .font(.headline)
-                    }
-                    if !courseGrade.groupName.isEmpty {
-                        Text("(\(courseGrade.groupName))")
-                            .font(.subheadline)
+    private func gradeCardContent(courseGrade: EduHelper.CourseGrade) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text(courseGrade.courseAttribute)
+                        .font(.caption2)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
+                        .background(Color.accentColor.opacity(0.2))
+                        .foregroundColor(Color.accentColor)
+                        .cornerRadius(4)
+                    Text(courseGrade.courseName)
+                        .font(.headline)
+                }
+                if !courseGrade.groupName.isEmpty {
+                    Text("(\(courseGrade.groupName))")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+
+                HStack(spacing: 20) {
+                    HStack(spacing: 4) {
+                        Text("学分：")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(String(format: "%.1f", courseGrade.credit))
+                            .font(.caption)
+                            .fontWeight(.medium)
                             .foregroundColor(.secondary)
                     }
-                    
-                    HStack(spacing: 20) {
-                        HStack(spacing: 4) {
-                            Text("学分：")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            Text(String(format: "%.1f", courseGrade.credit))
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .foregroundColor(.secondary)
-                        }
-                        HStack(spacing: 4) {
-                            Text("绩点：")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            Text(String(format: "%.1f", courseGrade.gradePoint))
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .foregroundColor(ColorHelper.dynamicColor(point: courseGrade.gradePoint))
-                        }
+                    HStack(spacing: 4) {
+                        Text("绩点：")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(String(format: "%.1f", courseGrade.gradePoint))
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(ColorHelper.dynamicColor(point: courseGrade.gradePoint))
                     }
                 }
-                
-                Spacer()
-                
-                Text("\(courseGrade.grade)分")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(ColorHelper.dynamicColor(grade: Double(courseGrade.grade)))
             }
-            .padding(.vertical, 8)
+            
+            Spacer()
+            
+            Text("\(courseGrade.grade)分")
+                .font(.headline)
+                .fontWeight(.bold)
+                .foregroundColor(ColorHelper.dynamicColor(grade: Double(courseGrade.grade)))
+        }
+        .padding(.vertical, 8)
+    }
+
+    private func gradeCard(courseGrade: EduHelper.CourseGrade) -> some View {
+        NavigationLink(destination: GradeDetailView(eduHelper: eduHelper, courseGrade: courseGrade)) {
+            gradeCardContent(courseGrade: courseGrade)
         }
     }
-    
+
+    // MARK: - Shareable View
+
+    private var shareableView: some View {
+        VStack(spacing: 0) {
+            statsSection
+                .padding(.horizontal)
+                .padding(.vertical)
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(viewModel.filteredCourseGrades, id: \.courseID) { courseGrade in
+                    gradeCardContent(courseGrade: courseGrade)
+                        .padding(.horizontal)
+                    Divider()
+                }
+            }
+        }
+        .padding(.vertical)
+        .background(Color(.systemGroupedBackground))
+        .environment(\.colorScheme, colorScheme)
+    }
+
     // MARK: - Body
-    
+
     var body: some View {
         VStack(spacing: 0) {
             statsSection
                 .padding(.horizontal)
                 .padding(.vertical)
                 .background(Color(.secondarySystemBackground))
-            
+
             if viewModel.isQuerying {
                 ProgressView("正在查询...")
                     .progressViewStyle(.circular)
@@ -234,30 +263,32 @@ struct GradeQueryView: View {
         } message: {
             Text(viewModel.errorMessage)
         }
-        .task {
-            guard !viewModel.isLoaded else { return }
-            viewModel.isLoaded = true
-            viewModel.loadAvailableSemesters()
-            viewModel.getCourseGrades()
-        }
+        .task { viewModel.task() }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    viewModel.isShowingFilter.toggle()
+                Menu {
+                    Button(action: { viewModel.isShowingFilter.toggle() }) {
+                        Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
+                    }
+                    Button(action: { viewModel.showShareSheet(shareableView) }) {
+                        Label("分享", systemImage: "square.and.arrow.up")
+                    }
+                    Button(action: { viewModel.saveToPhotoAlbum(shareableView) }) {
+                        Label("保存结果到相册", systemImage: "photo")
+                    }
                 } label: {
-                    Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
+                    Label("更多操作", systemImage: "ellipsis.circle")
                 }
-                .popover(isPresented: $viewModel.isShowingFilter) { filterView }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    viewModel.getCourseGrades()
-                } label: {
+                Button(action: viewModel.getCourseGrades) {
                     Label("查询", systemImage: "magnifyingglass")
                 }
                 .disabled(viewModel.isQuerying)
             }
         }
+        .sheet(isPresented: $viewModel.isShowingShareSheet) { ShareSheet(items: [viewModel.shareContent!]) }
+        .popover(isPresented: $viewModel.isShowingFilter) { filterView }
         .navigationTitle("成绩查询")
         .navigationBarTitleDisplayMode(.inline)
     }

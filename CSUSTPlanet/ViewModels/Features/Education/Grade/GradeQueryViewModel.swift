@@ -31,6 +31,9 @@ class GradeQueryViewModel: ObservableObject {
     @Published var isShowingFilter: Bool = false
     @Published var searchText: String = ""
 
+    @Published var isShowingShareSheet: Bool = false
+    var shareContent: UIImage? = nil
+
     var isLoaded: Bool = false
 
     var filteredCourseGrades: [EduHelper.CourseGrade] {
@@ -74,6 +77,13 @@ class GradeQueryViewModel: ObservableObject {
         )
     }
 
+    func task() {
+        guard !isLoaded else { return }
+        isLoaded = true
+        loadAvailableSemesters()
+        getCourseGrades()
+    }
+
     func loadAvailableSemesters() {
         isSemestersLoading = true
         Task {
@@ -105,11 +115,28 @@ class GradeQueryViewModel: ObservableObject {
                     displayMode: selectedDisplayMode,
                     studyMode: selectedStudyMode
                 )
-                self.updateStats()
+                updateStats()
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
             }
+        }
+    }
+
+    func showShareSheet(_ shareableView: some View) {
+        let renderer = ImageRenderer(content: shareableView)
+        renderer.scale = UIScreen.main.scale
+        if let uiImage = renderer.uiImage {
+            shareContent = uiImage
+            isShowingShareSheet = true
+        }
+    }
+    
+    func saveToPhotoAlbum(_ shareableView: some View) {
+        let renderer = ImageRenderer(content: shareableView)
+        renderer.scale = UIScreen.main.scale
+        if let uiImage = renderer.uiImage {
+            UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil)
         }
     }
 }
