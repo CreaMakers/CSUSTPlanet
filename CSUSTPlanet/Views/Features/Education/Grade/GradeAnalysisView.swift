@@ -5,11 +5,13 @@
 //  Created by Zhe_Learn on 2025/7/11.
 //
 
+import AlertToast
 import Charts
 import CSUSTKit
 import SwiftUI
 
 struct GradeAnalysisView: View {
+    @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel: GradeAnalysisViewModel
     
     init(eduHelper: EduHelper) {
@@ -165,38 +167,67 @@ struct GradeAnalysisView: View {
             }
         }
     }
+
+    // MARK: - Analysis Content
+    
+    private var analysisContent: some View {
+        VStack(spacing: 20) {
+            if viewModel.isQuerying {
+                ProgressView("正在加载成绩数据...")
+                    .padding()
+            } else {
+                if let gradeAnalysisData = viewModel.gradeAnalysisData, let weightedAverageGrade = viewModel.weightedAverageGrade {
+                    summaryCard(gradeAnalysisData, weightedAverageGrade)
+                    semesterAnalysisSection(gradeAnalysisData)
+                } else {
+                    Text("暂无成绩数据")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+    }
+    
+    // MARK: - Shareable View
+
+    private var shareableView: some View {
+        analysisContent
+            .padding(.vertical)
+            .background(Color(.systemGroupedBackground))
+            .environment(\.colorScheme, colorScheme)
+    }
     
     // MARK: - Body
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                if viewModel.isQuerying {
-                    ProgressView("正在加载成绩数据...")
-                        .padding()
-                } else {
-                    if let gradeAnalysisData = viewModel.gradeAnalysisData, let weightedAverageGrade = viewModel.weightedAverageGrade {
-                        summaryCard(gradeAnalysisData, weightedAverageGrade)
-                        semesterAnalysisSection(gradeAnalysisData)
-                    } else {
-                        Text("暂无成绩数据")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            .padding(.vertical)
+            analysisContent
         }
         .task {
             viewModel.getCourseGrades()
         }
-        .alert("错误", isPresented: $viewModel.isShowingError) {
-            Button("确定", role: .cancel) {}
-        } message: {
-            Text(viewModel.errorMessage)
+        .toast(isPresenting: $viewModel.isShowingError) {
+            AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
+        .toast(isPresenting: $viewModel.isShowingSuccess) {
+            AlertToast(type: .complete(.green), title: "图片保存成功")
+        }
+        .sheet(isPresented: $viewModel.isShowingShareSheet) { ShareSheet(items: [viewModel.shareContent!]) }
         .navigationTitle("成绩分析")
         .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    Button(action: { viewModel.showShareSheet(shareableView) }) {
+                        Label("分享", systemImage: "square.and.arrow.up")
+                    }
+                    Button(action: { viewModel.saveToPhotoAlbum(shareableView) }) {
+                        Label("保存结果到相册", systemImage: "photo")
+                    }
+                } label: {
+                    Label("更多操作", systemImage: "ellipsis.circle")
+                }
+                .disabled(viewModel.isQuerying || viewModel.gradeAnalysisData == nil)
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     viewModel.getCourseGrades()

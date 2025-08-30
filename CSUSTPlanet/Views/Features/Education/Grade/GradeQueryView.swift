@@ -275,9 +275,11 @@ struct GradeQueryView: View {
                     Button(action: { viewModel.showShareSheet(shareableView) }) {
                         Label("分享", systemImage: "square.and.arrow.up")
                     }
+                    .disabled(viewModel.isQuerying)
                     Button(action: { viewModel.saveToPhotoAlbum(shareableView) }) {
                         Label("保存结果到相册", systemImage: "photo")
                     }
+                    .disabled(viewModel.isQuerying)
                 } label: {
                     Label("更多操作", systemImage: "ellipsis.circle")
                 }

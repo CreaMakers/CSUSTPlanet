@@ -151,7 +151,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
     @objc
     func saveToPhotoAlbumCallback(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
         if let error = error {
-            errorMessage = "保存图片失败: \(error.localizedDescription)"
+            errorMessage = "保存图片失败，可能是没有权限: \(error.localizedDescription)"
             isShowingError = true
         } else {
             isShowingSuccess = true
