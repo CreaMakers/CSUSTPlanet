@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-class GradeQueryViewModel: ObservableObject {
+class GradeQueryViewModel: NSObject, ObservableObject {
     private var eduHelper: EduHelper
 
     @Published var availableSemesters: [String] = []
@@ -30,6 +30,8 @@ class GradeQueryViewModel: ObservableObject {
 
     @Published var isShowingFilter: Bool = false
     @Published var searchText: String = ""
+    
+    @Published var isShowingSuccess: Bool = false
 
     @Published var isShowingShareSheet: Bool = false
     var shareContent: UIImage? = nil
@@ -129,14 +131,30 @@ class GradeQueryViewModel: ObservableObject {
         if let uiImage = renderer.uiImage {
             shareContent = uiImage
             isShowingShareSheet = true
+        } else {
+            errorMessage = "生成图片失败"
+            isShowingError = true
         }
     }
-    
+
     func saveToPhotoAlbum(_ shareableView: some View) {
         let renderer = ImageRenderer(content: shareableView)
         renderer.scale = UIScreen.main.scale
         if let uiImage = renderer.uiImage {
-            UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil)
+            UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(saveToPhotoAlbumCallback(_:didFinishSavingWithError:contextInfo:)), nil)
+        } else {
+            errorMessage = "生成图片失败"
+            isShowingError = true
+        }
+    }
+
+    @objc
+    func saveToPhotoAlbumCallback(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            errorMessage = "保存图片失败: \(error.localizedDescription)"
+            isShowingError = true
+        } else {
+            isShowingSuccess = true
         }
     }
 }

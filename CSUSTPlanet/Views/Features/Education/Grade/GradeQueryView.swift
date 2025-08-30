@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/9.
 //
 
+import AlertToast
 import CSUSTKit
 import SwiftUI
 
@@ -258,10 +259,11 @@ struct GradeQueryView: View {
             }
         }
         .searchable(text: $viewModel.searchText, prompt: "搜索课程")
-        .alert("错误", isPresented: $viewModel.isShowingError) {
-            Button("确认", role: .cancel) {}
-        } message: {
-            Text(viewModel.errorMessage)
+        .toast(isPresenting: $viewModel.isShowingError) {
+            AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
+        }
+        .toast(isPresenting: $viewModel.isShowingSuccess) {
+            AlertToast(type: .complete(.green), title: "图片保存成功")
         }
         .task { viewModel.task() }
         .toolbar {
