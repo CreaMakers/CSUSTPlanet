@@ -287,7 +287,7 @@ struct GradeQueryView: View {
             }
             ToolbarItem(placement: .primaryAction) {
                 Button(action: viewModel.getCourseGrades) {
-                    Label("查询", systemImage: "magnifyingglass")
+                    Label("查询", systemImage: "arrow.clockwise")
                 }
                 .disabled(viewModel.isQuerying)
             }
