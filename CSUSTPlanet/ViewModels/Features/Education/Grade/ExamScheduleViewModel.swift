@@ -60,8 +60,8 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
                 let calendar = try await calendarHelper.getOrCreateCalendar(named: "考试")
                 try await calendarHelper.addEvent(
                     title: "考试：\(exam.courseName)",
-                    startDate: exam.examTimeRange.start,
-                    endDate: exam.examTimeRange.end,
+                    startDate: exam.examStartTime,
+                    endDate: exam.examEndTime,
                     notes: exam.teacher,
                     location: exam.examRoom,
                     calendar: calendar
@@ -86,8 +86,8 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
                 for exam in examSchedule {
                     try await calendarHelper.addEvent(
                         title: "考试：\(exam.courseName)",
-                        startDate: exam.examTimeRange.start,
-                        endDate: exam.examTimeRange.end,
+                        startDate: exam.examStartTime,
+                        endDate: exam.examEndTime,
                         notes: exam.teacher,
                         location: exam.examRoom,
                         calendar: calendar

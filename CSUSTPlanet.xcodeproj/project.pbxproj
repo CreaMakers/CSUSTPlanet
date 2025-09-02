@@ -69,6 +69,7 @@
 				Models/Dorm.swift,
 				Models/ElectricityRecord.swift,
 				Models/GradeAnalysis.swift,
+				Models/GradeQuery.swift,
 				Utils/ColorHelper.swift,
 				Utils/KeychainCookieStorage.swift,
 				Utils/KeychainHelper.swift,

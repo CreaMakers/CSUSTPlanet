@@ -7,6 +7,7 @@
 
 import CSUSTKit
 import Foundation
+import SwiftData
 import SwiftUI
 
 @MainActor
@@ -65,7 +66,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         guard !isLoaded else { return }
         isLoaded = true
         loadAvailableSemesters(eduHelper)
-        getCourseGrades(eduHelper)
+        loadCourseGrades(eduHelper)
     }
 
     func loadAvailableSemesters(_ eduHelper: EduHelper?) {
@@ -76,7 +77,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
             }
 
             do {
-                availableSemesters = try await eduHelper!.courseService.getAvailableSemestersForCourseGrades()
+                availableSemesters = try await eduHelper?.courseService.getAvailableSemestersForCourseGrades() ?? []
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -84,7 +85,29 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         }
     }
 
-    func getCourseGrades(_ eduHelper: EduHelper?) {
+    private func getCourseGrades(_ eduHelper: EduHelper?) async throws -> [EduHelper.CourseGrade] {
+        let context = SharedModel.context
+        let gradeQueries = try context.fetch(FetchDescriptor<GradeQuery>())
+        if let eduHelper = eduHelper {
+            let courseGrades = try await eduHelper.courseService.getCourseGrades(
+                academicYearSemester: selectedSemester,
+                courseNature: selectedCourseNature,
+                courseName: "",
+                displayMode: selectedDisplayMode,
+                studyMode: selectedStudyMode
+            )
+            gradeQueries.forEach { context.delete($0) }
+            let gradeQuery = GradeQuery(data: GradeQueryData.fromCourseGrades(courseGrades: courseGrades))
+            context.insert(gradeQuery)
+            try context.save()
+            return courseGrades
+        } else {
+            guard let gradeQuery = gradeQueries.first else { return [] }
+            return gradeQuery.data.courseGrades
+        }
+    }
+
+    func loadCourseGrades(_ eduHelper: EduHelper?) {
         isLoading = true
         Task {
             defer {
@@ -92,13 +115,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
             }
 
             do {
-                courseGrades = try await eduHelper!.courseService.getCourseGrades(
-                    academicYearSemester: selectedSemester,
-                    courseNature: selectedCourseNature,
-                    courseName: "",
-                    displayMode: selectedDisplayMode,
-                    studyMode: selectedStudyMode
-                )
+                courseGrades = try await getCourseGrades(eduHelper)
                 updateStats()
             } catch {
                 errorMessage = error.localizedDescription

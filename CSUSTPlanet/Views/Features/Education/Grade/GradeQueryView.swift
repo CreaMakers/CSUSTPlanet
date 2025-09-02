@@ -114,7 +114,7 @@ struct GradeQueryView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完成") {
                         viewModel.isShowingFilterPopover = false
-                        viewModel.getCourseGrades(authManager.eduHelper)
+                        viewModel.loadCourseGrades(authManager.eduHelper)
                     }
                 }
             }
@@ -279,7 +279,7 @@ struct GradeQueryView: View {
                 }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { viewModel.getCourseGrades(authManager.eduHelper) }) {
+                Button(action: { viewModel.loadCourseGrades(authManager.eduHelper) }) {
                     Label("查询", systemImage: "arrow.clockwise")
                 }
                 .disabled(viewModel.isLoading)
