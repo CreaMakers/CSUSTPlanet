@@ -12,6 +12,7 @@
 		007CF90A2E1CF0ED00E319F2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 007CF9092E1CF0ED00E319F2 /* CSUSTKit */; };
 		00B4760D2E633E4C009C1E39 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 00B4760C2E633E4C009C1E39 /* AlertToast */; };
 		00B659442E2D054C0037048C /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00B659432E2D054C0037048C /* CSUSTKit */; };
+		00CD22612E6757E6008AB82B /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 00CD22602E6757E6008AB82B /* Toasts */; };
 		00E89C632E2C88D800B43162 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C622E2C88D800B43162 /* WidgetKit.framework */; };
 		00E89C652E2C88D800B43162 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C642E2C88D800B43162 /* SwiftUI.framework */; };
 		00E89C722E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -117,6 +118,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00CD22612E6757E6008AB82B /* Toasts in Frameworks */,
 				0041FC6D2E2AA269007F383F /* MarkdownUI in Frameworks */,
 				00B4760D2E633E4C009C1E39 /* AlertToast in Frameworks */,
 				007CF90A2E1CF0ED00E319F2 /* CSUSTKit in Frameworks */,
@@ -192,6 +194,7 @@
 				0041FC692E2A91E0007F383F /* Zoomable */,
 				0041FC6C2E2AA269007F383F /* MarkdownUI */,
 				00B4760C2E633E4C009C1E39 /* AlertToast */,
+				00CD22602E6757E6008AB82B /* Toasts */,
 			);
 			productName = CSUSTPlanet;
 			productReference = 007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */;
@@ -252,6 +255,7 @@
 				0041FC682E2A91E0007F383F /* XCRemoteSwiftPackageReference "Zoomable" */,
 				0041FC6B2E2AA269007F383F /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				00B4760B2E633E4C009C1E39 /* XCRemoteSwiftPackageReference "AlertToast" */,
+				00CD225F2E675732008AB82B /* XCRemoteSwiftPackageReference "swiftui-toasts" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 007CF85C2E1BD68900E319F2 /* Products */;
@@ -623,6 +627,14 @@
 				minimumVersion = 1.3.9;
 			};
 		};
+		00CD225F2E675732008AB82B /* XCRemoteSwiftPackageReference "swiftui-toasts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sunghyun-k/swiftui-toasts.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -650,6 +662,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 007CF9082E1CF0ED00E319F2 /* XCRemoteSwiftPackageReference "CSUSTKit" */;
 			productName = CSUSTKit;
+		};
+		00CD22602E6757E6008AB82B /* Toasts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 00CD225F2E675732008AB82B /* XCRemoteSwiftPackageReference "swiftui-toasts" */;
+			productName = Toasts;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

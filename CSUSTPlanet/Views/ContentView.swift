@@ -5,11 +5,14 @@
 //  Created by Zhe_Learn on 2025/7/7.
 //
 
+import AlertToast
 import SwiftUI
+import Toasts
 
 struct ContentView: View {
     @EnvironmentObject var globalVars: GlobalVars
     @EnvironmentObject var authManager: AuthManager
+    @Environment(\.presentToast) var presentToast
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
     var preferredColorScheme: ColorScheme? {
@@ -51,23 +54,37 @@ struct ContentView: View {
             }
             .tag(1)
         }
+        .onChange(of: authManager.isShowingEducationError) { _, newValue in
+            guard newValue else { return }
+            let toastValue = ToastValue(
+                icon: Image(systemName: "exclamationmark.triangle"),
+                message: "教务登录错误",
+                button: ToastButton(title: "重试登录", color: .red) {
+                    authManager.isShowingEducationError = false
+                    authManager.loginToEducation()
+                }
+            )
+            presentToast(toastValue)
+        }
+        .onChange(of: authManager.isShowingMoocError) { _, newValue in
+            guard newValue else { return }
+            let toastValue = ToastValue(
+                icon: Image(systemName: "exclamationmark.triangle"),
+                message: "网络课程中心登录错误",
+                button: ToastButton(title: "重试登录", color: .red) {
+                    authManager.isShowingMoocError = false
+                    authManager.loginToMooc()
+                }
+            )
+            presentToast(toastValue)
+        }
         .preferredColorScheme(preferredColorScheme)
-        .alert("教务登录错误", isPresented: $authManager.isShowingEducationError) {
-            Button("确定", role: .cancel) {}
-            Button("重试", action: authManager.loginToEducation)
-        } message: {
-            Text(authManager.educationErrorMessage)
-        }
-        .alert("网络课程中心登录错误", isPresented: $authManager.isShowingMoocError) {
-            Button("确定", role: .cancel) {}
-            Button("重试", action: authManager.loginToMooc)
-        } message: {
-            Text(authManager.moocErrorMessage)
-        }
-        .sheet(isPresented: Binding(
-            get: { !globalVars.isUserAgreementAccepted },
-            set: { globalVars.isUserAgreementAccepted = !$0 }
-        )) {
+        .sheet(
+            isPresented: Binding(
+                get: { !globalVars.isUserAgreementAccepted },
+                set: { globalVars.isUserAgreementAccepted = !$0 }
+            )
+        ) {
             NavigationStack {
                 UserAgreementView()
                     .interactiveDismissDisabled(true)

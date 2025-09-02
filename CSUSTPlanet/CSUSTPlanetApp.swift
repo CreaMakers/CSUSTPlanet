@@ -8,6 +8,7 @@
 import AppIntents
 import SwiftData
 import SwiftUI
+import Toasts
 
 @main
 struct CSUSTPlanetApp: App {
@@ -29,6 +30,7 @@ struct CSUSTPlanetApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .installToast(position: .top)
                 .environmentObject(GlobalVars.shared)
                 .environmentObject(authManager)
         }
