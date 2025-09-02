@@ -12,10 +12,11 @@ import SwiftUI
 
 struct GradeDetailView: View {
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel: GradeDetailViewModel
 
-    init(eduHelper: EduHelper, courseGrade: EduHelper.CourseGrade) {
-        _viewModel = StateObject(wrappedValue: GradeDetailViewModel(eduHelper: eduHelper, courseGrade: courseGrade))
+    init(courseGrade: EduHelper.CourseGrade) {
+        _viewModel = StateObject(wrappedValue: GradeDetailViewModel(courseGrade))
     }
 
     // MARK: - Course Title
@@ -83,7 +84,7 @@ struct GradeDetailView: View {
                 .chartLegend(position: .bottom, alignment: .center, spacing: 10)
                 .padding(.horizontal)
             }
-        } else if viewModel.isLoadingDetail {
+        } else if viewModel.isLoading {
             infoGroupBox(title: "成绩详细") {
                 HStack {
                     Spacer()
@@ -174,7 +175,7 @@ struct GradeDetailView: View {
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            viewModel.loadDetail()
+            viewModel.loadDetail(authManager.eduHelper)
         }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
@@ -188,20 +189,18 @@ struct GradeDetailView: View {
                     Button(action: { viewModel.showShareSheet(shareableView) }) {
                         Label("分享", systemImage: "square.and.arrow.up")
                     }
-                    .disabled(viewModel.isLoadingDetail)
+                    .disabled(viewModel.isLoading)
                     Button(action: { viewModel.saveToPhotoAlbum(shareableView) }) {
                         Label("保存结果到相册", systemImage: "photo")
                     }
-                    .disabled(viewModel.isLoadingDetail)
+                    .disabled(viewModel.isLoading)
                 } label: {
                     Label("更多操作", systemImage: "ellipsis.circle")
                 }
-                .disabled(viewModel.isLoadingDetail)
+                .disabled(viewModel.isLoading)
             }
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    viewModel.loadDetail()
-                } label: {
+                Button(action: { viewModel.loadDetail(authManager.eduHelper) }) {
                     Label("刷新成绩分布", systemImage: "arrow.clockwise")
                 }
             }

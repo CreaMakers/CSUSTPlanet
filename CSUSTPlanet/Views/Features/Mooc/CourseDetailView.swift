@@ -9,10 +9,11 @@ import CSUSTKit
 import SwiftUI
 
 struct CourseDetailView: View {
+    @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel: CourseDetailViewModel
 
-    init(moocHelper: MoocHelper, course: MoocHelper.Course) {
-        _viewModel = StateObject(wrappedValue: CourseDetailViewModel(moocHelper: moocHelper, course: course))
+    init(course: MoocHelper.Course) {
+        _viewModel = StateObject(wrappedValue: CourseDetailViewModel(course: course))
     }
 
     var body: some View {
@@ -27,24 +28,20 @@ struct CourseDetailView: View {
             Text(viewModel.errorMessage)
         }
         .task {
-            viewModel.loadHomeworks()
-            viewModel.loadTests()
+            viewModel.loadHomeworks(authManager.moocHelper)
+            viewModel.loadTests(authManager.moocHelper)
         }
         .navigationTitle(viewModel.courseInfo.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button {
-                        viewModel.loadHomeworks()
-                    } label: {
+                    Button(action: { viewModel.loadHomeworks(authManager.moocHelper) }) {
                         Label("刷新作业列表", systemImage: "arrow.clockwise")
                     }
                     .disabled(viewModel.isHomeworksLoading)
 
-                    Button {
-                        viewModel.loadTests()
-                    } label: {
+                    Button(action: { viewModel.loadTests(authManager.moocHelper) }) {
                         Label("刷新考试列表", systemImage: "arrow.clockwise")
                     }
                     .disabled(viewModel.isTestsLoading)

@@ -13,22 +13,19 @@ import WidgetKit
 
 @MainActor
 class CourseScheduleViewModel: ObservableObject {
-    private var eduHelper: EduHelper
+    @Published var courseScheduleData: CourseScheduleData? = nil
+    @Published var errorMessage: String = ""
+    @Published var availableSemesters: [String] = []
+
+    @Published var isCoursesLoading: Bool = false
+    @Published var isShowingError: Bool = false
+    @Published var isSemestersLoading: Bool = false
 
     // TabView显示的第几周
     @Published var currentWeek: Int = 1
-    var courseColors: [String: Color] = [:]
-
-    @Published var isCoursesLoading: Bool = false
-
-    @Published var isShowingError: Bool = false
-    @Published var errorMessage: String = ""
-
-    @Published var availableSemesters: [String] = []
     @Published var selectedSemester: String? = nil
-    @Published var isSemestersLoading: Bool = false
 
-    @Published var courseScheduleData: CourseScheduleData? = nil
+    var courseColors: [String: Color] = [:]
 
     // 当日日期
     #if DEBUG
@@ -71,15 +68,11 @@ class CourseScheduleViewModel: ObservableObject {
         return formatter
     }()
 
-    init(eduHelper: EduHelper) {
-        self.eduHelper = eduHelper
+    func handleSemesterChange(_ eduHelper: EduHelper?, oldSemester: String?, newSemester: String?) {
+        loadCourses(eduHelper)
     }
 
-    func handleSemesterChange(oldSemester: String?, newSemester: String?) {
-        loadCourses()
-    }
-
-    func loadAvailableSemesters() {
+    func loadAvailableSemesters(_ eduHelper: EduHelper?) {
         isSemestersLoading = true
         Task {
             defer {
@@ -87,7 +80,7 @@ class CourseScheduleViewModel: ObservableObject {
             }
 
             do {
-                (availableSemesters, selectedSemester) = try await eduHelper.courseService.getAvailableSemestersForCourseSchedule()
+                (availableSemesters, selectedSemester) = try await eduHelper!.courseService.getAvailableSemestersForCourseSchedule()
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -95,7 +88,7 @@ class CourseScheduleViewModel: ObservableObject {
         }
     }
 
-    func loadCourses() {
+    func loadCourses(_ eduHelper: EduHelper?) {
         isCoursesLoading = true
         courseScheduleData = nil
         Task {
@@ -104,8 +97,8 @@ class CourseScheduleViewModel: ObservableObject {
             }
 
             do {
-                let courses = try await eduHelper.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
-                let semesterStartDate = try await eduHelper.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
+                let courses = try await eduHelper!.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
+                let semesterStartDate = try await eduHelper!.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
                 let calculatedWeek = calculateCurrentWeek(from: semesterStartDate, for: today)
                 self.realCurrentWeek = calculatedWeek
 

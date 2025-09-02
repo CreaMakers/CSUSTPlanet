@@ -13,33 +13,27 @@ import WidgetKit
 
 @MainActor
 class GradeAnalysisViewModel: NSObject, ObservableObject {
-    private var eduHelper: EduHelper
-
-    @Published var isQuerying: Bool = false
-
-    @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
+
+    @Published var isLoading: Bool = false
+    @Published var isShowingError: Bool = false
+    @Published var isShowingSuccess: Bool = false
+    @Published var isShowingShareSheet: Bool = false
 
     @Published var gradeAnalysisData: GradeAnalysisData?
     @Published var weightedAverageGrade: Double?
 
-    @Published var isShowingSuccess: Bool = false
-    @Published var isShowingShareSheet: Bool = false
     var shareContent: UIImage?
 
-    init(eduHelper: EduHelper) {
-        self.eduHelper = eduHelper
-    }
-
-    func getCourseGrades() {
-        isQuerying = true
+    func getCourseGrades(_ eduHelper: EduHelper?) {
+        isLoading = true
         Task {
             defer {
-                isQuerying = false
+                isLoading = false
             }
 
             do {
-                let courseGrades = try await eduHelper.courseService.getCourseGrades()
+                let courseGrades = try await eduHelper!.courseService.getCourseGrades()
                 let gradeAnalysisData = GradeAnalysisData.fromCourseGrades(courseGrades)
 
                 let totalCredits = courseGrades.reduce(0) { $0 + $1.credit }

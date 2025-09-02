@@ -11,15 +11,8 @@ import SwiftUI
 
 struct ExamScheduleView: View {
     @Environment(\.colorScheme) var colorScheme
-    
-    @StateObject var viewModel: ExamScheduleViewModel
-    
-    private var eduHelper: EduHelper
-    
-    init(eduHelper: EduHelper) {
-        _viewModel = StateObject(wrappedValue: ExamScheduleViewModel(eduHelper: eduHelper))
-        self.eduHelper = eduHelper
-    }
+    @EnvironmentObject var authManager: AuthManager
+    @StateObject var viewModel = ExamScheduleViewModel()
     
     // MARK: - Info Row
     
@@ -92,7 +85,7 @@ struct ExamScheduleView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完成") {
                         viewModel.isShowingFilter = false
-                        viewModel.getExams()
+                        viewModel.getExams(authManager.eduHelper)
                     }
                 }
             }
@@ -213,7 +206,6 @@ struct ExamScheduleView: View {
                     .progressViewStyle(.circular)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color(.systemGroupedBackground))
-                    .id(viewModel.queryID)
             } else if viewModel.examSchedule.isEmpty {
                 emptyStateSection
                     .background(Color(.systemGroupedBackground))
@@ -232,7 +224,7 @@ struct ExamScheduleView: View {
         .toast(isPresenting: $viewModel.isShowingSuccess) {
             AlertToast(type: .complete(.green), title: "图片保存成功")
         }
-        .task { viewModel.task() }
+        .task { viewModel.task(authManager.eduHelper) }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
@@ -256,7 +248,7 @@ struct ExamScheduleView: View {
                 }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button(action: viewModel.getExams) {
+                Button(action: { viewModel.getExams(authManager.eduHelper) }) {
                     Label("查询", systemImage: "magnifyingglass")
                 }
                 .disabled(viewModel.isQuerying)

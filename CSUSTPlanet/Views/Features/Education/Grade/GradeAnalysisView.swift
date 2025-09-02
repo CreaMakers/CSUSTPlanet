@@ -12,11 +12,8 @@ import SwiftUI
 
 struct GradeAnalysisView: View {
     @Environment(\.colorScheme) var colorScheme
-    @StateObject var viewModel: GradeAnalysisViewModel
-    
-    init(eduHelper: EduHelper) {
-        self._viewModel = StateObject(wrappedValue: GradeAnalysisViewModel(eduHelper: eduHelper))
-    }
+    @EnvironmentObject var authManager: AuthManager
+    @StateObject var viewModel = GradeAnalysisViewModel()
     
     // MARK: - Statistic Item
     
@@ -172,7 +169,7 @@ struct GradeAnalysisView: View {
     
     private var analysisContent: some View {
         VStack(spacing: 20) {
-            if viewModel.isQuerying {
+            if viewModel.isLoading {
                 ProgressView("正在加载成绩数据...")
                     .padding()
             } else {
@@ -205,7 +202,7 @@ struct GradeAnalysisView: View {
             analysisContent
         }
         .task {
-            viewModel.getCourseGrades()
+            viewModel.getCourseGrades(authManager.eduHelper)
         }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
@@ -227,15 +224,13 @@ struct GradeAnalysisView: View {
                 } label: {
                     Label("更多操作", systemImage: "ellipsis.circle")
                 }
-                .disabled(viewModel.isQuerying || viewModel.gradeAnalysisData == nil)
+                .disabled(viewModel.isLoading || viewModel.gradeAnalysisData == nil)
             }
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    viewModel.getCourseGrades()
-                } label: {
+                Button(action: { viewModel.getCourseGrades(authManager.eduHelper) }) {
                     Label("刷新成绩分析", systemImage: "arrow.clockwise")
                 }
-                .disabled(viewModel.isQuerying)
+                .disabled(viewModel.isLoading)
             }
         }
     }

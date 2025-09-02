@@ -9,7 +9,8 @@ import CSUSTKit
 import SwiftUI
 
 struct CoursesView: View {
-    @StateObject var viewModel: CoursesViewModel
+    @EnvironmentObject var authManager: AuthManager
+    @StateObject var viewModel = CoursesViewModel()
     
     struct InfoRow: View {
         let icon: String
@@ -38,17 +39,12 @@ struct CoursesView: View {
         }
     }
     
-    init(moocHelper: MoocHelper) {
-        _viewModel = StateObject(wrappedValue: CoursesViewModel(moocHelper: moocHelper))
-    }
-    
     var body: some View {
         Form {
             if viewModel.isLoading {
                 ProgressView("加载中...")
                     .progressViewStyle(.circular)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .id(viewModel.loadingID)
             } else if viewModel.courses.isEmpty {
                 emptyStateSection
             } else {
@@ -63,12 +59,12 @@ struct CoursesView: View {
         .task {
             guard !viewModel.isLoaded else { return }
             viewModel.isLoaded = true
-            viewModel.loadCourses()
+            viewModel.loadCourses(authManager.moocHelper)
         }
         .navigationTitle("课程列表")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(action: viewModel.loadCourses) {
+                Button(action: { viewModel.loadCourses(authManager.moocHelper) }) {
                     Label("刷新课程列表", systemImage: "arrow.clockwise")
                 }
                 .disabled(viewModel.isLoading)
@@ -102,7 +98,7 @@ struct CoursesView: View {
     private var courseListSection: some View {
         Section {
             ForEach(viewModel.courses, id: \.self) { course in
-                NavigationLink(destination: CourseDetailView(moocHelper: viewModel.moocHelper, course: course)) {
+                NavigationLink(destination: CourseDetailView(course: course)) {
                     courseCard(course: course)
                 }
             }

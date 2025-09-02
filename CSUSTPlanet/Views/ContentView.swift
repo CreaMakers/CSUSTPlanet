@@ -29,9 +29,7 @@ struct ContentView: View {
                 if horizontalSizeClass == .regular {
                     FeaturesSplitView()
                 } else {
-                    NavigationStack {
-                        FeaturesListView()
-                    }
+                    FeaturesListView()
                 }
             }
             .tabItem {

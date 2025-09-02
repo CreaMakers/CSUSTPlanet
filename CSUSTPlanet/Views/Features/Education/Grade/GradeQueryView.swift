@@ -10,19 +10,12 @@ import CSUSTKit
 import SwiftUI
 
 struct GradeQueryView: View {
-    @Environment(\.colorScheme) var colorScheme
-    
-    @StateObject var viewModel: GradeQueryViewModel
-    
-    private var eduHelper: EduHelper
-    
-    init(eduHelper: EduHelper) {
-        _viewModel = StateObject(wrappedValue: GradeQueryViewModel(eduHelper: eduHelper))
-        self.eduHelper = eduHelper
-    }
-    
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
+    @EnvironmentObject var authManager: AuthManager
+    @StateObject var viewModel = GradeQueryViewModel()
+
     // MARK: - Stat Item
-    
+
     private func statItem(title: String, value: String, color: Color) -> some View {
         VStack(alignment: .center, spacing: 8) {
             Text(title)
@@ -37,7 +30,7 @@ struct GradeQueryView: View {
         }
         .frame(maxWidth: .infinity)
     }
-    
+
     // MARK: - Stats Section
 
     private var statsSection: some View {
@@ -59,12 +52,12 @@ struct GradeQueryView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .redacted(reason: viewModel.isQuerying ? .placeholder : [])
+            .redacted(reason: viewModel.isLoading ? .placeholder : [])
         }
     }
-    
+
     // MARK: - Filter View
-    
+
     private var filterView: some View {
         NavigationStack {
             Form {
@@ -108,38 +101,38 @@ struct GradeQueryView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-//                    Button {
-//                        viewModel.loadAvailableSemesters()
-//                    } label: {
-//                        Label("刷新可选学期列表", systemImage: "arrow.clockwise")
-//                    }
-//                    .disabled(viewModel.isSemestersLoading)
+                    //                    Button {
+                    //                        viewModel.loadAvailableSemesters()
+                    //                    } label: {
+                    //                        Label("刷新可选学期列表", systemImage: "arrow.clockwise")
+                    //                    }
+                    //                    .disabled(viewModel.isSemestersLoading)
                     Button("取消") {
-                        viewModel.isShowingFilter = false
+                        viewModel.isShowingFilterPopover = false
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完成") {
-                        viewModel.isShowingFilter = false
-                        viewModel.getCourseGrades()
+                        viewModel.isShowingFilterPopover = false
+                        viewModel.getCourseGrades(authManager.eduHelper)
                     }
                 }
             }
         }
     }
-    
+
     // MARK: - Empty State Section
-    
+
     private var emptyStateSection: some View {
         VStack(spacing: 8) {
             Image(systemName: "doc.text.magnifyingglass")
                 .font(.system(size: 40))
                 .foregroundColor(.secondary)
                 .padding(.bottom, 8)
-            
+
             Text("暂无成绩记录")
                 .font(.headline)
-            
+
             Text(viewModel.searchText.isEmpty ? "当前筛选条件下没有找到成绩记录" : "没有找到匹配的课程")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
@@ -148,9 +141,9 @@ struct GradeQueryView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.vertical, 20)
     }
-    
+
     // MARK: - Grade Card
-    
+
     private func gradeCardContent(courseGrade: EduHelper.CourseGrade) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
@@ -192,9 +185,9 @@ struct GradeQueryView: View {
                     }
                 }
             }
-            
+
             Spacer()
-            
+
             Text("\(courseGrade.grade)分")
                 .font(.headline)
                 .fontWeight(.bold)
@@ -204,7 +197,7 @@ struct GradeQueryView: View {
     }
 
     private func gradeCard(courseGrade: EduHelper.CourseGrade) -> some View {
-        NavigationLink(destination: GradeDetailView(eduHelper: eduHelper, courseGrade: courseGrade)) {
+        NavigationLink(destination: GradeDetailView(courseGrade: courseGrade)) {
             gradeCardContent(courseGrade: courseGrade)
         }
     }
@@ -240,9 +233,9 @@ struct GradeQueryView: View {
             statsSection
                 .padding(.horizontal)
                 .padding(.vertical)
-                .background(Color(.secondarySystemBackground))
+                .background(colorScheme == .light ? Color(.systemBackground) : Color(.secondarySystemBackground))
 
-            if viewModel.isQuerying {
+            if viewModel.isLoading {
                 ProgressView("正在查询...")
                     .progressViewStyle(.circular)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -266,34 +259,34 @@ struct GradeQueryView: View {
         .toast(isPresenting: $viewModel.isShowingSuccess) {
             AlertToast(type: .complete(.green), title: "图片保存成功")
         }
-        .task { viewModel.task() }
+        .task { viewModel.task(authManager.eduHelper) }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button(action: { viewModel.isShowingFilter.toggle() }) {
+                    Button(action: { viewModel.isShowingFilterPopover.toggle() }) {
                         Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
                     }
                     Button(action: { viewModel.showShareSheet(shareableView) }) {
                         Label("分享", systemImage: "square.and.arrow.up")
                     }
-                    .disabled(viewModel.isQuerying)
+                    .disabled(viewModel.isLoading)
                     Button(action: { viewModel.saveToPhotoAlbum(shareableView) }) {
                         Label("保存结果到相册", systemImage: "photo")
                     }
-                    .disabled(viewModel.isQuerying)
+                    .disabled(viewModel.isLoading)
                 } label: {
                     Label("更多操作", systemImage: "ellipsis.circle")
                 }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button(action: viewModel.getCourseGrades) {
+                Button(action: { viewModel.getCourseGrades(authManager.eduHelper) }) {
                     Label("查询", systemImage: "arrow.clockwise")
                 }
-                .disabled(viewModel.isQuerying)
+                .disabled(viewModel.isLoading)
             }
         }
         .sheet(isPresented: $viewModel.isShowingShareSheet) { ShareSheet(items: [viewModel.shareContent!]) }
-        .popover(isPresented: $viewModel.isShowingFilter) { filterView }
+        .popover(isPresented: $viewModel.isShowingFilterPopover) { filterView }
         .navigationTitle("成绩查询")
         .navigationBarTitleDisplayMode(.inline)
     }

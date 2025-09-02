@@ -9,11 +9,8 @@ import CSUSTKit
 import SwiftUI
 
 struct CourseScheduleView: View {
-    @StateObject var viewModel: CourseScheduleViewModel
-
-    init(eduHelper: EduHelper) {
-        _viewModel = StateObject(wrappedValue: CourseScheduleViewModel(eduHelper: eduHelper))
-    }
+    @EnvironmentObject var authManager: AuthManager
+    @StateObject var viewModel = CourseScheduleViewModel()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -57,15 +54,11 @@ struct CourseScheduleView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button {
-                        viewModel.loadCourses()
-                    } label: {
+                    Button(action: { viewModel.loadCourses(authManager.eduHelper) }) {
                         Label("刷新课表", systemImage: "magnifyingglass")
                     }
 
-                    Button {
-                        viewModel.loadAvailableSemesters()
-                    } label: {
+                    Button(action: { viewModel.loadAvailableSemesters(authManager.eduHelper) }) {
                         Label("刷新可选学期列表", systemImage: "arrow.clockwise")
                     }
                 } label: {
@@ -74,8 +67,8 @@ struct CourseScheduleView: View {
             }
         }
         .task {
-            viewModel.loadAvailableSemesters()
-            viewModel.loadCourses()
+            viewModel.loadAvailableSemesters(authManager.eduHelper)
+            viewModel.loadCourses(authManager.eduHelper)
         }
         .alert("错误", isPresented: $viewModel.isShowingError) {
             Button("确定", role: .cancel) {}
@@ -114,7 +107,7 @@ struct CourseScheduleView: View {
                             Text(semester).tag(semester as String?)
                         }
                     }
-                    .onChange(of: viewModel.selectedSemester, viewModel.handleSemesterChange)
+                    .onChange(of: viewModel.selectedSemester) { viewModel.handleSemesterChange(authManager.eduHelper, oldSemester: $0, newSemester: $1) }
                 }
 
                 Button(action: viewModel.goToCurrentWeek) {

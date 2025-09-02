@@ -11,43 +11,38 @@ import SwiftUI
 
 @MainActor
 class GradeDetailViewModel: NSObject, ObservableObject {
-    private var eduHelper: EduHelper
-
     @Published var courseGrade: EduHelper.CourseGrade
-
-    @Published var isLoadingDetail = false
-
-    @Published var isShowingError = false
-    @Published var isShowingSuccess = false
+    @Published var gradeDetail: EduHelper.GradeDetail?
     @Published var errorMessage: String = ""
 
-    @Published var gradeDetail: EduHelper.GradeDetail?
-    
+    @Published var isLoading = false
+    @Published var isShowingError = false
+    @Published var isShowingSuccess = false
     @Published var isShowingShareSheet = false
+
     var shareContent: UIImage? = nil
 
-    init(eduHelper: EduHelper, courseGrade: EduHelper.CourseGrade) {
-        self.eduHelper = eduHelper
+    init(_ courseGrade: EduHelper.CourseGrade) {
         self.courseGrade = courseGrade
     }
 
-    func loadDetail() {
-        isLoadingDetail = true
+    func loadDetail(_ eduHelper: EduHelper?) {
+        isLoading = true
 
         Task {
             defer {
-                isLoadingDetail = false
+                isLoading = false
             }
 
             do {
-                gradeDetail = try await eduHelper.courseService.getGradeDetail(url: courseGrade.gradeDetailUrl)
+                gradeDetail = try await eduHelper!.courseService.getGradeDetail(url: courseGrade.gradeDetailUrl)
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
             }
         }
     }
-    
+
     func showShareSheet(_ shareableView: some View) {
         let renderer = ImageRenderer(content: shareableView)
         renderer.scale = UIScreen.main.scale

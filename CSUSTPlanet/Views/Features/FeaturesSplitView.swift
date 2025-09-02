@@ -120,25 +120,15 @@ struct FeaturesSplitView: View {
             NavigationStack {
                 switch selectedFeature {
                 case .gradeQuery:
-                    if let eduHelper = authManager.eduHelper {
-                        GradeQueryView(eduHelper: eduHelper)
-                    }
+                    GradeQueryView()
                 case .gradeAnalysis:
-                    if let eduHelper = authManager.eduHelper {
-                        GradeAnalysisView(eduHelper: eduHelper)
-                    }
+                    GradeAnalysisView()
                 case .examSchedule:
-                    if let eduHelper = authManager.eduHelper {
-                        ExamScheduleView(eduHelper: eduHelper)
-                    }
+                    ExamScheduleView()
                 case .courseSchedule:
-                    if let eduHelper = authManager.eduHelper {
-                        CourseScheduleView(eduHelper: eduHelper)
-                    }
+                    CourseScheduleView()
                 case .moocCourses:
-                    if let moocHelper = authManager.moocHelper {
-                        CoursesView(moocHelper: moocHelper)
-                    }
+                    CoursesView()
                 case .electricity:
                     ElectricityQueryView()
                 case .map:

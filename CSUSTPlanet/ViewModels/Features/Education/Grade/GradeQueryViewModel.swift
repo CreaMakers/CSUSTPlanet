@@ -11,31 +11,25 @@ import SwiftUI
 
 @MainActor
 class GradeQueryViewModel: NSObject, ObservableObject {
-    private var eduHelper: EduHelper
-
     @Published var availableSemesters: [String] = []
     @Published var courseGrades: [EduHelper.CourseGrade] = []
-    @Published var stats: Stats? = nil
+    @Published var stats: (gpa: Double, totalCredits: Double, weightedAverageGrade: Double, averageGrade: Double, courseCount: Int)? = nil
+    @Published var errorMessage: String = ""
 
-    @Published var isQuerying: Bool = false
+    @Published var isLoading: Bool = false
     @Published var isSemestersLoading: Bool = false
+    @Published var isShowingError: Bool = false
+    @Published var isShowingFilterPopover: Bool = false
+    @Published var isShowingSuccess: Bool = false
+    @Published var isShowingShareSheet: Bool = false
 
+    @Published var searchText: String = ""
     @Published var selectedSemester: String = ""
     @Published var selectedCourseNature: EduHelper.CourseNature? = nil
     @Published var selectedDisplayMode: EduHelper.DisplayMode = .bestGrade
     @Published var selectedStudyMode: EduHelper.StudyMode = .major
 
-    @Published var isShowingError: Bool = false
-    @Published var errorMessage: String = ""
-
-    @Published var isShowingFilter: Bool = false
-    @Published var searchText: String = ""
-    
-    @Published var isShowingSuccess: Bool = false
-
-    @Published var isShowingShareSheet: Bool = false
     var shareContent: UIImage? = nil
-
     var isLoaded: Bool = false
 
     var filteredCourseGrades: [EduHelper.CourseGrade] {
@@ -44,18 +38,6 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         } else {
             return courseGrades.filter { $0.courseName.localizedCaseInsensitiveContains(searchText) }
         }
-    }
-
-    init(eduHelper: EduHelper) {
-        self.eduHelper = eduHelper
-    }
-
-    struct Stats {
-        let gpa: Double
-        let totalCredits: Double
-        let weightedAverageGrade: Double
-        let averageGrade: Double
-        let courseCount: Int
     }
 
     private func updateStats() {
@@ -70,7 +52,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         let weightedAverageGrade = courseGrades.reduce(0) { $0 + Double($1.grade) * $1.credit } / totalCredits
         let averageGrade = courseGrades.isEmpty ? 0 : Double(totalGrades) / Double(courseGrades.count)
 
-        stats = Stats(
+        stats = (
             gpa: gpa,
             totalCredits: totalCredits,
             weightedAverageGrade: weightedAverageGrade,
@@ -79,14 +61,14 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         )
     }
 
-    func task() {
+    func task(_ eduHelper: EduHelper?) {
         guard !isLoaded else { return }
         isLoaded = true
-        loadAvailableSemesters()
-        getCourseGrades()
+        loadAvailableSemesters(eduHelper)
+        getCourseGrades(eduHelper)
     }
 
-    func loadAvailableSemesters() {
+    func loadAvailableSemesters(_ eduHelper: EduHelper?) {
         isSemestersLoading = true
         Task {
             defer {
@@ -94,7 +76,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
             }
 
             do {
-                availableSemesters = try await eduHelper.courseService.getAvailableSemestersForCourseGrades()
+                availableSemesters = try await eduHelper!.courseService.getAvailableSemestersForCourseGrades()
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -102,15 +84,15 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         }
     }
 
-    func getCourseGrades() {
-        isQuerying = true
+    func getCourseGrades(_ eduHelper: EduHelper?) {
+        isLoading = true
         Task {
             defer {
-                isQuerying = false
+                isLoading = false
             }
 
             do {
-                courseGrades = try await eduHelper.courseService.getCourseGrades(
+                courseGrades = try await eduHelper!.courseService.getCourseGrades(
                     academicYearSemester: selectedSemester,
                     courseNature: selectedCourseNature,
                     courseName: "",

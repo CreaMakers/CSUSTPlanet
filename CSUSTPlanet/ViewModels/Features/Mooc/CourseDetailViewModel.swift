@@ -10,28 +10,25 @@ import Foundation
 
 @MainActor
 class CourseDetailViewModel: ObservableObject {
-    private var moocHelper: MoocHelper
-    private var course: MoocHelper.Course
-
-    @Published var isShowingError = false
+    @Published var homeworks: [MoocHelper.Homework] = []
+    @Published var tests: [MoocHelper.Test] = []
     @Published var errorMessage = ""
 
+    @Published var isShowingError = false
     @Published var isHomeworksLoading = false
     @Published var isTestsLoading = false
 
-    @Published var homeworks: [MoocHelper.Homework] = []
-    @Published var tests: [MoocHelper.Test] = []
-
-    init(moocHelper: MoocHelper, course: MoocHelper.Course) {
-        self.moocHelper = moocHelper
-        self.course = course
-    }
+    private var course: MoocHelper.Course
 
     var courseInfo: MoocHelper.Course {
         return course
     }
 
-    func loadHomeworks() {
+    init(course: MoocHelper.Course) {
+        self.course = course
+    }
+
+    func loadHomeworks(_ moocHelper: MoocHelper?) {
         isHomeworksLoading = true
         Task {
             defer {
@@ -39,7 +36,7 @@ class CourseDetailViewModel: ObservableObject {
             }
 
             do {
-                homeworks = try await moocHelper.getCourseHomeworks(courseId: course.id)
+                homeworks = try await moocHelper!.getCourseHomeworks(courseId: course.id)
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -47,7 +44,7 @@ class CourseDetailViewModel: ObservableObject {
         }
     }
 
-    func loadTests() {
+    func loadTests(_ moocHelper: MoocHelper?) {
         isTestsLoading = true
         Task {
             defer {
@@ -55,7 +52,7 @@ class CourseDetailViewModel: ObservableObject {
             }
 
             do {
-                tests = try await moocHelper.getCourseTests(courseId: course.id)
+                tests = try await moocHelper!.getCourseTests(courseId: course.id)
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
