@@ -235,21 +235,35 @@ struct GradeQueryView: View {
                 .padding(.vertical)
                 .background(colorScheme == .light ? Color(.systemBackground) : Color(.secondarySystemBackground))
 
-            if viewModel.isLoading {
-                ProgressView("正在查询...")
-                    .progressViewStyle(.circular)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(.systemGroupedBackground))
-            } else if viewModel.filteredCourseGrades.isEmpty {
+            if viewModel.filteredCourseGrades.isEmpty {
                 emptyStateSection
                     .background(Color(.systemGroupedBackground))
             } else {
-                List {
-                    ForEach(viewModel.filteredCourseGrades, id: \.courseID) { courseGrade in
-                        gradeCard(courseGrade: courseGrade)
+                ZStack(alignment: .topTrailing) {
+                    List {
+                        ForEach(viewModel.filteredCourseGrades, id: \.courseID) { courseGrade in
+                            gradeCard(courseGrade: courseGrade)
+                        }
+                    }
+                    .listStyle(.insetGrouped)
+                    .redacted(reason: viewModel.isLoading ? .placeholder : [])
+
+                    if let updated = viewModel.localDataLastUpdated {
+                        Text("本地缓存 · \(updated)")
+                            .font(.caption2)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.primary.opacity(0.6), lineWidth: 1)
+                            )
+                            .foregroundColor(.primary)
+                            .padding(.trailing, 18)
+                            .padding(.top, 8)
                     }
                 }
-                .listStyle(.insetGrouped)
             }
         }
         .searchable(text: $viewModel.searchText, prompt: "搜索课程")
@@ -280,7 +294,13 @@ struct GradeQueryView: View {
             }
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { viewModel.loadCourseGrades(authManager.eduHelper) }) {
-                    Label("查询", systemImage: "arrow.clockwise")
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .scaleEffect(0.9, anchor: .center)
+                    } else {
+                        Label("查询", systemImage: "arrow.clockwise")
+                    }
                 }
                 .disabled(viewModel.isLoading)
             }
