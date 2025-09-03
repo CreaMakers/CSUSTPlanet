@@ -92,7 +92,7 @@ struct FeaturesListView: View {
                             }
                         }
                     ) {
-                        featureLink(destination: CoursesView(), title: "课程列表", icon: "book", color: .indigo)
+                        featureLink(destination: CoursesView(), title: "课程列表", icon: "book", color: .indigo, disabled: authManager.moocHelper == nil)
                     }
 
                     featureSection(title: "生活服务") {
@@ -145,7 +145,7 @@ struct FeaturesListView: View {
     // MARK: - Feature Link
 
     @ViewBuilder
-    private func featureLink<Destination: View>(destination: Destination, title: String, icon: String, color: Color) -> some View {
+    private func featureLink<Destination: View>(destination: Destination, title: String, icon: String, color: Color, disabled: Bool = false) -> some View {
         NavigationLink(destination: destination) {
             let cardBackground: Color = cardBackgroundColor
 
@@ -167,6 +167,9 @@ struct FeaturesListView: View {
             .cornerRadius(12)
             .shadow(color: featureShadowColor, radius: 5, x: 0, y: 2)
         }
+        .disabled(disabled)
+        .opacity(disabled ? 0.6 : 1.0)
+        .allowsHitTesting(!disabled)
     }
 
     // MARK: - Status Pill
