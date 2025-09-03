@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/9.
 //
 
+import AlertToast
 import CSUSTKit
 import SwiftUI
 
@@ -15,16 +16,10 @@ struct CourseScheduleView: View {
     var body: some View {
         VStack(spacing: 0) {
             topControlBar
-            if viewModel.isCoursesLoading {
-                VStack {
-                    ProgressView("加载课程中...")
-                }
-                .padding()
-                .frame(maxHeight: .infinity)
-            } else if let courseScheduleData = viewModel.courseScheduleData {
+            if let courseScheduleData = viewModel.data {
                 // 课表的每一周翻页
                 TabView(selection: $viewModel.currentWeek) {
-                    ForEach(1 ... viewModel.weekCount, id: \.self) { week in
+                    ForEach(1...viewModel.weekCount, id: \.self) { week in
                         tableView(for: week, semesterStartDate: courseScheduleData.semesterStartDate, weeklyCourses: courseScheduleData.weeklyCourses)
                             .tag(week)
                     }
@@ -54,10 +49,6 @@ struct CourseScheduleView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button(action: { viewModel.loadCourses(authManager.eduHelper) }) {
-                        Label("刷新课表", systemImage: "magnifyingglass")
-                    }
-
                     Button(action: { viewModel.loadAvailableSemesters(authManager.eduHelper) }) {
                         Label("刷新可选学期列表", systemImage: "arrow.clockwise")
                     }
@@ -65,15 +56,27 @@ struct CourseScheduleView: View {
                     Label("更多操作", systemImage: "ellipsis.circle")
                 }
             }
+            ToolbarItem(placement: .primaryAction) {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.9, anchor: .center)
+                } else {
+                    Button(action: { viewModel.loadCourses(authManager.eduHelper) }) {
+                        Label("刷新课表", systemImage: "arrow.clockwise")
+                    }
+                }
+            }
         }
         .task {
             viewModel.loadAvailableSemesters(authManager.eduHelper)
             viewModel.loadCourses(authManager.eduHelper)
         }
-        .alert("错误", isPresented: $viewModel.isShowingError) {
-            Button("确定", role: .cancel) {}
-        } message: {
-            Text(viewModel.errorMessage)
+        .toast(isPresenting: $viewModel.isShowingWarning) {
+            AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
+        }
+        .toast(isPresenting: $viewModel.isShowingError) {
+            AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
     }
 
@@ -190,7 +193,7 @@ struct CourseScheduleView: View {
         HStack(spacing: viewModel.colSpacing) {
             // 左侧时间列
             VStack(spacing: viewModel.rowSpacing) {
-                ForEach(1 ... 10, id: \.self) { section in
+                ForEach(1...10, id: \.self) { section in
                     VStack {
                         Text("\(section)")
                             .font(.caption)
@@ -209,7 +212,7 @@ struct CourseScheduleView: View {
             // 右侧课程区域背景
             ForEach(EduHelper.DayOfWeek.allCases, id: \.self) { _ in
                 VStack(spacing: viewModel.rowSpacing) {
-                    ForEach(1 ... 5, id: \.self) { _ in
+                    ForEach(1...5, id: \.self) { _ in
                         Rectangle()
                             .fill(Color(.secondarySystemBackground))
                             .frame(height: viewModel.sectionHeight * 2 + viewModel.rowSpacing)

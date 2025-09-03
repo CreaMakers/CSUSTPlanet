@@ -71,6 +71,9 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
                     updateWeighedAverageGrade(courseGrades)
                     WidgetCenter.shared.reloadTimelines(ofKind: "GradeAnalysisWidget")
                 } catch {
+                    errorMessage = error.localizedDescription
+                    isShowingError = true
+
                     loadDataFromLocal()
                 }
             } else {

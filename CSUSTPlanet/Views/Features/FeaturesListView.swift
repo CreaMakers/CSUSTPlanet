@@ -67,7 +67,7 @@ struct FeaturesListView: View {
                         featureLink(destination: GradeQueryView(), title: "成绩查询", icon: "doc.text.magnifyingglass", color: .blue)
                         featureLink(destination: GradeAnalysisView(), title: "成绩分析", icon: "chart.bar", color: .green)
                         featureLink(destination: ExamScheduleView(), title: "考试安排", icon: "pencil.and.outline", color: .orange)
-                        featureLink(destination: CourseScheduleView(), title: "课表", icon: "calendar", color: .purple)
+                        featureLink(destination: CourseScheduleView(), title: "我的课表", icon: "calendar", color: .purple)
                     }
 
                     featureSection(

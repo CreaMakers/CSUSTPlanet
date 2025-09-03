@@ -13,11 +13,14 @@ import WidgetKit
 
 @MainActor
 class CourseScheduleViewModel: ObservableObject {
-    @Published var courseScheduleData: CourseScheduleData? = nil
+    @Published var data: CourseScheduleData? = nil
     @Published var errorMessage: String = ""
+    @Published var warningMessage: String = ""
     @Published var availableSemesters: [String] = []
+    @Published var localDataLastUpdated: String? = nil
 
-    @Published var isCoursesLoading: Bool = false
+    @Published var isLoading: Bool = false
+    @Published var isShowingWarning: Bool = false
     @Published var isShowingError: Bool = false
     @Published var isSemestersLoading: Bool = false
 
@@ -29,25 +32,25 @@ class CourseScheduleViewModel: ObservableObject {
 
     // 当日日期
     #if DEBUG
-    let today: Date = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        // 调试时使用固定日期
-        return dateFormatter.date(from: "2025-09-15")!
-    }()
+        let today: Date = {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            // 调试时使用固定日期
+            return dateFormatter.date(from: "2025-09-15")!
+        }()
     #else
-    let today: Date = .now
+        let today: Date = .now
     #endif
 
     // 当前日期在第几周
     @Published var realCurrentWeek: Int? = nil
 
-    let colSpacing: CGFloat = 4 // 列间距
-    let rowSpacing: CGFloat = 4 // 行间距
-    let timeColWidth: CGFloat = 35 // 左侧时间列宽度
-    let headerHeight: CGFloat = 50 // 顶部日期行的高度
-    let sectionHeight: CGFloat = 70 // 单个课程格子的高度
-    let weekCount: Int = 20 // 学期总周数
+    let colSpacing: CGFloat = 4  // 列间距
+    let rowSpacing: CGFloat = 4  // 行间距
+    let timeColWidth: CGFloat = 35  // 左侧时间列宽度
+    let headerHeight: CGFloat = 50  // 顶部日期行的高度
+    let sectionHeight: CGFloat = 70  // 单个课程格子的高度
+    let weekCount: Int = 20  // 学期总周数
 
     let sectionTime: [(String, String)] = [
         ("08:00", "08:45"),
@@ -80,7 +83,7 @@ class CourseScheduleViewModel: ObservableObject {
             }
 
             do {
-                (availableSemesters, selectedSemester) = try await eduHelper!.courseService.getAvailableSemestersForCourseSchedule()
+                (availableSemesters, selectedSemester) = try await eduHelper?.courseService.getAvailableSemestersForCourseSchedule() ?? ([], nil)
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -88,53 +91,76 @@ class CourseScheduleViewModel: ObservableObject {
         }
     }
 
+    private func saveDataToLocal(_ data: CourseScheduleData) {
+        let context = SharedModel.context
+        let courseSchedules = try? context.fetch(FetchDescriptor<CourseSchedule>())
+        courseSchedules?.forEach { context.delete($0) }
+        let courseSchedule = CourseSchedule(data: data)
+        context.insert(courseSchedule)
+        try? context.save()
+    }
+
+    private func loadDataFromLocal() {
+        let context = SharedModel.context
+        let courseSchedules = try? context.fetch(FetchDescriptor<CourseSchedule>())
+        guard let data = courseSchedules?.first?.data else { return }
+        self.data = data
+        localDataLastUpdated = DateHelper.relativeTimeString(for: data.lastUpdated)
+        updateSchedules(data.semesterStartDate, data.courses)
+    }
+
+    private func updateSchedules(_ semesterStartDate: Date, _ courses: [EduHelper.Course]) {
+        let calculatedWeek = calculateCurrentWeek(from: semesterStartDate, for: today)
+        self.realCurrentWeek = calculatedWeek
+
+        courseColors = [:]
+        var colorIndex = 0
+
+        for course in courses.sorted(by: { $0.courseName < $1.courseName }) {
+            if courseColors[course.courseName] == nil {
+                courseColors[course.courseName] = ColorHelper.courseColors[colorIndex % ColorHelper.courseColors.count]
+                colorIndex += 1
+            }
+        }
+
+        // publish the course schedule data
+        if let week = calculatedWeek {
+            withAnimation {
+                self.currentWeek = week
+            }
+        }
+    }
+
     func loadCourses(_ eduHelper: EduHelper?) {
-        isCoursesLoading = true
-        courseScheduleData = nil
+        isLoading = true
         Task {
             defer {
-                isCoursesLoading = false
+                isLoading = false
             }
 
-            do {
-                let courses = try await eduHelper!.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
-                let semesterStartDate = try await eduHelper!.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
-                let calculatedWeek = calculateCurrentWeek(from: semesterStartDate, for: today)
-                self.realCurrentWeek = calculatedWeek
+            if let eduHelper = eduHelper {
+                do {
+                    let courses = try await eduHelper.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
+                    let semesterStartDate = try await eduHelper.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
+                    data = CourseScheduleData.fromCourses(courses: courses, semester: selectedSemester, semesterStartDate: semesterStartDate)
+                    saveDataToLocal(data!)
+                    localDataLastUpdated = nil
+                    updateSchedules(semesterStartDate, courses)
+                    WidgetCenter.shared.reloadTimelines(ofKind: "TodayCoursesWidget")
+                } catch {
+                    errorMessage = error.localizedDescription
+                    isShowingError = true
 
-                courseColors = [:]
-                var colorIndex = 0
-
-                for course in courses.sorted(by: { $0.courseName < $1.courseName }) {
-                    if courseColors[course.courseName] == nil {
-                        courseColors[course.courseName] = ColorHelper.courseColors[colorIndex % ColorHelper.courseColors.count]
-                        colorIndex += 1
+                    loadDataFromLocal()
+                }
+            } else {
+                loadDataFromLocal()
+                if data != nil {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.warningMessage = "教务系统未登录，使用本地缓存数据"
+                        self.isShowingWarning = true
                     }
                 }
-
-                // publish the course schedule data
-                let courseScheduleData = CourseScheduleData.fromCourses(courses: courses, semester: selectedSemester, semesterStartDate: semesterStartDate)
-                self.courseScheduleData = courseScheduleData
-                if let week = calculatedWeek {
-                    withAnimation {
-                        self.currentWeek = week
-                    }
-                }
-
-                let context = SharedModel.context
-                let courseSchedules = try context.fetch(FetchDescriptor<CourseSchedule>())
-                for courseSchedule in courseSchedules {
-                    context.delete(courseSchedule)
-                }
-                let courseSchedule = CourseSchedule(data: courseScheduleData)
-                context.insert(courseSchedule)
-
-                try context.save()
-
-                WidgetCenter.shared.reloadTimelines(ofKind: "TodayCoursesWidget")
-            } catch {
-                errorMessage = error.localizedDescription
-                isShowingError = true
             }
         }
     }
@@ -183,7 +209,7 @@ class CourseScheduleViewModel: ObservableObject {
         guard let firstDayOfWeek = calendar.date(byAdding: .day, value: daysToAdd, to: semesterStartDate) else { return [] }
 
         // 从周日开始，生成7天的日期
-        for i in 0 ..< 7 {
+        for i in 0..<7 {
             if let date = calendar.date(byAdding: .day, value: i, to: firstDayOfWeek) {
                 dates.append(date)
             }
