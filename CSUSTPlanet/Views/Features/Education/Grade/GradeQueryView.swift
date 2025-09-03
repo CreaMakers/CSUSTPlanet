@@ -238,7 +238,7 @@ struct GradeQueryView: View {
                 .padding(.vertical)
                 .background(colorScheme == .light ? Color(.systemBackground) : Color(.secondarySystemBackground))
 
-            if viewModel.filteredCourseGrades.isEmpty {
+            if viewModel.data == nil {
                 emptyStateSection
                     .background(Color(.systemGroupedBackground))
             } else {
@@ -274,6 +274,9 @@ struct GradeQueryView: View {
         }
         .toast(isPresenting: $viewModel.isShowingSuccess) {
             AlertToast(type: .complete(.green), title: "图片保存成功")
+        }
+        .toast(isPresenting: $viewModel.isShowingWarning) {
+            AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
         .task { viewModel.task(authManager.eduHelper) }
         .toolbar {

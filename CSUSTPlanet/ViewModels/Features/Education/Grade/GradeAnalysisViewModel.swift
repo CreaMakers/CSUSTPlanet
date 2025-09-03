@@ -14,16 +14,46 @@ import WidgetKit
 @MainActor
 class GradeAnalysisViewModel: NSObject, ObservableObject {
     @Published var errorMessage: String = ""
+    @Published var warningMessage: String = ""
+    @Published var data: GradeAnalysisData?
+    @Published var weightedAverageGrade: Double?
+    @Published var localDataLastUpdated: String? = nil
 
     @Published var isLoading: Bool = false
+    @Published var isShowingWarning: Bool = false
     @Published var isShowingError: Bool = false
     @Published var isShowingSuccess: Bool = false
     @Published var isShowingShareSheet: Bool = false
 
-    @Published var gradeAnalysisData: GradeAnalysisData?
-    @Published var weightedAverageGrade: Double?
-
     var shareContent: UIImage?
+
+    private func updateWeighedAverageGrade(_ courseGrades: [EduHelper.CourseGrade]) {
+        let totalCredits = courseGrades.reduce(0) { $0 + $1.credit }
+        if totalCredits > 0 {
+            weightedAverageGrade = courseGrades.reduce(0) { $0 + (Double($1.grade) * $1.credit) } / totalCredits
+        }
+    }
+
+    private func getDataFromRemote(_ eduHelper: EduHelper) async throws -> [EduHelper.CourseGrade] {
+        return try await eduHelper.courseService.getCourseGrades()
+    }
+
+    private func saveDataToLocal(_ data: GradeAnalysisData) {
+        let context = SharedModel.context
+        let gradeAnalyses = try? context.fetch(FetchDescriptor<GradeAnalysis>())
+        gradeAnalyses?.forEach { context.delete($0) }
+        let gradeAnalysis = GradeAnalysis(data: data)
+        context.insert(gradeAnalysis)
+        try? context.save()
+    }
+
+    private func loadDataFromLocal() {
+        let context = SharedModel.context
+        let analyses = try? context.fetch(FetchDescriptor<GradeAnalysis>())
+        guard let data = analyses?.first?.data else { return }
+        self.data = data
+        localDataLastUpdated = DateHelper.relativeTimeString(for: data.lastUpdated)
+    }
 
     func getCourseGrades(_ eduHelper: EduHelper?) {
         isLoading = true
@@ -32,34 +62,25 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
                 isLoading = false
             }
 
-            do {
-                let courseGrades = try await eduHelper!.courseService.getCourseGrades()
-                let gradeAnalysisData = GradeAnalysisData.fromCourseGrades(courseGrades)
-
-                let totalCredits = courseGrades.reduce(0) { $0 + $1.credit }
-                if totalCredits > 0 {
-                    weightedAverageGrade = courseGrades.reduce(0) { $0 + (Double($1.grade) * $1.credit) } / totalCredits
-                } else {
-                    weightedAverageGrade = 0
-                }
-                self.gradeAnalysisData = gradeAnalysisData
-
-                if !courseGrades.isEmpty {
-                    let context = SharedModel.context
-
-                    let analyses = try context.fetch(FetchDescriptor<GradeAnalysis>())
-                    for analysis in analyses {
-                        context.delete(analysis)
-                    }
-                    let gradeAnalysis = GradeAnalysis(data: gradeAnalysisData)
-                    context.insert(gradeAnalysis)
-                    try context.save()
-
+            if let eduHelper = eduHelper {
+                do {
+                    let courseGrades = try await eduHelper.courseService.getCourseGrades()
+                    data = GradeAnalysisData.fromCourseGrades(courseGrades)
+                    saveDataToLocal(data!)
+                    localDataLastUpdated = nil
+                    updateWeighedAverageGrade(courseGrades)
                     WidgetCenter.shared.reloadTimelines(ofKind: "GradeAnalysisWidget")
+                } catch {
+                    loadDataFromLocal()
                 }
-            } catch {
-                errorMessage = error.localizedDescription
-                isShowingError = true
+            } else {
+                loadDataFromLocal()
+                if data != nil {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.warningMessage = "教务系统未登录，使用本地缓存数据"
+                        self.isShowingWarning = true
+                    }
+                }
             }
         }
     }

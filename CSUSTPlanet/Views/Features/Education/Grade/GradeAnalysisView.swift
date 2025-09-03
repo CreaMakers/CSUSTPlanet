@@ -14,9 +14,9 @@ struct GradeAnalysisView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel = GradeAnalysisViewModel()
-    
+
     // MARK: - Statistic Item
-    
+
     func statisticItem(title: String, value: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
@@ -27,10 +27,10 @@ struct GradeAnalysisView: View {
                 .foregroundStyle(color)
         }
     }
-    
+
     // MARK: - Summary Card
-    
-    private func summaryCard(_ gradeAnalysisData: GradeAnalysisData, _ weightedAverageGrade: Double) -> some View {
+
+    private func summaryCard(_ gradeAnalysisData: GradeAnalysisData, _ weightedAverageGrade: Double?) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("学习总览")
                 .font(.headline)
@@ -50,12 +50,14 @@ struct GradeAnalysisView: View {
                     color: ColorHelper.dynamicColor(grade: gradeAnalysisData.overallAverageGrade)
                 )
                 Spacer()
-                statisticItem(
-                    title: "加权平均成绩",
-                    value: String(format: "%.2f", weightedAverageGrade),
-                    color: ColorHelper.dynamicColor(grade: weightedAverageGrade)
-                )
-                Spacer()
+                if let weightedAverageGrade = weightedAverageGrade {
+                    statisticItem(
+                        title: "加权平均成绩",
+                        value: String(format: "%.2f", weightedAverageGrade),
+                        color: ColorHelper.dynamicColor(grade: weightedAverageGrade)
+                    )
+                    Spacer()
+                }
                 statisticItem(
                     title: "平均绩点",
                     value: String(format: "%.2f", gradeAnalysisData.overallGPA),
@@ -68,16 +70,16 @@ struct GradeAnalysisView: View {
         .cornerRadius(10)
         .padding(.horizontal)
     }
-    
+
     // MARK: - Semester Analysis Section
-    
+
     private func semesterAnalysisSection(_ gradeAnalysisData: GradeAnalysisData) -> some View {
         VStack(spacing: 30) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("学期平均成绩")
                     .font(.headline)
                     .padding(.horizontal)
-                    
+
                 Chart(gradeAnalysisData.semesterAverageGrades, id: \.semester) { item in
                     LineMark(
                         x: .value("学期", item.semester),
@@ -104,12 +106,12 @@ struct GradeAnalysisView: View {
                 .frame(height: 250)
                 .padding()
             }
-                
+
             VStack(alignment: .leading, spacing: 8) {
                 Text("学期GPA")
                     .font(.headline)
                     .padding(.horizontal)
-                    
+
                 Chart(gradeAnalysisData.semesterGPAs, id: \.semester) { item in
                     LineMark(
                         x: .value("学期", item.semester),
@@ -136,7 +138,7 @@ struct GradeAnalysisView: View {
                 .frame(height: 250)
                 .padding()
             }
-            
+
             VStack(alignment: .leading, spacing: 8) {
                 Text("绩点分布")
                     .font(.headline)
@@ -166,40 +168,74 @@ struct GradeAnalysisView: View {
     }
 
     // MARK: - Analysis Content
-    
-    private var analysisContent: some View {
+
+    private func analysisContent(_ gradeAnalysisData: GradeAnalysisData, _ weightedAverageGrade: Double?) -> some View {
         VStack(spacing: 20) {
-            if viewModel.isLoading {
-                ProgressView("正在加载成绩数据...")
-                    .padding()
-            } else {
-                if let gradeAnalysisData = viewModel.gradeAnalysisData, let weightedAverageGrade = viewModel.weightedAverageGrade {
-                    summaryCard(gradeAnalysisData, weightedAverageGrade)
-                    semesterAnalysisSection(gradeAnalysisData)
-                } else {
-                    Text("暂无成绩数据")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                }
-            }
+            summaryCard(gradeAnalysisData, weightedAverageGrade)
+            semesterAnalysisSection(gradeAnalysisData)
         }
     }
-    
+
+    // MARK: - Empty State Section
+
+    private var emptyStateSection: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "doc.text.magnifyingglass")
+                .font(.system(size: 40))
+                .foregroundColor(.secondary)
+                .padding(.bottom, 8)
+
+            Text("暂无成绩数据")
+                .font(.headline)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.vertical, 20)
+    }
+
     // MARK: - Shareable View
 
+    @ViewBuilder
     private var shareableView: some View {
-        analysisContent
-            .padding(.vertical)
-            .frame(width: UIScreen.main.bounds.width)
-            .background(Color(.systemGroupedBackground))
-            .environment(\.colorScheme, colorScheme)
+        if let gradeAnalysisData = viewModel.data, let weightedAverageGrade = viewModel.weightedAverageGrade {
+            analysisContent(gradeAnalysisData, weightedAverageGrade)
+                .padding(.vertical)
+                .frame(width: UIScreen.main.bounds.width)
+                .background(Color(.systemGroupedBackground))
+                .environment(\.colorScheme, colorScheme)
+        } else {
+            emptyStateSection
+        }
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
-        ScrollView {
-            analysisContent
+        Group {
+            if let data = viewModel.data {
+                ZStack(alignment: .topTrailing) {
+                    ScrollView {
+                        analysisContent(data, viewModel.weightedAverageGrade)
+                    }
+
+                    if let updated = viewModel.localDataLastUpdated {
+                        Text("本地缓存 · \(updated)")
+                            .font(.caption2)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.primary.opacity(0.6), lineWidth: 1)
+                            )
+                            .foregroundColor(.primary)
+                            .padding(.trailing, 18)
+                            .padding(.top, 8)
+                    }
+                }
+            } else {
+                emptyStateSection
+            }
         }
         .task {
             viewModel.getCourseGrades(authManager.eduHelper)
@@ -209,6 +245,9 @@ struct GradeAnalysisView: View {
         }
         .toast(isPresenting: $viewModel.isShowingSuccess) {
             AlertToast(type: .complete(.green), title: "图片保存成功")
+        }
+        .toast(isPresenting: $viewModel.isShowingWarning) {
+            AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
         .sheet(isPresented: $viewModel.isShowingShareSheet) { ShareSheet(items: [viewModel.shareContent!]) }
         .navigationTitle("成绩分析")
@@ -224,13 +263,19 @@ struct GradeAnalysisView: View {
                 } label: {
                     Label("更多操作", systemImage: "ellipsis.circle")
                 }
-                .disabled(viewModel.isLoading || viewModel.gradeAnalysisData == nil)
+                .disabled(viewModel.isLoading || viewModel.data == nil)
             }
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { viewModel.getCourseGrades(authManager.eduHelper) }) {
-                    Label("刷新成绩分析", systemImage: "arrow.clockwise")
+                if viewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.9, anchor: .center)
+                } else {
+                    Button(action: { viewModel.getCourseGrades(authManager.eduHelper) }) {
+                        Label("刷新成绩分析", systemImage: "arrow.clockwise")
+                    }
+                    .disabled(viewModel.isLoading)
                 }
-                .disabled(viewModel.isLoading)
             }
         }
     }
