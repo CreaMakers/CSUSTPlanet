@@ -33,26 +33,29 @@ struct GradeQueryView: View {
 
     // MARK: - Stats Section
 
+    @ViewBuilder
     private var statsSection: some View {
         VStack(alignment: .center) {
-            HStack(spacing: 10) {
-                if let stats = viewModel.stats {
+            if let stats = viewModel.stats {
+                HStack(spacing: 10) {
                     statItem(title: "GPA", value: String(format: "%.2f", stats.gpa), color: ColorHelper.dynamicColor(point: stats.gpa))
                     statItem(title: "平均成绩", value: String(format: "%.2f", stats.averageGrade), color: ColorHelper.dynamicColor(grade: stats.averageGrade))
                     statItem(title: "加权平均成绩", value: String(format: "%.2f", stats.weightedAverageGrade), color: ColorHelper.dynamicColor(grade: stats.weightedAverageGrade))
                     statItem(title: "已修总学分", value: String(format: "%.1f", stats.totalCredits), color: .blue)
                     statItem(title: "课程总数", value: "\(stats.courseCount)", color: .purple)
-                } else {
-                    // Placeholder items for initial redacted state
+                }
+                .frame(maxWidth: .infinity)
+            } else {
+                HStack(spacing: 10) {
                     statItem(title: "GPA", value: "0.0", color: .primary)
                     statItem(title: "平均成绩", value: "0.0", color: .primary)
                     statItem(title: "加权平均成绩", value: "0.0", color: .primary)
                     statItem(title: "已修总学分", value: "0.0", color: .primary)
                     statItem(title: "课程总数", value: "0", color: .primary)
                 }
+                .frame(maxWidth: .infinity)
+                .redacted(reason: viewModel.isLoading ? .placeholder : [])
             }
-            .frame(maxWidth: .infinity)
-            .redacted(reason: viewModel.isLoading ? .placeholder : [])
         }
     }
 
@@ -246,7 +249,6 @@ struct GradeQueryView: View {
                         }
                     }
                     .listStyle(.insetGrouped)
-                    .redacted(reason: viewModel.isLoading ? .placeholder : [])
 
                     if let updated = viewModel.localDataLastUpdated {
                         Text("本地缓存 · \(updated)")

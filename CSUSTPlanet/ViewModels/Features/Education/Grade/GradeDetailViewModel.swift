@@ -26,6 +26,12 @@ class GradeDetailViewModel: NSObject, ObservableObject {
         self.courseGrade = courseGrade
     }
 
+    func task(_ eduHelper: EduHelper?) {
+        if eduHelper != nil {
+            loadDetail(eduHelper)
+        }
+    }
+
     func loadDetail(_ eduHelper: EduHelper?) {
         isLoading = true
 
@@ -33,11 +39,15 @@ class GradeDetailViewModel: NSObject, ObservableObject {
             defer {
                 isLoading = false
             }
-
-            do {
-                gradeDetail = try await eduHelper!.courseService.getGradeDetail(url: courseGrade.gradeDetailUrl)
-            } catch {
-                errorMessage = error.localizedDescription
+            if let eduHelper = eduHelper {
+                do {
+                    gradeDetail = try await eduHelper.courseService.getGradeDetail(url: courseGrade.gradeDetailUrl)
+                } catch {
+                    errorMessage = error.localizedDescription
+                    isShowingError = true
+                }
+            } else {
+                errorMessage = "请先等待教务系统登录完成后再重试"
                 isShowingError = true
             }
         }

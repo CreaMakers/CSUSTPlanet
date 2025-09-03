@@ -86,65 +86,32 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         }
     }
 
-    private func getCourseGrades(_ eduHelper: EduHelper?) async throws -> [EduHelper.CourseGrade] {
-        let context = SharedModel.context
-        let gradeQueries = try context.fetch(FetchDescriptor<GradeQuery>())
-        if let eduHelper = eduHelper {
-            let courseGrades = try await eduHelper.courseService.getCourseGrades(
-                academicYearSemester: selectedSemester,
-                courseNature: selectedCourseNature,
-                courseName: "",
-                displayMode: selectedDisplayMode,
-                studyMode: selectedStudyMode
-            )
-            gradeQueries.forEach { context.delete($0) }
-            let gradeQuery = GradeQuery(data: GradeQueryData.fromCourseGrades(courseGrades: courseGrades))
-            context.insert(gradeQuery)
-            try context.save()
-            localDataLastUpdated = nil
-            return courseGrades
-        } else {
-            guard let gradeQuery = gradeQueries.first else {
-                localDataLastUpdated = nil
-                return []
-            }
-            localDataLastUpdated = formattedDate(gradeQuery.data.lastUpdated)
-            return gradeQuery.data.courseGrades
-        }
+    private func getCourseGradesFromRemote(_ eduHelper: EduHelper) async throws -> [EduHelper.CourseGrade] {
+        return try await eduHelper.courseService.getCourseGrades(
+            academicYearSemester: selectedSemester,
+            courseNature: selectedCourseNature,
+            courseName: "",
+            displayMode: selectedDisplayMode,
+            studyMode: selectedStudyMode
+        )
     }
 
-    private func formattedDate(_ date: Date) -> String {
-        let now = Date()
-        let seconds = Int(now.timeIntervalSince(date))
+    private func saveCourseGradesToLocal(_ courseGrades: [EduHelper.CourseGrade]) {
+        let context = SharedModel.context
+        let gradeQueries = try? context.fetch(FetchDescriptor<GradeQuery>())
+        gradeQueries?.forEach { context.delete($0) }
+        let gradeQuery = GradeQuery(data: GradeQueryData.fromCourseGrades(courseGrades: courseGrades))
+        context.insert(gradeQuery)
+        try? context.save()
+    }
 
-        if seconds < 0 {
-            let f = DateFormatter()
-            f.locale = Locale(identifier: "zh_CN")
-            f.dateStyle = .short
-            f.timeStyle = .short
-            return f.string(from: date)
-        }
-
-        if seconds < 60 {
-            return "刚刚"
-        } else if seconds < 3600 {
-            return "\(seconds / 60)分钟前"
-        } else if seconds < 86400 {
-            return "\(seconds / 3600)小时前"
-        } else if seconds < 172800 {
-            let tf = DateFormatter()
-            tf.locale = Locale(identifier: "zh_CN")
-            tf.dateFormat = "HH:mm"
-            return "昨天 " + tf.string(from: date)
-        } else if seconds < 7 * 86400 {
-            return "\(seconds / 86400)天前"
-        } else {
-            let f = DateFormatter()
-            f.locale = Locale(identifier: "zh_CN")
-            f.dateStyle = .short
-            f.timeStyle = .short
-            return f.string(from: date)
-        }
+    private func loadCourseGradesFromLocal() {
+        let context = SharedModel.context
+        let gradeQueries = try? context.fetch(FetchDescriptor<GradeQuery>())
+        guard let data = gradeQueries?.first?.data else { return }
+        courseGrades = data.courseGrades
+        localDataLastUpdated = DateHelper.relativeTimeString(for: data.lastUpdated)
+        updateStats()
     }
 
     func loadCourseGrades(_ eduHelper: EduHelper?) {
@@ -154,12 +121,20 @@ class GradeQueryViewModel: NSObject, ObservableObject {
                 isLoading = false
             }
 
-            do {
-                courseGrades = try await getCourseGrades(eduHelper)
-                updateStats()
-            } catch {
-                errorMessage = error.localizedDescription
-                isShowingError = true
+            if let eduHelper = eduHelper {
+                do {
+                    courseGrades = try await getCourseGradesFromRemote(eduHelper)
+                    saveCourseGradesToLocal(courseGrades)
+                    localDataLastUpdated = nil
+                    updateStats()
+                } catch {
+                    errorMessage = error.localizedDescription
+                    isShowingError = true
+
+                    loadCourseGradesFromLocal()
+                }
+            } else {
+                loadCourseGradesFromLocal()
             }
         }
     }

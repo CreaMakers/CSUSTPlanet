@@ -6,8 +6,8 @@
 //
 
 import AlertToast
-import Charts
 import CSUSTKit
+import Charts
 import SwiftUI
 
 struct GradeDetailView: View {
@@ -83,14 +83,6 @@ struct GradeDetailView: View {
                 .frame(height: 250)
                 .chartLegend(position: .bottom, alignment: .center, spacing: 10)
                 .padding(.horizontal)
-            }
-        } else if viewModel.isLoading {
-            infoGroupBox(title: "成绩详细") {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
-                }
             }
         }
     }
@@ -174,9 +166,7 @@ struct GradeDetailView: View {
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
-        .task {
-            viewModel.loadDetail(authManager.eduHelper)
-        }
+        .task { viewModel.task(authManager.eduHelper) }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
@@ -200,8 +190,14 @@ struct GradeDetailView: View {
                 .disabled(viewModel.isLoading)
             }
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { viewModel.loadDetail(authManager.eduHelper) }) {
-                    Label("刷新成绩分布", systemImage: "arrow.clockwise")
+                if viewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.9, anchor: .center)
+                } else {
+                    Button(action: { viewModel.loadDetail(authManager.eduHelper) }) {
+                        Label("刷新成绩分布", systemImage: "arrow.clockwise")
+                    }
                 }
             }
         }
