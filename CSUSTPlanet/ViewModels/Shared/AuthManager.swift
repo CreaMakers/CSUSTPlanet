@@ -117,6 +117,7 @@ class AuthManager: ObservableObject {
 
     func loginToEducation() {
         let isAlreadyLoggingIn = eduLoginTask != nil
+        eduHelper = nil
         eduLoginTask?.cancel()
         eduLoginID = UUID()
 
@@ -148,6 +149,7 @@ class AuthManager: ObservableObject {
 
     func loginToMooc() {
         let isAlreadyLoggingIn = moocLoginTask != nil
+        moocHelper = nil
         moocLoginTask?.cancel()
         moocLoginID = UUID()
 
