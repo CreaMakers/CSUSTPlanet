@@ -60,11 +60,11 @@ struct ContentView: View {
                 icon: Image(systemName: "exclamationmark.triangle"),
                 message: "教务登录错误",
                 button: ToastButton(title: "重试登录", color: .red) {
-                    authManager.isShowingEducationError = false
                     authManager.loginToEducation()
                 }
             )
             presentToast(toastValue)
+            authManager.isShowingEducationError = false
         }
         .onChange(of: authManager.isShowingMoocError) { _, newValue in
             guard newValue else { return }
@@ -72,11 +72,11 @@ struct ContentView: View {
                 icon: Image(systemName: "exclamationmark.triangle"),
                 message: "网络课程中心登录错误",
                 button: ToastButton(title: "重试登录", color: .red) {
-                    authManager.isShowingMoocError = false
                     authManager.loginToMooc()
                 }
             )
             presentToast(toastValue)
+            authManager.isShowingMoocError = false
         }
         .preferredColorScheme(preferredColorScheme)
         .sheet(
