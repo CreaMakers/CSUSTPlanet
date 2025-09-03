@@ -91,6 +91,9 @@ class AuthManager: ObservableObject {
         _ = KeychainHelper.delete(key: "SSOPassword")
 
         ssoHelper.clearCookies()
+
+        eduHelper = nil
+        moocHelper = nil
     }
 
     func getCaptcha() async throws -> Data {
