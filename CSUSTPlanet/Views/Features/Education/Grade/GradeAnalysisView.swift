@@ -187,6 +187,12 @@ struct GradeAnalysisView: View {
 
             Text("暂无成绩数据")
                 .font(.headline)
+
+            
+            Text("当前没有找到成绩数据")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.vertical, 20)
@@ -238,7 +244,7 @@ struct GradeAnalysisView: View {
             }
         }
         .task {
-            viewModel.getCourseGrades(authManager.eduHelper)
+            viewModel.loadGradeAnalysis(authManager.eduHelper)
         }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
@@ -271,7 +277,7 @@ struct GradeAnalysisView: View {
                         .progressViewStyle(.circular)
                         .scaleEffect(0.9, anchor: .center)
                 } else {
-                    Button(action: { viewModel.getCourseGrades(authManager.eduHelper) }) {
+                    Button(action: { viewModel.loadGradeAnalysis(authManager.eduHelper) }) {
                         Label("刷新成绩分析", systemImage: "arrow.clockwise")
                     }
                     .disabled(viewModel.isLoading)

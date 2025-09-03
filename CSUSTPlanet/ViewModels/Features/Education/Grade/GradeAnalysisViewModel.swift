@@ -55,7 +55,7 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
         localDataLastUpdated = DateHelper.relativeTimeString(for: data.lastUpdated)
     }
 
-    func getCourseGrades(_ eduHelper: EduHelper?) {
+    func loadGradeAnalysis(_ eduHelper: EduHelper?) {
         isLoading = true
         Task {
             defer {

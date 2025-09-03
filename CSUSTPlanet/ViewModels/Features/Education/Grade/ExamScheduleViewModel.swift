@@ -7,24 +7,28 @@
 
 import CSUSTKit
 import Foundation
+import SwiftData
 import SwiftUI
 
 @MainActor
 class ExamScheduleViewModel: NSObject, ObservableObject {
     private var calendarHelper = CalendarHelper()
 
+    @Published var availableSemesters: [String] = []
     @Published var errorMessage = ""
-    @Published var examSchedule: [EduHelper.Exam] = []
+    @Published var warningMessage = ""
+    @Published var data: ExamScheduleData? = nil
+    @Published var localDataLastUpdated: String? = nil
 
     @Published var isShowingAddToCalendarAlert = false
     @Published var isShowingError = false
     @Published var isSemestersLoading = false
-    @Published var isQuerying = false
+    @Published var isLoading = false
     @Published var isShowingFilter: Bool = false
     @Published var isShowingSuccess: Bool = false
+    @Published var isShowingWarning: Bool = false
     @Published var isShowingShareSheet: Bool = false
 
-    @Published var availableSemesters: [String] = []
     @Published var selectedSemesters: String? = nil
     @Published var selectedSemesterType: EduHelper.SemesterType? = nil
 
@@ -35,7 +39,7 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
         guard !isLoaded else { return }
         isLoaded = true
         loadAvailableSemesters(eduHelper)
-        getExams(eduHelper)
+        loadExams(eduHelper)
     }
 
     func loadAvailableSemesters(_ eduHelper: EduHelper?) {
@@ -46,7 +50,7 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
             }
 
             do {
-                (availableSemesters, selectedSemesters) = try await eduHelper!.examService.getAvailableSemestersForExamSchedule()
+                (availableSemesters, selectedSemesters) = try await eduHelper?.examService.getAvailableSemestersForExamSchedule() ?? ([], nil)
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -74,16 +78,15 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
     }
 
     func addAllToCalendar() {
-        guard !examSchedule.isEmpty else {
+        guard let exams = data?.exams else {
             errorMessage = "考试安排为空，无法添加到日历"
             isShowingError = true
-
             return
         }
         Task {
             do {
                 let calendar = try await calendarHelper.getOrCreateCalendar(named: "考试")
-                for exam in examSchedule {
+                for exam in exams {
                     try await calendarHelper.addEvent(
                         title: "考试：\(exam.courseName)",
                         startDate: exam.examStartTime,
@@ -100,17 +103,49 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
         }
     }
 
-    func getExams(_ eduHelper: EduHelper?) {
-        isQuerying = true
+    private func saveDataToLocal(_ data: ExamScheduleData) {
+        let context = SharedModel.context
+        let examSchedules = try? context.fetch(FetchDescriptor<ExamSchedule>())
+        examSchedules?.forEach { context.delete($0) }
+        let examSchedule = ExamSchedule(data: data)
+        context.insert(examSchedule)
+        try? context.save()
+    }
+
+    private func loadDataFromLocal() {
+        let context = SharedModel.context
+        let examSchedules = try? context.fetch(FetchDescriptor<ExamSchedule>())
+        guard let data = examSchedules?.first?.data else { return }
+        self.data = data
+    }
+
+    func loadExams(_ eduHelper: EduHelper?) {
+        isLoading = true
         Task {
             defer {
-                isQuerying = false
+                isLoading = false
             }
-            do {
-                examSchedule = try await eduHelper!.examService.getExamSchedule(academicYearSemester: selectedSemesters, semesterType: selectedSemesterType)
-            } catch {
-                errorMessage = error.localizedDescription
-                isShowingError = true
+
+            if let eduHelper = eduHelper {
+                do {
+                    let exams = try await eduHelper.examService.getExamSchedule(academicYearSemester: selectedSemesters, semesterType: selectedSemesterType)
+                    data = ExamScheduleData.fromExams(exams: exams)
+                    saveDataToLocal(data!)
+                    localDataLastUpdated = nil
+                } catch {
+                    errorMessage = error.localizedDescription
+                    isShowingError = true
+
+                    loadDataFromLocal()
+                }
+            } else {
+                loadDataFromLocal()
+                if data != nil {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.warningMessage = "教务系统未登录，使用本地缓存数据"
+                        self.isShowingWarning = true
+                    }
+                }
             }
         }
     }

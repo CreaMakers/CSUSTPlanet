@@ -13,21 +13,21 @@ struct ExamScheduleView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel = ExamScheduleViewModel()
-    
+
     // MARK: - Info Row
-    
+
     struct InfoRow: View {
         let icon: String
         let iconColor: Color
         let label: String
         let value: String
-        
+
         var body: some View {
             HStack(spacing: 8) {
                 Image(systemName: icon)
                     .foregroundColor(iconColor)
                     .frame(width: 20)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(label)
                         .font(.caption)
@@ -36,15 +36,15 @@ struct ExamScheduleView: View {
                         .font(.subheadline)
                         .fontWeight(.medium)
                 }
-                
+
                 Spacer()
             }
             .padding(.vertical, 4)
         }
     }
-    
+
     // MARK: - Filter View
-    
+
     private var filterView: some View {
         NavigationStack {
             Form {
@@ -85,25 +85,25 @@ struct ExamScheduleView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完成") {
                         viewModel.isShowingFilter = false
-                        viewModel.getExams(authManager.eduHelper)
+                        viewModel.loadExams(authManager.eduHelper)
                     }
                 }
             }
         }
     }
-    
+
     // MARK: - Empty State Section
-    
+
     private var emptyStateSection: some View {
         VStack(spacing: 8) {
             Image(systemName: "calendar.badge.exclamationmark")
                 .font(.system(size: 40))
                 .foregroundColor(.secondary)
                 .padding(.bottom, 8)
-            
+
             Text("暂无考试安排")
                 .font(.headline)
-            
+
             Text("当前筛选条件下没有找到考试安排")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
@@ -112,37 +112,37 @@ struct ExamScheduleView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.vertical, 20)
     }
-    
+
     // MARK: - Exam Card
-    
+
     private func examCardContent(exam: EduHelper.Exam) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(exam.courseName)
                 .font(.headline)
                 .lineLimit(1)
                 .padding(.bottom, 8)
-            
+
             InfoRow(icon: "clock", iconColor: .blue, label: "考试时间", value: exam.examTime)
             InfoRow(icon: "building.columns", iconColor: .green, label: "考场", value: exam.examRoom)
-            
+
             if !exam.seatNumber.isEmpty {
                 InfoRow(icon: "number", iconColor: .orange, label: "座位号", value: exam.seatNumber)
             }
-            
+
             if !exam.teacher.isEmpty {
                 InfoRow(icon: "person", iconColor: .purple, label: "授课教师", value: exam.teacher)
             }
-            
+
             if !exam.admissionTicketNumber.isEmpty {
                 InfoRow(icon: "doc.text", iconColor: .red, label: "准考证号", value: exam.admissionTicketNumber)
             }
-            
+
             if !exam.remarks.isEmpty {
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "note.text")
                         .foregroundColor(.gray)
                         .frame(width: 20)
-                    
+
                     VStack(alignment: .leading, spacing: 2) {
                         Text("备注")
                             .font(.caption)
@@ -151,7 +151,7 @@ struct ExamScheduleView: View {
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
-                    
+
                     Spacer()
                 }
                 .padding(.vertical, 8)
@@ -159,7 +159,7 @@ struct ExamScheduleView: View {
         }
         .padding(.vertical, 8)
     }
-    
+
     private func examCard(exam: EduHelper.Exam) -> some View {
         examCardContent(exam: exam)
             .contextMenu {
@@ -170,9 +170,9 @@ struct ExamScheduleView: View {
                 }
             }
     }
-    
+
     // MARK: - Shareable View
-    
+
     private var shareableView: some View {
         VStack(spacing: 0) {
             Text("考试安排")
@@ -180,15 +180,20 @@ struct ExamScheduleView: View {
                 .fontWeight(.bold)
                 .padding(.horizontal)
                 .padding(.vertical)
-            
+
             Divider()
-            
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(viewModel.examSchedule, id: \.courseID) { exam in
-                    examCardContent(exam: exam)
-                        .padding(.horizontal)
-                    Divider()
+
+            if let data = viewModel.data {
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(data.exams, id: \.courseID) { exam in
+                        examCardContent(exam: exam)
+                            .padding(.horizontal)
+                        Divider()
+                    }
                 }
+            } else {
+                emptyStateSection
+                    .background(Color(.systemGroupedBackground))
             }
         }
         .padding(.vertical)
@@ -196,26 +201,39 @@ struct ExamScheduleView: View {
         .background(Color(.systemGroupedBackground))
         .environment(\.colorScheme, colorScheme)
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            if viewModel.isQuerying {
-                ProgressView("正在查询...")
-                    .progressViewStyle(.circular)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(.systemGroupedBackground))
-            } else if viewModel.examSchedule.isEmpty {
-                emptyStateSection
-                    .background(Color(.systemGroupedBackground))
-            } else {
-                List {
-                    ForEach(viewModel.examSchedule, id: \.courseID) { exam in
-                        examCard(exam: exam)
+            if let data = viewModel.data, !data.exams.isEmpty {
+                ZStack(alignment: .topTrailing) {
+                    List {
+                        ForEach(data.exams, id: \.courseID) { exam in
+                            examCard(exam: exam)
+                        }
+                    }
+                    .listStyle(.insetGrouped)
+
+                    if let updated = viewModel.localDataLastUpdated {
+                        Text("本地缓存 · \(updated)")
+                            .font(.caption2)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.primary.opacity(0.6), lineWidth: 1)
+                            )
+                            .foregroundColor(.primary)
+                            .padding(.trailing, 18)
+                            .padding(.top, 8)
                     }
                 }
-                .listStyle(.insetGrouped)
+            } else {
+                emptyStateSection
+                    .background(Color(.systemGroupedBackground))
             }
         }
         .toast(isPresenting: $viewModel.isShowingError) {
@@ -223,6 +241,9 @@ struct ExamScheduleView: View {
         }
         .toast(isPresenting: $viewModel.isShowingSuccess) {
             AlertToast(type: .complete(.green), title: "图片保存成功")
+        }
+        .toast(isPresenting: $viewModel.isShowingWarning) {
+            AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
         .task { viewModel.task(authManager.eduHelper) }
         .toolbar {
@@ -234,24 +255,30 @@ struct ExamScheduleView: View {
                     Button(action: { viewModel.showShareSheet(shareableView) }) {
                         Label("分享", systemImage: "square.and.arrow.up")
                     }
-                    .disabled(viewModel.isQuerying)
+                    .disabled(viewModel.isLoading)
                     Button(action: { viewModel.saveToPhotoAlbum(shareableView) }) {
                         Label("保存结果到相册", systemImage: "photo")
                     }
-                    .disabled(viewModel.isQuerying)
+                    .disabled(viewModel.isLoading)
                     Button(action: { viewModel.isShowingAddToCalendarAlert = true }) {
                         Label("全部添加到日历", systemImage: "calendar.badge.plus")
                     }
-                    .disabled(viewModel.examSchedule.isEmpty)
+                    .disabled(viewModel.data == nil)
                 } label: {
                     Label("更多操作", systemImage: "ellipsis.circle")
                 }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { viewModel.getExams(authManager.eduHelper) }) {
-                    Label("查询", systemImage: "magnifyingglass")
+                if viewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.9, anchor: .center)
+                } else {
+                    Button(action: { viewModel.loadExams(authManager.eduHelper) }) {
+                        Label("查询", systemImage: "magnifyingglass")
+                    }
+                    .disabled(viewModel.isLoading)
                 }
-                .disabled(viewModel.isQuerying)
             }
         }
         .sheet(isPresented: $viewModel.isShowingShareSheet) { ShareSheet(items: [viewModel.shareContent!]) }
