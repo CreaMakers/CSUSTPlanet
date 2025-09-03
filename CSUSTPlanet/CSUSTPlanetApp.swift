@@ -25,6 +25,12 @@ struct CSUSTPlanetApp: App {
             return SharedModel.container
         }
         AppDependencyManager.shared.add(key: "ModelContainer", dependency: asyncDependency)
+        
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithTransparentBackground()
+        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }
 
     var body: some Scene {
