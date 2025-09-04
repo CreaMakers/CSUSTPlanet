@@ -19,6 +19,7 @@ class CourseDetailViewModel: ObservableObject {
     @Published var isTestsLoading = false
 
     private var course: MoocHelper.Course
+    @Published var isSimplified = false
 
     var courseInfo: MoocHelper.Course {
         return course
@@ -26,6 +27,12 @@ class CourseDetailViewModel: ObservableObject {
 
     init(course: MoocHelper.Course) {
         self.course = course
+        self.isSimplified = false
+    }
+
+    init(id: String, name: String) {
+        self.course = MoocHelper.Course(id: id, number: "", name: name, department: "", teacher: "")
+        self.isSimplified = true
     }
 
     func loadHomeworks(_ moocHelper: MoocHelper?) {
@@ -35,10 +42,15 @@ class CourseDetailViewModel: ObservableObject {
                 isHomeworksLoading = false
             }
 
-            do {
-                homeworks = try await moocHelper!.getCourseHomeworks(courseId: course.id)
-            } catch {
-                errorMessage = error.localizedDescription
+            if let moocHelper = moocHelper {
+                do {
+                    homeworks = try await moocHelper.getCourseHomeworks(courseId: course.id)
+                } catch {
+                    errorMessage = error.localizedDescription
+                    isShowingError = true
+                }
+            } else {
+                errorMessage = "请先等待网络课程中心登录完成后再重试"
                 isShowingError = true
             }
         }
@@ -51,10 +63,15 @@ class CourseDetailViewModel: ObservableObject {
                 isTestsLoading = false
             }
 
-            do {
-                tests = try await moocHelper!.getCourseTests(courseId: course.id)
-            } catch {
-                errorMessage = error.localizedDescription
+            if let moocHelper = moocHelper {
+                do {
+                    tests = try await moocHelper.getCourseTests(courseId: course.id)
+                } catch {
+                    errorMessage = error.localizedDescription
+                    isShowingError = true
+                }
+            } else {
+                errorMessage = "请先等待网络课程中心登录完成后再重试"
                 isShowingError = true
             }
         }

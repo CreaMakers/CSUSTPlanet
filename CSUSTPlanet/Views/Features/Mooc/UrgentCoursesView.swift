@@ -69,7 +69,9 @@ struct UrgentCoursesView: View {
             if let data = viewModel.data, !data.courses.isEmpty {
                 List {
                     ForEach(data.courses, id: \.id) { course in
-                        courseCard(course: course)
+                        NavigationLink(destination: CourseDetailView(id: course.id, name: course.name)) {
+                            courseCard(course: course)
+                        }
                     }
                 }
                 .listStyle(.insetGrouped)
@@ -84,7 +86,11 @@ struct UrgentCoursesView: View {
         .toast(isPresenting: $viewModel.isShowingWarning) {
             AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
-        .task { viewModel.loadUrgentCourses(authManager.moocHelper) }
+        .task {
+            guard !viewModel.isLoaded else { return }
+            viewModel.loadUrgentCourses(authManager.moocHelper)
+            viewModel.isLoaded = true
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 if viewModel.isLoading {

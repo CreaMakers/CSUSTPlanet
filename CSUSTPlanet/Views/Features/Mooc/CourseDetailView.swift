@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/8/23.
 //
 
+import AlertToast
 import CSUSTKit
 import SwiftUI
 
@@ -16,16 +17,18 @@ struct CourseDetailView: View {
         _viewModel = StateObject(wrappedValue: CourseDetailViewModel(course: course))
     }
 
+    init(id: String, name: String) {
+        _viewModel = StateObject(wrappedValue: CourseDetailViewModel(id: id, name: name))
+    }
+
     var body: some View {
         Form {
             courseInfoSection
             homeworksSection
             testsSection
         }
-        .alert("错误", isPresented: $viewModel.isShowingError) {
-            Button("确定", role: .cancel) {}
-        } message: {
-            Text(viewModel.errorMessage)
+        .toast(isPresenting: $viewModel.isShowingError) {
+            AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
         .task {
             viewModel.loadHomeworks(authManager.moocHelper)
@@ -56,10 +59,14 @@ struct CourseDetailView: View {
 
     private var courseInfoSection: some View {
         Section(header: Text("课程信息")) {
-            InfoRow(label: "课程名称", value: viewModel.courseInfo.name)
-            InfoRow(label: "课程编号", value: viewModel.courseInfo.number)
-            InfoRow(label: "开课院系", value: viewModel.courseInfo.department)
-            InfoRow(label: "授课教师", value: viewModel.courseInfo.teacher)
+            if viewModel.isSimplified {
+                InfoRow(label: "课程名称", value: viewModel.courseInfo.name)
+            } else {
+                InfoRow(label: "课程名称", value: viewModel.courseInfo.name)
+                InfoRow(label: "课程编号", value: viewModel.courseInfo.number)
+                InfoRow(label: "开课院系", value: viewModel.courseInfo.department)
+                InfoRow(label: "授课教师", value: viewModel.courseInfo.teacher)
+            }
         }
     }
 

@@ -19,6 +19,8 @@ class UrgentCoursesViewModel: ObservableObject {
     @Published var isShowingError = false
     @Published var isShowingWarning = false
 
+    var isLoaded: Bool = false
+
     private func saveDataToLocal(_ data: UrgentCourseData) {
         let context = SharedModel.context
         let urgentCourses = try? context.fetch(FetchDescriptor<UrgentCourse>())
