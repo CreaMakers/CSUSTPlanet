@@ -29,30 +29,38 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $globalVars.selectedTab) {
             Group {
-                if horizontalSizeClass == .regular {
-                    FeaturesSplitView()
-                } else {
-                    FeaturesListView()
-                }
+                HomeView()
             }
             .tabItem {
-                Label("全部功能", systemImage: "square.grid.2x2")
+                Label("首页", systemImage: "house")
             }
             .tag(0)
 
             Group {
-                if horizontalSizeClass == .regular {
-                    ProfileSplitView()
-                } else {
-                    NavigationStack {
-                        ProfileListView()
-                    }
-                }
+                // if horizontalSizeClass == .regular {
+                //     FeaturesSplitView()
+                // } else {
+                //     FeaturesListView()
+                // }
+                FeaturesListView()
+            }
+            .tabItem {
+                Label("全部功能", systemImage: "square.grid.2x2")
+            }
+            .tag(1)
+
+            Group {
+                // if horizontalSizeClass == .regular {
+                //     ProfileSplitView()
+                // } else {
+                //     ProfileListView()
+                // }
+                ProfileListView()
             }
             .tabItem {
                 Label("我的", systemImage: "person")
             }
-            .tag(1)
+            .tag(2)
         }
         .onChange(of: authManager.isShowingEducationError) { _, newValue in
             guard newValue else { return }
@@ -94,7 +102,7 @@ struct ContentView: View {
             guard url.scheme == "csustplanet", url.host == "widgets" else { return }
             switch url.pathComponents.dropFirst().first {
             case "electricity":
-                globalVars.selectedTab = 0
+                globalVars.selectedTab = 1
                 globalVars.isFromElectricityWidget = true
             default:
                 break

@@ -50,7 +50,7 @@ struct FeaturesListView: View {
                                     statusPillView("正在登录统一认证...")
                                 } else if !authManager.isLoggedIn {
                                     actionPillView("登录后使用") {
-                                        globalVars.selectedTab = 1
+                                        globalVars.selectedTab = 2
                                     }
                                 }
 
@@ -78,7 +78,7 @@ struct FeaturesListView: View {
                                     statusPillView("正在登录统一认证...")
                                 } else if !authManager.isLoggedIn {
                                     actionPillView("登录后使用") {
-                                        globalVars.selectedTab = 1
+                                        globalVars.selectedTab = 2
                                     }
                                 }
 
