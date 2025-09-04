@@ -16,6 +16,7 @@ class SharedModel {
         CourseSchedule.self,
         GradeQuery.self,
         ExamSchedule.self,
+        UrgentCourse.self,
     ])
 
     static let container: ModelContainer = {

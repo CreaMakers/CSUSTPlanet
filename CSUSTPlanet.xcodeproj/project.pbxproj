@@ -71,6 +71,7 @@
 				Models/ExamSchedule.swift,
 				Models/GradeAnalysis.swift,
 				Models/GradeQuery.swift,
+				Models/UrgentCourse.swift,
 				Utils/ColorHelper.swift,
 				Utils/KeychainCookieStorage.swift,
 				Utils/KeychainHelper.swift,

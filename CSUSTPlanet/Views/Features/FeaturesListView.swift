@@ -93,6 +93,7 @@ struct FeaturesListView: View {
                         }
                     ) {
                         featureLink(destination: CoursesView(), title: "课程列表", icon: "book", color: .indigo, disabled: authManager.moocHelper == nil)
+                        featureLink(destination: UrgentCoursesView(), title: "待提交作业", icon: "doc.text", color: .red)
                     }
 
                     featureSection(title: "生活服务") {
