@@ -17,7 +17,6 @@ class CourseScheduleViewModel: ObservableObject {
     @Published var errorMessage: String = ""
     @Published var warningMessage: String = ""
     @Published var availableSemesters: [String] = []
-    @Published var localDataLastUpdated: String? = nil
 
     @Published var isLoading: Bool = false
     @Published var isShowingWarning: Bool = false
@@ -105,7 +104,6 @@ class CourseScheduleViewModel: ObservableObject {
         let courseSchedules = try? context.fetch(FetchDescriptor<CourseSchedule>())
         guard let data = courseSchedules?.first?.data else { return }
         self.data = data
-        localDataLastUpdated = DateHelper.relativeTimeString(for: data.lastUpdated)
         updateSchedules(data.semesterStartDate, data.courses)
     }
 
@@ -144,7 +142,6 @@ class CourseScheduleViewModel: ObservableObject {
                     let semesterStartDate = try await eduHelper.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
                     data = CourseScheduleData.fromCourses(courses: courses, semester: selectedSemester, semesterStartDate: semesterStartDate)
                     saveDataToLocal(data!)
-                    localDataLastUpdated = nil
                     updateSchedules(semesterStartDate, courses)
                     WidgetCenter.shared.reloadTimelines(ofKind: "TodayCoursesWidget")
                 } catch {
@@ -155,9 +152,9 @@ class CourseScheduleViewModel: ObservableObject {
                 }
             } else {
                 loadDataFromLocal()
-                if data != nil {
+                if let data = data {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.warningMessage = "教务系统未登录，使用本地缓存数据"
+                        self.warningMessage = "教务系统未登录，使用 \(DateHelper.relativeTimeString(for: data.lastUpdated)) 的本地缓存数据"
                         self.isShowingWarning = true
                     }
                 }

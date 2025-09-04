@@ -242,30 +242,12 @@ struct GradeQueryView: View {
                 emptyStateSection
                     .background(Color(.systemGroupedBackground))
             } else {
-                ZStack(alignment: .topTrailing) {
-                    List {
-                        ForEach(viewModel.filteredCourseGrades, id: \.courseID) { courseGrade in
-                            gradeCard(courseGrade: courseGrade)
-                        }
-                    }
-                    .listStyle(.insetGrouped)
-
-                    if let updated = viewModel.localDataLastUpdated {
-                        Text("本地缓存 · \(updated)")
-                            .font(.caption2)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.primary.opacity(0.6), lineWidth: 1)
-                            )
-                            .foregroundColor(.primary)
-                            .padding(.trailing, 18)
-                            .padding(.top, 8)
+                List {
+                    ForEach(viewModel.filteredCourseGrades, id: \.courseID) { courseGrade in
+                        gradeCard(courseGrade: courseGrade)
                     }
                 }
+                .listStyle(.insetGrouped)
             }
         }
         .searchable(text: $viewModel.searchText, prompt: "搜索课程")

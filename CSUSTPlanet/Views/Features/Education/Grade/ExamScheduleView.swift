@@ -207,30 +207,12 @@ struct ExamScheduleView: View {
     var body: some View {
         VStack(spacing: 0) {
             if let data = viewModel.data, !data.exams.isEmpty {
-                ZStack(alignment: .topTrailing) {
-                    List {
-                        ForEach(data.exams, id: \.courseID) { exam in
-                            examCard(exam: exam)
-                        }
-                    }
-                    .listStyle(.insetGrouped)
-
-                    if let updated = viewModel.localDataLastUpdated {
-                        Text("本地缓存 · \(updated)")
-                            .font(.caption2)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.primary.opacity(0.6), lineWidth: 1)
-                            )
-                            .foregroundColor(.primary)
-                            .padding(.trailing, 18)
-                            .padding(.top, 8)
+                List {
+                    ForEach(data.exams, id: \.courseID) { exam in
+                        examCard(exam: exam)
                     }
                 }
+                .listStyle(.insetGrouped)
             } else {
                 emptyStateSection
                     .background(Color(.systemGroupedBackground))

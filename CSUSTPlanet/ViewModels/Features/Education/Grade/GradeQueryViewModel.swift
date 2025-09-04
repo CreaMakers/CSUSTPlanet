@@ -17,7 +17,6 @@ class GradeQueryViewModel: NSObject, ObservableObject {
     @Published var stats: (gpa: Double, totalCredits: Double, weightedAverageGrade: Double, averageGrade: Double, courseCount: Int)? = nil
     @Published var errorMessage: String = ""
     @Published var warningMessage: String = ""
-    @Published var localDataLastUpdated: String? = nil
 
     @Published var isLoading: Bool = false
     @Published var isSemestersLoading: Bool = false
@@ -114,7 +113,6 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         let gradeQueries = try? context.fetch(FetchDescriptor<GradeQuery>())
         guard let data = gradeQueries?.first?.data else { return }
         self.data = data
-        localDataLastUpdated = DateHelper.relativeTimeString(for: data.lastUpdated)
         updateStats()
     }
 
@@ -130,7 +128,6 @@ class GradeQueryViewModel: NSObject, ObservableObject {
                     let courseGrades = try await getDataFromRemote(eduHelper)
                     data = GradeQueryData.fromCourseGrades(courseGrades: courseGrades)
                     saveDataToLocal(data!)
-                    localDataLastUpdated = nil
                     updateStats()
                 } catch {
                     errorMessage = error.localizedDescription
@@ -140,9 +137,9 @@ class GradeQueryViewModel: NSObject, ObservableObject {
                 }
             } else {
                 loadDataFromLocal()
-                if data != nil {
+                if let data = data {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.warningMessage = "教务系统未登录，使用本地缓存数据"
+                        self.warningMessage = "教务系统未登录，使用 \(DateHelper.relativeTimeString(for: data.lastUpdated)) 的本地缓存数据"
                         self.isShowingWarning = true
                     }
                 }

@@ -6,8 +6,8 @@
 //
 
 import AlertToast
-import Charts
 import CSUSTKit
+import Charts
 import SwiftUI
 
 struct GradeAnalysisView: View {
@@ -188,7 +188,6 @@ struct GradeAnalysisView: View {
             Text("暂无成绩数据")
                 .font(.headline)
 
-            
             Text("当前没有找到成绩数据")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
@@ -218,26 +217,8 @@ struct GradeAnalysisView: View {
     var body: some View {
         Group {
             if let data = viewModel.data {
-                ZStack(alignment: .topTrailing) {
-                    ScrollView {
-                        analysisContent(data, viewModel.weightedAverageGrade)
-                    }
-
-                    if let updated = viewModel.localDataLastUpdated {
-                        Text("本地缓存 · \(updated)")
-                            .font(.caption2)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.primary.opacity(0.6), lineWidth: 1)
-                            )
-                            .foregroundColor(.primary)
-                            .padding(.trailing, 18)
-                            .padding(.top, 8)
-                    }
+                ScrollView {
+                    analysisContent(data, viewModel.weightedAverageGrade)
                 }
             } else {
                 emptyStateSection

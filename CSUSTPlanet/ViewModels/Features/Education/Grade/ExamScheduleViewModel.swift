@@ -18,7 +18,6 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
     @Published var errorMessage = ""
     @Published var warningMessage = ""
     @Published var data: ExamScheduleData? = nil
-    @Published var localDataLastUpdated: String? = nil
 
     @Published var isShowingAddToCalendarAlert = false
     @Published var isShowingError = false
@@ -131,7 +130,6 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
                     let exams = try await eduHelper.examService.getExamSchedule(academicYearSemester: selectedSemesters, semesterType: selectedSemesterType)
                     data = ExamScheduleData.fromExams(exams: exams)
                     saveDataToLocal(data!)
-                    localDataLastUpdated = nil
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
@@ -140,9 +138,9 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
                 }
             } else {
                 loadDataFromLocal()
-                if data != nil {
+                if let data = data {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.warningMessage = "教务系统未登录，使用本地缓存数据"
+                        self.warningMessage = "教务系统未登录，使用 \(DateHelper.relativeTimeString(for: data.lastUpdated)) 的本地缓存数据"
                         self.isShowingWarning = true
                     }
                 }

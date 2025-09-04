@@ -17,7 +17,6 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
     @Published var warningMessage: String = ""
     @Published var data: GradeAnalysisData?
     @Published var weightedAverageGrade: Double?
-    @Published var localDataLastUpdated: String? = nil
 
     @Published var isLoading: Bool = false
     @Published var isShowingWarning: Bool = false
@@ -52,7 +51,6 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
         let analyses = try? context.fetch(FetchDescriptor<GradeAnalysis>())
         guard let data = analyses?.first?.data else { return }
         self.data = data
-        localDataLastUpdated = DateHelper.relativeTimeString(for: data.lastUpdated)
     }
 
     func loadGradeAnalysis(_ eduHelper: EduHelper?) {
@@ -67,7 +65,6 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
                     let courseGrades = try await eduHelper.courseService.getCourseGrades()
                     data = GradeAnalysisData.fromCourseGrades(courseGrades)
                     saveDataToLocal(data!)
-                    localDataLastUpdated = nil
                     updateWeighedAverageGrade(courseGrades)
                     WidgetCenter.shared.reloadTimelines(ofKind: "GradeAnalysisWidget")
                 } catch {
@@ -78,9 +75,9 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
                 }
             } else {
                 loadDataFromLocal()
-                if data != nil {
+                if let data = data {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.warningMessage = "教务系统未登录，使用本地缓存数据"
+                        self.warningMessage = "教务系统未登录，使用 \(DateHelper.relativeTimeString(for: data.lastUpdated)) 的本地缓存数据"
                         self.isShowingWarning = true
                     }
                 }
