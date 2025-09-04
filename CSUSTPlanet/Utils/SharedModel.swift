@@ -43,4 +43,52 @@ class SharedModel {
     static var context: ModelContext {
         ModelContext(container)
     }
+
+    static func clearAllData() throws {
+        let context = Self.context
+
+        let dormFetch = FetchDescriptor<Dorm>()
+        let dorms = try context.fetch(dormFetch)
+        for dorm in dorms {
+            context.delete(dorm)
+        }
+
+        let electricityFetch = FetchDescriptor<ElectricityRecord>()
+        let electricityRecords = try context.fetch(electricityFetch)
+        for record in electricityRecords {
+            context.delete(record)
+        }
+
+        let gradeAnalysisFetch = FetchDescriptor<GradeAnalysis>()
+        let gradeAnalyses = try context.fetch(gradeAnalysisFetch)
+        for analysis in gradeAnalyses {
+            context.delete(analysis)
+        }
+
+        let courseScheduleFetch = FetchDescriptor<CourseSchedule>()
+        let courseSchedules = try context.fetch(courseScheduleFetch)
+        for schedule in courseSchedules {
+            context.delete(schedule)
+        }
+
+        let gradeQueryFetch = FetchDescriptor<GradeQuery>()
+        let gradeQueries = try context.fetch(gradeQueryFetch)
+        for query in gradeQueries {
+            context.delete(query)
+        }
+
+        let examScheduleFetch = FetchDescriptor<ExamSchedule>()
+        let examSchedules = try context.fetch(examScheduleFetch)
+        for schedule in examSchedules {
+            context.delete(schedule)
+        }
+
+        let urgentCourseFetch = FetchDescriptor<UrgentCourse>()
+        let urgentCourses = try context.fetch(urgentCourseFetch)
+        for course in urgentCourses {
+            context.delete(course)
+        }
+
+        try context.save()
+    }
 }
