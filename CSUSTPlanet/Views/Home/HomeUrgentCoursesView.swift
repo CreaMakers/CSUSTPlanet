@@ -17,7 +17,7 @@ struct HomeUrgentCoursesView: View {
             NavigationLink(destination: UrgentCoursesView()) {
                 HStack {
                     HStack(spacing: 8) {
-                        Image(systemName: "doc.badge.plus")
+                        Image(systemName: "doc.text")
                             .symbolRenderingMode(.hierarchical)
                             .foregroundStyle(.red)
 
@@ -71,7 +71,7 @@ struct HomeUrgentCoursesView: View {
                     }
                 } else {
                     emptyStateView(
-                        icon: "doc.badge.plus",
+                        icon: "doc.text",
                         title: "暂无待提交作业",
                         description: "当前没有待提交作业"
                     )
@@ -79,7 +79,7 @@ struct HomeUrgentCoursesView: View {
                 }
             } else {
                 emptyStateView(
-                    icon: "doc.badge.plus",
+                    icon: "doc.text",
                     title: "暂无作业数据",
                     description: "请前往待提交作业页面加载数据"
                 )
