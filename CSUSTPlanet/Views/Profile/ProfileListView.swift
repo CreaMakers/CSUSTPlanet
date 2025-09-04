@@ -132,13 +132,13 @@ struct ProfileListView: View {
                     }
                 }
             }
-        }
-        .sheet(isPresented: $showLoginSheet) {
-            NavigationStack {
-                SSOLoginView(authManager: authManager, isShowingLoginSheet: $showLoginSheet)
+            .sheet(isPresented: $showLoginSheet) {
+                NavigationStack {
+                    SSOLoginView(authManager: authManager, isShowingLoginSheet: $showLoginSheet)
+                }
             }
+            .navigationTitle("我的")
         }
-        .navigationTitle("我的")
     }
 }
 
