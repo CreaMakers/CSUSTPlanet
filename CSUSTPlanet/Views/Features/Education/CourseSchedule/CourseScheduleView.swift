@@ -9,6 +9,8 @@ import AlertToast
 import CSUSTKit
 import SwiftUI
 
+// MARK: - CourseScheduleView
+
 struct CourseScheduleView: View {
     @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel = CourseScheduleViewModel()
@@ -48,12 +50,8 @@ struct CourseScheduleView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Button(action: { viewModel.loadAvailableSemesters(authManager.eduHelper) }) {
-                        Label("刷新可选学期列表", systemImage: "arrow.clockwise")
-                    }
-                } label: {
-                    Label("更多操作", systemImage: "ellipsis.circle")
+                Button(action: { viewModel.isShowingSemestersSheet = true }) {
+                    Image(systemName: "calendar")
                 }
             }
             ToolbarItem(placement: .primaryAction) {
@@ -78,6 +76,10 @@ struct CourseScheduleView: View {
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
+        .sheet(isPresented: $viewModel.isShowingSemestersSheet) {
+            CourseSemesterView()
+                .environmentObject(viewModel)
+        }
     }
 
     // MARK: - 顶部全局控制栏
@@ -89,28 +91,32 @@ struct CourseScheduleView: View {
                     .font(.headline)
                     .foregroundColor(.primary)
 
-                if let realCurrentWeek = viewModel.realCurrentWeek {
-                    Text("第 \(viewModel.currentWeek) 周 \(viewModel.currentWeek == realCurrentWeek ? " (本周)" : " (非本周)")")
+                HStack {
+                    Text(viewModel.selectedSemester ?? "默认学期")
                         .font(.subheadline)
-                } else {
-                    Text("第 \(viewModel.currentWeek) 周 (不在学期内)")
-                        .font(.subheadline)
+                    if let realCurrentWeek = viewModel.realCurrentWeek {
+                        Text(viewModel.currentWeek == realCurrentWeek ? " (本周)" : " (非本周)")
+                            .font(.subheadline)
+                    } else {
+                        Text("(不在学期内)")
+                            .font(.subheadline)
+                    }
                 }
             }
 
             Spacer()
 
             HStack {
-                if viewModel.isSemestersLoading {
-                    ProgressView("加载学期列表...")
-                } else {
-                    Picker("学期", selection: $viewModel.selectedSemester) {
-                        Text("默认学期").tag(nil as String?)
-                        ForEach(viewModel.availableSemesters, id: \.self) { semester in
-                            Text(semester).tag(semester as String?)
-                        }
+                Picker(
+                    "当前周",
+                    selection: Binding(
+                        get: { viewModel.currentWeek },
+                        set: { newValue in withAnimation { viewModel.currentWeek = newValue } }
+                    )
+                ) {
+                    ForEach(1...viewModel.weekCount, id: \.self) { week in
+                        Text("第 \(week) 周").tag(week)
                     }
-                    .onChange(of: viewModel.selectedSemester) { viewModel.handleSemesterChange(authManager.eduHelper, oldSemester: $0, newSemester: $1) }
                 }
 
                 Button(action: viewModel.goToCurrentWeek) {
@@ -210,16 +216,18 @@ struct CourseScheduleView: View {
             }
 
             // 右侧课程区域背景
-            ForEach(EduHelper.DayOfWeek.allCases, id: \.self) { _ in
-                VStack(spacing: viewModel.rowSpacing) {
-                    ForEach(1...5, id: \.self) { _ in
-                        Rectangle()
-                            .fill(Color(.secondarySystemBackground))
-                            .frame(height: viewModel.sectionHeight * 2 + viewModel.rowSpacing)
-                            .cornerRadius(5)
+            #if DEBUG
+                ForEach(EduHelper.DayOfWeek.allCases, id: \.self) { _ in
+                    VStack(spacing: viewModel.rowSpacing) {
+                        ForEach(1...5, id: \.self) { _ in
+                            Rectangle()
+                                .fill(Color(.secondarySystemBackground))
+                                .frame(height: viewModel.sectionHeight * 2 + viewModel.rowSpacing)
+                                .cornerRadius(5)
+                        }
                     }
                 }
-            }
+            #endif
         }
         .padding(.horizontal, 5)
         .padding(.vertical)

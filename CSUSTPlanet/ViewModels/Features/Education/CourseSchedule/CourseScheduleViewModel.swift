@@ -22,6 +22,7 @@ class CourseScheduleViewModel: ObservableObject {
     @Published var isShowingWarning: Bool = false
     @Published var isShowingError: Bool = false
     @Published var isSemestersLoading: Bool = false
+    @Published var isShowingSemestersSheet: Bool = false
 
     // TabView显示的第几周
     @Published var currentWeek: Int = 1
@@ -72,10 +73,6 @@ class CourseScheduleViewModel: ObservableObject {
 
     init() {
         loadDataFromLocal()
-    }
-
-    func handleSemesterChange(_ eduHelper: EduHelper?, oldSemester: String?, newSemester: String?) {
-        loadCourses(eduHelper)
     }
 
     func loadAvailableSemesters(_ eduHelper: EduHelper?) {
