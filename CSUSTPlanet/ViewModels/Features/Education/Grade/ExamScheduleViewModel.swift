@@ -34,6 +34,11 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
     var shareContent: UIImage? = nil
     var isLoaded: Bool = false
 
+    override init() {
+        super.init()
+        loadDataFromLocal()
+    }
+
     func task(_ eduHelper: EduHelper?) {
         guard !isLoaded else { return }
         isLoaded = true
@@ -111,11 +116,18 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
         try? context.save()
     }
 
-    private func loadDataFromLocal() {
+    private func loadDataFromLocal(_ prompt: String? = nil) {
         let context = SharedModel.context
         let examSchedules = try? context.fetch(FetchDescriptor<ExamSchedule>())
         guard let data = examSchedules?.first?.data else { return }
         self.data = data
+
+        if let prompt = prompt {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.lastUpdated))
+                self.isShowingWarning = true
+            }
+        }
     }
 
     func loadExams(_ eduHelper: EduHelper?) {
@@ -133,17 +145,9 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
-
-                    loadDataFromLocal()
                 }
             } else {
-                loadDataFromLocal()
-                if let data = data {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.warningMessage = "教务系统未登录，使用 \(DateHelper.relativeTimeString(for: data.lastUpdated)) 的本地缓存数据"
-                        self.isShowingWarning = true
-                    }
-                }
+                loadDataFromLocal("教务系统未登录，已加载上次查询数据（%@）")
             }
         }
     }

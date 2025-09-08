@@ -26,6 +26,11 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
 
     var shareContent: UIImage?
 
+    override init() {
+        super.init()
+        loadDataFromLocal()
+    }
+
     private func updateWeighedAverageGrade(_ courseGrades: [EduHelper.CourseGrade]) {
         let totalCredits = courseGrades.reduce(0) { $0 + $1.credit }
         if totalCredits > 0 {
@@ -46,11 +51,16 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
         try? context.save()
     }
 
-    private func loadDataFromLocal() {
+    private func loadDataFromLocal(_ prompt: String? = nil) {
         let context = SharedModel.context
         let analyses = try? context.fetch(FetchDescriptor<GradeAnalysis>())
         guard let data = analyses?.first?.data else { return }
         self.data = data
+
+        if let prompt = prompt {
+            warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.lastUpdated))
+            isShowingWarning = true
+        }
     }
 
     func loadGradeAnalysis(_ eduHelper: EduHelper?) {
@@ -70,17 +80,9 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
-
-                    loadDataFromLocal()
                 }
             } else {
-                loadDataFromLocal()
-                if let data = data {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.warningMessage = "教务系统未登录，使用 \(DateHelper.relativeTimeString(for: data.lastUpdated)) 的本地缓存数据"
-                        self.isShowingWarning = true
-                    }
-                }
+                loadDataFromLocal("教务系统未登录，已加载上次查询数据（%@）")
             }
         }
     }

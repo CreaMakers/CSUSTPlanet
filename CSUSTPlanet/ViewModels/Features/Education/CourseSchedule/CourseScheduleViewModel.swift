@@ -70,6 +70,10 @@ class CourseScheduleViewModel: ObservableObject {
         return formatter
     }()
 
+    init() {
+        loadDataFromLocal()
+    }
+
     func handleSemesterChange(_ eduHelper: EduHelper?, oldSemester: String?, newSemester: String?) {
         loadCourses(eduHelper)
     }
@@ -99,12 +103,19 @@ class CourseScheduleViewModel: ObservableObject {
         try? context.save()
     }
 
-    private func loadDataFromLocal() {
+    private func loadDataFromLocal(_ prompt: String? = nil) {
         let context = SharedModel.context
         let courseSchedules = try? context.fetch(FetchDescriptor<CourseSchedule>())
         guard let data = courseSchedules?.first?.data else { return }
         self.data = data
         updateSchedules(data.semesterStartDate, data.courses)
+
+        if let prompt = prompt {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.lastUpdated))
+                self.isShowingWarning = true
+            }
+        }
     }
 
     private func updateSchedules(_ semesterStartDate: Date, _ courses: [EduHelper.Course]) {
@@ -147,17 +158,9 @@ class CourseScheduleViewModel: ObservableObject {
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
-
-                    loadDataFromLocal()
                 }
             } else {
-                loadDataFromLocal()
-                if let data = data {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.warningMessage = "教务系统未登录，使用 \(DateHelper.relativeTimeString(for: data.lastUpdated)) 的本地缓存数据"
-                        self.isShowingWarning = true
-                    }
-                }
+                loadDataFromLocal("教务系统未登录，已加载上次查询数据（%@）")
             }
         }
     }
