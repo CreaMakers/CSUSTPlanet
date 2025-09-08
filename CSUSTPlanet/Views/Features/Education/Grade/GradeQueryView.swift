@@ -107,12 +107,6 @@ struct GradeQueryView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    //                    Button {
-                    //                        viewModel.loadAvailableSemesters()
-                    //                    } label: {
-                    //                        Label("刷新可选学期列表", systemImage: "arrow.clockwise")
-                    //                    }
-                    //                    .disabled(viewModel.isSemestersLoading)
                     Button("取消") {
                         viewModel.isShowingFilterPopover = false
                     }
