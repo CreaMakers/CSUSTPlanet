@@ -20,23 +20,6 @@ struct UrgentCoursesView: View {
             Text(course.name)
                 .font(.headline)
                 .lineLimit(2)
-
-            HStack(spacing: 8) {
-                Image(systemName: "number")
-                    .foregroundColor(.blue)
-                    .frame(width: 20)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("课程ID")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text(course.id)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                }
-
-                Spacer()
-            }
         }
         .padding(.vertical, 8)
     }
@@ -88,8 +71,8 @@ struct UrgentCoursesView: View {
         }
         .task {
             guard !viewModel.isLoaded else { return }
-            viewModel.loadUrgentCourses(authManager.moocHelper)
             viewModel.isLoaded = true
+            viewModel.loadUrgentCourses(authManager.moocHelper)
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {

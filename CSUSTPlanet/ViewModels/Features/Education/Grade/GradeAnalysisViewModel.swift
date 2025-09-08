@@ -58,8 +58,10 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
         self.data = data
 
         if let prompt = prompt {
-            warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.lastUpdated))
-            isShowingWarning = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.lastUpdated))
+                self.isShowingWarning = true
+            }
         }
     }
 

@@ -21,6 +21,10 @@ class UrgentCoursesViewModel: ObservableObject {
 
     var isLoaded: Bool = false
 
+    init() {
+        loadDataFromLocal()
+    }
+
     private func saveDataToLocal(_ data: UrgentCourseData) {
         let context = SharedModel.context
         let urgentCourses = try? context.fetch(FetchDescriptor<UrgentCourse>())
@@ -30,11 +34,18 @@ class UrgentCoursesViewModel: ObservableObject {
         try? context.save()
     }
 
-    private func loadDataFromLocal() {
+    private func loadDataFromLocal(_ prompt: String? = nil) {
         let context = SharedModel.context
         let urgentCourses = try? context.fetch(FetchDescriptor<UrgentCourse>())
         guard let data = urgentCourses?.first?.data else { return }
         self.data = data
+
+        if let prompt = prompt {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.lastUpdated))
+                self.isShowingWarning = true
+            }
+        }
     }
 
     func loadUrgentCourses(_ moocHelper: MoocHelper?) {
@@ -52,17 +63,9 @@ class UrgentCoursesViewModel: ObservableObject {
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
-
-                    loadDataFromLocal()
                 }
             } else {
-                loadDataFromLocal()
-                if let data = data {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.warningMessage = "网络课程中心未登录，使用 \(DateHelper.relativeTimeString(for: data.lastUpdated)) 的本地缓存数据"
-                        self.isShowingWarning = true
-                    }
-                }
+                loadDataFromLocal("网络课程中心未登录，已加载上次查询数据（%@）")
             }
         }
     }
