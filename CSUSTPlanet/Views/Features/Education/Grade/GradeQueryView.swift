@@ -65,20 +65,23 @@ struct GradeQueryView: View {
         NavigationStack {
             Form {
                 Section(header: Text("学期选择")) {
-                    if viewModel.isSemestersLoading {
-                        HStack {
-                            Text("学期")
+                    Picker("学期", selection: $viewModel.selectedSemester) {
+                        Text("全部学期").tag("")
+                        ForEach(viewModel.availableSemesters, id: \.self) { semester in
+                            Text(semester).tag(semester)
+                        }
+                    }
+                    .pickerStyle(.wheel)
+                    HStack {
+                        Button(action: {
+                            viewModel.loadAvailableSemesters(authManager.eduHelper)
+                        }) {
+                            Text("刷新学期列表")
+                        }
+                        if viewModel.isSemestersLoading {
                             Spacer()
                             ProgressView()
                         }
-                    } else {
-                        Picker("学期", selection: $viewModel.selectedSemester) {
-                            Text("全部学期").tag("")
-                            ForEach(viewModel.availableSemesters, id: \.self) { semester in
-                                Text(semester).tag(semester)
-                            }
-                        }
-                        .pickerStyle(.wheel)
                     }
                 }
                 Section(header: Text("筛选条件")) {
