@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/9.
 //
 
+import AlertToast
 import SwiftData
 import SwiftUI
 
@@ -99,10 +100,8 @@ struct DormRowView: View {
         } message: {
             Text("确定要删除 \(viewModel.dorm.room) 宿舍吗？")
         }
-        .alert("错误", isPresented: $viewModel.isShowingError) {
-            Button("确认", role: .cancel) {}
-        } message: {
-            Text(viewModel.errorMessage)
+        .toast(isPresenting: $viewModel.isShowingError) {
+            AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
         .sheet(isPresented: $viewModel.isTermsPresented) {
             ElectricityTermsView(isPresented: $viewModel.isTermsPresented, onAgree: viewModel.handleTermsAgree)

@@ -205,6 +205,18 @@ class DormElectricityViewModel: ObservableObject {
         }
     }
 
+    func deleteAllRecords() {
+        for record in dorm.records ?? [] {
+            modelContext.delete(record)
+        }
+        do {
+            try modelContext.save()
+        } catch {
+            errorMessage = error.localizedDescription
+            isShowingError = true
+        }
+    }
+
     func deleteRecord(record: ElectricityRecord) {
         modelContext.delete(record)
         do {
