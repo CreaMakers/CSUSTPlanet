@@ -81,25 +81,25 @@ class SSOLoginViewModel: ObservableObject {
         Task {
             do {
                 try await authManager.getDynamicCode(username: username, captcha: captcha)
+
+                countdown = 120
+                Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
+                    Task { @MainActor in
+                        guard let self = self else {
+                            timer.invalidate()
+                            return
+                        }
+                        if self.countdown > 1 {
+                            self.countdown -= 1
+                        } else {
+                            timer.invalidate()
+                            self.countdown = 0
+                        }
+                    }
+                }
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
-            }
-
-            countdown = 120
-            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
-                Task { @MainActor in
-                    guard let self = self else {
-                        timer.invalidate()
-                        return
-                    }
-                    if self.countdown > 1 {
-                        self.countdown -= 1
-                    } else {
-                        timer.invalidate()
-                        self.countdown = 0
-                    }
-                }
             }
         }
     }
