@@ -11,12 +11,17 @@ import Zoomable
 
 struct CampusMapView: View {
     @State private var selectedCampus: CampusCardHelper.Campus = .jinpenling
+    @State private var isOnlineMapShown: Bool = false
 
     private var mapImageName: String {
         switch selectedCampus {
         case .yuntang: return "YuntangMap"
         case .jinpenling: return "JinpenlingMap"
         }
+    }
+
+    var url: URL {
+        URL(string: "https://gis.csust.edu.cn/cmipsh5/#/")!
     }
 
     var body: some View {
@@ -34,14 +39,26 @@ struct CampusMapView: View {
                     .resizable()
                     .scaledToFit()
                     .zoomable(minZoomScale: 1, doubleTapZoomScale: 3, outOfBoundsColor: .clear)
-                    .frame(width: geo.size.width,
-                           height: geo.size.height)
+                    .frame(width: geo.size.width, height: geo.size.height)
                     .clipped()
                     .contentShape(Rectangle())
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .navigationTitle("校园地图")
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $isOnlineMapShown) {
+            SafariView(url: url)
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: {
+                    isOnlineMapShown.toggle()
+                }) {
+                    Text("在线地图")
+                }
+            }
+        }
     }
 }
 
