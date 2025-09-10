@@ -31,8 +31,8 @@ struct WeeklyCoursesEntryView: View {
     var entry: WeeklyCoursesProvider.Entry
 
     var body: some View {
-        if let data = entry.data {
-            VStack {
+        VStack {
+            if let data = entry.data {
                 HStack {
                     Text("本周课程")
                         .font(.system(size: 14, weight: .bold))
@@ -68,12 +68,13 @@ struct WeeklyCoursesEntryView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 courseScheduleView(data: data)
+            } else {
+                Text("请先在App中查询课表")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
             }
-        } else {
-            Text("请先在App中查询课表")
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
         }
+        .widgetURL(URL(string: "csustplanet://widgets/courseSchedule"))
     }
 
     func courseScheduleView(data: CourseScheduleData) -> some View {
@@ -152,7 +153,7 @@ struct WeeklyCoursesEntryView: View {
     func backgroundGrid(firstVisibleSection: Int) -> some View {
         HStack(spacing: colSpacing) {
             VStack(spacing: rowSpacing) {
-                ForEach(firstVisibleSection ..< firstVisibleSection + 4, id: \.self) { section in
+                ForEach(firstVisibleSection..<firstVisibleSection + 4, id: \.self) { section in
                     VStack {
                         Text("\(section)")
                             .font(.caption)
@@ -170,7 +171,7 @@ struct WeeklyCoursesEntryView: View {
             }
             ForEach(EduHelper.DayOfWeek.allCases, id: \.self) { _ in
                 VStack(spacing: rowSpacing) {
-                    ForEach(1 ... 2, id: \.self) { _ in
+                    ForEach(1...2, id: \.self) { _ in
                         Rectangle()
                             .fill(Color(.secondarySystemBackground))
                             .frame(height: sectionHeight * 2 + rowSpacing)
@@ -242,16 +243,16 @@ struct WeeklyCoursesEntryView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(color)
             .cornerRadius(5)
-            .clipped() // 确保内容不会溢出圆角
+            .clipped()  // 确保内容不会溢出圆角
         }
     }
 
     let sectionTime: [(String, String)] = [
-        ("08:00", "08:45"), ("08:55", "09:40"), // 大节 1
-        ("10:10", "10:55"), ("11:05", "11:50"), // 大节 2
-        ("14:00", "14:45"), ("14:55", "15:40"), // 大节 3
-        ("16:10", "16:55"), ("17:05", "17:50"), // 大节 4
-        ("19:30", "20:15"), ("20:25", "21:10"), // 大节 5
+        ("08:00", "08:45"), ("08:55", "09:40"),  // 大节 1
+        ("10:10", "10:55"), ("11:05", "11:50"),  // 大节 2
+        ("14:00", "14:45"), ("14:55", "15:40"),  // 大节 3
+        ("16:10", "16:55"), ("17:05", "17:50"),  // 大节 4
+        ("19:30", "20:15"), ("20:25", "21:10"),  // 大节 5
     ]
 
     let colSpacing: CGFloat = 4
@@ -271,18 +272,18 @@ struct WeeklyCoursesEntryView: View {
         let currentTimeInMinutes = hour * 60 + minute
 
         // 各时间段的结束时间（分钟）
-        let endOfMajorSection1 = 9 * 60 + 40 // 09:40
-        let endOfMajorSection2 = 11 * 60 + 50 // 11:50
-        let endOfMajorSection3 = 15 * 60 + 40 // 15:40
+        let endOfMajorSection1 = 9 * 60 + 40  // 09:40
+        let endOfMajorSection2 = 11 * 60 + 50  // 11:50
+        let endOfMajorSection3 = 15 * 60 + 40  // 15:40
 
         if currentTimeInMinutes <= endOfMajorSection1 {
-            return 1 // 显示 1-4 节
+            return 1  // 显示 1-4 节
         } else if currentTimeInMinutes <= endOfMajorSection2 {
-            return 3 // 显示 3-6 节
+            return 3  // 显示 3-6 节
         } else if currentTimeInMinutes <= endOfMajorSection3 {
-            return 5 // 显示 5-8 节
+            return 5  // 显示 5-8 节
         } else {
-            return 7 // 显示 7-10 节
+            return 7  // 显示 7-10 节
         }
     }
 
@@ -319,7 +320,7 @@ struct WeeklyCoursesEntryView: View {
         guard let firstDayOfWeek = calendar.date(byAdding: .day, value: daysToAdd, to: semesterStartDate) else { return [] }
 
         // 从周日开始，生成7天的日期
-        for i in 0 ..< 7 {
+        for i in 0..<7 {
             if let date = calendar.date(byAdding: .day, value: i, to: firstDayOfWeek) {
                 dates.append(date)
             }

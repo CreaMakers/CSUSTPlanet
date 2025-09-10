@@ -104,6 +104,12 @@ struct ContentView: View {
             case "electricity":
                 globalVars.selectedTab = 1
                 globalVars.isFromElectricityWidget = true
+            case "gradeAnalysis":
+                globalVars.selectedTab = 1
+                globalVars.isFromGradeAnalysisWidget = true
+            case "courseSchedule":
+                globalVars.selectedTab = 1
+                globalVars.isFromCourseScheduleWidget = true
             default:
                 break
             }

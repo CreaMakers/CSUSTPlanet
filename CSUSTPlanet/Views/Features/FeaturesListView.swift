@@ -115,6 +115,12 @@ struct FeaturesListView: View {
             .navigationDestination(isPresented: $globalVars.isFromElectricityWidget) {
                 ElectricityQueryView()
             }
+            .navigationDestination(isPresented: $globalVars.isFromCourseScheduleWidget) {
+                CourseScheduleView()
+            }
+            .navigationDestination(isPresented: $globalVars.isFromGradeAnalysisWidget) {
+                GradeAnalysisView()
+            }
         }
     }
 

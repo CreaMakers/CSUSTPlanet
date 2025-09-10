@@ -29,7 +29,7 @@ let courses = [
             EduHelper.ScheduleSession(
                 weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], startSection: 3,
                 endSection: 4, dayOfWeek: EduHelper.DayOfWeek.monday, classroom: Optional("金西田径场1")
-            ),
+            )
         ]
     ),
     EduHelper.Course(
@@ -38,7 +38,7 @@ let courses = [
             EduHelper.ScheduleSession(
                 weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 9,
                 endSection: 10, dayOfWeek: EduHelper.DayOfWeek.wednesday, classroom: Optional("金12-215")
-            ),
+            )
         ]
     ),
     EduHelper.Course(
@@ -60,7 +60,7 @@ let courses = [
             EduHelper.ScheduleSession(
                 weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 5,
                 endSection: 6, dayOfWeek: EduHelper.DayOfWeek.monday, classroom: Optional("金12-106")
-            ),
+            )
         ]
     ),
     EduHelper.Course(
@@ -82,7 +82,7 @@ let courses = [
             EduHelper.ScheduleSession(
                 weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], startSection: 3, endSection: 4,
                 dayOfWeek: EduHelper.DayOfWeek.wednesday, classroom: Optional("金6-304")
-            ),
+            )
         ]
     ),
     EduHelper.Course(
@@ -104,7 +104,7 @@ let courses = [
             EduHelper.ScheduleSession(
                 weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 1,
                 endSection: 2, dayOfWeek: EduHelper.DayOfWeek.tuesday, classroom: Optional("金12-109")
-            ),
+            )
         ]
     ),
     EduHelper.Course(
@@ -113,7 +113,7 @@ let courses = [
             EduHelper.ScheduleSession(
                 weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], startSection: 5,
                 endSection: 6, dayOfWeek: EduHelper.DayOfWeek.thursday, classroom: Optional("金12-116")
-            ),
+            )
         ]
     ),
     EduHelper.Course(
@@ -122,7 +122,7 @@ let courses = [
             EduHelper.ScheduleSession(
                 weeks: [2], startSection: 7, endSection: 8, dayOfWeek: EduHelper.DayOfWeek.wednesday,
                 classroom: Optional("金12-500")
-            ),
+            )
         ]
     ),
     EduHelper.Course(
@@ -175,8 +175,8 @@ struct TodayCoursesEntryView: View {
     var entry: TodayCoursesProvider.Entry
 
     var body: some View {
-        if let data = entry.data {
-            VStack {
+        VStack {
+            if let data = entry.data {
                 HStack {
                     if widgetFamily != .systemSmall {
                         Text("今日剩余课程")
@@ -216,12 +216,13 @@ struct TodayCoursesEntryView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 coursesView(data: data)
+            } else {
+                Text("请先在App中查询课表")
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.secondary)
             }
-        } else {
-            Text("请先在App中查询课表")
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
         }
+        .widgetURL(URL(string: "csustplanet://widgets/courseSchedule"))
     }
 
     func coursesView(data: CourseScheduleData) -> some View {

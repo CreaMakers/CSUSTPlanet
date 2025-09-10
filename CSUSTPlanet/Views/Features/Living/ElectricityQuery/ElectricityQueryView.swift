@@ -37,6 +37,7 @@ struct ElectricityQueryView: View {
             }
         }
         .navigationTitle("电量查询")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(
             trailing: Button(action: {
                 isShowingAddDormSheet.toggle()

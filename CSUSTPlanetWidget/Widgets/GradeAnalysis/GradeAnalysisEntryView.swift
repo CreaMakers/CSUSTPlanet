@@ -15,22 +15,25 @@ struct GradeAnalysisEntryView: View {
     var entry: GradeAnalysisProvider.Entry
 
     var body: some View {
-        if let data = entry.data {
-            switch family {
-            case .systemSmall:
-                systemSmall(data)
-            case .systemMedium:
-                systemMedium(data)
-            case .systemLarge:
-                systemLarge(data)
-            default:
-                systemSmall(data)
+        Group {
+            if let data = entry.data {
+                switch family {
+                case .systemSmall:
+                    systemSmall(data)
+                case .systemMedium:
+                    systemMedium(data)
+                case .systemLarge:
+                    systemLarge(data)
+                default:
+                    systemSmall(data)
+                }
+            } else {
+                Text("请先在App内查询成绩分析")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
             }
-        } else {
-            Text("请先在App内查询成绩分析")
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
         }
+        .widgetURL(URL(string: "csustplanet://widgets/gradeAnalysis"))
     }
 
     let dateFormatter: DateFormatter = {
