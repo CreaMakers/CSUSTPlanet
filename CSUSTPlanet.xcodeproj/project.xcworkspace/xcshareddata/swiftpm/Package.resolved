@@ -1,5 +1,5 @@
 {
-  "originHash" : "2b9797b40c47da0fe74623a14ecda44430fec3b4fe47424feade87989a49ac87",
+  "originHash" : "d25342f3a66c9a669cae612c6c0e9a8b3a306bfbf6e43609a8cdce92c4efc8f1",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/CreaMakers/CSUSTKit.git",
       "state" : {
-        "revision" : "d79a30bbfd8d4175eda1f3bef5dbde6170934db9",
-        "version" : "1.1.5"
+        "revision" : "62eb81f45d395033c322bc5d36271311f69b4c1e",
+        "version" : "1.1.6"
       }
     },
     {
