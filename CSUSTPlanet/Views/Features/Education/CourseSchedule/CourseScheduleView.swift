@@ -118,6 +118,8 @@ struct CourseScheduleView: View {
                         Text("第 \(week) 周").tag(week)
                     }
                 }
+                .pickerStyle(.menu)
+                .fixedSize(horizontal: true, vertical: false)
 
                 Button(action: viewModel.goToCurrentWeek) {
                     Text("本周")
