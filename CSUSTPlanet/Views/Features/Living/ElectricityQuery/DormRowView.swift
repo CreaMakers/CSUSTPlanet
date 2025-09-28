@@ -53,6 +53,12 @@ struct DormRowView: View {
                 }
             }
         }
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button(action: viewModel.handleQueryElectricity) {
+                Label("查询", systemImage: "bolt.fill")
+            }
+            .tint(.yellow)
+        }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(action: {
                 viewModel.isConfirmationDialogPresented = true
@@ -100,8 +106,8 @@ struct DormRowView: View {
         } message: {
             Text("确定要删除 \(viewModel.dorm.room) 宿舍吗？")
         }
-        .toast(isPresenting: $viewModel.isShowingError) {
-            AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
+        .alert(isPresented: $viewModel.isShowingError) {
+            Alert(title: Text("错误"), message: Text(viewModel.errorMessage), dismissButton: .default(Text("确定")))
         }
         .sheet(isPresented: $viewModel.isTermsPresented) {
             ElectricityTermsView(isPresented: $viewModel.isTermsPresented, onAgree: viewModel.handleTermsAgree)

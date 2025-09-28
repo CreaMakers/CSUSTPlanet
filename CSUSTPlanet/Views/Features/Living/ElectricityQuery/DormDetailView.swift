@@ -65,13 +65,6 @@ struct DormDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button(action: viewModel.handleQueryElectricity) {
-                        Label("查询电量", systemImage: "bolt.fill").tint(.yellow)
-                    }
-                    .disabled(viewModel.isQueryingElectricity)
-
-                    Divider()
-
                     Menu {
                         Button(action: viewModel.handleShowTerms) {
                             Label("设置定时查询", systemImage: "bell").tint(.blue)
@@ -96,6 +89,13 @@ struct DormDetailView: View {
                 } label: {
                     Label("操作", systemImage: "ellipsis.circle")
                 }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: viewModel.handleQueryElectricity) {
+                    Label("查询电量", systemImage: "bolt.fill")
+                }
+                .tint(.yellow)
+                .disabled(viewModel.isQueryingElectricity)
             }
         }
     }
@@ -159,9 +159,11 @@ struct DormDetailView: View {
                 )
                 .interpolationMethod(.catmullRom)
                 .symbol {
-                    Circle()
-                        .frame(width: 8)
-                        .foregroundStyle(.primary)
+                    if viewModel.dorm.records?.count ?? 0 <= 1 {
+                        Circle()
+                            .frame(width: 8)
+                            .foregroundStyle(.primary)
+                    }
                 }
             }
             .chartXAxis {
