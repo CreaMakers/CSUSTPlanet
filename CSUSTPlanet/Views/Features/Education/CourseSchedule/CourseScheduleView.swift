@@ -219,16 +219,16 @@ struct CourseScheduleView: View {
 
             // 右侧课程区域背景
             #if DEBUG
-                ForEach(EduHelper.DayOfWeek.allCases, id: \.self) { _ in
-                    VStack(spacing: viewModel.rowSpacing) {
-                        ForEach(1...5, id: \.self) { _ in
-                            Rectangle()
-                                .fill(Color(.secondarySystemBackground))
-                                .frame(height: viewModel.sectionHeight * 2 + viewModel.rowSpacing)
-                                .cornerRadius(5)
-                        }
-                    }
-                }
+                // ForEach(EduHelper.DayOfWeek.allCases, id: \.self) { _ in
+                //     VStack(spacing: viewModel.rowSpacing) {
+                //         ForEach(1...5, id: \.self) { _ in
+                //             Rectangle()
+                //                 .fill(Color(.secondarySystemBackground))
+                //                 .frame(height: viewModel.sectionHeight * 2 + viewModel.rowSpacing)
+                //                 .cornerRadius(5)
+                //         }
+                //     }
+                // }
             #endif
         }
         .padding(.horizontal, 5)

@@ -22,9 +22,10 @@ class HomeViewModel: ObservableObject {
     // MARK: - DEBUG时间处理
     private var currentTime: Date {
         #if DEBUG
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd HH:mm"
-            return formatter.date(from: "2025-09-18 17:38") ?? Date()
+            // let formatter = DateFormatter()
+            // formatter.dateFormat = "yyyy-MM-dd HH:mm"
+            // return formatter.date(from: "2025-09-18 17:38") ?? Date()
+            return Date()
         #else
             return Date()
         #endif
