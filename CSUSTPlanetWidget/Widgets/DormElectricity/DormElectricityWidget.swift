@@ -6,8 +6,8 @@
 //
 
 import AppIntents
-import Charts
 import CSUSTKit
+import Charts
 import SwiftData
 import SwiftUI
 import WidgetKit
@@ -18,9 +18,9 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
             let intent = DormElectricityAppIntent()
             intent.dormitory = DormEntity(dorm: Dorm(room: "A544", building: CampusCardHelper.Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
             intent.dormitory!.records = [
-                DormEntity.ElectricityRecord(electricity: 240, date: .now.addingTimeInterval(-86400)),
-                DormEntity.ElectricityRecord(electricity: 233.33, date: .now.addingTimeInterval(-43200)),
-                DormEntity.ElectricityRecord(electricity: 220.00, date: .now)
+                DormEntity.ElectricityRecord(electricity: 30, date: .now.addingTimeInterval(-86400)),
+                DormEntity.ElectricityRecord(electricity: 20, date: .now.addingTimeInterval(-43200)),
+                DormEntity.ElectricityRecord(electricity: 10, date: .now),
             ]
             return intent
 
@@ -80,7 +80,7 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
         updatedConfiguration.dormitory = finalDormEntity
 
         let entry = DormElectricityEntry(date: .now, configuration: updatedConfiguration)
-        let nextUpdate = Date().addingTimeInterval(2 * 3600) // 2 hours
+        let nextUpdate = Date().addingTimeInterval(2 * 3600)  // 2 hours
         debugPrint("DormElectricityProvider: Next update scheduled for \(nextUpdate)")
         return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
@@ -183,9 +183,11 @@ struct DormElectricityEntryView: View {
                                 LineMark(x: .value("日期", record.date), y: .value("电量", record.electricity))
                                     .interpolationMethod(.catmullRom)
                                     .symbol {
-                                        Circle()
-                                            .fill(Color.accentColor)
-                                            .frame(width: 8)
+                                        if dormitory.records.count <= 1 {
+                                            Circle()
+                                                .frame(width: 8)
+                                                .foregroundStyle(.primary)
+                                        }
                                     }
                             }
                             .chartXAxis {
@@ -249,7 +251,7 @@ struct DormElectricityWidget: Widget {
             DormEntity.ElectricityRecord(electricity: 233.33, date: .now),
             DormEntity.ElectricityRecord(electricity: 220.00, date: Date().addingTimeInterval(-86400)),
             DormEntity.ElectricityRecord(electricity: 210.50, date: Date().addingTimeInterval(-172800)),
-            DormEntity.ElectricityRecord(electricity: 200.75, date: Date().addingTimeInterval(-259200))
+            DormEntity.ElectricityRecord(electricity: 200.75, date: Date().addingTimeInterval(-259200)),
         ]
         return intent
     }()
