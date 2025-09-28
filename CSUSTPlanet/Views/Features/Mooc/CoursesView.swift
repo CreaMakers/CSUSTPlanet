@@ -11,46 +11,20 @@ import SwiftUI
 struct CoursesView: View {
     @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel = CoursesViewModel()
-    
-    struct InfoRow: View {
-        let icon: String
-        let iconColor: Color
-        let label: String
-        let value: String
-        
-        var body: some View {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .foregroundColor(iconColor)
-                    .frame(width: 20)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(label)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text(value)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                }
-                
-                Spacer()
-            }
-            .padding(.vertical, 4)
-        }
-    }
-    
+
     var body: some View {
         Form {
             if viewModel.isLoading {
                 ProgressView("加载中...")
                     .progressViewStyle(.circular)
                     .frame(maxWidth: .infinity, alignment: .center)
-            } else if viewModel.courses.isEmpty {
+            } else if viewModel.filteredCourses.isEmpty {
                 emptyStateSection
             } else {
                 courseListSection
             }
         }
+        .searchable(text: $viewModel.searchText, prompt: "搜索课程")
         .alert("错误", isPresented: $viewModel.isShowingError) {
             Button("确定", role: .cancel) {}
         } message: {
@@ -71,9 +45,9 @@ struct CoursesView: View {
             }
         }
     }
-    
+
     // MARK: - Form Sections
-    
+
     private var emptyStateSection: some View {
         Section {
             VStack(spacing: 8) {
@@ -81,11 +55,11 @@ struct CoursesView: View {
                     .font(.system(size: 40))
                     .foregroundColor(.secondary)
                     .padding(.bottom, 8)
-                
+
                 Text("暂无课程信息")
                     .font(.headline)
-                
-                Text("没有找到任何课程信息")
+
+                Text(viewModel.searchText.isEmpty ? "没有找到任何课程信息" : "没有找到匹配的课程")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -94,28 +68,42 @@ struct CoursesView: View {
             .padding(.vertical, 20)
         }
     }
-    
+
     private var courseListSection: some View {
         Section {
-            ForEach(viewModel.courses, id: \.self) { course in
+            ForEach(viewModel.filteredCourses, id: \.self) { course in
                 NavigationLink(destination: CourseDetailView(course: course)) {
                     courseCard(course: course)
                 }
             }
         }
     }
-    
+
     private func courseCard(course: MoocHelper.Course) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(course.name)
                 .font(.headline)
-                .lineLimit(1)
-                .padding(.bottom, 8)
-            
-            InfoRow(icon: "number", iconColor: .blue, label: "课程编号", value: course.number)
-            InfoRow(icon: "building.columns", iconColor: .green, label: "开课院系", value: course.department)
-            InfoRow(icon: "person", iconColor: .purple, label: "授课教师", value: course.teacher)
+                .fontWeight(.semibold)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+
+            HStack(spacing: 12) {
+                infoItem(icon: "person.fill", color: .purple, text: course.teacher)
+                infoItem(icon: "building.columns.fill", color: .green, text: course.department)
+            }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 6)
+    }
+
+    private func infoItem(icon: String, color: Color, text: String) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+                .imageScale(.small)
+            Text(text)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
     }
 }
