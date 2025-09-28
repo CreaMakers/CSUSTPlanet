@@ -44,29 +44,13 @@ struct HomeUrgentCoursesView: View {
             if let urgentData = urgentCourseData {
                 if !urgentData.courses.isEmpty {
                     VStack(spacing: 0) {
-                        ForEach(Array(urgentData.courses.prefix(2).enumerated()), id: \.offset) { index, course in
+                        ForEach(Array(urgentData.courses.enumerated()), id: \.offset) { index, course in
                             courseCard(course: course)
 
-                            if index < min(urgentData.courses.count, 2) - 1 {
+                            if index < urgentData.courses.count - 1 {
                                 Divider()
                                     .padding(.horizontal, 16)
                             }
-                        }
-
-                        if urgentData.courses.count > 2 {
-                            HStack {
-                                Text("...")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-
-                                Spacer()
-
-                                Text("还有 \(urgentData.courses.count - 2) 门课程")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 6)
                         }
                     }
                 } else {
