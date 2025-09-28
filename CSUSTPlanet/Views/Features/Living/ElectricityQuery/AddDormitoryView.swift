@@ -61,6 +61,7 @@ struct AddDormitoryView: View {
                                         }
                                     }
                                 }
+                                .fixedSize(horizontal: true, vertical: false)
                                 .pickerStyle(.menu)
                                 .disabled(viewModel.buildings[viewModel.selectedCampus]?.isEmpty ?? true)
                                 .padding()
