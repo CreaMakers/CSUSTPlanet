@@ -27,40 +27,26 @@ struct ContentView: View {
     }
 
     var body: some View {
-        TabView(selection: $globalVars.selectedTab) {
-            Group {
+        NavigationStack {
+            TabView(selection: $globalVars.selectedTab) {
                 HomeView()
-            }
-            .tabItem {
-                Label("首页", systemImage: "house")
-            }
-            .tag(0)
+                    .tabItem { Label("首页", systemImage: "house") }
+                    .tag(TabItem.home)
 
-            Group {
-                // if horizontalSizeClass == .regular {
-                //     FeaturesSplitView()
-                // } else {
-                //     FeaturesListView()
-                // }
                 FeaturesListView()
-            }
-            .tabItem {
-                Label("全部功能", systemImage: "square.grid.2x2")
-            }
-            .tag(1)
+                    .tabItem { Label("全部功能", systemImage: "square.grid.2x2") }
+                    .tag(TabItem.features)
 
-            Group {
-                // if horizontalSizeClass == .regular {
-                //     ProfileSplitView()
-                // } else {
-                //     ProfileListView()
-                // }
                 ProfileListView()
+                    .tabItem { Label("我的", systemImage: "person") }
+                    .tag(TabItem.profile)
             }
-            .tabItem {
-                Label("我的", systemImage: "person")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(globalVars.selectedTab.rawValue)
+                }
             }
-            .tag(2)
+            .toolbarTitleDisplayMode(.inline)
         }
         .onChange(of: authManager.isShowingEducationError) { _, newValue in
             guard newValue else { return }
@@ -102,13 +88,13 @@ struct ContentView: View {
             guard url.scheme == "csustplanet", url.host == "widgets" else { return }
             switch url.pathComponents.dropFirst().first {
             case "electricity":
-                globalVars.selectedTab = 1
+                globalVars.selectedTab = .features
                 globalVars.isFromElectricityWidget = true
             case "gradeAnalysis":
-                globalVars.selectedTab = 1
+                globalVars.selectedTab = .features
                 globalVars.isFromGradeAnalysisWidget = true
             case "courseSchedule":
-                globalVars.selectedTab = 1
+                globalVars.selectedTab = .features
                 globalVars.isFromCourseScheduleWidget = true
             default:
                 break

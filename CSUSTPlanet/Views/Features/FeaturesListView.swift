@@ -39,88 +39,84 @@ struct FeaturesListView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    featureSection(
-                        title: "教务系统",
-                        status: {
-                            HStack(spacing: 8) {
-                                if authManager.isSSOLoggingIn {
-                                    statusPillView("正在登录统一认证...")
-                                } else if !authManager.isLoggedIn {
-                                    actionPillView("登录后使用") {
-                                        globalVars.selectedTab = 2
-                                    }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                featureSection(
+                    title: "教务系统",
+                    status: {
+                        HStack(spacing: 8) {
+                            if authManager.isSSOLoggingIn {
+                                statusPillView("正在登录统一认证...")
+                            } else if !authManager.isLoggedIn {
+                                actionPillView("登录后使用") {
+                                    globalVars.selectedTab = .profile
                                 }
+                            }
 
-                                if authManager.isEducationLoggingIn {
-                                    statusPillView("登录中")
-                                } else if authManager.isLoggedIn && !authManager.isSSOLoggingIn {
-                                    actionPillView("重新登录") {
-                                        authManager.loginToEducation()
-                                    }
+                            if authManager.isEducationLoggingIn {
+                                statusPillView("登录中")
+                            } else if authManager.isLoggedIn && !authManager.isSSOLoggingIn {
+                                actionPillView("重新登录") {
+                                    authManager.loginToEducation()
                                 }
                             }
                         }
-                    ) {
-                        featureLink(destination: GradeQueryView(), title: "成绩查询", icon: "doc.text.magnifyingglass", color: .blue)
-                        featureLink(destination: GradeAnalysisView(), title: "成绩分析", icon: "chart.bar", color: .green)
-                        featureLink(destination: ExamScheduleView(), title: "考试安排", icon: "pencil.and.outline", color: .orange)
-                        featureLink(destination: CourseScheduleView(), title: "我的课表", icon: "calendar", color: .purple)
                     }
-
-                    featureSection(
-                        title: "网络课程中心",
-                        status: {
-                            HStack(spacing: 8) {
-                                if authManager.isSSOLoggingIn {
-                                    statusPillView("正在登录统一认证...")
-                                } else if !authManager.isLoggedIn {
-                                    actionPillView("登录后使用") {
-                                        globalVars.selectedTab = 2
-                                    }
-                                }
-
-                                if authManager.isMoocLoggingIn {
-                                    statusPillView("登录中")
-                                } else if authManager.isLoggedIn && !authManager.isSSOLoggingIn {
-                                    actionPillView("重新登录") {
-                                        authManager.loginToMooc()
-                                    }
-                                }
-                            }
-                        }
-                    ) {
-                        featureLink(destination: CoursesView(), title: "课程列表", icon: "book", color: .indigo, disabled: authManager.moocHelper == nil)
-                        featureLink(destination: UrgentCoursesView(), title: "待提交作业", icon: "doc.text", color: .red)
-                    }
-
-                    featureSection(title: "生活服务") {
-                        featureLink(destination: ElectricityQueryView(), title: "电量查询", icon: "bolt.fill", color: .yellow)
-                        featureLink(destination: CampusMapView(), title: "校园地图", icon: "map", color: .mint)
-                        featureLink(destination: SchoolCalendarListView(), title: "校历", icon: "calendar", color: .pink)
-                    }
-
-                    featureSection(title: "考试查询") {
-                        featureLink(destination: CETView(), title: "四六级", icon: "character.book.closed", color: .brown)
-                        featureLink(destination: MandarinView(), title: "普通话", icon: "mic.fill", color: .teal)
-                    }
+                ) {
+                    featureLink(destination: GradeQueryView(), title: "成绩查询", icon: "doc.text.magnifyingglass", color: .blue)
+                    featureLink(destination: GradeAnalysisView(), title: "成绩分析", icon: "chart.bar", color: .green)
+                    featureLink(destination: ExamScheduleView(), title: "考试安排", icon: "pencil.and.outline", color: .orange)
+                    featureLink(destination: CourseScheduleView(), title: "我的课表", icon: "calendar", color: .purple)
                 }
-                .padding()
+
+                featureSection(
+                    title: "网络课程中心",
+                    status: {
+                        HStack(spacing: 8) {
+                            if authManager.isSSOLoggingIn {
+                                statusPillView("正在登录统一认证...")
+                            } else if !authManager.isLoggedIn {
+                                actionPillView("登录后使用") {
+                                    globalVars.selectedTab = .profile
+                                }
+                            }
+
+                            if authManager.isMoocLoggingIn {
+                                statusPillView("登录中")
+                            } else if authManager.isLoggedIn && !authManager.isSSOLoggingIn {
+                                actionPillView("重新登录") {
+                                    authManager.loginToMooc()
+                                }
+                            }
+                        }
+                    }
+                ) {
+                    featureLink(destination: CoursesView(), title: "课程列表", icon: "book", color: .indigo, disabled: authManager.moocHelper == nil)
+                    featureLink(destination: UrgentCoursesView(), title: "待提交作业", icon: "doc.text", color: .red)
+                }
+
+                featureSection(title: "生活服务") {
+                    featureLink(destination: ElectricityQueryView(), title: "电量查询", icon: "bolt.fill", color: .yellow)
+                    featureLink(destination: CampusMapView(), title: "校园地图", icon: "map", color: .mint)
+                    featureLink(destination: SchoolCalendarListView(), title: "校历", icon: "calendar", color: .pink)
+                }
+
+                featureSection(title: "考试查询") {
+                    featureLink(destination: CETView(), title: "四六级", icon: "character.book.closed", color: .brown)
+                    featureLink(destination: MandarinView(), title: "普通话", icon: "mic.fill", color: .teal)
+                }
             }
-            .background(sectionBackgroundColor)
-            .navigationTitle("全部功能")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(isPresented: $globalVars.isFromElectricityWidget) {
-                ElectricityQueryView()
-            }
-            .navigationDestination(isPresented: $globalVars.isFromCourseScheduleWidget) {
-                CourseScheduleView()
-            }
-            .navigationDestination(isPresented: $globalVars.isFromGradeAnalysisWidget) {
-                GradeAnalysisView()
-            }
+            .padding()
+        }
+        .background(sectionBackgroundColor)
+        .navigationDestination(isPresented: $globalVars.isFromElectricityWidget) {
+            ElectricityQueryView()
+        }
+        .navigationDestination(isPresented: $globalVars.isFromCourseScheduleWidget) {
+            CourseScheduleView()
+        }
+        .navigationDestination(isPresented: $globalVars.isFromGradeAnalysisWidget) {
+            GradeAnalysisView()
         }
     }
 

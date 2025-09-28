@@ -7,6 +7,12 @@
 
 import Foundation
 
+enum TabItem: String {
+    case home = "首页"
+    case features = "全部功能"
+    case profile = "我的"
+}
+
 @MainActor
 class GlobalVars: ObservableObject {
     public static let shared = GlobalVars()
@@ -16,7 +22,7 @@ class GlobalVars: ObservableObject {
         isUserAgreementAccepted = UserDefaults.standard.bool(forKey: "isUserAgreementAccepted")
     }
 
-    @Published var selectedTab: Int = 0
+    @Published var selectedTab: TabItem = .home
     @Published var appearance: String {
         didSet {
             UserDefaults.standard.set(appearance, forKey: "appearance")
