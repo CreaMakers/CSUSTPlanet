@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/9.
 //
 
+import SwiftUI
 import Foundation
 
 enum TabItem: String {
@@ -33,6 +34,13 @@ class GlobalVars: ObservableObject {
         didSet {
             UserDefaults.standard.set(isUserAgreementAccepted, forKey: "isUserAgreementAccepted")
         }
+    }
+
+    var isUserAgreementShowing: Binding<Bool> {
+        Binding(
+            get: { !self.isUserAgreementAccepted },
+            set: { self.isUserAgreementAccepted = !$0 }
+        )
     }
 
     var isElectricityTermAccepted: Bool {

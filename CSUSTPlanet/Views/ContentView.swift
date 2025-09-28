@@ -13,7 +13,6 @@ struct ContentView: View {
     @EnvironmentObject var globalVars: GlobalVars
     @EnvironmentObject var authManager: AuthManager
     @Environment(\.presentToast) var presentToast
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
     var preferredColorScheme: ColorScheme? {
         switch globalVars.appearance {
@@ -30,15 +29,13 @@ struct ContentView: View {
         NavigationStack {
             TabView(selection: $globalVars.selectedTab) {
                 HomeView()
-                    .tabItem { Label("首页", systemImage: "house") }
+                    .tabItem { Label(TabItem.home.rawValue, systemImage: "house") }
                     .tag(TabItem.home)
-
-                FeaturesListView()
-                    .tabItem { Label("全部功能", systemImage: "square.grid.2x2") }
+                FeaturesView()
+                    .tabItem { Label(TabItem.features.rawValue, systemImage: "square.grid.2x2") }
                     .tag(TabItem.features)
-
-                ProfileListView()
-                    .tabItem { Label("我的", systemImage: "person") }
+                ProfileView()
+                    .tabItem { Label(TabItem.profile.rawValue, systemImage: "person") }
                     .tag(TabItem.profile)
             }
             .toolbar {
@@ -73,16 +70,8 @@ struct ContentView: View {
             authManager.isShowingMoocError = false
         }
         .preferredColorScheme(preferredColorScheme)
-        .sheet(
-            isPresented: Binding(
-                get: { !globalVars.isUserAgreementAccepted },
-                set: { globalVars.isUserAgreementAccepted = !$0 }
-            )
-        ) {
-            NavigationStack {
-                UserAgreementView()
-                    .interactiveDismissDisabled(true)
-            }
+        .sheet(isPresented: globalVars.isUserAgreementShowing) {
+            UserAgreementView().interactiveDismissDisabled(true)
         }
         .onOpenURL { url in
             guard url.scheme == "csustplanet", url.host == "widgets" else { return }

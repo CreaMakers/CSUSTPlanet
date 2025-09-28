@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ProfileListView: View {
+struct ProfileView: View {
     @EnvironmentObject private var authManager: AuthManager
     @EnvironmentObject private var globalVars: GlobalVars
 
@@ -131,16 +131,14 @@ struct ProfileListView: View {
             }
         }
         .sheet(isPresented: $showLoginSheet) {
-            NavigationStack {
-                SSOLoginView(authManager: authManager, isShowingLoginSheet: $showLoginSheet)
-            }
+            SSOLoginView(authManager: authManager, isShowingLoginSheet: $showLoginSheet)
         }
     }
 }
 
 #Preview {
     NavigationStack {
-        ProfileListView()
+        ProfileView()
     }
     .environmentObject(AuthManager())
     .environmentObject(GlobalVars.shared)

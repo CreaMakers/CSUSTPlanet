@@ -1,5 +1,5 @@
 //
-//  FeaturesListView.swift
+//  FeaturesView.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/7/8.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct FeaturesListView: View {
+struct FeaturesView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var globalVars: GlobalVars
     @Environment(\.colorScheme) private var colorScheme
@@ -211,7 +211,7 @@ struct FeaturesListView: View {
 // MARK: - Preview
 
 #Preview {
-    FeaturesListView()
+    FeaturesView()
         .environmentObject(AuthManager())
         .environmentObject(GlobalVars.shared)
 }

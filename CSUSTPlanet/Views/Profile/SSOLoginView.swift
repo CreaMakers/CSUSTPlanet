@@ -16,55 +16,57 @@ struct SSOLoginView: View {
     }
 
     var body: some View {
-        VStack(spacing: 30) {
-            Picker("登录方式", selection: $viewModel.selectedTab) {
-                Text("账号登录").tag(0)
-                Text("验证码登录").tag(1)
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(alignment: .top, spacing: 5) {
-                        Image(systemName: "info.circle.fill")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 16))
-
-                        Text("推荐使用账号密码登录方式，当登录状态丢失后，应用会自动尝试重新使用账号密码来登录。\n而验证码登录方式当登录状态丢失后则需要重新登录。")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding()
-                    .background(Color.accent.opacity(0.1))
-                    .cornerRadius(10)
+        NavigationStack {
+            VStack(spacing: 30) {
+                Picker("登录方式", selection: $viewModel.selectedTab) {
+                    Text("账号登录").tag(0)
+                    Text("验证码登录").tag(1)
                 }
+                .pickerStyle(.segmented)
                 .padding(.horizontal)
 
-                TabView(selection: $viewModel.selectedTab) {
-                    accountLoginView.tag(0)
-                    verificationCodeLoginView.tag(1)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .top, spacing: 5) {
+                            Image(systemName: "info.circle.fill")
+                                .foregroundColor(.blue)
+                                .font(.system(size: 16))
+
+                            Text("推荐使用账号密码登录方式，当登录状态丢失后，应用会自动尝试重新使用账号密码来登录。\n而验证码登录方式当登录状态丢失后则需要重新登录。")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .background(Color.accent.opacity(0.1))
+                        .cornerRadius(10)
+                    }
+                    .padding(.horizontal)
+
+                    TabView(selection: $viewModel.selectedTab) {
+                        accountLoginView.tag(0)
+                        verificationCodeLoginView.tag(1)
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .frame(height: 300)
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .frame(height: 300)
             }
-        }
-        .navigationTitle("统一认证登录")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("取消") {
-                    viewModel.closeLoginSheet()
+            .navigationTitle("统一认证登录")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") {
+                        viewModel.closeLoginSheet()
+                    }
                 }
             }
-        }
-        .alert("错误", isPresented: $viewModel.isShowingError) {
-            Button("确定", role: .cancel) {}
-        } message: {
-            Text(viewModel.errorMessage)
-        }
-        .task {
-            viewModel.handleRefreshCaptcha()
+            .alert("错误", isPresented: $viewModel.isShowingError) {
+                Button("确定", role: .cancel) {}
+            } message: {
+                Text(viewModel.errorMessage)
+            }
+            .task {
+                viewModel.handleRefreshCaptcha()
+            }
         }
     }
 
@@ -89,8 +91,9 @@ struct SSOLoginView: View {
             .padding(.vertical, 12)
             .background(Color(.systemGray6))
             .cornerRadius(10)
-            .overlay(RoundedRectangle(cornerRadius: 10)
-                .stroke(Color(.systemGray4), lineWidth: 1)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color(.systemGray4), lineWidth: 1)
             )
             .padding(.horizontal)
             .padding(.top, 5)
@@ -126,8 +129,9 @@ struct SSOLoginView: View {
             .padding(.vertical, 12)
             .background(Color(.systemGray6))
             .cornerRadius(10)
-            .overlay(RoundedRectangle(cornerRadius: 10)
-                .stroke(Color(.systemGray4), lineWidth: 1)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color(.systemGray4), lineWidth: 1)
             )
             .padding(.horizontal)
 
@@ -169,8 +173,9 @@ struct SSOLoginView: View {
             .padding(.vertical, 12)
             .background(Color(.systemGray6))
             .cornerRadius(10)
-            .overlay(RoundedRectangle(cornerRadius: 10)
-                .stroke(Color(.systemGray4), lineWidth: 1)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color(.systemGray4), lineWidth: 1)
             )
             .padding(.horizontal)
             .padding(.top, 5)
@@ -205,8 +210,9 @@ struct SSOLoginView: View {
                 .padding(.vertical, 12)
                 .background(Color(.systemGray6))
                 .cornerRadius(10)
-                .overlay(RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color(.systemGray4), lineWidth: 1)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color(.systemGray4), lineWidth: 1)
                 )
             }
             .padding(.horizontal)
@@ -232,8 +238,9 @@ struct SSOLoginView: View {
                 .padding(.vertical, 12)
                 .background(Color(.systemGray6))
                 .cornerRadius(10)
-                .overlay(RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color(.systemGray4), lineWidth: 1)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color(.systemGray4), lineWidth: 1)
                 )
             }
             .padding(.horizontal)
