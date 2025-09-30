@@ -10,6 +10,7 @@
 		0041FC6A2E2A91E0007F383F /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 0041FC692E2A91E0007F383F /* Zoomable */; };
 		0041FC6D2E2AA269007F383F /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0041FC6C2E2AA269007F383F /* MarkdownUI */; };
 		004D050C2E8C3E1B0055B86B /* FLEX in Frameworks */ = {isa = PBXBuildFile; productRef = 004D050B2E8C3E1B0055B86B /* FLEX */; };
+		004D050F2E8C419F0055B86B /* LookinServer in Frameworks */ = {isa = PBXBuildFile; productRef = 004D050E2E8C419F0055B86B /* LookinServer */; };
 		00B4760D2E633E4C009C1E39 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 00B4760C2E633E4C009C1E39 /* AlertToast */; };
 		00CD22612E6757E6008AB82B /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 00CD22602E6757E6008AB82B /* Toasts */; };
 		00D1CF1F2E79DCC1005E67A2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00D1CF1E2E79DCC1005E67A2 /* CSUSTKit */; };
@@ -128,6 +129,7 @@
 				00B4760D2E633E4C009C1E39 /* AlertToast in Frameworks */,
 				0041FC6A2E2A91E0007F383F /* Zoomable in Frameworks */,
 				004D050C2E8C3E1B0055B86B /* FLEX in Frameworks */,
+				004D050F2E8C419F0055B86B /* LookinServer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -201,6 +203,7 @@
 				00CD22602E6757E6008AB82B /* Toasts */,
 				00D1CF1E2E79DCC1005E67A2 /* CSUSTKit */,
 				004D050B2E8C3E1B0055B86B /* FLEX */,
+				004D050E2E8C419F0055B86B /* LookinServer */,
 			);
 			productName = CSUSTPlanet;
 			productReference = 007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */;
@@ -263,6 +266,7 @@
 				00CD225F2E675732008AB82B /* XCRemoteSwiftPackageReference "swiftui-toasts" */,
 				00D1CF1D2E79DCC1005E67A2 /* XCRemoteSwiftPackageReference "CSUSTKit" */,
 				004D050A2E8C3E1B0055B86B /* XCRemoteSwiftPackageReference "FLEX" */,
+				004D050D2E8C40E80055B86B /* XCRemoteSwiftPackageReference "LookinServer" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 007CF85C2E1BD68900E319F2 /* Products */;
@@ -484,7 +488,10 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7GPA4WLM3W;
 				ENABLE_PREVIEWS = YES;
-				"EXCLUDED_SOURCE_FILE_NAMES[arch=*]" = "FLEX*";
+				"EXCLUDED_SOURCE_FILE_NAMES[arch=*]" = (
+					"LookinServer*",
+					"FLEX*",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CSUSTPlanet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "长理星球";
@@ -627,6 +634,14 @@
 				minimumVersion = 5.22.10;
 			};
 		};
+		004D050D2E8C40E80055B86B /* XCRemoteSwiftPackageReference "LookinServer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/QMUI/LookinServer/";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.8;
+			};
+		};
 		00B4760B2E633E4C009C1E39 /* XCRemoteSwiftPackageReference "AlertToast" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/elai950/AlertToast.git";
@@ -668,6 +683,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 004D050A2E8C3E1B0055B86B /* XCRemoteSwiftPackageReference "FLEX" */;
 			productName = FLEX;
+		};
+		004D050E2E8C419F0055B86B /* LookinServer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 004D050D2E8C40E80055B86B /* XCRemoteSwiftPackageReference "LookinServer" */;
+			productName = LookinServer;
 		};
 		00B4760C2E633E4C009C1E39 /* AlertToast */ = {
 			isa = XCSwiftPackageProductDependency;
