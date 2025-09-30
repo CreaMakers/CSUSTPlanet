@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MMKV
 import UIKit
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -15,6 +16,17 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
+
+        MMKV.initialize(rootDir: nil)
+        if let mmkv = MMKV.default() {
+            if mmkv.contains(key: "mmkv") {
+                let value = mmkv.string(forKey: "mmkv")
+                debugPrint("MMKV exists", value ?? "nil")
+            } else {
+                mmkv.set("Hello, MMKV!", forKey: "mmkv")
+                debugPrint("MMKV not exists")
+            }
+        }
 
         return true
     }

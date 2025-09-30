@@ -11,6 +11,8 @@
 		0041FC6D2E2AA269007F383F /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0041FC6C2E2AA269007F383F /* MarkdownUI */; };
 		004D050C2E8C3E1B0055B86B /* FLEX in Frameworks */ = {isa = PBXBuildFile; productRef = 004D050B2E8C3E1B0055B86B /* FLEX */; };
 		004D050F2E8C419F0055B86B /* LookinServer in Frameworks */ = {isa = PBXBuildFile; productRef = 004D050E2E8C419F0055B86B /* LookinServer */; };
+		00A7DA042E8C60D800BA7927 /* MMKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00A7D9FF2E8C60A500BA7927 /* MMKV.framework */; };
+		00A7DA052E8C60D800BA7927 /* MMKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00A7D9FF2E8C60A500BA7927 /* MMKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		00B4760D2E633E4C009C1E39 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 00B4760C2E633E4C009C1E39 /* AlertToast */; };
 		00CD22612E6757E6008AB82B /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 00CD22602E6757E6008AB82B /* Toasts */; };
 		00D1CF1F2E79DCC1005E67A2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00D1CF1E2E79DCC1005E67A2 /* CSUSTKit */; };
@@ -21,6 +23,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		00A7D9FE2E8C60A500BA7927 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00A7D9F42E8C60A500BA7927 /* MMKV.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CBC1A8F620DA946200AD5087;
+			remoteInfo = MMKV;
+		};
+		00A7DA072E8C612400BA7927 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00A7D9F42E8C60A500BA7927 /* MMKV.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = CBC1A8F520DA946200AD5087;
+			remoteInfo = MMKV;
+		};
 		00E89C702E2C88D800B43162 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 007CF8532E1BD68800E319F2 /* Project object */;
@@ -31,6 +47,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		00A7DA062E8C60D800BA7927 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				00A7DA052E8C60D800BA7927 /* MMKV.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		00E89C732E2C88D800B43162 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -47,6 +74,7 @@
 /* Begin PBXFileReference section */
 		006CA2AC2E2CFCC000340655 /* CSUSTPlanetWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CSUSTPlanetWidgetExtension.entitlements; sourceTree = "<group>"; };
 		007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CSUSTPlanet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		00A7D9F42E8C60A500BA7927 /* MMKV.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = MMKV.xcodeproj; path = ThirdParty/MMKV/iOS/MMKV/MMKV.xcodeproj; sourceTree = "<group>"; };
 		00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CSUSTPlanetWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E89C622E2C88D800B43162 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		00E89C642E2C88D800B43162 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -128,6 +156,7 @@
 				0041FC6D2E2AA269007F383F /* MarkdownUI in Frameworks */,
 				00B4760D2E633E4C009C1E39 /* AlertToast in Frameworks */,
 				0041FC6A2E2A91E0007F383F /* Zoomable in Frameworks */,
+				00A7DA042E8C60D800BA7927 /* MMKV.framework in Frameworks */,
 				004D050C2E8C3E1B0055B86B /* FLEX in Frameworks */,
 				004D050F2E8C419F0055B86B /* LookinServer in Frameworks */,
 			);
@@ -154,6 +183,7 @@
 				00E89C612E2C88D800B43162 /* Frameworks */,
 				007CF85C2E1BD68900E319F2 /* Products */,
 				006CA2AC2E2CFCC000340655 /* CSUSTPlanetWidgetExtension.entitlements */,
+				00A7D9F42E8C60A500BA7927 /* MMKV.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -162,6 +192,14 @@
 			children = (
 				007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */,
 				00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		00A7D9F52E8C60A500BA7927 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				00A7D9FF2E8C60A500BA7927 /* MMKV.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -186,10 +224,12 @@
 				007CF8582E1BD68900E319F2 /* Frameworks */,
 				007CF8592E1BD68900E319F2 /* Resources */,
 				00E89C732E2C88D800B43162 /* Embed Foundation Extensions */,
+				00A7DA062E8C60D800BA7927 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				00A7DA082E8C612400BA7927 /* PBXTargetDependency */,
 				00E89C712E2C88D800B43162 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
@@ -271,6 +311,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 007CF85C2E1BD68900E319F2 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 00A7D9F52E8C60A500BA7927 /* Products */;
+					ProjectRef = 00A7D9F42E8C60A500BA7927 /* MMKV.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				007CF85A2E1BD68900E319F2 /* CSUSTPlanet */,
@@ -278,6 +324,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		00A7D9FF2E8C60A500BA7927 /* MMKV.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = MMKV.framework;
+			remoteRef = 00A7D9FE2E8C60A500BA7927 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		007CF8592E1BD68900E319F2 /* Resources */ = {
@@ -314,6 +370,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		00A7DA082E8C612400BA7927 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MMKV;
+			targetProxy = 00A7DA072E8C612400BA7927 /* PBXContainerItemProxy */;
+		};
 		00E89C712E2C88D800B43162 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */;
