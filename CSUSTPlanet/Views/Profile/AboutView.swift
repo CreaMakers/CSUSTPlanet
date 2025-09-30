@@ -8,6 +8,10 @@
 import MarkdownUI
 import SwiftUI
 
+#if DEBUG
+    import FLEX
+#endif
+
 struct AboutView: View {
     var body: some View {
         Form {
@@ -55,6 +59,13 @@ struct AboutView: View {
                     }) {
                         Label("清除所有SwiftData数据", systemImage: "trash")
                             .foregroundColor(.red)
+                    }
+
+                    Button(action: {
+                        FLEXManager.shared.showExplorer()
+                    }) {
+                        Label("FLEX", systemImage: "ladybug.fill")
+                            .foregroundColor(.blue)
                     }
                 }
             #endif
