@@ -103,9 +103,12 @@
 				Models/GradeAnalysis.swift,
 				Models/GradeQuery.swift,
 				Models/UrgentCourse.swift,
+				Utils/AppEnvironmentHelper.swift,
 				Utils/ColorHelper.swift,
+				Utils/Constants.swift,
 				Utils/KeychainCookieStorage.swift,
 				Utils/KeychainHelper.swift,
+				Utils/MMKVHelper.swift,
 				Utils/SharedModel.swift,
 			);
 			target = 00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */;

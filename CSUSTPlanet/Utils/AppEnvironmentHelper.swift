@@ -14,22 +14,22 @@ enum AppEnvironment {
 }
 
 class AppEnvironmentHelper {
+    static let environment: AppEnvironment = {
+        #if DEBUG
+            return .debug
+        #else
+            if isTestFlight() {
+                return .testFlight
+            } else {
+                return .appStore
+            }
+        #endif
+    }()
+
     static func isTestFlight() -> Bool {
         guard let appStoreReceiptURL = Bundle.main.appStoreReceiptURL else {
             return false
         }
         return appStoreReceiptURL.lastPathComponent == "sandboxReceipt"
-    }
-
-    static func currentEnvironment() -> AppEnvironment {
-#if DEBUG
-        return .debug
-#else
-        if isTestFlight() {
-            return .testFlight
-        } else {
-            return .appStore
-        }
-#endif
     }
 }

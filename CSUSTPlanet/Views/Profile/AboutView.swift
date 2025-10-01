@@ -41,7 +41,7 @@ struct AboutView: View {
                 HStack {
                     Text("运行环境")
                     Spacer()
-                    switch AppEnvironmentHelper.currentEnvironment() {
+                    switch AppEnvironmentHelper.environment {
                     case .debug:
                         Text("Debug")
                     case .appStore:
@@ -64,7 +64,7 @@ struct AboutView: View {
                     Button(action: {
                         FLEXManager.shared.showExplorer()
                     }) {
-                        Label("FLEX", systemImage: "ladybug.fill")
+                        Label("Flipboard Explorer", systemImage: "ladybug.fill")
                             .foregroundColor(.blue)
                     }
                 }

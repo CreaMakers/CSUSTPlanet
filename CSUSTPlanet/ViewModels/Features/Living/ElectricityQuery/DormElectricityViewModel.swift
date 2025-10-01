@@ -263,7 +263,7 @@ class DormElectricityViewModel: ObservableObject {
                     return
                 }
 
-                let environment = AppEnvironmentHelper.currentEnvironment()
+                let environment = AppEnvironmentHelper.environment
                 let request = ElectricityBindingDTO(
                     id: nil,
                     studentId: studentId,
