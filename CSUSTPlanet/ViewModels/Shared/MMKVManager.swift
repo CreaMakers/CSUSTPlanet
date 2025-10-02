@@ -1,0 +1,131 @@
+//
+//  MMKVManager.swift
+//  CSUSTPlanet
+//
+//  Created by Zachary Liu on 2025/10/1.
+//
+
+import Foundation
+import MMKV
+
+class MMKVManager: ObservableObject {
+    static let shared = MMKVManager()
+
+    private init() {}
+
+    private(set) var defaultMMKV: MMKV!
+
+    func setupMMKV() {
+        guard let mmkvDirectoryURL = Constants.mmkvDirectoryURL else {
+            fatalError("Failed to get MMKV directory URL")
+        }
+        MMKV.initialize(rootDir: mmkvDirectoryURL.path)
+        guard let defaultMMKV = MMKV(mmapID: Constants.mmkvID) else {
+            fatalError("Failed to initialize MMKV with ID: \(Constants.mmkvID)")
+        }
+        self.defaultMMKV = defaultMMKV
+    }
+
+    private let jsonEncoder = {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.nonConformingFloatEncodingStrategy = .convertToString(
+            positiveInfinity: "INF",
+            negativeInfinity: "-INF",
+            nan: "NAN"
+        )
+        return encoder
+    }()
+
+    private let jsonDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        decoder.nonConformingFloatDecodingStrategy = .convertFromString(
+            positiveInfinity: "INF",
+            negativeInfinity: "-INF",
+            nan: "NAN"
+        )
+        return decoder
+    }()
+}
+
+// MARK: - Setters
+
+extension MMKVManager {
+    func set(forKey key: String, _ value: String) {
+        defaultMMKV.set(value, forKey: key)
+    }
+
+    func set(forKey key: String, _ value: Int) {
+        defaultMMKV.set(Int64(value), forKey: key)
+    }
+
+    func set(forKey key: String, _ value: Bool) {
+        defaultMMKV.set(value, forKey: key)
+    }
+
+    func set(forKey key: String, _ value: Float) {
+        defaultMMKV.set(value, forKey: key)
+    }
+
+    func set(forKey key: String, _ value: Double) {
+        defaultMMKV.set(value, forKey: key)
+    }
+
+    func set(forKey key: String, _ value: Data) {
+        defaultMMKV.set(value, forKey: key)
+    }
+
+    func set<Type: Encodable>(forKey key: String, _ value: Type) {
+        if let data = try? jsonEncoder.encode(value) {
+            defaultMMKV.set(data, forKey: key)
+        }
+    }
+}
+
+// MARK: - Getters
+
+extension MMKVManager {
+    func string(forKey key: String) -> String? {
+        defaultMMKV.string(forKey: key)
+    }
+
+    func int(forKey key: String) -> Int? {
+        if defaultMMKV.contains(key: key) {
+            return Int(defaultMMKV.int64(forKey: key))
+        }
+        return nil
+    }
+
+    func bool(forKey key: String) -> Bool? {
+        if defaultMMKV.contains(key: key) {
+            return defaultMMKV.bool(forKey: key)
+        }
+        return nil
+    }
+
+    func float(forKey key: String) -> Float? {
+        if defaultMMKV.contains(key: key) {
+            return defaultMMKV.float(forKey: key)
+        }
+        return nil
+    }
+
+    func double(forKey key: String) -> Double? {
+        if defaultMMKV.contains(key: key) {
+            return defaultMMKV.double(forKey: key)
+        }
+        return nil
+    }
+
+    func data(forKey key: String) -> Data? {
+        defaultMMKV.data(forKey: key)
+    }
+
+    func object<Type: Decodable>(forKey key: String, as type: Type.Type) -> Type? {
+        guard let data = defaultMMKV.data(forKey: key) else {
+            return nil
+        }
+        return try? jsonDecoder.decode(type, from: data)
+    }
+}

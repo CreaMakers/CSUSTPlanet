@@ -5,8 +5,8 @@
 //  Created by Zhe_Learn on 2025/7/9.
 //
 
-import SwiftUI
 import Foundation
+import SwiftUI
 
 enum TabItem: String {
     case home = "首页"
@@ -19,37 +19,24 @@ class GlobalVars: ObservableObject {
     public static let shared = GlobalVars()
 
     private init() {
-        appearance = UserDefaults.standard.string(forKey: "appearance") ?? "system"
-        isUserAgreementAccepted = UserDefaults.standard.bool(forKey: "isUserAgreementAccepted")
+        appearance = MMKVManager.shared.string(forKey: "GlobalVars.appearance") ?? "system"
+        isUserAgreementAccepted = MMKVManager.shared.bool(forKey: "GlobalVars.isUserAgreementAccepted") ?? false
     }
 
     @Published var selectedTab: TabItem = .home
     @Published var appearance: String {
-        didSet {
-            UserDefaults.standard.set(appearance, forKey: "appearance")
-        }
+        didSet { MMKVManager.shared.set(forKey: "GlobalVars.appearance", appearance) }
     }
-
     @Published var isUserAgreementAccepted: Bool {
-        didSet {
-            UserDefaults.standard.set(isUserAgreementAccepted, forKey: "isUserAgreementAccepted")
-        }
+        didSet { MMKVManager.shared.set(forKey: "GlobalVars.isUserAgreementAccepted", isUserAgreementAccepted) }
     }
-
     var isUserAgreementShowing: Binding<Bool> {
-        Binding(
-            get: { !self.isUserAgreementAccepted },
-            set: { self.isUserAgreementAccepted = !$0 }
-        )
+        Binding(get: { !self.isUserAgreementAccepted }, set: { self.isUserAgreementAccepted = !$0 })
     }
 
     var isElectricityTermAccepted: Bool {
-        set {
-            UserDefaults.standard.set(newValue, forKey: "isElectricityTermAccepted")
-        }
-        get {
-            UserDefaults.standard.bool(forKey: "isElectricityTermAccepted")
-        }
+        set { MMKVManager.shared.set(forKey: "GlobalVars.isElectricityTermAccepted", newValue) }
+        get { MMKVManager.shared.bool(forKey: "GlobalVars.isElectricityTermAccepted") ?? false }
     }
 
     @Published var isFromElectricityWidget: Bool = false
