@@ -7,6 +7,12 @@
 
 import Foundation
 import MMKV
+import CSUSTKit
+
+struct Cached<T: Codable>: Codable {
+    let cachedAt: Date
+    let value: T
+}
 
 class MMKVManager: ObservableObject {
     static let shared = MMKVManager()
@@ -144,5 +150,12 @@ extension MMKVManager {
     var isElectricityTermAccepted: Bool {
         get { bool(forKey: "GlobalVars.isElectricityTermAccepted") ?? false }
         set { set(forKey: "GlobalVars.isElectricityTermAccepted", newValue) }
+    }
+}
+
+extension MMKVManager {
+    var courseGradesCache: Cached<[EduHelper.CourseGrade]>? {
+        get { object(forKey: "Cached.courseGradesCache", as: Cached<[EduHelper.CourseGrade]>.self) }
+        set { set(forKey: "Cached.courseGradesCache", newValue) }
     }
 }

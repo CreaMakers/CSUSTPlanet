@@ -13,7 +13,7 @@ import SwiftUI
 @MainActor
 class GradeQueryViewModel: NSObject, ObservableObject {
     @Published var availableSemesters: [String] = []
-    @Published var data: GradeQueryData? = nil
+    @Published var data: Cached<[EduHelper.CourseGrade]>? = nil
     @Published var stats: (gpa: Double, totalCredits: Double, weightedAverageGrade: Double, averageGrade: Double, courseCount: Int)? = nil
     @Published var errorMessage: String = ""
     @Published var warningMessage: String = ""
@@ -38,9 +38,9 @@ class GradeQueryViewModel: NSObject, ObservableObject {
     var filteredCourseGrades: [EduHelper.CourseGrade] {
         guard let data = data else { return [] }
         if searchText.isEmpty {
-            return data.courseGrades
+            return data.value
         } else {
-            return data.courseGrades.filter { $0.courseName.localizedCaseInsensitiveContains(searchText) }
+            return data.value.filter { $0.courseName.localizedCaseInsensitiveContains(searchText) }
         }
     }
 
@@ -51,23 +51,23 @@ class GradeQueryViewModel: NSObject, ObservableObject {
 
     private func updateStats() {
         guard let data = data else { return }
-        let totalCredits = data.courseGrades.reduce(0) { $0 + $1.credit }
-        if data.courseGrades.isEmpty || totalCredits == 0 {
+        let totalCredits = data.value.reduce(0) { $0 + $1.credit }
+        if data.value.isEmpty || totalCredits == 0 {
             stats = nil
             return
         }
-        let totalGradePoints = data.courseGrades.reduce(0) { $0 + $1.gradePoint * $1.credit }
+        let totalGradePoints = data.value.reduce(0) { $0 + $1.gradePoint * $1.credit }
         let gpa = totalCredits > 0 ? totalGradePoints / totalCredits : 0
-        let totalGrades = data.courseGrades.reduce(0) { $0 + $1.grade }
-        let weightedAverageGrade = data.courseGrades.reduce(0) { $0 + Double($1.grade) * $1.credit } / totalCredits
-        let averageGrade = data.courseGrades.isEmpty ? 0 : Double(totalGrades) / Double(data.courseGrades.count)
+        let totalGrades = data.value.reduce(0) { $0 + $1.grade }
+        let weightedAverageGrade = data.value.reduce(0) { $0 + Double($1.grade) * $1.credit } / totalCredits
+        let averageGrade = data.value.isEmpty ? 0 : Double(totalGrades) / Double(data.value.count)
 
         stats = (
             gpa: gpa,
             totalCredits: totalCredits,
             weightedAverageGrade: weightedAverageGrade,
             averageGrade: averageGrade,
-            courseCount: data.courseGrades.count
+            courseCount: data.value.count
         )
     }
 
@@ -104,25 +104,18 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         )
     }
 
-    private func saveDataToLocal(_ data: GradeQueryData) {
-        let context = SharedModel.context
-        let gradeQueries = try? context.fetch(FetchDescriptor<GradeQuery>())
-        gradeQueries?.forEach { context.delete($0) }
-        let gradeQuery = GradeQuery(data: data)
-        context.insert(gradeQuery)
-        try? context.save()
+    private func saveDataToLocal(_ data: Cached<[EduHelper.CourseGrade]>) {
+        MMKVManager.shared.courseGradesCache = data
     }
 
     private func loadDataFromLocal(_ prompt: String? = nil) {
-        let context = SharedModel.context
-        let gradeQueries = try? context.fetch(FetchDescriptor<GradeQuery>())
-        guard let data = gradeQueries?.first?.data else { return }
+        guard let data = MMKVManager.shared.courseGradesCache else { return }
         self.data = data
         updateStats()
 
         if let prompt = prompt {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.lastUpdated))
+                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.cachedAt))
                 self.isShowingWarning = true
             }
         }
@@ -138,7 +131,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
             if let eduHelper = eduHelper {
                 do {
                     let courseGrades = try await getDataFromRemote(eduHelper)
-                    data = GradeQueryData.fromCourseGrades(courseGrades: courseGrades)
+                    data = Cached(cachedAt: .now, value: courseGrades)
                     saveDataToLocal(data!)
                     updateStats()
                 } catch {
