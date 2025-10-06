@@ -103,20 +103,20 @@
 				Models/GradeAnalysis.swift,
 				Models/GradeQuery.swift,
 				Models/UrgentCourse.swift,
-				Utils/AppEnvironmentHelper.swift,
-				Utils/ColorHelper.swift,
-				Utils/Constants.swift,
-				Utils/KeychainCookieStorage.swift,
-				Utils/KeychainHelper.swift,
-				Utils/SharedModel.swift,
-				ViewModels/Shared/MMKVManager.swift,
+				Shared/Managers/MMKVManager.swift,
+				Shared/Utils/AppEnvironmentHelper.swift,
+				Shared/Utils/ColorHelper.swift,
+				Shared/Utils/Constants.swift,
+				Shared/Utils/KeychainCookieStorage.swift,
+				Shared/Utils/KeychainHelper.swift,
+				Shared/Utils/SharedModel.swift,
 			);
 			target = 00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */;
 		};
 		007CF9192E1D44C400E319F2 /* Exceptions for "CSUSTPlanet" folder in "CSUSTPlanet" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				App/Info.plist,
 			);
 			target = 007CF85A2E1BD68900E319F2 /* CSUSTPlanet */;
 		};
@@ -524,7 +524,7 @@
 				"EMIT_FRONTEND_COMMAND_LINES[arch=*]" = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = CSUSTPlanet/Info.plist;
+				INFOPLIST_FILE = CSUSTPlanet/App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "长理星球";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -568,7 +568,7 @@
 					"FLEX*",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = CSUSTPlanet/Info.plist;
+				INFOPLIST_FILE = CSUSTPlanet/App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "长理星球";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
