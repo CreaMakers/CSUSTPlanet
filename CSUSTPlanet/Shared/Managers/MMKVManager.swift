@@ -129,3 +129,20 @@ extension MMKVManager {
         return try? jsonDecoder.decode(type, from: data)
     }
 }
+
+extension MMKVManager {
+    var appearance: String {
+        get { string(forKey: "GlobalVars.appearance") ?? "system" }
+        set { set(forKey: "GlobalVars.appearance", newValue) }
+    }
+
+    var isUserAgreementAccepted: Bool {
+        get { bool(forKey: "GlobalVars.isUserAgreementAccepted") ?? false }
+        set { set(forKey: "GlobalVars.isUserAgreementAccepted", newValue) }
+    }
+
+    var isElectricityTermAccepted: Bool {
+        get { bool(forKey: "GlobalVars.isElectricityTermAccepted") ?? false }
+        set { set(forKey: "GlobalVars.isElectricityTermAccepted", newValue) }
+    }
+}

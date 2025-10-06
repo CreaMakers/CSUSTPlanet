@@ -19,24 +19,19 @@ class GlobalVars: ObservableObject {
     public static let shared = GlobalVars()
 
     private init() {
-        appearance = MMKVManager.shared.string(forKey: "GlobalVars.appearance") ?? "system"
-        isUserAgreementAccepted = MMKVManager.shared.bool(forKey: "GlobalVars.isUserAgreementAccepted") ?? false
+        appearance = MMKVManager.shared.appearance
+        isUserAgreementAccepted = MMKVManager.shared.isUserAgreementAccepted
     }
 
     @Published var selectedTab: TabItem = .home
     @Published var appearance: String {
-        didSet { MMKVManager.shared.set(forKey: "GlobalVars.appearance", appearance) }
+        didSet { MMKVManager.shared.appearance = appearance }
     }
     @Published var isUserAgreementAccepted: Bool {
-        didSet { MMKVManager.shared.set(forKey: "GlobalVars.isUserAgreementAccepted", isUserAgreementAccepted) }
+        didSet { MMKVManager.shared.isUserAgreementAccepted = isUserAgreementAccepted }
     }
     var isUserAgreementShowing: Binding<Bool> {
         Binding(get: { !self.isUserAgreementAccepted }, set: { self.isUserAgreementAccepted = !$0 })
-    }
-
-    var isElectricityTermAccepted: Bool {
-        set { MMKVManager.shared.set(forKey: "GlobalVars.isElectricityTermAccepted", newValue) }
-        get { MMKVManager.shared.bool(forKey: "GlobalVars.isElectricityTermAccepted") ?? false }
     }
 
     @Published var isFromElectricityWidget: Bool = false

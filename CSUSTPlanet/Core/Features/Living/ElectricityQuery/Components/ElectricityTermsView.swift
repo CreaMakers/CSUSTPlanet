@@ -75,7 +75,7 @@ struct ElectricityTermsView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("同意") {
                         isPresented = false
-                        GlobalVars.shared.isElectricityTermAccepted = true
+                        MMKVManager.shared.isElectricityTermAccepted = true
                         onAgree()
                     }
                     .disabled(!isAgreed)

@@ -64,7 +64,7 @@ class DormElectricityViewModel: ObservableObject {
     }
 
     func loadSchedule() {
-        guard GlobalVars.shared.isElectricityTermAccepted else {
+        guard MMKVManager.shared.isElectricityTermAccepted else {
             return
         }
         guard let scheduleId = dorm.scheduleId else {
@@ -233,7 +233,7 @@ class DormElectricityViewModel: ObservableObject {
             isShowingError = true
             return
         }
-        if GlobalVars.shared.isElectricityTermAccepted {
+        if MMKVManager.shared.isElectricityTermAccepted {
             handleTermsAgree()
         } else {
             isTermsPresented = true
