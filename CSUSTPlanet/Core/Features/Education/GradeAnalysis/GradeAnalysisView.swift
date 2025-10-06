@@ -30,7 +30,7 @@ struct GradeAnalysisView: View {
 
     // MARK: - Summary Card
 
-    private func summaryCard(_ gradeAnalysisData: GradeAnalysisData, _ weightedAverageGrade: Double?) -> some View {
+    private func summaryCard(_ gradeAnalysisData: GradeAnalysisViewModel.GradeAnalysisData) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("学习总览")
                 .font(.headline)
@@ -50,14 +50,12 @@ struct GradeAnalysisView: View {
                     color: ColorHelper.dynamicColor(grade: gradeAnalysisData.overallAverageGrade)
                 )
                 Spacer()
-                if let weightedAverageGrade = weightedAverageGrade {
-                    statisticItem(
-                        title: "加权平均成绩",
-                        value: String(format: "%.2f", weightedAverageGrade),
-                        color: ColorHelper.dynamicColor(grade: weightedAverageGrade)
-                    )
-                    Spacer()
-                }
+                statisticItem(
+                    title: "加权平均成绩",
+                    value: String(format: "%.2f", gradeAnalysisData.weightedAverageGrade),
+                    color: ColorHelper.dynamicColor(grade: gradeAnalysisData.weightedAverageGrade)
+                )
+                Spacer()
                 statisticItem(
                     title: "平均绩点",
                     value: String(format: "%.2f", gradeAnalysisData.overallGPA),
@@ -73,7 +71,7 @@ struct GradeAnalysisView: View {
 
     // MARK: - Semester Analysis Section
 
-    private func semesterAnalysisSection(_ gradeAnalysisData: GradeAnalysisData) -> some View {
+    private func semesterAnalysisSection(_ gradeAnalysisData: GradeAnalysisViewModel.GradeAnalysisData) -> some View {
         VStack(spacing: 30) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("学期平均成绩")
@@ -169,9 +167,9 @@ struct GradeAnalysisView: View {
 
     // MARK: - Analysis Content
 
-    private func analysisContent(_ gradeAnalysisData: GradeAnalysisData, _ weightedAverageGrade: Double?) -> some View {
+    private func analysisContent(_ gradeAnalysisData: GradeAnalysisViewModel.GradeAnalysisData) -> some View {
         VStack(spacing: 20) {
-            summaryCard(gradeAnalysisData, weightedAverageGrade)
+            summaryCard(gradeAnalysisData)
             semesterAnalysisSection(gradeAnalysisData)
         }
     }
@@ -201,8 +199,8 @@ struct GradeAnalysisView: View {
 
     @ViewBuilder
     private var shareableView: some View {
-        if let gradeAnalysisData = viewModel.data, let weightedAverageGrade = viewModel.weightedAverageGrade {
-            analysisContent(gradeAnalysisData, weightedAverageGrade)
+        if let gradeAnalysisData = viewModel.analysisData {
+            analysisContent(gradeAnalysisData)
                 .padding(.vertical)
                 .frame(width: UIScreen.main.bounds.width)
                 .background(Color(.systemGroupedBackground))
@@ -216,9 +214,9 @@ struct GradeAnalysisView: View {
 
     var body: some View {
         Group {
-            if let data = viewModel.data {
+            if let data = viewModel.analysisData {
                 ScrollView {
-                    analysisContent(data, viewModel.weightedAverageGrade)
+                    analysisContent(data)
                 }
             } else {
                 emptyStateSection
