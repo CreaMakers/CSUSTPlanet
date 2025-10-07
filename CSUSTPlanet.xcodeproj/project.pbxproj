@@ -100,7 +100,6 @@
 				Models/Dorm.swift,
 				Models/ElectricityRecord.swift,
 				Models/ExamSchedule.swift,
-				Models/GradeAnalysis.swift,
 				Models/UrgentCourse.swift,
 				Shared/Managers/MMKVManager.swift,
 				Shared/Utils/AppEnvironmentHelper.swift,

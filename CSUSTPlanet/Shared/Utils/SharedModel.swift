@@ -12,7 +12,6 @@ class SharedModel {
     static let schema = Schema([
         Dorm.self,
         ElectricityRecord.self,
-        GradeAnalysis.self,
         CourseSchedule.self,
         ExamSchedule.self,
         UrgentCourse.self,
@@ -56,12 +55,6 @@ class SharedModel {
         let electricityRecords = try context.fetch(electricityFetch)
         for record in electricityRecords {
             context.delete(record)
-        }
-
-        let gradeAnalysisFetch = FetchDescriptor<GradeAnalysis>()
-        let gradeAnalyses = try context.fetch(gradeAnalysisFetch)
-        for analysis in gradeAnalyses {
-            context.delete(analysis)
         }
 
         let courseScheduleFetch = FetchDescriptor<CourseSchedule>()

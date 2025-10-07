@@ -11,7 +11,7 @@ import SwiftData
 
 @MainActor
 class HomeViewModel: ObservableObject {
-    @Published var gradeAnalysisData: GradeAnalysisData?
+    @Published var gradeAnalysisData: Cached<[EduHelper.CourseGrade]>?
     @Published var examScheduleData: ExamScheduleData?
     @Published var courseScheduleData: CourseScheduleData?
     @Published var urgentCourseData: UrgentCourseData?
@@ -34,7 +34,7 @@ class HomeViewModel: ObservableObject {
     func loadData() {
         let context = SharedModel.context
 
-        gradeAnalysisData = try? context.fetch(FetchDescriptor<GradeAnalysis>()).first?.data
+        gradeAnalysisData = MMKVManager.shared.courseGradesCache
         examScheduleData = try? context.fetch(FetchDescriptor<ExamSchedule>()).first?.data
         courseScheduleData = try? context.fetch(FetchDescriptor<CourseSchedule>()).first?.data
         urgentCourseData = try? context.fetch(FetchDescriptor<UrgentCourse>()).first?.data
