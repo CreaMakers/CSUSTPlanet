@@ -15,7 +15,7 @@ struct HomeView: View {
         ScrollView {
             LazyVStack(spacing: 16) {
                 // 成绩分析部分
-                HomeGradeAnalysisView(gradeAnalysisData: viewModel.gradeAnalysisData)
+                HomeGradeAnalysisView(data: viewModel.gradeAnalysisData)
 
                 // 今日课程部分
                 HomeTodayCoursesView(

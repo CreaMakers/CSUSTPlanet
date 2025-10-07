@@ -30,7 +30,7 @@ struct GradeAnalysisView: View {
 
     // MARK: - Summary Card
 
-    private func summaryCard(_ gradeAnalysisData: GradeAnalysisViewModel.GradeAnalysisData) -> some View {
+    private func summaryCard(_ gradeAnalysisData: GradeAnalysisData) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("学习总览")
                 .font(.headline)
@@ -71,7 +71,7 @@ struct GradeAnalysisView: View {
 
     // MARK: - Semester Analysis Section
 
-    private func semesterAnalysisSection(_ gradeAnalysisData: GradeAnalysisViewModel.GradeAnalysisData) -> some View {
+    private func semesterAnalysisSection(_ gradeAnalysisData: GradeAnalysisData) -> some View {
         VStack(spacing: 30) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("学期平均成绩")
@@ -167,7 +167,7 @@ struct GradeAnalysisView: View {
 
     // MARK: - Analysis Content
 
-    private func analysisContent(_ gradeAnalysisData: GradeAnalysisViewModel.GradeAnalysisData) -> some View {
+    private func analysisContent(_ gradeAnalysisData: GradeAnalysisData) -> some View {
         VStack(spacing: 20) {
             summaryCard(gradeAnalysisData)
             semesterAnalysisSection(gradeAnalysisData)
