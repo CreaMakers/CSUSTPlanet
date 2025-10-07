@@ -14,7 +14,6 @@ class SharedModel {
         ElectricityRecord.self,
         GradeAnalysis.self,
         CourseSchedule.self,
-        GradeQuery.self,
         ExamSchedule.self,
         UrgentCourse.self,
     ])
@@ -69,12 +68,6 @@ class SharedModel {
         let courseSchedules = try context.fetch(courseScheduleFetch)
         for schedule in courseSchedules {
             context.delete(schedule)
-        }
-
-        let gradeQueryFetch = FetchDescriptor<GradeQuery>()
-        let gradeQueries = try context.fetch(gradeQueryFetch)
-        for query in gradeQueries {
-            context.delete(query)
         }
 
         let examScheduleFetch = FetchDescriptor<ExamSchedule>()

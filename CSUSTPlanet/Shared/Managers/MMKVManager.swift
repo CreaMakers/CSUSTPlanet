@@ -136,6 +136,8 @@ extension MMKVManager {
     }
 }
 
+// MARK: - GlobalVars
+
 extension MMKVManager {
     var appearance: String {
         get { string(forKey: "GlobalVars.appearance") ?? "system" }
@@ -152,6 +154,8 @@ extension MMKVManager {
         set { set(forKey: "GlobalVars.isElectricityTermAccepted", newValue) }
     }
 }
+
+// MARK: - Cached
 
 extension MMKVManager {
     var courseGradesCache: Cached<[EduHelper.CourseGrade]>? {
