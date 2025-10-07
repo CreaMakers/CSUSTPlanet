@@ -16,16 +16,16 @@ struct GradeAnalysisEntryView: View {
 
     var body: some View {
         Group {
-            if let data = entry.data {
+            if let data = entry.data, let lastUpdated = entry.lastUpdated {
                 switch family {
                 case .systemSmall:
-                    systemSmall(data)
+                    systemSmall(data, lastUpdated)
                 case .systemMedium:
-                    systemMedium(data)
+                    systemMedium(data, lastUpdated)
                 case .systemLarge:
-                    systemLarge(data)
+                    systemLarge(data, lastUpdated)
                 default:
-                    systemSmall(data)
+                    systemSmall(data, lastUpdated)
                 }
             } else {
                 Text("请先在App内查询成绩分析")
@@ -42,7 +42,7 @@ struct GradeAnalysisEntryView: View {
         return dateFormatter
     }()
 
-    func systemSmall(_ data: GradeAnalysisData) -> some View {
+    func systemSmall(_ data: GradeAnalysisEntry.GradeAnalysisData, _ lastUpdated: Date) -> some View {
         VStack(spacing: 4) {
             HStack {
                 Image(systemName: "chart.bar.xaxis")
@@ -118,20 +118,20 @@ struct GradeAnalysisEntryView: View {
             }
             .frame(maxWidth: .infinity)
 
-            Text(dateFormatter.string(from: data.lastUpdated))
+            Text(dateFormatter.string(from: lastUpdated))
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.secondary)
         }
     }
 
-    func systemMedium(_ data: GradeAnalysisData) -> some View {
+    func systemMedium(_ data: GradeAnalysisEntry.GradeAnalysisData, _ lastUpdated: Date) -> some View {
         HStack {
-            systemSmall(data)
+            systemSmall(data, lastUpdated)
             chartView(data)
         }
     }
 
-    func systemLarge(_ data: GradeAnalysisData) -> some View {
+    func systemLarge(_ data: GradeAnalysisEntry.GradeAnalysisData, _ lastUpdated: Date) -> some View {
         VStack(spacing: 12) {
             HStack {
                 Image(systemName: "chart.bar.xaxis")
@@ -141,7 +141,7 @@ struct GradeAnalysisEntryView: View {
                     .foregroundStyle(.purple)
                 Text("成绩分析")
                     .font(.system(size: 16, weight: .bold))
-                Text(dateFormatter.string(from: data.lastUpdated))
+                Text(dateFormatter.string(from: lastUpdated))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -203,7 +203,7 @@ struct GradeAnalysisEntryView: View {
         }
     }
 
-    func chartView(_ data: GradeAnalysisData) -> some View {
+    func chartView(_ data: GradeAnalysisEntry.GradeAnalysisData) -> some View {
         Group {
             switch entry.configuration.chartType {
             case .semesterAverage:
