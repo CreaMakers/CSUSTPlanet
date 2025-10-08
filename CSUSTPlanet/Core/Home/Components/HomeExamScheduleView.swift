@@ -9,7 +9,7 @@ import CSUSTKit
 import SwiftUI
 
 struct HomeExamScheduleView: View {
-    let examScheduleData: ExamScheduleData?
+    let examScheduleData: Cached<[EduHelper.Exam]>?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -42,18 +42,18 @@ struct HomeExamScheduleView: View {
 
             // 内容
             if let examData = examScheduleData {
-                if !examData.exams.isEmpty {
+                if !examData.value.isEmpty {
                     VStack(spacing: 12) {
-                        ForEach(Array(examData.exams.prefix(2).enumerated()), id: \.offset) { index, exam in
+                        ForEach(Array(examData.value.prefix(2).enumerated()), id: \.offset) { index, exam in
                             examCard(exam: exam)
 
-                            if index < min(examData.exams.count, 2) - 1 {
+                            if index < min(examData.value.count, 2) - 1 {
                                 Divider()
                                     .padding(.horizontal, 16)
                             }
                         }
 
-                        if examData.exams.count > 2 {
+                        if examData.value.count > 2 {
                             HStack {
                                 Text("...")
                                     .font(.headline)
@@ -61,7 +61,7 @@ struct HomeExamScheduleView: View {
 
                                 Spacer()
 
-                                Text("还有 \(examData.exams.count - 2) 场考试")
+                                Text("还有 \(examData.value.count - 2) 场考试")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }

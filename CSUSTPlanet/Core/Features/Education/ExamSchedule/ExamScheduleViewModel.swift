@@ -17,7 +17,7 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
     @Published var availableSemesters: [String] = []
     @Published var errorMessage = ""
     @Published var warningMessage = ""
-    @Published var data: ExamScheduleData? = nil
+    @Published var data: Cached<[EduHelper.Exam]>? = nil
 
     @Published var isShowingAddToCalendarAlert = false
     @Published var isShowingError = false
@@ -82,7 +82,7 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
     }
 
     func addAllToCalendar() {
-        guard let exams = data?.exams else {
+        guard let exams = data?.value else {
             errorMessage = "考试安排为空，无法添加到日历"
             isShowingError = true
             return
@@ -107,24 +107,17 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
         }
     }
 
-    private func saveDataToLocal(_ data: ExamScheduleData) {
-        let context = SharedModel.context
-        let examSchedules = try? context.fetch(FetchDescriptor<ExamSchedule>())
-        examSchedules?.forEach { context.delete($0) }
-        let examSchedule = ExamSchedule(data: data)
-        context.insert(examSchedule)
-        try? context.save()
+    private func saveDataToLocal(_ data: Cached<[EduHelper.Exam]>) {
+        MMKVManager.shared.examSchedulesCache = data
     }
 
     private func loadDataFromLocal(_ prompt: String? = nil) {
-        let context = SharedModel.context
-        let examSchedules = try? context.fetch(FetchDescriptor<ExamSchedule>())
-        guard let data = examSchedules?.first?.data else { return }
+        guard let data = MMKVManager.shared.examSchedulesCache else { return }
         self.data = data
 
         if let prompt = prompt {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.lastUpdated))
+                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.cachedAt))
                 self.isShowingWarning = true
             }
         }
@@ -140,7 +133,7 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
             if let eduHelper = eduHelper {
                 do {
                     let exams = try await eduHelper.examService.getExamSchedule(academicYearSemester: selectedSemesters, semesterType: selectedSemesterType)
-                    data = ExamScheduleData.fromExams(exams: exams)
+                    data = Cached<[EduHelper.Exam]>(cachedAt: .now, value: exams)
                     saveDataToLocal(data!)
                 } catch {
                     errorMessage = error.localizedDescription

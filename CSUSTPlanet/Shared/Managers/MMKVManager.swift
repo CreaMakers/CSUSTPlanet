@@ -5,9 +5,9 @@
 //  Created by Zachary Liu on 2025/10/1.
 //
 
+import CSUSTKit
 import Foundation
 import MMKV
-import CSUSTKit
 
 struct Cached<T: Codable>: Codable {
     let cachedAt: Date
@@ -166,5 +166,10 @@ extension MMKVManager {
     var urgentCoursesCache: Cached<UrgentCourseData>? {
         get { object(forKey: "Cached.urgentCoursesCache", as: Cached<UrgentCourseData>.self) }
         set { set(forKey: "Cached.urgentCoursesCache", newValue) }
+    }
+
+    var examSchedulesCache: Cached<[EduHelper.Exam]>? {
+        get { object(forKey: "Cached.examSchedulesCache", as: Cached<[EduHelper.Exam]>.self) }
+        set { set(forKey: "Cached.examSchedulesCache", newValue) }
     }
 }

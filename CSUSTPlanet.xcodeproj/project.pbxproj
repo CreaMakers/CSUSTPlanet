@@ -119,7 +119,6 @@
 				Models/Database/CourseSchedule.swift,
 				Models/Database/Dorm.swift,
 				Models/Database/ElectricityRecord.swift,
-				Models/Database/ExamSchedule.swift,
 				Models/GradeAnalysisData.swift,
 				Models/UrgentCourse.swift,
 				Shared/Managers/MMKVManager.swift,

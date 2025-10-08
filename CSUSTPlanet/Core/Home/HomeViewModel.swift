@@ -12,7 +12,7 @@ import SwiftData
 @MainActor
 class HomeViewModel: ObservableObject {
     @Published var gradeAnalysisData: Cached<[EduHelper.CourseGrade]>?
-    @Published var examScheduleData: ExamScheduleData?
+    @Published var examScheduleData: Cached<[EduHelper.Exam]>?
     @Published var courseScheduleData: CourseScheduleData?
     @Published var urgentCourseData: Cached<UrgentCourseData>?
     @Published var electricityDorms: [Dorm] = []
@@ -34,7 +34,7 @@ class HomeViewModel: ObservableObject {
         let context = SharedModel.context
 
         gradeAnalysisData = MMKVManager.shared.courseGradesCache
-        examScheduleData = try? context.fetch(FetchDescriptor<ExamSchedule>()).first?.data
+        examScheduleData = MMKVManager.shared.examSchedulesCache
         courseScheduleData = try? context.fetch(FetchDescriptor<CourseSchedule>()).first?.data
         urgentCourseData = MMKVManager.shared.urgentCoursesCache
 

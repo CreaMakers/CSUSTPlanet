@@ -188,7 +188,7 @@ struct ExamScheduleView: View {
 
             if let data = viewModel.data {
                 VStack(alignment: .leading, spacing: 0) {
-                    ForEach(data.exams, id: \.courseID) { exam in
+                    ForEach(data.value, id: \.courseID) { exam in
                         examCardContent(exam: exam)
                             .padding(.horizontal)
                         Divider()
@@ -209,9 +209,9 @@ struct ExamScheduleView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if let data = viewModel.data, !data.exams.isEmpty {
+            if let data = viewModel.data, !data.value.isEmpty {
                 List {
-                    ForEach(data.exams, id: \.courseID) { exam in
+                    ForEach(data.value, id: \.courseID) { exam in
                         examCard(exam: exam)
                     }
                 }
