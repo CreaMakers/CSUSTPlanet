@@ -36,13 +36,13 @@ struct GradeQueryView: View {
     @ViewBuilder
     private var statsSection: some View {
         VStack(alignment: .center) {
-            if let stats = viewModel.stats {
+            if let analysis = viewModel.analysis {
                 HStack(spacing: 10) {
-                    statItem(title: "GPA", value: String(format: "%.2f", stats.gpa), color: ColorHelper.dynamicColor(point: stats.gpa))
-                    statItem(title: "平均成绩", value: String(format: "%.2f", stats.averageGrade), color: ColorHelper.dynamicColor(grade: stats.averageGrade))
-                    statItem(title: "加权平均成绩", value: String(format: "%.2f", stats.weightedAverageGrade), color: ColorHelper.dynamicColor(grade: stats.weightedAverageGrade))
-                    statItem(title: "已修总学分", value: String(format: "%.1f", stats.totalCredits), color: .blue)
-                    statItem(title: "课程总数", value: "\(stats.courseCount)", color: .purple)
+                    statItem(title: "GPA", value: String(format: "%.2f", analysis.overallGPA), color: ColorHelper.dynamicColor(point: analysis.overallGPA))
+                    statItem(title: "平均成绩", value: String(format: "%.2f", analysis.overallAverageGrade), color: ColorHelper.dynamicColor(grade: analysis.overallAverageGrade))
+                    statItem(title: "加权平均成绩", value: String(format: "%.2f", analysis.weightedAverageGrade), color: ColorHelper.dynamicColor(grade: analysis.weightedAverageGrade))
+                    statItem(title: "已修总学分", value: String(format: "%.1f", analysis.totalCredits), color: .blue)
+                    statItem(title: "课程总数", value: "\(analysis.totalCourses)", color: .purple)
                 }
                 .frame(maxWidth: .infinity)
             } else {

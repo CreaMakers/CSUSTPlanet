@@ -14,7 +14,7 @@ import SwiftUI
 class GradeQueryViewModel: NSObject, ObservableObject {
     @Published var availableSemesters: [String] = []
     @Published var data: Cached<[EduHelper.CourseGrade]>? = nil
-    @Published var stats: (gpa: Double, totalCredits: Double, weightedAverageGrade: Double, averageGrade: Double, courseCount: Int)? = nil
+    @Published var analysis: GradeAnalysisData? = nil
     @Published var errorMessage: String = ""
     @Published var warningMessage: String = ""
 
@@ -51,24 +51,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
 
     private func updateStats() {
         guard let data = data else { return }
-        let totalCredits = data.value.reduce(0) { $0 + $1.credit }
-        if data.value.isEmpty || totalCredits == 0 {
-            stats = nil
-            return
-        }
-        let totalGradePoints = data.value.reduce(0) { $0 + $1.gradePoint * $1.credit }
-        let gpa = totalCredits > 0 ? totalGradePoints / totalCredits : 0
-        let totalGrades = data.value.reduce(0) { $0 + $1.grade }
-        let weightedAverageGrade = data.value.reduce(0) { $0 + Double($1.grade) * $1.credit } / totalCredits
-        let averageGrade = data.value.isEmpty ? 0 : Double(totalGrades) / Double(data.value.count)
-
-        stats = (
-            gpa: gpa,
-            totalCredits: totalCredits,
-            weightedAverageGrade: weightedAverageGrade,
-            averageGrade: averageGrade,
-            courseCount: data.value.count
-        )
+        analysis = GradeAnalysisData.fromCourseGrades(data.value)
     }
 
     func task(_ eduHelper: EduHelper?) {
