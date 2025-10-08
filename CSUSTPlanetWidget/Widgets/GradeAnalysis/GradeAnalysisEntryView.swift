@@ -42,7 +42,7 @@ struct GradeAnalysisEntryView: View {
         return dateFormatter
     }()
 
-    func systemSmall(_ data: GradeAnalysisEntry.GradeAnalysisData, _ lastUpdated: Date) -> some View {
+    func systemSmall(_ data: GradeAnalysisData, _ lastUpdated: Date) -> some View {
         VStack(spacing: 4) {
             HStack {
                 Image(systemName: "chart.bar.xaxis")
@@ -124,14 +124,14 @@ struct GradeAnalysisEntryView: View {
         }
     }
 
-    func systemMedium(_ data: GradeAnalysisEntry.GradeAnalysisData, _ lastUpdated: Date) -> some View {
+    func systemMedium(_ data: GradeAnalysisData, _ lastUpdated: Date) -> some View {
         HStack {
             systemSmall(data, lastUpdated)
             chartView(data)
         }
     }
 
-    func systemLarge(_ data: GradeAnalysisEntry.GradeAnalysisData, _ lastUpdated: Date) -> some View {
+    func systemLarge(_ data: GradeAnalysisData, _ lastUpdated: Date) -> some View {
         VStack(spacing: 12) {
             HStack {
                 Image(systemName: "chart.bar.xaxis")
@@ -203,7 +203,7 @@ struct GradeAnalysisEntryView: View {
         }
     }
 
-    func chartView(_ data: GradeAnalysisEntry.GradeAnalysisData) -> some View {
+    func chartView(_ data: GradeAnalysisData) -> some View {
         Group {
             switch entry.configuration.chartType {
             case .semesterAverage:
