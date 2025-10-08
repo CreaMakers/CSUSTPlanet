@@ -162,4 +162,9 @@ extension MMKVManager {
         get { object(forKey: "Cached.courseGradesCache", as: Cached<[EduHelper.CourseGrade]>.self) }
         set { set(forKey: "Cached.courseGradesCache", newValue) }
     }
+
+    var urgentCoursesCache: Cached<UrgentCourseData>? {
+        get { object(forKey: "Cached.urgentCoursesCache", as: Cached<UrgentCourseData>.self) }
+        set { set(forKey: "Cached.urgentCoursesCache", newValue) }
+    }
 }

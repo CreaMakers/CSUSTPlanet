@@ -13,7 +13,7 @@ import SwiftData
 class UrgentCoursesViewModel: ObservableObject {
     @Published var errorMessage = ""
     @Published var warningMessage = ""
-    @Published var data: UrgentCourseData? = nil
+    @Published var data: Cached<UrgentCourseData>? = nil
 
     @Published var isLoading = false
     @Published var isShowingError = false
@@ -25,24 +25,17 @@ class UrgentCoursesViewModel: ObservableObject {
         loadDataFromLocal()
     }
 
-    private func saveDataToLocal(_ data: UrgentCourseData) {
-        let context = SharedModel.context
-        let urgentCourses = try? context.fetch(FetchDescriptor<UrgentCourse>())
-        urgentCourses?.forEach { context.delete($0) }
-        let urgentCourse = UrgentCourse(data: data)
-        context.insert(urgentCourse)
-        try? context.save()
+    private func saveDataToLocal(_ data: Cached<UrgentCourseData>) {
+        MMKVManager.shared.urgentCoursesCache = data
     }
 
     private func loadDataFromLocal(_ prompt: String? = nil) {
-        let context = SharedModel.context
-        let urgentCourses = try? context.fetch(FetchDescriptor<UrgentCourse>())
-        guard let data = urgentCourses?.first?.data else { return }
+        guard let data = MMKVManager.shared.urgentCoursesCache else { return }
         self.data = data
 
         if let prompt = prompt {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.lastUpdated))
+                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.cachedAt))
                 self.isShowingWarning = true
             }
         }
@@ -58,7 +51,7 @@ class UrgentCoursesViewModel: ObservableObject {
             if let moocHelper = moocHelper {
                 do {
                     let urgentCourses = try await moocHelper.getCourseNamesWithPendingHomeworks()
-                    data = UrgentCourseData.fromCourses(urgentCourses)
+                    data = Cached(cachedAt: .now, value: UrgentCourseData.fromCourses(urgentCourses))
                     saveDataToLocal(data!)
                 } catch {
                     errorMessage = error.localizedDescription

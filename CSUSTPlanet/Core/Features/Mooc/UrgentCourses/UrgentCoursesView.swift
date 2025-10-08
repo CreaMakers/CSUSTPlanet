@@ -49,9 +49,9 @@ struct UrgentCoursesView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if let data = viewModel.data, !data.courses.isEmpty {
+            if let data = viewModel.data, !data.value.courses.isEmpty {
                 List {
-                    ForEach(data.courses, id: \.id) { course in
+                    ForEach(data.value.courses, id: \.id) { course in
                         NavigationLink(destination: CourseDetailView(id: course.id, name: course.name)) {
                             courseCard(course: course)
                         }

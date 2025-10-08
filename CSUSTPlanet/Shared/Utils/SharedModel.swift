@@ -14,7 +14,6 @@ class SharedModel {
         ElectricityRecord.self,
         CourseSchedule.self,
         ExamSchedule.self,
-        UrgentCourse.self,
     ])
 
     static let container: ModelContainer = {
@@ -67,12 +66,6 @@ class SharedModel {
         let examSchedules = try context.fetch(examScheduleFetch)
         for schedule in examSchedules {
             context.delete(schedule)
-        }
-
-        let urgentCourseFetch = FetchDescriptor<UrgentCourse>()
-        let urgentCourses = try context.fetch(urgentCourseFetch)
-        for course in urgentCourses {
-            context.delete(course)
         }
 
         try context.save()

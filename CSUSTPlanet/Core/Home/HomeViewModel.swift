@@ -14,7 +14,7 @@ class HomeViewModel: ObservableObject {
     @Published var gradeAnalysisData: Cached<[EduHelper.CourseGrade]>?
     @Published var examScheduleData: ExamScheduleData?
     @Published var courseScheduleData: CourseScheduleData?
-    @Published var urgentCourseData: UrgentCourseData?
+    @Published var urgentCourseData: Cached<UrgentCourseData>?
     @Published var electricityDorms: [Dorm] = []
     @Published var totalElectricityDorms: Int = 0
     @Published var todayCourses: [CourseDisplayInfo] = []
@@ -37,7 +37,7 @@ class HomeViewModel: ObservableObject {
         gradeAnalysisData = MMKVManager.shared.courseGradesCache
         examScheduleData = try? context.fetch(FetchDescriptor<ExamSchedule>()).first?.data
         courseScheduleData = try? context.fetch(FetchDescriptor<CourseSchedule>()).first?.data
-        urgentCourseData = try? context.fetch(FetchDescriptor<UrgentCourse>()).first?.data
+        urgentCourseData = MMKVManager.shared.urgentCoursesCache
 
         // 加载宿舍电量数据，按最新记录时间排序，最多取2个
         let dormDescriptor = FetchDescriptor<Dorm>()

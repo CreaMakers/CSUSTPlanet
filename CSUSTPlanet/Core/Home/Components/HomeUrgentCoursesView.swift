@@ -9,7 +9,7 @@ import CSUSTKit
 import SwiftUI
 
 struct HomeUrgentCoursesView: View {
-    let urgentCourseData: UrgentCourseData?
+    let urgentCourseData: Cached<UrgentCourseData>?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -42,12 +42,12 @@ struct HomeUrgentCoursesView: View {
 
             // 内容
             if let urgentData = urgentCourseData {
-                if !urgentData.courses.isEmpty {
+                if !urgentData.value.courses.isEmpty {
                     VStack(spacing: 0) {
-                        ForEach(Array(urgentData.courses.enumerated()), id: \.offset) { index, course in
+                        ForEach(Array(urgentData.value.courses.enumerated()), id: \.offset) { index, course in
                             courseCard(course: course)
 
-                            if index < urgentData.courses.count - 1 {
+                            if index < urgentData.value.courses.count - 1 {
                                 Divider()
                                     .padding(.horizontal, 16)
                             }
