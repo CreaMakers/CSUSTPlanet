@@ -31,16 +31,16 @@ class CourseScheduleViewModel: ObservableObject {
     var courseColors: [String: Color] = [:]
 
     // 当日日期
-    #if DEBUG
-        let today: Date = {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd"
-            // 调试时使用固定日期
-            return dateFormatter.date(from: "2025-09-15")!
-        }()
-    #else
-        let today: Date = .now
-    #endif
+    // #if DEBUG
+    //     let today: Date = {
+    //         let dateFormatter = DateFormatter()
+    //         dateFormatter.dateFormat = "yyyy-MM-dd"
+    //         // 调试时使用固定日期
+    //         return dateFormatter.date(from: "2025-09-15")!
+    //     }()
+    // #else
+    let today: Date = .now
+    // #endif
 
     // 当前日期在第几周
     @Published var realCurrentWeek: Int? = nil

@@ -136,9 +136,9 @@ class AuthManager: ObservableObject {
             }
             do {
                 let eduSession = try await ssoHelper.loginToEducation()
-                #if DEBUG
-                    // try await Task.sleep(nanoseconds: 5_000_000_000)
-                #endif
+                // #if DEBUG
+                //     try await Task.sleep(nanoseconds: 5_000_000_000)
+                // #endif
                 if Task.isCancelled { return }
                 eduHelper = EduHelper(session: eduSession)
             } catch {
