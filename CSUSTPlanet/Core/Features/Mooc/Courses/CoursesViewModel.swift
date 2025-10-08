@@ -30,6 +30,7 @@ class CoursesViewModel: ObservableObject {
     }
 
     func loadCourses(_ moocHelper: MoocHelper?) {
+        guard let moocHelper = moocHelper else { return }
         isLoading = true
         Task {
             defer {
@@ -37,7 +38,7 @@ class CoursesViewModel: ObservableObject {
             }
 
             do {
-                courses = try await moocHelper!.getCourses()
+                courses = try await moocHelper.getCourses()
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
