@@ -21,7 +21,6 @@ struct HomeView: View {
                 HomeTodayCoursesView(
                     courseScheduleData: viewModel.courseScheduleData?.value,
                     todayCourses: viewModel.todayCourses,
-                    formatCourseTime: viewModel.formatCourseTime
                 )
 
                 // 待提交作业部分

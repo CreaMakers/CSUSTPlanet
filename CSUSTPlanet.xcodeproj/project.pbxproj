@@ -127,6 +127,7 @@
 				Shared/Utils/Constants.swift,
 				Shared/Utils/KeychainCookieStorage.swift,
 				Shared/Utils/KeychainHelper.swift,
+				Shared/Utils/ScheduleHelper.swift,
 				Shared/Utils/SharedModel.swift,
 			);
 			target = 00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */;

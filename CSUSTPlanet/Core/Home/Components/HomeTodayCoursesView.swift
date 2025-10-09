@@ -11,7 +11,32 @@ import SwiftUI
 struct HomeTodayCoursesView: View {
     let courseScheduleData: CourseScheduleData?
     let todayCourses: [CourseDisplayInfo]
-    let formatCourseTime: (Int, Int) -> String
+
+    func formatCourseTime(_ startSection: Int, _ endSection: Int) -> String {
+        let sectionTimes: [(String, String)] = [
+            ("08:00", "08:45"),
+            ("08:55", "09:40"),
+            ("10:10", "10:55"),
+            ("11:05", "11:50"),
+            ("14:00", "14:45"),
+            ("14:55", "15:40"),
+            ("16:10", "16:55"),
+            ("17:05", "17:50"),
+            ("19:30", "20:15"),
+            ("20:25", "21:10"),
+        ]
+
+        let startIndex = startSection - 1
+        let endIndex = endSection - 1
+
+        guard startIndex >= 0 && startIndex < sectionTimes.count,
+            endIndex >= 0 && endIndex < sectionTimes.count
+        else {
+            return "时间未知"
+        }
+
+        return "\(sectionTimes[startIndex].0) - \(sectionTimes[endIndex].1)"
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -138,7 +163,6 @@ struct HomeTodayCoursesView: View {
 #Preview {
     HomeTodayCoursesView(
         courseScheduleData: nil,
-        todayCourses: [],
-        formatCourseTime: { start, end in "\(start):00-\(end):00" }
+        todayCourses: []
     )
 }

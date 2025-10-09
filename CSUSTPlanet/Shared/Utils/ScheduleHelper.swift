@@ -15,12 +15,8 @@ enum SemesterStatus {
     case afterSemester
 }
 
-struct FilteredCoursesResult {
-    let currentCourse: CourseDisplayInfo?
-    let upcomingCourses: [CourseDisplayInfo]
-}
-
 class ScheduleHelper {
+    /// 每节课的开始和结束时间
     static let sectionTimes: [(String, String)] = [
         ("08:00", "08:45"),
         ("08:55", "09:40"),
@@ -34,10 +30,18 @@ class ScheduleHelper {
         ("20:25", "21:10"),
     ]
 
+    /// 学期总周数
     static let weekCount = 20
 
+    /// 当前日历
+    private static let calendar = Calendar.current
+
+    /// 获取学期状态（开学前、学期中、学期后）
+    /// - Parameters:
+    ///   - date: 目标日期
+    ///   - semesterStartDate: 学期开始日期
+    /// - Returns: 学期状态
     static func getSemesterStatus(for date: Date, semesterStartDate: Date) -> SemesterStatus {
-        let calendar = Calendar.current
         let targetDate = calendar.startOfDay(for: date)
         let startDate = calendar.startOfDay(for: semesterStartDate)
 
@@ -54,6 +58,13 @@ class ScheduleHelper {
         }
     }
 
+    /// 获取未完成的课程（当前进行的和即将开始的课程）
+    /// - Parameters:
+    ///   - date: 目标日期
+    ///   - schedule: 课程表数据
+    ///   - maxCount: 最大返回课程数
+    ///   - currentTime: 目标时间
+    /// - Returns: 未完成的课程列表
     static func getUnfinishedCourses(
         for date: Date,
         in schedule: CourseScheduleData,
@@ -78,7 +89,6 @@ class ScheduleHelper {
             return []
         }
 
-        let calendar = Calendar.current
         if !calendar.isDate(date, inSameDayAs: currentTime) {
             if date > currentTime {
                 return Array(allDailyCourses.prefix(maxCount))
@@ -98,8 +108,13 @@ class ScheduleHelper {
         return Array(unfinishedCourses.prefix(maxCount))
     }
 
-    static func getCourses(for date: Date, semesterStartDate: Date, in weeklyCourses: [Int: [CourseDisplayInfo]]) -> [CourseDisplayInfo] {
-        let calendar = Calendar.current
+    /// 获取指定日期的课程
+    /// - Parameters:
+    ///   - date: 目标日期
+    ///   - semesterStartDate: 学期开始日期
+    ///   - weeklyCourses: 按周组织的课程字典
+    /// - Returns: 指定日期的课程列表
+    private static func getCourses(for date: Date, semesterStartDate: Date, in weeklyCourses: [Int: [CourseDisplayInfo]]) -> [CourseDisplayInfo] {
         let targetDate = calendar.startOfDay(for: date)
         let startDate = calendar.startOfDay(for: semesterStartDate)
 
@@ -125,14 +140,17 @@ class ScheduleHelper {
         return coursesForToday.sorted { $0.session.startSection < $1.session.startSection }
     }
 
-    static func filterCurrentAndUpcomingCourses(
+    /// 筛选当前的和即将到来的课程
+    /// - Parameters:
+    ///   - dailyCourses: 课程列表
+    ///   - currentTime: 目标时间
+    /// - Returns: 筛选结果（当前课程和即将到来的课程）
+    private static func filterCurrentAndUpcomingCourses(
         from dailyCourses: [CourseDisplayInfo],
         at currentTime: Date = .now
-    ) -> FilteredCoursesResult {
+    ) -> (currentCourse: CourseDisplayInfo?, upcomingCourses: [CourseDisplayInfo]) {
         var currentCourse: CourseDisplayInfo? = nil
         var upcomingCourses: [CourseDisplayInfo] = []
-
-        let calendar = Calendar.current
 
         for courseInfo in dailyCourses {
             let startSectionIndex = courseInfo.session.startSection - 1
@@ -147,8 +165,8 @@ class ScheduleHelper {
             let courseStartTimeString = sectionTimes[startSectionIndex].0
             let courseEndTimeString = sectionTimes[endSectionIndex].1
 
-            guard let courseStartDate = date(from: courseStartTimeString, on: currentTime, using: calendar),
-                let courseEndDate = date(from: courseEndTimeString, on: currentTime, using: calendar)
+            guard let courseStartDate = date(from: courseStartTimeString, on: currentTime),
+                let courseEndDate = date(from: courseEndTimeString, on: currentTime)
             else {
                 continue
             }
@@ -160,10 +178,15 @@ class ScheduleHelper {
             }
         }
 
-        return FilteredCoursesResult(currentCourse: currentCourse, upcomingCourses: upcomingCourses)
+        return (currentCourse: currentCourse, upcomingCourses: upcomingCourses)
     }
 
-    static func date(from timeString: String, on date: Date, using calendar: Calendar) -> Date? {
+    /// 将时间字符串转换为日期
+    /// - Parameters:
+    ///   - timeString: "HH:mm"格式的时间字符串
+    ///   - date: 目标日期
+    /// - Returns: 转换后的日期，如果转换失败则返回nil
+    private static func date(from timeString: String, on date: Date) -> Date? {
         let components = timeString.split(separator: ":").compactMap { Int($0) }
         guard components.count == 2 else { return nil }
 
@@ -175,19 +198,26 @@ class ScheduleHelper {
         )
     }
 
+    /// 获取日期对应的星期字符串
+    /// - Parameter date: 目标日期
+    /// - Returns: 星期字符串（如"周一"）
     static func getWeekday(from date: Date) -> String {
-        let calendar = Calendar.current
         let weekday = calendar.component(.weekday, from: date)
 
         let weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"]
         return weekdays[weekday - 1]
     }
 
+    /// 计算当前是第几周
+    /// - Parameters:
+    ///   - start: 学期开始日期
+    ///   - date: 目标日期
+    /// - Returns: 当前周数（如果日期在学期范围内），否则返回nil
     static func calculateCurrentWeek(from start: Date, for date: Date) -> Int? {
-        let startDate = Calendar.current.startOfDay(for: start)
-        let todayDate = Calendar.current.startOfDay(for: date)
+        let startDate = calendar.startOfDay(for: start)
+        let todayDate = calendar.startOfDay(for: date)
 
-        let components = Calendar.current.dateComponents([.day], from: startDate, to: todayDate)
+        let components = calendar.dateComponents([.day], from: startDate, to: todayDate)
         guard let days = components.day else { return 1 }
 
         if days < 0 { return nil }
@@ -200,8 +230,12 @@ class ScheduleHelper {
         return weekNumber
     }
 
+    /// 计算距离开学还有多少天
+    /// - Parameters:
+    ///   - semesterStartDate: 学期开始日期
+    ///   - currentDate: 当前日期
+    /// - Returns: 距离开学的天数（如果开学日期在未来），否则返回nil
     static func daysUntilSemesterStart(from semesterStartDate: Date, currentDate: Date) -> Int? {
-        let calendar = Calendar.current
         let startDate = calendar.startOfDay(for: semesterStartDate)
         let today = calendar.startOfDay(for: currentDate)
         let components = calendar.dateComponents([.day], from: today, to: startDate)
@@ -209,6 +243,9 @@ class ScheduleHelper {
         return days > 0 ? days : nil
     }
 
+    /// 为课程分配颜色
+    /// - Parameter courses: 课程列表
+    /// - Returns: 课程名称到颜色的映射字典
     static func getCourseColors(courses: [EduHelper.Course]) -> [String: Color] {
         var courseColors: [String: Color] = [:]
         var colorIndex = 0
