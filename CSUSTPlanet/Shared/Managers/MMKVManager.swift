@@ -21,7 +21,7 @@ class MMKVManager: ObservableObject {
 
     private init() {}
 
-    private(set) var defaultMMKV: MMKV!
+    private var defaultMMKV: MMKV?
 
     private let jsonEncoder = {
         let encoder = JSONEncoder()
@@ -49,7 +49,7 @@ class MMKVManager: ObservableObject {
 // MARK: - Methods
 
 extension MMKVManager {
-    func setupMMKV() {
+    func setup() {
         guard let mmkvDirectoryURL = Constants.mmkvDirectoryURL else {
             fatalError("Failed to get MMKV directory URL")
         }
@@ -60,8 +60,19 @@ extension MMKVManager {
         self.defaultMMKV = defaultMMKV
     }
 
+    func close() {
+        guard let defaultMMKV = defaultMMKV else { return }
+        defaultMMKV.sync()
+        defaultMMKV.close()
+        self.defaultMMKV = nil
+    }
+
     func clearAll() {
-        defaultMMKV.clearAll()
+        defaultMMKV?.clearAll()
+    }
+    
+    func sync() {
+        defaultMMKV?.sync()
     }
 }
 
@@ -69,32 +80,32 @@ extension MMKVManager {
 
 extension MMKVManager {
     func set(forKey key: String, _ value: String) {
-        defaultMMKV.set(value, forKey: key)
+        defaultMMKV?.set(value, forKey: key)
     }
 
     func set(forKey key: String, _ value: Int) {
-        defaultMMKV.set(Int64(value), forKey: key)
+        defaultMMKV?.set(Int64(value), forKey: key)
     }
 
     func set(forKey key: String, _ value: Bool) {
-        defaultMMKV.set(value, forKey: key)
+        defaultMMKV?.set(value, forKey: key)
     }
 
     func set(forKey key: String, _ value: Float) {
-        defaultMMKV.set(value, forKey: key)
+        defaultMMKV?.set(value, forKey: key)
     }
 
     func set(forKey key: String, _ value: Double) {
-        defaultMMKV.set(value, forKey: key)
+        defaultMMKV?.set(value, forKey: key)
     }
 
     func set(forKey key: String, _ value: Data) {
-        defaultMMKV.set(value, forKey: key)
+        defaultMMKV?.set(value, forKey: key)
     }
 
     func set<Type: Encodable>(forKey key: String, _ value: Type) {
         if let data = try? jsonEncoder.encode(value) {
-            defaultMMKV.set(data, forKey: key)
+            defaultMMKV?.set(data, forKey: key)
         }
     }
 }
@@ -103,10 +114,11 @@ extension MMKVManager {
 
 extension MMKVManager {
     func string(forKey key: String) -> String? {
-        defaultMMKV.string(forKey: key)
+        defaultMMKV?.string(forKey: key)
     }
 
     func int(forKey key: String) -> Int? {
+        guard let defaultMMKV = defaultMMKV else { return nil }
         if defaultMMKV.contains(key: key) {
             return Int(defaultMMKV.int64(forKey: key))
         }
@@ -114,6 +126,7 @@ extension MMKVManager {
     }
 
     func bool(forKey key: String) -> Bool? {
+        guard let defaultMMKV = defaultMMKV else { return nil }
         if defaultMMKV.contains(key: key) {
             return defaultMMKV.bool(forKey: key)
         }
@@ -121,6 +134,7 @@ extension MMKVManager {
     }
 
     func float(forKey key: String) -> Float? {
+        guard let defaultMMKV = defaultMMKV else { return nil }
         if defaultMMKV.contains(key: key) {
             return defaultMMKV.float(forKey: key)
         }
@@ -128,6 +142,7 @@ extension MMKVManager {
     }
 
     func double(forKey key: String) -> Double? {
+        guard let defaultMMKV = defaultMMKV else { return nil }
         if defaultMMKV.contains(key: key) {
             return defaultMMKV.double(forKey: key)
         }
@@ -135,10 +150,12 @@ extension MMKVManager {
     }
 
     func data(forKey key: String) -> Data? {
-        defaultMMKV.data(forKey: key)
+        guard let defaultMMKV = defaultMMKV else { return nil }
+        return defaultMMKV.data(forKey: key)
     }
 
     func object<Type: Decodable>(forKey key: String, as type: Type.Type) -> Type? {
+        guard let defaultMMKV = defaultMMKV else { return nil }
         guard let data = defaultMMKV.data(forKey: key) else {
             return nil
         }

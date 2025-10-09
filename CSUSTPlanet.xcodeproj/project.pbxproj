@@ -120,7 +120,7 @@
 				Models/Database/Dorm.swift,
 				Models/Database/ElectricityRecord.swift,
 				Models/GradeAnalysisData.swift,
-				Models/UrgentCourse.swift,
+				Models/UrgentCourseData.swift,
 				Shared/Managers/MMKVManager.swift,
 				Shared/Utils/AppEnvironmentHelper.swift,
 				Shared/Utils/ColorHelper.swift,

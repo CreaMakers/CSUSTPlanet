@@ -94,6 +94,7 @@ class CourseScheduleViewModel: ObservableObject {
 
     private func saveDataToLocal(_ data: Cached<CourseScheduleData>) {
         MMKVManager.shared.courseScheduleCache = data
+        MMKVManager.shared.sync()
     }
 
     private func loadDataFromLocal(_ prompt: String? = nil) {
@@ -155,8 +156,9 @@ class CourseScheduleViewModel: ObservableObject {
                 do {
                     let courses = try await eduHelper.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
                     let semesterStartDate = try await eduHelper.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
-                    data = Cached<CourseScheduleData>(cachedAt: .now, value: CourseScheduleData(semester: selectedSemester, semesterStartDate: semesterStartDate, courses: courses))
-                    saveDataToLocal(data!)
+                    let data = Cached<CourseScheduleData>(cachedAt: .now, value: CourseScheduleData(semester: selectedSemester, semesterStartDate: semesterStartDate, courses: courses))
+                    self.data = data
+                    saveDataToLocal(data)
                     updateSchedules(semesterStartDate, courses)
                     WidgetCenter.shared.reloadTimelines(ofKind: "TodayCoursesWidget")
                     WidgetCenter.shared.reloadTimelines(ofKind: "WeeklyCoursesWidget")

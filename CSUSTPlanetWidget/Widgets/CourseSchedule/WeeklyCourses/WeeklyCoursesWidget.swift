@@ -20,7 +20,10 @@ struct WeeklyCoursesProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: WeeklyCoursesIntent, in context: Context) async -> Timeline<WeeklyCoursesEntry> {
-        MMKVManager.shared.setupMMKV()
+        MMKVManager.shared.setup()
+        defer {
+            MMKVManager.shared.close()
+        }
         let currentDate: Date = .now
 
         guard let data = MMKVManager.shared.courseScheduleCache else {

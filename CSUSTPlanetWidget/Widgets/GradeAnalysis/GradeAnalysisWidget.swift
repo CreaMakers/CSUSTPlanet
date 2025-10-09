@@ -60,7 +60,10 @@ struct GradeAnalysisProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: GradeAnalysisIntent, in context: Context) async -> Timeline<GradeAnalysisEntry> {
-        MMKVManager.shared.setupMMKV()
+        MMKVManager.shared.setup()
+        defer {
+            MMKVManager.shared.close()
+        }
         debugPrint("GradeAnalysisProvider: Fetching grade analysis for widget")
 
         var finalData: Cached<[EduHelper.CourseGrade]>? = nil
