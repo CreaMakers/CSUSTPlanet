@@ -15,7 +15,6 @@
 		00A7DA052E8C60D800BA7927 /* MMKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00A7D9FF2E8C60A500BA7927 /* MMKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		00B4760D2E633E4C009C1E39 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 00B4760C2E633E4C009C1E39 /* AlertToast */; };
 		00BE890F2E94BD4600B772CD /* MMKVAppExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00BE890C2E94BD4600B772CD /* MMKVAppExtension.framework */; };
-		00BE89102E94BD4600B772CD /* MMKVAppExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00BE890C2E94BD4600B772CD /* MMKVAppExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		00CD22612E6757E6008AB82B /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 00CD22602E6757E6008AB82B /* Toasts */; };
 		00D1CF1F2E79DCC1005E67A2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00D1CF1E2E79DCC1005E67A2 /* CSUSTKit */; };
 		00D1CF212E79DCD5005E67A2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00D1CF202E79DCD5005E67A2 /* CSUSTKit */; };
@@ -23,6 +22,8 @@
 		00E89C632E2C88D800B43162 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C622E2C88D800B43162 /* WidgetKit.framework */; };
 		00E89C652E2C88D800B43162 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C642E2C88D800B43162 /* SwiftUI.framework */; };
 		00E89C722E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		00FEA7F62E97EC30000AF872 /* MMKVAppExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00BE890C2E94BD4600B772CD /* MMKVAppExtension.framework */; };
+		00FEA7F72E97EC30000AF872 /* MMKVAppExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00BE890C2E94BD4600B772CD /* MMKVAppExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,17 +65,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				00A7DA052E8C60D800BA7927 /* MMKV.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		00BE89112E94BD4600B772CD /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				00BE89102E94BD4600B772CD /* MMKVAppExtension.framework in Embed Frameworks */,
+				00FEA7F72E97EC30000AF872 /* MMKVAppExtension.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -183,6 +174,7 @@
 				00A7DA042E8C60D800BA7927 /* MMKV.framework in Frameworks */,
 				004D050C2E8C3E1B0055B86B /* FLEX in Frameworks */,
 				004D050F2E8C419F0055B86B /* LookinServer in Frameworks */,
+				00FEA7F62E97EC30000AF872 /* MMKVAppExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,7 +275,6 @@
 				00E89C5C2E2C88D800B43162 /* Sources */,
 				00E89C5D2E2C88D800B43162 /* Frameworks */,
 				00E89C5E2E2C88D800B43162 /* Resources */,
-				00BE89112E94BD4600B772CD /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -568,7 +559,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				"OTHER_LDFLAGS[arch=*]" = (
 					"-Xlinker",
 					"-interposable",
@@ -612,7 +603,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zhelearn.CSUSTPlanet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
