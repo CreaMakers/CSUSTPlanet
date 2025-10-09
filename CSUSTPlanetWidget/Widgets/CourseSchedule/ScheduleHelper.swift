@@ -60,7 +60,19 @@ class ScheduleHelper {
         maxCount: Int,
         at currentTime: Date = .now
     ) -> [CourseDisplayInfo] {
-        let allDailyCourses = getCourses(for: date, in: schedule)
+        let weeklyCourses = {
+            var processedCourses: [Int: [CourseDisplayInfo]] = [:]
+            for course in schedule.courses {
+                for session in course.sessions {
+                    let displayInfo = CourseDisplayInfo(course: course, session: session)
+                    for week in session.weeks {
+                        processedCourses[week, default: []].append(displayInfo)
+                    }
+                }
+            }
+            return processedCourses
+        }()
+        let allDailyCourses = getCourses(for: date, semesterStartDate: schedule.semesterStartDate, in: weeklyCourses)
 
         if allDailyCourses.isEmpty || maxCount <= 0 {
             return []
@@ -86,10 +98,10 @@ class ScheduleHelper {
         return Array(unfinishedCourses.prefix(maxCount))
     }
 
-    static func getCourses(for date: Date, in schedule: CourseScheduleData) -> [CourseDisplayInfo] {
+    static func getCourses(for date: Date, semesterStartDate: Date, in weeklyCourses: [Int: [CourseDisplayInfo]]) -> [CourseDisplayInfo] {
         let calendar = Calendar.current
         let targetDate = calendar.startOfDay(for: date)
-        let startDate = calendar.startOfDay(for: schedule.semesterStartDate)
+        let startDate = calendar.startOfDay(for: semesterStartDate)
 
         let dayDifference = calendar.dateComponents([.day], from: startDate, to: targetDate).day ?? -1
 
@@ -104,7 +116,7 @@ class ScheduleHelper {
             return []
         }
 
-        guard let coursesForWeek = schedule.weeklyCourses[currentWeek] else {
+        guard let coursesForWeek = weeklyCourses[currentWeek] else {
             return []
         }
 
@@ -127,7 +139,7 @@ class ScheduleHelper {
             let endSectionIndex = courseInfo.session.endSection - 1
 
             guard startSectionIndex >= 0 && startSectionIndex < sectionTimes.count,
-                  endSectionIndex >= 0 && endSectionIndex < sectionTimes.count
+                endSectionIndex >= 0 && endSectionIndex < sectionTimes.count
             else {
                 continue
             }
@@ -136,7 +148,7 @@ class ScheduleHelper {
             let courseEndTimeString = sectionTimes[endSectionIndex].1
 
             guard let courseStartDate = date(from: courseStartTimeString, on: currentTime, using: calendar),
-                  let courseEndDate = date(from: courseEndTimeString, on: currentTime, using: calendar)
+                let courseEndDate = date(from: courseEndTimeString, on: currentTime, using: calendar)
             else {
                 continue
             }

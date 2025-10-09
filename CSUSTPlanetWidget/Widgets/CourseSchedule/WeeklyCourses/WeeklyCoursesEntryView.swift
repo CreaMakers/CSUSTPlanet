@@ -77,39 +77,51 @@ struct WeeklyCoursesEntryView: View {
         .widgetURL(URL(string: "csustplanet://widgets/courseSchedule"))
     }
 
+    @ViewBuilder
     func courseScheduleView(data: CourseScheduleData) -> some View {
-        Group {
-            switch ScheduleHelper.getSemesterStatus(for: entry.date, semesterStartDate: data.semesterStartDate) {
-            case .beforeSemester:
-                VStack {
-                    Text("学期未开始")
-                    if let daysUntilStart = ScheduleHelper.daysUntilSemesterStart(from: data.semesterStartDate, currentDate: entry.date) {
-                        Text("还有 \(daysUntilStart) 天开学")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.primary)
-                            .padding(.top, 2)
-                    }
+        switch ScheduleHelper.getSemesterStatus(for: entry.date, semesterStartDate: data.semesterStartDate) {
+        case .beforeSemester:
+            VStack {
+                Text("学期未开始")
+                if let daysUntilStart = ScheduleHelper.daysUntilSemesterStart(from: data.semesterStartDate, currentDate: entry.date) {
+                    Text("还有 \(daysUntilStart) 天开学")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.primary)
+                        .padding(.top, 2)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            case .afterSemester:
-                Text("学期已结束")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            case .inSemester:
-                let currentWeek = ScheduleHelper.calculateCurrentWeek(from: data.semesterStartDate, for: entry.date) ?? 1
-                let firstVisibleSection = firstVisibleSection(for: entry.date)
-
-                let courseColors = ScheduleHelper.getCourseColors(courses: data.courses)
-
-                VStack {
-                    headerView(for: currentWeek, semesterStartDate: data.semesterStartDate)
-
-                    ZStack(alignment: .topLeading) {
-                        backgroundGrid(firstVisibleSection: firstVisibleSection)
-                        coursesOverlay(for: currentWeek, weeklyCourses: data.weeklyCourses, firstVisibleSection: firstVisibleSection, courseColors: courseColors)
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        case .afterSemester:
+            Text("学期已结束")
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        case .inSemester:
+            let currentWeek = ScheduleHelper.calculateCurrentWeek(from: data.semesterStartDate, for: entry.date) ?? 1
+            let firstVisibleSection = firstVisibleSection(for: entry.date)
+
+            let courseColors = ScheduleHelper.getCourseColors(courses: data.courses)
+
+            let weeklyCourses = {
+                var processedCourses: [Int: [CourseDisplayInfo]] = [:]
+                for course in data.courses {
+                    for session in course.sessions {
+                        let displayInfo = CourseDisplayInfo(course: course, session: session)
+                        for week in session.weeks {
+                            processedCourses[week, default: []].append(displayInfo)
+                        }
+                    }
+                }
+                return processedCourses
+            }()
+
+            VStack {
+                headerView(for: currentWeek, semesterStartDate: data.semesterStartDate)
+
+                ZStack(alignment: .topLeading) {
+                    backgroundGrid(firstVisibleSection: firstVisibleSection)
+                    coursesOverlay(for: currentWeek, weeklyCourses: weeklyCourses, firstVisibleSection: firstVisibleSection, courseColors: courseColors)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
 

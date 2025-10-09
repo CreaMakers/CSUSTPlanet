@@ -84,7 +84,20 @@ class HomeViewModel: ObservableObject {
             return []
         }
 
-        guard let coursesForWeek = scheduleData.weeklyCourses[currentWeek] else {
+        let weeklyCourses = {
+            var processedCourses: [Int: [CourseDisplayInfo]] = [:]
+            for course in scheduleData.courses {
+                for session in course.sessions {
+                    let displayInfo = CourseDisplayInfo(course: course, session: session)
+                    for week in session.weeks {
+                        processedCourses[week, default: []].append(displayInfo)
+                    }
+                }
+            }
+            return processedCourses
+        }()
+
+        guard let coursesForWeek = weeklyCourses[currentWeek] else {
             return []
         }
 
