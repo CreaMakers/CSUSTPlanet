@@ -89,6 +89,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
 
     private func saveDataToLocal(_ data: Cached<[EduHelper.CourseGrade]>) {
         MMKVManager.shared.courseGradesCache = data
+        MMKVManager.shared.sync()
     }
 
     private func loadDataFromLocal(_ prompt: String? = nil) {
