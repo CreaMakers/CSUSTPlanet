@@ -22,7 +22,7 @@ struct CourseScheduleView: View {
                 // 课表的每一周翻页
                 TabView(selection: $viewModel.currentWeek) {
                     ForEach(1...viewModel.weekCount, id: \.self) { week in
-                        tableView(for: week, semesterStartDate: courseScheduleData.semesterStartDate, weeklyCourses: courseScheduleData.weeklyCourses)
+                        tableView(for: week, semesterStartDate: courseScheduleData.value.semesterStartDate, weeklyCourses: viewModel.weeklyCourses)
                             .tag(week)
                     }
                 }

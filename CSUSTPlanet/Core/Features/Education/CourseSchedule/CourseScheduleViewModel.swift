@@ -13,7 +13,8 @@ import WidgetKit
 
 @MainActor
 class CourseScheduleViewModel: ObservableObject {
-    @Published var data: CourseScheduleData? = nil
+    @Published var data: Cached<CourseScheduleData>? = nil
+    @Published var weeklyCourses: [Int: [CourseDisplayInfo]] = [:]
     @Published var errorMessage: String = ""
     @Published var warningMessage: String = ""
     @Published var availableSemesters: [String] = []
@@ -91,25 +92,18 @@ class CourseScheduleViewModel: ObservableObject {
         }
     }
 
-    private func saveDataToLocal(_ data: CourseScheduleData) {
-        let context = SharedModel.context
-        let courseSchedules = try? context.fetch(FetchDescriptor<CourseSchedule>())
-        courseSchedules?.forEach { context.delete($0) }
-        let courseSchedule = CourseSchedule(data: data)
-        context.insert(courseSchedule)
-        try? context.save()
+    private func saveDataToLocal(_ data: Cached<CourseScheduleData>) {
+        MMKVManager.shared.courseScheduleCache = data
     }
 
     private func loadDataFromLocal(_ prompt: String? = nil) {
-        let context = SharedModel.context
-        let courseSchedules = try? context.fetch(FetchDescriptor<CourseSchedule>())
-        guard let data = courseSchedules?.first?.data else { return }
+        guard let data = MMKVManager.shared.courseScheduleCache else { return }
         self.data = data
-        updateSchedules(data.semesterStartDate, data.courses)
+        updateSchedules(data.value.semesterStartDate, data.value.courses)
 
         if let prompt = prompt {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.lastUpdated))
+                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.cachedAt))
                 self.isShowingWarning = true
             }
         }
@@ -118,6 +112,19 @@ class CourseScheduleViewModel: ObservableObject {
     private func updateSchedules(_ semesterStartDate: Date, _ courses: [EduHelper.Course]) {
         let calculatedWeek = calculateCurrentWeek(from: semesterStartDate, for: today)
         self.realCurrentWeek = calculatedWeek
+
+        self.weeklyCourses = {
+            var processedCourses: [Int: [CourseDisplayInfo]] = [:]
+            for course in courses {
+                for session in course.sessions {
+                    let displayInfo = CourseDisplayInfo(course: course, session: session)
+                    for week in session.weeks {
+                        processedCourses[week, default: []].append(displayInfo)
+                    }
+                }
+            }
+            return processedCourses
+        }()
 
         courseColors = [:]
         var colorIndex = 0
@@ -148,7 +155,7 @@ class CourseScheduleViewModel: ObservableObject {
                 do {
                     let courses = try await eduHelper.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
                     let semesterStartDate = try await eduHelper.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
-                    data = CourseScheduleData.fromCourses(courses: courses, semester: selectedSemester, semesterStartDate: semesterStartDate)
+                    data = Cached<CourseScheduleData>(cachedAt: .now, value: CourseScheduleData(semester: selectedSemester, semesterStartDate: semesterStartDate, courses: courses))
                     saveDataToLocal(data!)
                     updateSchedules(semesterStartDate, courses)
                     WidgetCenter.shared.reloadTimelines(ofKind: "TodayCoursesWidget")

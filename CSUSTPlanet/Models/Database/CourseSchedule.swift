@@ -19,11 +19,9 @@ struct CourseDisplayInfo: Identifiable, Codable {
 struct CourseScheduleData: Codable {
     var semester: String?
     var semesterStartDate: Date
-    var weeklyCourses: [Int: [CourseDisplayInfo]]
     var courses: [EduHelper.Course]
-    var lastUpdated: Date
 
-    static func fromCourses(courses: [EduHelper.Course], semester: String?, semesterStartDate: Date) -> CourseScheduleData {
+    var weeklyCourses: [Int: [CourseDisplayInfo]] {
         var processedCourses: [Int: [CourseDisplayInfo]] = [:]
 
         for course in courses {
@@ -35,19 +33,6 @@ struct CourseScheduleData: Codable {
                 }
             }
         }
-        return CourseScheduleData(semester: semester, semesterStartDate: semesterStartDate, weeklyCourses: processedCourses, courses: courses, lastUpdated: .now)
-    }
-
-    static func empty() -> CourseScheduleData {
-        return CourseScheduleData(semester: "", semesterStartDate: .now, weeklyCourses: [:], courses: [], lastUpdated: .now)
-    }
-}
-
-@Model
-class CourseSchedule {
-    var data: CourseScheduleData = CourseScheduleData.empty()
-
-    init(data: CourseScheduleData) {
-        self.data = data
+        return processedCourses
     }
 }

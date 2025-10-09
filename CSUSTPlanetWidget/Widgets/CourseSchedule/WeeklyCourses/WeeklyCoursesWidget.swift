@@ -20,22 +20,19 @@ struct WeeklyCoursesProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: WeeklyCoursesIntent, in context: Context) async -> Timeline<WeeklyCoursesEntry> {
+        MMKVManager.shared.setupMMKV()
         let currentDate: Date = .now
 
-        let descriptor = FetchDescriptor<CourseSchedule>()
-        let modelContext = SharedModel.context
-        let courseSchedule = try? modelContext.fetch(descriptor).first
-
-        guard let data = courseSchedule?.data else {
+        guard let data = MMKVManager.shared.courseScheduleCache else {
             let entry = WeeklyCoursesEntry(date: .now, configuration: configuration, data: nil)
             let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: .now)!
             return Timeline(entries: [entry], policy: .after(nextUpdate))
         }
 
-        let semesterStatus = ScheduleHelper.getSemesterStatus(for: currentDate, semesterStartDate: data.semesterStartDate)
+        let semesterStatus = ScheduleHelper.getSemesterStatus(for: currentDate, semesterStartDate: data.value.semesterStartDate)
 
         if semesterStatus == .beforeSemester || semesterStatus == .afterSemester {
-            let entry = WeeklyCoursesEntry(date: currentDate, configuration: configuration, data: data)
+            let entry = WeeklyCoursesEntry(date: currentDate, configuration: configuration, data: data.value)
             let refreshDate = Calendar.current.date(byAdding: .hour, value: 12, to: currentDate)!
             return Timeline(entries: [entry], policy: .after(refreshDate))
         }
@@ -43,7 +40,7 @@ struct WeeklyCoursesProvider: AppIntentTimelineProvider {
         var entries: [WeeklyCoursesEntry] = []
         let calendar = Calendar.current
 
-        entries.append(WeeklyCoursesEntry(date: currentDate, configuration: configuration, data: data))
+        entries.append(WeeklyCoursesEntry(date: currentDate, configuration: configuration, data: data.value))
 
         let startOfDay = calendar.startOfDay(for: currentDate)
         let refreshTimes: [(hour: Int, minute: Int)] = [
@@ -51,13 +48,13 @@ struct WeeklyCoursesProvider: AppIntentTimelineProvider {
             (11, 51),
             (15, 41),
             (17, 51),
-            (21, 11)
+            (21, 11),
         ]
 
         for time in refreshTimes {
             if let entryDate = calendar.date(bySettingHour: time.hour, minute: time.minute, second: 0, of: startOfDay) {
                 if entryDate > currentDate {
-                    let entry = WeeklyCoursesEntry(date: entryDate, configuration: configuration, data: data)
+                    let entry = WeeklyCoursesEntry(date: entryDate, configuration: configuration, data: data.value)
                     entries.append(entry)
                 }
             }

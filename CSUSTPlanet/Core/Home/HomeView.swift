@@ -19,7 +19,7 @@ struct HomeView: View {
 
                 // 今日课程部分
                 HomeTodayCoursesView(
-                    courseScheduleData: viewModel.courseScheduleData,
+                    courseScheduleData: viewModel.courseScheduleData?.value,
                     todayCourses: viewModel.todayCourses,
                     formatCourseTime: viewModel.formatCourseTime
                 )

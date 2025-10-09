@@ -80,7 +80,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "_XCWidgetKind"
-            value = "GradeAnalysisWidget"
+            value = "TodayCoursesWidget"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable

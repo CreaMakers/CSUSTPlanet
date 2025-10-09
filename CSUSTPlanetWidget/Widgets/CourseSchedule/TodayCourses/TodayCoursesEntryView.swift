@@ -157,7 +157,7 @@ func mockTodayCoursesEntry() -> TodayCoursesEntry {
     let semesterDateFormatter = DateFormatter()
     semesterDateFormatter.dateFormat = "yyyy-MM-dd"
 
-    let data = CourseScheduleData.fromCourses(courses: courses, semester: "2025-2026-1", semesterStartDate: semesterDateFormatter.date(from: "2025-09-07")!)
+    let data = CourseScheduleData(semester: "2025-2026-1", semesterStartDate: semesterDateFormatter.date(from: "2025-09-07")!, courses: courses)
 
     let timeDateFormatter = DateFormatter()
     timeDateFormatter.dateFormat = "yyyy-MM-dd HH:mm"

@@ -13,7 +13,7 @@ import SwiftData
 class HomeViewModel: ObservableObject {
     @Published var gradeAnalysisData: Cached<[EduHelper.CourseGrade]>?
     @Published var examScheduleData: Cached<[EduHelper.Exam]>?
-    @Published var courseScheduleData: CourseScheduleData?
+    @Published var courseScheduleData: Cached<CourseScheduleData>?
     @Published var urgentCourseData: Cached<UrgentCourseData>?
     @Published var electricityDorms: [Dorm] = []
     @Published var totalElectricityDorms: Int = 0
@@ -35,7 +35,7 @@ class HomeViewModel: ObservableObject {
 
         gradeAnalysisData = MMKVManager.shared.courseGradesCache
         examScheduleData = MMKVManager.shared.examSchedulesCache
-        courseScheduleData = try? context.fetch(FetchDescriptor<CourseSchedule>()).first?.data
+        courseScheduleData = MMKVManager.shared.courseScheduleCache
         urgentCourseData = MMKVManager.shared.urgentCoursesCache
 
         // 加载宿舍电量数据，按最新记录时间排序，最多取2个
@@ -56,7 +56,7 @@ class HomeViewModel: ObservableObject {
 
         // 加载今日课程数据
         if let scheduleData = courseScheduleData {
-            todayCourses = getTodayCourses(from: scheduleData)
+            todayCourses = getTodayCourses(from: scheduleData.value)
         }
     }
 
