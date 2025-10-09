@@ -14,23 +14,14 @@ struct Cached<T: Codable>: Codable {
     let value: T
 }
 
+// MARK: - Properties
+
 class MMKVManager: ObservableObject {
     static let shared = MMKVManager()
 
     private init() {}
 
     private(set) var defaultMMKV: MMKV!
-
-    func setupMMKV() {
-        guard let mmkvDirectoryURL = Constants.mmkvDirectoryURL else {
-            fatalError("Failed to get MMKV directory URL")
-        }
-        MMKV.initialize(rootDir: mmkvDirectoryURL.path)
-        guard let defaultMMKV = MMKV(mmapID: Constants.mmkvID) else {
-            fatalError("Failed to initialize MMKV with ID: \(Constants.mmkvID)")
-        }
-        self.defaultMMKV = defaultMMKV
-    }
 
     private let jsonEncoder = {
         let encoder = JSONEncoder()
@@ -53,6 +44,25 @@ class MMKVManager: ObservableObject {
         )
         return decoder
     }()
+}
+
+// MARK: - Methods
+
+extension MMKVManager {
+    func setupMMKV() {
+        guard let mmkvDirectoryURL = Constants.mmkvDirectoryURL else {
+            fatalError("Failed to get MMKV directory URL")
+        }
+        MMKV.initialize(rootDir: mmkvDirectoryURL.path)
+        guard let defaultMMKV = MMKV(mmapID: Constants.mmkvID) else {
+            fatalError("Failed to initialize MMKV with ID: \(Constants.mmkvID)")
+        }
+        self.defaultMMKV = defaultMMKV
+    }
+
+    func clearAll() {
+        defaultMMKV.clearAll()
+    }
 }
 
 // MARK: - Setters

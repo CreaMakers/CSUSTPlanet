@@ -159,6 +159,7 @@ class CourseScheduleViewModel: ObservableObject {
                     saveDataToLocal(data!)
                     updateSchedules(semesterStartDate, courses)
                     WidgetCenter.shared.reloadTimelines(ofKind: "TodayCoursesWidget")
+                    WidgetCenter.shared.reloadTimelines(ofKind: "WeeklyCoursesWidget")
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true

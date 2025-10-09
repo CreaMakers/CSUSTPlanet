@@ -62,6 +62,20 @@ struct AboutView: View {
                     }
 
                     Button(action: {
+                        MMKVManager.shared.clearAll()
+                    }) {
+                        Label("清除所有MMKV数据", systemImage: "trash")
+                            .foregroundColor(.red)
+                    }
+
+                    Button(action: {
+                        KeychainHelper.deleteAll()
+                    }) {
+                        Label("清除所有Keychain数据", systemImage: "trash")
+                            .foregroundColor(.red)
+                    }
+
+                    Button(action: {
                         FLEXManager.shared.showExplorer()
                     }) {
                         Label("Flipboard Explorer", systemImage: "ladybug.fill")
