@@ -58,6 +58,11 @@ struct SSOLoginView: View {
                         viewModel.closeLoginSheet()
                     }
                 }
+                ToolbarItem(placement: .primaryAction) {
+                    Button("网页登录") {
+                        viewModel.isShowingBrowser = true
+                    }
+                }
             }
             .alert("错误", isPresented: $viewModel.isShowingError) {
                 Button("确定", role: .cancel) {}
@@ -66,6 +71,20 @@ struct SSOLoginView: View {
             }
             .task {
                 viewModel.handleRefreshCaptcha()
+            }
+            .sheet(isPresented: $viewModel.isShowingBrowser) {
+                NavigationStack {
+                    SSOBrowserView(onLoginSuccess: viewModel.onBrowserLoginSuccess)
+                        .navigationTitle("网页登录")
+                        .toolbarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("关闭") {
+                                    viewModel.isShowingBrowser = false
+                                }
+                            }
+                        }
+                }
             }
         }
     }

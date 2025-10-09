@@ -5,6 +5,8 @@
 //  Created by Zhe_Learn on 2025/7/10.
 //
 
+import Alamofire
+import CSUSTKit
 import Foundation
 import SwiftUI
 
@@ -19,6 +21,8 @@ class SSOLoginViewModel: ObservableObject {
     }
 
     private var isShowingLoginSheetBinding: Binding<Bool>
+
+    @Published var isShowingBrowser: Bool = false
 
     @Published var selectedTab = 0
 
@@ -126,5 +130,31 @@ class SSOLoginViewModel: ObservableObject {
 
     func closeLoginSheet() {
         isShowingLoginSheet = false
+    }
+
+    func onBrowserLoginSuccess(_ username: String, _ password: String, _ mode: SSOBrowserView.LoginMode, _ cookies: [HTTPCookie]) {
+        let session = Session()
+        for cookie in cookies {
+            session.sessionConfiguration.httpCookieStorage?.setCookie(cookie)
+        }
+        let ssoHelper = SSOHelper(session: session)
+        Task {
+            do {
+                let ssoProfile = try await ssoHelper.getLoginUser()
+                authManager.ssoProfile = ssoProfile
+                authManager.ssoHelper = ssoHelper
+                authManager.ssoHelper.saveCookies()
+                authManager.loginToHelpers()
+                isShowingBrowser = false
+                isShowingLoginSheet = false
+                if mode == .username {
+                    _ = KeychainHelper.save(key: "SSOUsername", value: username)
+                    _ = KeychainHelper.save(key: "SSOPassword", value: password)
+                }
+            } catch {
+                isShowingError = true
+                errorMessage = "通过网页登录失败: \(error.localizedDescription)"
+            }
+        }
     }
 }
