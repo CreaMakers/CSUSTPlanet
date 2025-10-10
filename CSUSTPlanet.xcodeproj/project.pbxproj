@@ -27,6 +27,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		004D835A2E98B2FD000F7ADE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00A7D9F42E8C60A500BA7927 /* MMKV.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = CBC1A8F520DA946200AD5087;
+			remoteInfo = MMKV;
+		};
 		00A7D9FE2E8C60A500BA7927 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 00A7D9F42E8C60A500BA7927 /* MMKV.xcodeproj */;
@@ -279,6 +286,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				004D835B2E98B2FD000F7ADE /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				00E89C662E2C88D800B43162 /* CSUSTPlanetWidget */,
@@ -397,6 +405,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		004D835B2E98B2FD000F7ADE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MMKV;
+			targetProxy = 004D835A2E98B2FD000F7ADE /* PBXContainerItemProxy */;
+		};
 		00A7DA082E8C612400BA7927 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = MMKV;
