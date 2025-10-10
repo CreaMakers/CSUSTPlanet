@@ -64,6 +64,9 @@ class AuthManager: ObservableObject {
         guard ssoProfile == nil else { return }
 
         isSSOLoggingIn = true
+        defer {
+            isSSOLoggingIn = false
+        }
         try await ssoHelper.login(username: username, password: password)
 
         _ = KeychainHelper.save(key: "SSOUsername", value: username)
@@ -71,7 +74,6 @@ class AuthManager: ObservableObject {
 
         ssoProfile = try await ssoHelper.getLoginUser()
         ssoHelper.saveCookies()
-        isSSOLoggingIn = false
 
         loginToHelpers()
     }
