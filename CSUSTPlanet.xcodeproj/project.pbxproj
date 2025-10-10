@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		000B6E9D2E992C8C00983F6B /* MMKVAppExtension.framework in Copy Extension Frameworks */ = {isa = PBXBuildFile; fileRef = 00BE890C2E94BD4600B772CD /* MMKVAppExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		000B6EA02E992D5000983F6B /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 000B6E9F2E992D5000983F6B /* RealmSwift */; };
+		000B6EA12E992D6400983F6B /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 000B6E9F2E992D5000983F6B /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		000B6EA32E992D6C00983F6B /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 000B6EA22E992D6C00983F6B /* RealmSwift */; };
 		0041FC6A2E2A91E0007F383F /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 0041FC692E2A91E0007F383F /* Zoomable */; };
 		0041FC6D2E2AA269007F383F /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0041FC6C2E2AA269007F383F /* MarkdownUI */; };
 		004D050C2E8C3E1B0055B86B /* FLEX in Frameworks */ = {isa = PBXBuildFile; productRef = 004D050B2E8C3E1B0055B86B /* FLEX */; };
@@ -75,12 +78,23 @@
 			name = "Copy Extension Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		000B6EA52E992D6C00983F6B /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		00A7DA062E8C60D800BA7927 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				000B6EA12E992D6400983F6B /* RealmSwift in Embed Frameworks */,
 				00A7DA052E8C60D800BA7927 /* MMKV.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -189,6 +203,7 @@
 				00D927752E8CF0E400EAD828 /* Inject in Frameworks */,
 				00A7DA042E8C60D800BA7927 /* MMKV.framework in Frameworks */,
 				004D050C2E8C3E1B0055B86B /* FLEX in Frameworks */,
+				000B6EA02E992D5000983F6B /* RealmSwift in Frameworks */,
 				004D050F2E8C419F0055B86B /* LookinServer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -200,6 +215,7 @@
 				00D1CF212E79DCD5005E67A2 /* CSUSTKit in Frameworks */,
 				00E89C652E2C88D800B43162 /* SwiftUI.framework in Frameworks */,
 				00E89C632E2C88D800B43162 /* WidgetKit.framework in Frameworks */,
+				000B6EA32E992D6C00983F6B /* RealmSwift in Frameworks */,
 				00BE890F2E94BD4600B772CD /* MMKVAppExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -279,6 +295,7 @@
 				004D050B2E8C3E1B0055B86B /* FLEX */,
 				004D050E2E8C419F0055B86B /* LookinServer */,
 				00D927742E8CF0E400EAD828 /* Inject */,
+				000B6E9F2E992D5000983F6B /* RealmSwift */,
 			);
 			productName = CSUSTPlanet;
 			productReference = 007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */;
@@ -291,6 +308,7 @@
 				00E89C5C2E2C88D800B43162 /* Sources */,
 				00E89C5D2E2C88D800B43162 /* Frameworks */,
 				00E89C5E2E2C88D800B43162 /* Resources */,
+				000B6EA52E992D6C00983F6B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -303,6 +321,7 @@
 			name = CSUSTPlanetWidgetExtension;
 			packageProductDependencies = (
 				00D1CF202E79DCD5005E67A2 /* CSUSTKit */,
+				000B6EA22E992D6C00983F6B /* RealmSwift */,
 			);
 			productName = CSUSTPlanetWidgetExtension;
 			productReference = 00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */;
@@ -344,6 +363,7 @@
 				004D050A2E8C3E1B0055B86B /* XCRemoteSwiftPackageReference "FLEX" */,
 				004D050D2E8C40E80055B86B /* XCRemoteSwiftPackageReference "LookinServer" */,
 				00D927732E8CF0E400EAD828 /* XCRemoteSwiftPackageReference "Inject" */,
+				000B6E9E2E992D5000983F6B /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 007CF85C2E1BD68900E319F2 /* Products */;
@@ -727,6 +747,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		000B6E9E2E992D5000983F6B /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 20.0.3;
+			};
+		};
 		0041FC682E2A91E0007F383F /* XCRemoteSwiftPackageReference "Zoomable" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ryohey/Zoomable.git";
@@ -794,6 +822,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		000B6E9F2E992D5000983F6B /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 000B6E9E2E992D5000983F6B /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
+		000B6EA22E992D6C00983F6B /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 000B6E9E2E992D5000983F6B /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
 		0041FC692E2A91E0007F383F /* Zoomable */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0041FC682E2A91E0007F383F /* XCRemoteSwiftPackageReference "Zoomable" */;
