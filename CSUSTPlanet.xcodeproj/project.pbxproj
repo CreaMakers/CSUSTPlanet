@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		000B6E9D2E992C8C00983F6B /* MMKVAppExtension.framework in Copy Extension Frameworks */ = {isa = PBXBuildFile; fileRef = 00BE890C2E94BD4600B772CD /* MMKVAppExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0041FC6A2E2A91E0007F383F /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 0041FC692E2A91E0007F383F /* Zoomable */; };
 		0041FC6D2E2AA269007F383F /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0041FC6C2E2AA269007F383F /* MarkdownUI */; };
 		004D050C2E8C3E1B0055B86B /* FLEX in Frameworks */ = {isa = PBXBuildFile; productRef = 004D050B2E8C3E1B0055B86B /* FLEX */; };
@@ -22,8 +23,6 @@
 		00E89C632E2C88D800B43162 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C622E2C88D800B43162 /* WidgetKit.framework */; };
 		00E89C652E2C88D800B43162 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C642E2C88D800B43162 /* SwiftUI.framework */; };
 		00E89C722E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		00FEA7F62E97EC30000AF872 /* MMKVAppExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00BE890C2E94BD4600B772CD /* MMKVAppExtension.framework */; };
-		00FEA7F72E97EC30000AF872 /* MMKVAppExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00BE890C2E94BD4600B772CD /* MMKVAppExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +64,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		000B6E9C2E992C6B00983F6B /* Copy Extension Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				000B6E9D2E992C8C00983F6B /* MMKVAppExtension.framework in Copy Extension Frameworks */,
+			);
+			name = "Copy Extension Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		00A7DA062E8C60D800BA7927 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -72,7 +82,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				00A7DA052E8C60D800BA7927 /* MMKV.framework in Embed Frameworks */,
-				00FEA7F72E97EC30000AF872 /* MMKVAppExtension.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -181,7 +190,6 @@
 				00A7DA042E8C60D800BA7927 /* MMKV.framework in Frameworks */,
 				004D050C2E8C3E1B0055B86B /* FLEX in Frameworks */,
 				004D050F2E8C419F0055B86B /* LookinServer in Frameworks */,
-				00FEA7F62E97EC30000AF872 /* MMKVAppExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,6 +258,7 @@
 				007CF8592E1BD68900E319F2 /* Resources */,
 				00E89C732E2C88D800B43162 /* Embed Foundation Extensions */,
 				00A7DA062E8C60D800BA7927 /* Embed Frameworks */,
+				000B6E9C2E992C6B00983F6B /* Copy Extension Frameworks */,
 			);
 			buildRules = (
 			);
