@@ -13,13 +13,17 @@ class RealmManager {
 
     private init() {}
 
+    private var isInitialized: Bool = false
+
     func setup() {
+        guard !isInitialized else { return }
         guard let realmDirectoryURL = Constants.realmDirectoryURL else {
             fatalError("Failed to get Realm directory URL")
         }
-        let realmURL = realmDirectoryURL.appendingPathComponent("\(Constants.mmkvID).realm")
+        let realmURL = realmDirectoryURL.appendingPathComponent("\(AppEnvironmentHelper.environment.rawValue).realm")
         var config = Realm.Configuration()
         config.fileURL = realmURL
         Realm.Configuration.defaultConfiguration = config
+        isInitialized = true
     }
 }

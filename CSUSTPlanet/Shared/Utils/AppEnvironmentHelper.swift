@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AppEnvironment {
+enum AppEnvironment: String {
     case debug
     case testFlight
     case appStore

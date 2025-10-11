@@ -54,8 +54,8 @@ extension MMKVManager {
             fatalError("Failed to get MMKV directory URL")
         }
         MMKV.initialize(rootDir: mmkvDirectoryURL.path)
-        guard let defaultMMKV = MMKV(mmapID: Constants.mmkvID) else {
-            fatalError("Failed to initialize MMKV with ID: \(Constants.mmkvID)")
+        guard let defaultMMKV = MMKV(mmapID: AppEnvironmentHelper.environment.rawValue) else {
+            fatalError("Failed to initialize MMKV with ID: \(AppEnvironmentHelper.environment.rawValue)")
         }
         self.defaultMMKV = defaultMMKV
     }

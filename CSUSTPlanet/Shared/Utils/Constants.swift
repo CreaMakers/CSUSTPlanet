@@ -28,11 +28,4 @@ class Constants {
         }
         return realmDir
     }()
-    static var mmkvID: String {
-        switch AppEnvironmentHelper.environment {
-        case .debug: return "debug"
-        case .testFlight: return "testFlight"
-        case .appStore: return "appStore"
-        }
-    }
 }
