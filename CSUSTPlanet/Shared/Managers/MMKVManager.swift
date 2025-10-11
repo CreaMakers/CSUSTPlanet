@@ -16,7 +16,7 @@ struct Cached<T: Codable>: Codable {
 
 // MARK: - Properties
 
-class MMKVManager: ObservableObject {
+class MMKVManager {
     static let shared = MMKVManager()
 
     private init() {}

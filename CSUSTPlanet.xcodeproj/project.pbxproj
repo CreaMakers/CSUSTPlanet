@@ -143,6 +143,7 @@
 				Models/GradeAnalysisData.swift,
 				Models/UrgentCourseData.swift,
 				Shared/Managers/MMKVManager.swift,
+				Shared/Managers/RealmManager.swift,
 				Shared/Utils/AppEnvironmentHelper.swift,
 				Shared/Utils/ColorHelper.swift,
 				Shared/Utils/Constants.swift,

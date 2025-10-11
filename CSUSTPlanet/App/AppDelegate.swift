@@ -18,6 +18,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         UNUserNotificationCenter.current().delegate = self
 
         MMKVManager.shared.setup()
+        RealmManager.shared.setup()
 
         #if DEBUG
             Bundle(path: "/Applications/InjectionIII.app/Contents/Resources/iOSInjection.bundle")?.load()

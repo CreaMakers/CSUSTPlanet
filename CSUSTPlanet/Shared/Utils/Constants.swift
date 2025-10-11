@@ -8,16 +8,25 @@
 import Foundation
 
 class Constants {
+    private static let fileManager = FileManager.default
+
     static let appGroupID = "group.com.zhelearn.CSUSTPlanet"
     static let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
     static let mmkvDirectoryURL: URL? = {
         guard let sharedURL = sharedContainerURL else { return nil }
         let mmkvDir = sharedURL.appendingPathComponent("mmkv")
-        let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: mmkvDir.path) {
             try? fileManager.createDirectory(at: mmkvDir, withIntermediateDirectories: true)
         }
         return mmkvDir
+    }()
+    static let realmDirectoryURL: URL? = {
+        guard let sharedURL = sharedContainerURL else { return nil }
+        let realmDir = sharedURL.appendingPathComponent("realm")
+        if !fileManager.fileExists(atPath: realmDir.path) {
+            try? fileManager.createDirectory(at: realmDir, withIntermediateDirectories: true)
+        }
+        return realmDir
     }()
     static var mmkvID: String {
         switch AppEnvironmentHelper.environment {
