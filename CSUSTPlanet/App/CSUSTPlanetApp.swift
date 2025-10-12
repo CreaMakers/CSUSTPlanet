@@ -14,19 +14,6 @@ import Toasts
 struct CSUSTPlanetApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
-    init() {
-        if !UserDefaults.standard.bool(forKey: "hasLaunchedBefore") {
-            KeychainHelper.deleteAll()
-            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
-        }
-
-        let tabBarAppearance = UITabBarAppearance()
-        tabBarAppearance.configureWithTransparentBackground()
-        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
-        UITabBar.appearance().standardAppearance = tabBarAppearance
-        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
-    }
-
     var body: some Scene {
         WindowGroup {
             ContentView()

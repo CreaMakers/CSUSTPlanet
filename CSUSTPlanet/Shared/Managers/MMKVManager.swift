@@ -180,6 +180,11 @@ extension MMKVManager {
         get { bool(forKey: "GlobalVars.isElectricityTermAccepted") ?? false }
         set { set(forKey: "GlobalVars.isElectricityTermAccepted", newValue) }
     }
+
+    var hasLaunchedBefore: Bool {
+        get { bool(forKey: "GlobalVars.hasLaunchedBefore") ?? false }
+        set { set(forKey: "GlobalVars.hasLaunchedBefore", newValue) }
+    }
 }
 
 // MARK: - Cached

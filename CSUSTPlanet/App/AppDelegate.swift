@@ -19,6 +19,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         MMKVManager.shared.setup()
 
+        if !MMKVManager.shared.hasLaunchedBefore {
+            KeychainHelper.deleteAll()
+            MMKVManager.shared.hasLaunchedBefore = true
+        }
+
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithTransparentBackground()
+        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+
         #if DEBUG
             Bundle(path: "/Applications/InjectionIII.app/Contents/Resources/iOSInjection.bundle")?.load()
         #endif
