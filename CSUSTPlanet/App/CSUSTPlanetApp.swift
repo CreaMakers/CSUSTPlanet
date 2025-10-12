@@ -20,11 +20,6 @@ struct CSUSTPlanetApp: App {
             UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
         }
 
-        let asyncDependency: @Sendable () async -> ModelContainer = { @MainActor in
-            return SharedModel.container
-        }
-        AppDependencyManager.shared.add(key: "ModelContainer", dependency: asyncDependency)
-
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithTransparentBackground()
         tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
