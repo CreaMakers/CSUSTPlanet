@@ -31,7 +31,7 @@ class HomeViewModel: ObservableObject {
     }
 
     func loadData() {
-        let context = SharedModel.context
+        let context = SharedModel.mainContext
 
         gradeAnalysisData = MMKVManager.shared.courseGradesCache
         examScheduleData = MMKVManager.shared.examSchedulesCache

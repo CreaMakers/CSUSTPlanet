@@ -34,4 +34,8 @@ class Dorm: Identifiable {
         self.campusID = building.campus.id
         self.campusName = building.campus.rawValue
     }
+
+    var lastRecord: ElectricityRecord? {
+        return records?.sorted(by: { $0.date > $1.date }).first
+    }
 }

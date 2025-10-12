@@ -14,17 +14,14 @@ import WidgetKit
 
 struct DormElectricityProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> DormElectricityEntry {
-        let intent = {
-            let intent = DormElectricityAppIntent()
-            intent.dormitory = DormEntity(dorm: Dorm(room: "A544", building: CampusCardHelper.Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
-            intent.dormitory!.records = [
-                DormEntity.ElectricityRecord(electricity: 30, date: .now.addingTimeInterval(-86400)),
-                DormEntity.ElectricityRecord(electricity: 20, date: .now.addingTimeInterval(-43200)),
-                DormEntity.ElectricityRecord(electricity: 10, date: .now),
-            ]
-            return intent
-
-        }()
+        let intent = DormElectricityAppIntent()
+        var dormitory = DormEntity(dorm: Dorm(room: "A544", building: CampusCardHelper.Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
+        dormitory.records = [
+            DormEntity.ElectricityRecord(electricity: 30, date: .now.addingTimeInterval(-86400)),
+            DormEntity.ElectricityRecord(electricity: 20, date: .now.addingTimeInterval(-43200)),
+            DormEntity.ElectricityRecord(electricity: 10, date: .now),
+        ]
+        intent.dormitory = dormitory
 
         return DormElectricityEntry(date: .now, configuration: intent)
     }
@@ -58,25 +55,17 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
             let descriptor = FetchDescriptor<Dorm>(predicate: #Predicate<Dorm> { $0.id == dormID })
 
             if let dormToUpdate = try modelContext.fetch(descriptor).first {
-                let lastRecord = dormToUpdate.records?.sorted { $0.date > $1.date }.first
-
-                if let lastRecord = lastRecord, lastRecord.electricity == newElectricity {
-                    debugPrint("DormElectricityProvider: No update needed, electricity is the same as last record")
-                } else {
-                    let record = ElectricityRecord(electricity: newElectricity, date: .now, dorm: dormToUpdate)
-                    modelContext.insert(record)
-                    try modelContext.save()
-
-                    finalDormEntity = DormEntity(dorm: dormToUpdate)
-                    debugPrint("DormElectricityProvider: Dorm updated with new electricity data")
-                }
+                let record = ElectricityRecord(electricity: newElectricity, date: .now, dorm: dormToUpdate)
+                modelContext.insert(record)
+                try modelContext.save()
+                finalDormEntity = DormEntity(dorm: dormToUpdate)
+                debugPrint("DormElectricityProvider: Dorm updated with new electricity data")
             }
-
         } catch {
             debugPrint("DormElectricityProvider: Error fetching electricity data: \(error.localizedDescription)")
         }
 
-        let updatedConfiguration = DormElectricityAppIntent()
+        let updatedConfiguration = configuration
         updatedConfiguration.dormitory = finalDormEntity
 
         let entry = DormElectricityEntry(date: .now, configuration: updatedConfiguration)
@@ -234,8 +223,13 @@ struct DormElectricityWidget: Widget {
 } timeline: {
     let intent = {
         let intent = DormElectricityAppIntent()
-        intent.dormitory = DormEntity(dorm: Dorm(room: "A544", building: CampusCardHelper.Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
-        intent.dormitory!.records = [DormEntity.ElectricityRecord(electricity: 233.33, date: .now)]
+        var dormitory = DormEntity(dorm: Dorm(room: "A544", building: CampusCardHelper.Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
+        dormitory.records = [
+            DormEntity.ElectricityRecord(electricity: 30, date: .now.addingTimeInterval(-86400)),
+            DormEntity.ElectricityRecord(electricity: 20, date: .now.addingTimeInterval(-43200)),
+            DormEntity.ElectricityRecord(electricity: 10, date: .now),
+        ]
+        intent.dormitory = dormitory
         return intent
     }()
     DormElectricityEntry(date: .now, configuration: intent)
@@ -246,13 +240,13 @@ struct DormElectricityWidget: Widget {
 } timeline: {
     let intent = {
         let intent = DormElectricityAppIntent()
-        intent.dormitory = DormEntity(dorm: Dorm(room: "A544", building: CampusCardHelper.Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
-        intent.dormitory!.records = [
-            DormEntity.ElectricityRecord(electricity: 233.33, date: .now),
-            DormEntity.ElectricityRecord(electricity: 220.00, date: Date().addingTimeInterval(-86400)),
-            DormEntity.ElectricityRecord(electricity: 210.50, date: Date().addingTimeInterval(-172800)),
-            DormEntity.ElectricityRecord(electricity: 200.75, date: Date().addingTimeInterval(-259200)),
+        var dormitory = DormEntity(dorm: Dorm(room: "A544", building: CampusCardHelper.Building(name: "至诚轩5栋A区", id: "233", campus: .yuntang)))
+        dormitory.records = [
+            DormEntity.ElectricityRecord(electricity: 30, date: .now.addingTimeInterval(-86400)),
+            DormEntity.ElectricityRecord(electricity: 20, date: .now.addingTimeInterval(-43200)),
+            DormEntity.ElectricityRecord(electricity: 10, date: .now),
         ]
+        intent.dormitory = dormitory
         return intent
     }()
     DormElectricityEntry(date: .now, configuration: intent)

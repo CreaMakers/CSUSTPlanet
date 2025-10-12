@@ -12,17 +12,8 @@ import SwiftUI
 
 @MainActor
 class AddDormitoryViewModel: ObservableObject {
-    private var campusCardHelper: CampusCardHelper
-    private var modelContext: ModelContext
-    private var dorms: [Dorm]
-
-    @Published var isShowingAddDormSheet: Bool {
-        didSet {
-            isShowingAddDormSheetBinding.wrappedValue = isShowingAddDormSheet
-        }
-    }
-
-    private var isShowingAddDormSheetBinding: Binding<Bool>
+    private let campusCardHelper = CampusCardHelper()
+    private let modelContext = SharedModel.mainContext
 
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
@@ -33,14 +24,6 @@ class AddDormitoryViewModel: ObservableObject {
 
     @Published var buildings: [CampusCardHelper.Campus: [CampusCardHelper.Building]] = [:]
     @Published var isBuildingsLoading: Bool = false
-
-    init(dorms: [Dorm], modelContext: ModelContext, isShowingAddDormitorySheetBinding: Binding<Bool>) {
-        self.campusCardHelper = CampusCardHelper()
-        self.dorms = dorms
-        self.modelContext = modelContext
-        self.isShowingAddDormSheet = isShowingAddDormitorySheetBinding.wrappedValue
-        self.isShowingAddDormSheetBinding = isShowingAddDormitorySheetBinding
-    }
 
     func handleCampusPickerChange(oldCampus: CampusCardHelper.Campus, newCampus: CampusCardHelper.Campus) {
         if let firstBuilding = buildings[newCampus]?.first {
@@ -73,7 +56,7 @@ class AddDormitoryViewModel: ObservableObject {
         }
     }
 
-    func handleAddDormitory() {
+    func handleAddDormitory(_ isShowingAddDormSheet: Binding<Bool>) {
         let building = buildings[selectedCampus]?.first(where: { $0.id == selectedBuildingID })
         guard let building = building else {
             errorMessage = "请选择有效的宿舍楼"
@@ -82,6 +65,12 @@ class AddDormitoryViewModel: ObservableObject {
         }
 
         let dorm = Dorm(room: room, building: building)
+        let fetchDescriptor = FetchDescriptor<Dorm>()
+        guard let dorms = try? modelContext.fetch(fetchDescriptor) else {
+            errorMessage = "无法访问数据库"
+            isShowingError = true
+            return
+        }
         if dorms.contains(where: { $0.room == dorm.room && $0.buildingID == building.id && $0.buildingName == building.name }) {
             errorMessage = "该宿舍信息已存在"
             isShowingError = true
@@ -89,6 +78,13 @@ class AddDormitoryViewModel: ObservableObject {
         }
 
         modelContext.insert(dorm)
-        isShowingAddDormSheet = false
+        do {
+            try modelContext.save()
+        } catch {
+            errorMessage = error.localizedDescription
+            isShowingError = true
+            return
+        }
+        isShowingAddDormSheet.wrappedValue = false
     }
 }

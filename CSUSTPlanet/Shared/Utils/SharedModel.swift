@@ -32,28 +32,25 @@ class SharedModel {
             debugPrint("Using iCloud container for app: \(config.cloudKitDatabase)")
         #endif
 
-        return try! ModelContainer(for: schema, configurations: [config])
+        do {
+            return try ModelContainer(for: schema, configurations: [config])
+        } catch {
+            fatalError("Failed to create ModelContainer: \(error)")
+        }
     }()
 
+    @MainActor
+    static let mainContext: ModelContext = container.mainContext
+
     static var context: ModelContext {
-        ModelContext(container)
+        return ModelContext(container)
     }
 
+    @MainActor
     static func clearAllData() throws {
-        let context = Self.context
-
-        let dormFetch = FetchDescriptor<Dorm>()
-        let dorms = try context.fetch(dormFetch)
-        for dorm in dorms {
-            context.delete(dorm)
-        }
-
-        let electricityFetch = FetchDescriptor<ElectricityRecord>()
-        let electricityRecords = try context.fetch(electricityFetch)
-        for record in electricityRecords {
-            context.delete(record)
-        }
-
+        let context = self.context
+        try context.delete(model: Dorm.self)
+        try context.delete(model: ElectricityRecord.self)
         try context.save()
     }
 }

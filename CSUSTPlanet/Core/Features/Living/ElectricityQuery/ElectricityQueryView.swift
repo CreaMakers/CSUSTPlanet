@@ -15,37 +15,35 @@ struct ElectricityQueryView: View {
     @Query var dorms: [Dorm]
 
     var body: some View {
-        ZStack {
+        Group {
             if dorms.isEmpty {
                 VStack {
                     Text("暂无宿舍信息")
                         .foregroundColor(.secondary)
                         .font(.headline)
                         .padding()
-                    Button(action: {
-                        isShowingAddDormSheet.toggle()
-                    }) {
+                    Button(action: { isShowingAddDormSheet = true }) {
                         Label("添加宿舍", systemImage: "plus")
                     }
                     .buttonStyle(.borderedProminent)
                 }
             } else {
                 List(dorms) { dorm in
-                    DormRowView(modelContext: modelContext, dorm: dorm)
+                    DormRowView(dorm: dorm)
                 }
             }
         }
         .navigationTitle("电量查询")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(
-            trailing: Button(action: {
-                isShowingAddDormSheet.toggle()
-            }) {
-                Label("添加宿舍", systemImage: "plus")
+        .toolbarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: { isShowingAddDormSheet = true }) {
+                    Label("添加宿舍", systemImage: "plus")
+                }
             }
-        )
+        }
         .sheet(isPresented: $isShowingAddDormSheet) {
-            AddDormitoryView(dorms: dorms, modelContext: modelContext, isShowingAddDormitorySheetBinding: $isShowingAddDormSheet)
+            AddDormitoryView(isShowingAddDormSheet: $isShowingAddDormSheet)
         }
     }
 }
