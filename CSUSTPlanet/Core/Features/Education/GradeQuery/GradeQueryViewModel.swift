@@ -46,7 +46,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         }
     }
 
-    var shareContent: UIImage? = nil
+    var shareContent: Any? = nil
     var isLoaded: Bool = false
 
     var filteredCourseGrades: [EduHelper.CourseGrade] {
@@ -167,13 +167,13 @@ class GradeQueryViewModel: NSObject, ObservableObject {
     func showShareSheet(_ shareableView: some View) {
         let renderer = ImageRenderer(content: shareableView)
         renderer.scale = UIScreen.main.scale
-        if let uiImage = renderer.uiImage {
-            shareContent = uiImage
-            isShowingShareSheet = true
-        } else {
+        guard let uiImage = renderer.uiImage else {
             errorMessage = "生成图片失败"
             isShowingError = true
+            return
         }
+        shareContent = ImageActivityItemSource(title: "我的成绩单", image: uiImage)
+        isShowingShareSheet = true
     }
 
     func saveToPhotoAlbum(_ shareableView: some View) {

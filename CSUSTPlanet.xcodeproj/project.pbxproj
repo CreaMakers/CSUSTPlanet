@@ -121,6 +121,7 @@
 				Shared/Utils/AppEnvironmentHelper.swift,
 				Shared/Utils/ColorHelper.swift,
 				Shared/Utils/Constants.swift,
+				Shared/Utils/ImageActivityItemSource.swift,
 				Shared/Utils/KeychainCookieStorage.swift,
 				Shared/Utils/KeychainHelper.swift,
 				Shared/Utils/ScheduleHelper.swift,
