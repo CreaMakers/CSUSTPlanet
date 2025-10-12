@@ -32,6 +32,20 @@ class GradeQueryViewModel: NSObject, ObservableObject {
     @Published var selectedDisplayMode: EduHelper.DisplayMode = .bestGrade
     @Published var selectedStudyMode: EduHelper.StudyMode = .major
 
+    @Published var isSelectionMode: Bool = false {
+        didSet {
+            updateAnalysis()
+        }
+    }
+
+    @Published var selectedCourseIDs = Set<String>() {
+        didSet {
+            if isSelectionMode {
+                updateAnalysis()
+            }
+        }
+    }
+
     var shareContent: UIImage? = nil
     var isLoaded: Bool = false
 
@@ -49,9 +63,21 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         loadDataFromLocal()
     }
 
-    private func updateStats() {
-        guard let data = data else { return }
-        analysis = GradeAnalysisData.fromCourseGrades(data.value)
+    private func updateAnalysis() {
+        guard let allCourses = data?.value else {
+            analysis = nil
+            return
+        }
+
+        let coursesToAnalyze: [EduHelper.CourseGrade]
+
+        if isSelectionMode {
+            coursesToAnalyze = allCourses.filter { selectedCourseIDs.contains($0.courseID) }
+        } else {
+            coursesToAnalyze = allCourses
+        }
+
+        analysis = GradeAnalysisData.fromCourseGrades(coursesToAnalyze)
     }
 
     func task() {
@@ -59,6 +85,16 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         isLoaded = true
         loadAvailableSemesters()
         loadCourseGrades()
+    }
+
+    func enterSelectionMode() {
+        isSelectionMode = true
+        selectedCourseIDs = Set(filteredCourseGrades.map { $0.courseID })
+    }
+
+    func exitSelectionMode() {
+        isSelectionMode = false
+        selectedCourseIDs.removeAll()
     }
 
     func loadAvailableSemesters() {
@@ -95,7 +131,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
     private func loadDataFromLocal(_ prompt: String? = nil) {
         guard let data = MMKVManager.shared.courseGradesCache else { return }
         self.data = data
-        updateStats()
+        updateAnalysis()
 
         if let prompt = prompt {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -117,7 +153,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
                     let courseGrades = try await getDataFromRemote(eduHelper)
                     data = Cached(cachedAt: .now, value: courseGrades)
                     saveDataToLocal(data!)
-                    updateStats()
+                    updateAnalysis()
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true

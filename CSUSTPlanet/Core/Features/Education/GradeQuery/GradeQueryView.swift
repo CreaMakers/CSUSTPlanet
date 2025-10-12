@@ -236,7 +236,7 @@ struct GradeQueryView: View {
                 emptyStateSection
                     .background(Color(.systemGroupedBackground))
             } else {
-                List {
+                List(selection: $viewModel.selectedCourseIDs) {
                     ForEach(viewModel.filteredCourseGrades, id: \.courseID) { courseGrade in
                         gradeCard(courseGrade: courseGrade)
                     }
@@ -256,39 +256,81 @@ struct GradeQueryView: View {
         }
         .task { viewModel.task() }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Button(action: { viewModel.isShowingFilterPopover.toggle() }) {
-                        Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
-                    }
-                    Button(action: { viewModel.showShareSheet(shareableView) }) {
-                        Label("分享", systemImage: "square.and.arrow.up")
-                    }
-                    .disabled(viewModel.isLoading)
-                    Button(action: { viewModel.saveToPhotoAlbum(shareableView) }) {
-                        Label("保存结果到相册", systemImage: "photo")
-                    }
-                    .disabled(viewModel.isLoading)
-                } label: {
-                    Label("更多操作", systemImage: "ellipsis.circle")
-                }
-            }
-            ToolbarItem(placement: .primaryAction) {
-                Button(action: { viewModel.loadCourseGrades() }) {
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                            .scaleEffect(0.9, anchor: .center)
-                    } else {
-                        Label("查询", systemImage: "arrow.clockwise")
-                    }
-                }
-                .disabled(viewModel.isLoading)
+            if viewModel.isSelectionMode {
+                selectionToolbar()
+            } else {
+                mainToolbar()
             }
         }
         .sheet(isPresented: $viewModel.isShowingShareSheet) { ShareSheet(items: [viewModel.shareContent!]) }
         .popover(isPresented: $viewModel.isShowingFilterPopover) { filterView }
         .navigationTitle("成绩查询")
         .navigationBarTitleDisplayMode(.inline)
+        .environment(\.editMode, .constant(viewModel.isSelectionMode ? .active : .inactive))
+    }
+
+    // MARK: - Main Toolbar
+
+    @ToolbarContentBuilder
+    private func mainToolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Menu {
+                Button(action: {
+                    viewModel.enterSelectionMode()
+                }) {
+                    Label("选择", systemImage: "checkmark.circle")
+                }
+                .disabled(viewModel.isLoading || viewModel.data == nil)
+
+                Button(action: { viewModel.isShowingFilterPopover.toggle() }) {
+                    Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
+                }
+                Button(action: { viewModel.showShareSheet(shareableView) }) {
+                    Label("分享", systemImage: "square.and.arrow.up")
+                }
+                .disabled(viewModel.isLoading)
+                Button(action: { viewModel.saveToPhotoAlbum(shareableView) }) {
+                    Label("保存结果到相册", systemImage: "photo")
+                }
+                .disabled(viewModel.isLoading)
+            } label: {
+                Label("更多操作", systemImage: "ellipsis.circle")
+            }
+        }
+        ToolbarItem(placement: .primaryAction) {
+            Button(action: { viewModel.loadCourseGrades() }) {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.9, anchor: .center)
+                } else {
+                    Label("查询", systemImage: "arrow.clockwise")
+                }
+            }
+            .disabled(viewModel.isLoading)
+        }
+    }
+
+    // MARK: - Selection Toolbar
+
+    @ToolbarContentBuilder
+    private func selectionToolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button("取消") {
+                viewModel.exitSelectionMode()
+            }
+        }
+
+        ToolbarItem(placement: .primaryAction) {
+            Button("全选") {
+                viewModel.selectedCourseIDs = Set(viewModel.filteredCourseGrades.map { $0.courseID })
+            }
+        }
+
+        ToolbarItem(placement: .primaryAction) {
+            Button("全不选") {
+                viewModel.selectedCourseIDs.removeAll()
+            }
+        }
     }
 }
