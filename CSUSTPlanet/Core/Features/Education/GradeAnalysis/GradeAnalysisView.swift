@@ -12,7 +12,6 @@ import SwiftUI
 
 struct GradeAnalysisView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel = GradeAnalysisViewModel()
 
     // MARK: - Statistic Item
@@ -223,7 +222,7 @@ struct GradeAnalysisView: View {
             }
         }
         .task {
-            viewModel.loadGradeAnalysis(authManager.eduHelper)
+            viewModel.loadGradeAnalysis()
         }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
@@ -256,7 +255,7 @@ struct GradeAnalysisView: View {
                         .progressViewStyle(.circular)
                         .scaleEffect(0.9, anchor: .center)
                 } else {
-                    Button(action: { viewModel.loadGradeAnalysis(authManager.eduHelper) }) {
+                    Button(action: viewModel.loadGradeAnalysis) {
                         Label("刷新成绩分析", systemImage: "arrow.clockwise")
                     }
                     .disabled(viewModel.isLoading)

@@ -12,7 +12,6 @@ import SwiftUI
 // MARK: - CourseScheduleView
 
 struct CourseScheduleView: View {
-    @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel = CourseScheduleViewModel()
 
     var body: some View {
@@ -60,15 +59,15 @@ struct CourseScheduleView: View {
                         .progressViewStyle(.circular)
                         .scaleEffect(0.9, anchor: .center)
                 } else {
-                    Button(action: { viewModel.loadCourses(authManager.eduHelper) }) {
+                    Button(action: viewModel.loadCourses) {
                         Label("刷新课表", systemImage: "arrow.clockwise")
                     }
                 }
             }
         }
         .task {
-            viewModel.loadAvailableSemesters(authManager.eduHelper)
-            viewModel.loadCourses(authManager.eduHelper)
+            viewModel.loadAvailableSemesters()
+            viewModel.loadCourses()
         }
         .toast(isPresenting: $viewModel.isShowingWarning) {
             AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)

@@ -54,14 +54,14 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         analysis = GradeAnalysisData.fromCourseGrades(data.value)
     }
 
-    func task(_ eduHelper: EduHelper?) {
+    func task() {
         guard !isLoaded else { return }
         isLoaded = true
-        loadAvailableSemesters(eduHelper)
-        loadCourseGrades(eduHelper)
+        loadAvailableSemesters()
+        loadCourseGrades()
     }
 
-    func loadAvailableSemesters(_ eduHelper: EduHelper?) {
+    func loadAvailableSemesters() {
         isSemestersLoading = true
         Task {
             defer {
@@ -69,7 +69,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
             }
 
             do {
-                availableSemesters = try await eduHelper?.courseService.getAvailableSemestersForCourseGrades() ?? []
+                availableSemesters = try await AuthManager.shared.eduHelper?.courseService.getAvailableSemestersForCourseGrades() ?? []
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -105,14 +105,14 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         }
     }
 
-    func loadCourseGrades(_ eduHelper: EduHelper?) {
+    func loadCourseGrades() {
         isLoading = true
         Task {
             defer {
                 isLoading = false
             }
 
-            if let eduHelper = eduHelper {
+            if let eduHelper = AuthManager.shared.eduHelper {
                 do {
                     let courseGrades = try await getDataFromRemote(eduHelper)
                     data = Cached(cachedAt: .now, value: courseGrades)

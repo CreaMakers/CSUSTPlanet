@@ -76,7 +76,7 @@ class CourseScheduleViewModel: ObservableObject {
         loadDataFromLocal()
     }
 
-    func loadAvailableSemesters(_ eduHelper: EduHelper?) {
+    func loadAvailableSemesters() {
         isSemestersLoading = true
         Task {
             defer {
@@ -84,7 +84,7 @@ class CourseScheduleViewModel: ObservableObject {
             }
 
             do {
-                (availableSemesters, selectedSemester) = try await eduHelper?.courseService.getAvailableSemestersForCourseSchedule() ?? ([], nil)
+                (availableSemesters, selectedSemester) = try await AuthManager.shared.eduHelper?.courseService.getAvailableSemestersForCourseSchedule() ?? ([], nil)
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -145,14 +145,14 @@ class CourseScheduleViewModel: ObservableObject {
         }
     }
 
-    func loadCourses(_ eduHelper: EduHelper?) {
+    func loadCourses() {
         isLoading = true
         Task {
             defer {
                 isLoading = false
             }
 
-            if let eduHelper = eduHelper {
+            if let eduHelper = AuthManager.shared.eduHelper {
                 do {
                     let courses = try await eduHelper.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
                     let semesterStartDate = try await eduHelper.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)

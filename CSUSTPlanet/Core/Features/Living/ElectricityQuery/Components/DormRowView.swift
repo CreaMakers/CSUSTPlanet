@@ -12,9 +12,9 @@ import SwiftUI
 struct DormRowView: View {
     @StateObject var viewModel: DormElectricityViewModel
 
-    init(authManager: AuthManager, modelContext: ModelContext, dorm: Dorm) {
+    init(modelContext: ModelContext, dorm: Dorm) {
         _viewModel = StateObject(
-            wrappedValue: DormElectricityViewModel(authManager: authManager, modelContext: modelContext, dorm: dorm)
+            wrappedValue: DormElectricityViewModel(modelContext: modelContext, dorm: dorm)
         )
     }
 

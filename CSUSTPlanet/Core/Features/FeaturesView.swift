@@ -91,7 +91,7 @@ struct FeaturesView: View {
                         }
                     }
                 ) {
-                    featureLink(destination: CoursesView(), title: "课程列表", icon: "book", color: .indigo, disabled: authManager.moocHelper == nil)
+                    featureLink(destination: CoursesView(), title: "课程列表", icon: "book", color: .indigo)
                     featureLink(destination: UrgentCoursesView(), title: "待提交作业", icon: "doc.text", color: .red)
                 }
 
@@ -148,7 +148,7 @@ struct FeaturesView: View {
     // MARK: - Feature Link
 
     @ViewBuilder
-    private func featureLink<Destination: View>(destination: Destination, title: String, icon: String, color: Color, disabled: Bool = false) -> some View {
+    private func featureLink<Destination: View>(destination: Destination, title: String, icon: String, color: Color) -> some View {
         NavigationLink(destination: destination) {
             let cardBackground: Color = cardBackgroundColor
 
@@ -170,9 +170,6 @@ struct FeaturesView: View {
             .cornerRadius(12)
             .shadow(color: featureShadowColor, radius: 5, x: 0, y: 2)
         }
-        .disabled(disabled)
-        .opacity(disabled ? 0.6 : 1.0)
-        .allowsHitTesting(!disabled)
     }
 
     // MARK: - Status Pill
@@ -212,6 +209,6 @@ struct FeaturesView: View {
 
 #Preview {
     FeaturesView()
-        .environmentObject(AuthManager())
+        .environmentObject(AuthManager.shared)
         .environmentObject(GlobalVars.shared)
 }

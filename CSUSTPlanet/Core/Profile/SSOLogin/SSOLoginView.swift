@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct SSOLoginView: View {
-    @EnvironmentObject var authManager: AuthManager
     @StateObject private var viewModel: SSOLoginViewModel
+    @EnvironmentObject var authManager: AuthManager
 
-    init(authManager: AuthManager, isShowingLoginSheet: Binding<Bool>) {
-        _viewModel = StateObject(wrappedValue: SSOLoginViewModel(authManager: authManager, isShowingLoginSheet: isShowingLoginSheet))
+    init(isShowingLoginSheet: Binding<Bool>) {
+        _viewModel = StateObject(wrappedValue: SSOLoginViewModel(isShowingLoginSheet: isShowingLoginSheet))
     }
 
     var body: some View {
@@ -284,6 +284,6 @@ struct SSOLoginView: View {
 
 #Preview {
     NavigationStack {
-        SSOLoginView(authManager: AuthManager(), isShowingLoginSheet: .constant(true))
+        SSOLoginView(isShowingLoginSheet: .constant(true))
     }
 }

@@ -9,7 +9,6 @@ import CSUSTKit
 import SwiftUI
 
 struct CoursesView: View {
-    @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel = CoursesViewModel()
 
     var body: some View {
@@ -33,12 +32,12 @@ struct CoursesView: View {
         .task {
             guard !viewModel.isLoaded else { return }
             viewModel.isLoaded = true
-            viewModel.loadCourses(authManager.moocHelper)
+            viewModel.loadCourses()
         }
         .navigationTitle("课程列表")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { viewModel.loadCourses(authManager.moocHelper) }) {
+                Button(action: viewModel.loadCourses) {
                     Label("刷新课程列表", systemImage: "arrow.clockwise")
                 }
                 .disabled(viewModel.isLoading)

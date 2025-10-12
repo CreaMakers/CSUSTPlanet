@@ -39,14 +39,14 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
         loadDataFromLocal()
     }
 
-    func task(_ eduHelper: EduHelper?) {
+    func task() {
         guard !isLoaded else { return }
         isLoaded = true
-        loadAvailableSemesters(eduHelper)
-        loadExams(eduHelper)
+        loadAvailableSemesters()
+        loadExams()
     }
 
-    func loadAvailableSemesters(_ eduHelper: EduHelper?) {
+    func loadAvailableSemesters() {
         isSemestersLoading = true
         Task {
             defer {
@@ -54,7 +54,7 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
             }
 
             do {
-                (availableSemesters, selectedSemesters) = try await eduHelper?.examService.getAvailableSemestersForExamSchedule() ?? ([], nil)
+                (availableSemesters, selectedSemesters) = try await AuthManager.shared.eduHelper?.examService.getAvailableSemestersForExamSchedule() ?? ([], nil)
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -123,14 +123,14 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
         }
     }
 
-    func loadExams(_ eduHelper: EduHelper?) {
+    func loadExams() {
         isLoading = true
         Task {
             defer {
                 isLoading = false
             }
 
-            if let eduHelper = eduHelper {
+            if let eduHelper = AuthManager.shared.eduHelper {
                 do {
                     let exams = try await eduHelper.examService.getExamSchedule(academicYearSemester: selectedSemesters, semesterType: selectedSemesterType)
                     data = Cached<[EduHelper.Exam]>(cachedAt: .now, value: exams)

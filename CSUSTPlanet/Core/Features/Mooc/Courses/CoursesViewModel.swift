@@ -29,8 +29,8 @@ class CoursesViewModel: ObservableObject {
         }
     }
 
-    func loadCourses(_ moocHelper: MoocHelper?) {
-        guard let moocHelper = moocHelper else { return }
+    func loadCourses() {
+        guard let moocHelper = AuthManager.shared.moocHelper else { return }
         isLoading = true
         Task {
             defer {

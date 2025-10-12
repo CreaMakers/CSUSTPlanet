@@ -35,14 +35,14 @@ class CourseDetailViewModel: ObservableObject {
         self.isSimplified = true
     }
 
-    func loadHomeworks(_ moocHelper: MoocHelper?) {
+    func loadHomeworks() {
         isHomeworksLoading = true
         Task {
             defer {
                 isHomeworksLoading = false
             }
 
-            if let moocHelper = moocHelper {
+            if let moocHelper = AuthManager.shared.moocHelper {
                 do {
                     homeworks = try await moocHelper.getCourseHomeworks(courseId: course.id)
                 } catch {
@@ -56,14 +56,14 @@ class CourseDetailViewModel: ObservableObject {
         }
     }
 
-    func loadTests(_ moocHelper: MoocHelper?) {
+    func loadTests() {
         isTestsLoading = true
         Task {
             defer {
                 isTestsLoading = false
             }
 
-            if let moocHelper = moocHelper {
+            if let moocHelper = AuthManager.shared.moocHelper {
                 do {
                     tests = try await moocHelper.getCourseTests(courseId: course.id)
                 } catch {

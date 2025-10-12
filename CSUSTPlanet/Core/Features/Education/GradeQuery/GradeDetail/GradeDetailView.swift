@@ -12,7 +12,6 @@ import SwiftUI
 
 struct GradeDetailView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel: GradeDetailViewModel
 
     init(courseGrade: EduHelper.CourseGrade) {
@@ -166,7 +165,7 @@ struct GradeDetailView: View {
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
-        .task { viewModel.task(authManager.eduHelper) }
+        .task { viewModel.task() }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
@@ -195,7 +194,7 @@ struct GradeDetailView: View {
                         .progressViewStyle(.circular)
                         .scaleEffect(0.9, anchor: .center)
                 } else {
-                    Button(action: { viewModel.loadDetail(authManager.eduHelper) }) {
+                    Button(action: viewModel.loadDetail) {
                         Label("刷新成绩分布", systemImage: "arrow.clockwise")
                     }
                 }

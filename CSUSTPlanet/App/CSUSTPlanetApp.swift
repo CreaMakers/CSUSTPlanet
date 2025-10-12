@@ -13,7 +13,6 @@ import Toasts
 @main
 struct CSUSTPlanetApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject private var authManager = AuthManager()
 
     init() {
         if !UserDefaults.standard.bool(forKey: "hasLaunchedBefore") {
@@ -38,7 +37,7 @@ struct CSUSTPlanetApp: App {
             ContentView()
                 .installToast(position: .top)
                 .environmentObject(GlobalVars.shared)
-                .environmentObject(authManager)
+                .environmentObject(AuthManager.shared)
         }
         .modelContainer(SharedModel.container)
     }

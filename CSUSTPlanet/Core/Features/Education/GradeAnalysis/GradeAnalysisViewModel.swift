@@ -57,14 +57,14 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
         }
     }
 
-    func loadGradeAnalysis(_ eduHelper: EduHelper?) {
+    func loadGradeAnalysis() {
         isLoading = true
         Task {
             defer {
                 isLoading = false
             }
 
-            if let eduHelper = eduHelper {
+            if let eduHelper = AuthManager.shared.eduHelper {
                 do {
                     let courseGrades = try await eduHelper.courseService.getCourseGrades()
                     data = Cached(cachedAt: .now, value: courseGrades)

@@ -15,7 +15,6 @@ import WidgetKit
 @MainActor
 class DormElectricityViewModel: ObservableObject {
     private var campusCardHelper: CampusCardHelper
-    private var authManager: AuthManager
     private var modelContext: ModelContext
 
     private var dormBinding: Binding<Dorm> {
@@ -52,9 +51,8 @@ class DormElectricityViewModel: ObservableObject {
         return dateFormatter
     }()
 
-    init(authManager: AuthManager, modelContext: ModelContext, dorm: Dorm) {
+    init(modelContext: ModelContext, dorm: Dorm) {
         campusCardHelper = CampusCardHelper()
-        self.authManager = authManager
         self.modelContext = modelContext
         self.dorm = dorm
     }
@@ -228,7 +226,7 @@ class DormElectricityViewModel: ObservableObject {
     }
 
     func handleShowTerms() {
-        guard authManager.isLoggedIn else {
+        guard AuthManager.shared.isLoggedIn else {
             errorMessage = "请先登录"
             isShowingError = true
             return
@@ -257,7 +255,7 @@ class DormElectricityViewModel: ObservableObject {
 
                 let token = try await NotificationHelper.shared.getDeviceToken()
 
-                guard let studentId = authManager.ssoProfile?.userAccount else {
+                guard let studentId = AuthManager.shared.ssoProfile?.userAccount else {
                     errorMessage = "未能获取学号，请先登录"
                     isShowingError = true
                     return

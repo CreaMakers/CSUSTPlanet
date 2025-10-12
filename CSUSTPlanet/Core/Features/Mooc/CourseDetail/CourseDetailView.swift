@@ -10,7 +10,6 @@ import CSUSTKit
 import SwiftUI
 
 struct CourseDetailView: View {
-    @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel: CourseDetailViewModel
 
     init(course: MoocHelper.Course) {
@@ -31,20 +30,20 @@ struct CourseDetailView: View {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
         .task {
-            viewModel.loadHomeworks(authManager.moocHelper)
-            viewModel.loadTests(authManager.moocHelper)
+            viewModel.loadHomeworks()
+            viewModel.loadTests()
         }
         .navigationTitle(viewModel.courseInfo.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button(action: { viewModel.loadHomeworks(authManager.moocHelper) }) {
+                    Button(action: { viewModel.loadHomeworks() }) {
                         Label("刷新作业列表", systemImage: "arrow.clockwise")
                     }
                     .disabled(viewModel.isHomeworksLoading)
 
-                    Button(action: { viewModel.loadTests(authManager.moocHelper) }) {
+                    Button(action: { viewModel.loadTests() }) {
                         Label("刷新考试列表", systemImage: "arrow.clockwise")
                     }
                     .disabled(viewModel.isTestsLoading)

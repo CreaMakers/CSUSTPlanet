@@ -11,7 +11,6 @@ import SwiftUI
 
 struct GradeQueryView: View {
     @Environment(\.colorScheme) var colorScheme: ColorScheme
-    @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel = GradeQueryViewModel()
 
     // MARK: - Stat Item
@@ -73,9 +72,7 @@ struct GradeQueryView: View {
                     }
                     .pickerStyle(.wheel)
                     HStack {
-                        Button(action: {
-                            viewModel.loadAvailableSemesters(authManager.eduHelper)
-                        }) {
+                        Button(action: viewModel.loadAvailableSemesters) {
                             Text("刷新学期列表")
                         }
                         if viewModel.isSemestersLoading {
@@ -114,7 +111,7 @@ struct GradeQueryView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完成") {
                         viewModel.isShowingFilterPopover = false
-                        viewModel.loadCourseGrades(authManager.eduHelper)
+                        viewModel.loadCourseGrades()
                     }
                 }
             }
@@ -257,7 +254,7 @@ struct GradeQueryView: View {
         .toast(isPresenting: $viewModel.isShowingWarning) {
             AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
-        .task { viewModel.task(authManager.eduHelper) }
+        .task { viewModel.task() }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
@@ -277,7 +274,7 @@ struct GradeQueryView: View {
                 }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { viewModel.loadCourseGrades(authManager.eduHelper) }) {
+                Button(action: { viewModel.loadCourseGrades() }) {
                     if viewModel.isLoading {
                         ProgressView()
                             .progressViewStyle(.circular)

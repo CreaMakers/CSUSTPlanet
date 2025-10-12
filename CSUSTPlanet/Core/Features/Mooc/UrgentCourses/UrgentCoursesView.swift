@@ -10,7 +10,6 @@ import CSUSTKit
 import SwiftUI
 
 struct UrgentCoursesView: View {
-    @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel = UrgentCoursesViewModel()
 
     // MARK: - Course Card
@@ -72,7 +71,7 @@ struct UrgentCoursesView: View {
         .task {
             guard !viewModel.isLoaded else { return }
             viewModel.isLoaded = true
-            viewModel.loadUrgentCourses(authManager.moocHelper)
+            viewModel.loadUrgentCourses()
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -81,7 +80,7 @@ struct UrgentCoursesView: View {
                         .progressViewStyle(.circular)
                         .scaleEffect(0.9, anchor: .center)
                 } else {
-                    Button(action: { viewModel.loadUrgentCourses(authManager.moocHelper) }) {
+                    Button(action: viewModel.loadUrgentCourses) {
                         Label("刷新", systemImage: "arrow.clockwise")
                     }
                     .disabled(viewModel.isLoading)

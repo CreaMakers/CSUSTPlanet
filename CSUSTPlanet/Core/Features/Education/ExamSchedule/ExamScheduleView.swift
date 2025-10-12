@@ -11,7 +11,6 @@ import SwiftUI
 
 struct ExamScheduleView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var authManager: AuthManager
     @StateObject var viewModel = ExamScheduleViewModel()
 
     // MARK: - Info Row
@@ -57,9 +56,7 @@ struct ExamScheduleView: View {
                     }
                     .pickerStyle(.wheel)
                     HStack {
-                        Button(action: {
-                            viewModel.loadAvailableSemesters(authManager.eduHelper)
-                        }) {
+                        Button(action: viewModel.loadAvailableSemesters) {
                             Text("刷新学期列表")
                         }
                         if viewModel.isSemestersLoading {
@@ -88,7 +85,7 @@ struct ExamScheduleView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完成") {
                         viewModel.isShowingFilter = false
-                        viewModel.loadExams(authManager.eduHelper)
+                        viewModel.loadExams()
                     }
                 }
             }
@@ -230,7 +227,7 @@ struct ExamScheduleView: View {
         .toast(isPresenting: $viewModel.isShowingWarning) {
             AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
-        .task { viewModel.task(authManager.eduHelper) }
+        .task { viewModel.task() }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
@@ -259,7 +256,7 @@ struct ExamScheduleView: View {
                         .progressViewStyle(.circular)
                         .scaleEffect(0.9, anchor: .center)
                 } else {
-                    Button(action: { viewModel.loadExams(authManager.eduHelper) }) {
+                    Button(action: { viewModel.loadExams() }) {
                         Label("查询", systemImage: "magnifyingglass")
                     }
                     .disabled(viewModel.isLoading)

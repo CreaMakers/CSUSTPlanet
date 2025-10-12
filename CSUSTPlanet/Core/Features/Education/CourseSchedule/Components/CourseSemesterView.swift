@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct CourseSemesterView: View {
-    @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var viewModel: CourseScheduleViewModel
 
     var body: some View {
@@ -24,9 +23,7 @@ struct CourseSemesterView: View {
                     .pickerStyle(.wheel)
                 }
                 HStack {
-                    Button(action: {
-                        viewModel.loadAvailableSemesters(authManager.eduHelper)
-                    }) {
+                    Button(action: viewModel.loadAvailableSemesters) {
                         Text("刷新学期列表")
                     }
                     if viewModel.isSemestersLoading {
@@ -38,7 +35,7 @@ struct CourseSemesterView: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button("完成") {
-                        viewModel.loadCourses(authManager.eduHelper)
+                        viewModel.loadCourses()
                         viewModel.isShowingSemestersSheet = false
                     }
                 }

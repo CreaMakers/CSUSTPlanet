@@ -12,8 +12,6 @@ import SwiftUI
 
 @MainActor
 class SSOLoginViewModel: ObservableObject {
-    private var authManager: AuthManager
-
     @Published var isShowingLoginSheet: Bool {
         didSet {
             isShowingLoginSheetBinding.wrappedValue = isShowingLoginSheet
@@ -40,19 +38,18 @@ class SSOLoginViewModel: ObservableObject {
     @Published var countdown = 0
 
     var isAccountLoginDisabled: Bool {
-        return username.isEmpty || password.isEmpty || authManager.isSSOLoggingIn
+        return username.isEmpty || password.isEmpty || AuthManager.shared.isSSOLoggingIn
     }
 
     var isGetDynamicCodeDisabled: Bool {
-        return captcha.isEmpty || username.isEmpty || countdown > 0 || authManager.isSSOLoggingIn
+        return captcha.isEmpty || username.isEmpty || countdown > 0 || AuthManager.shared.isSSOLoggingIn
     }
 
     var isDynamicLoginDisabled: Bool {
-        return username.isEmpty || captcha.isEmpty || smsCode.isEmpty || authManager.isSSOLoggingIn
+        return username.isEmpty || captcha.isEmpty || smsCode.isEmpty || AuthManager.shared.isSSOLoggingIn
     }
 
-    init(authManager: AuthManager, isShowingLoginSheet: Binding<Bool>) {
-        self.authManager = authManager
+    init(isShowingLoginSheet: Binding<Bool>) {
         self.isShowingLoginSheet = isShowingLoginSheet.wrappedValue
         self.isShowingLoginSheetBinding = isShowingLoginSheet
     }
@@ -66,7 +63,7 @@ class SSOLoginViewModel: ObservableObject {
 
         Task {
             do {
-                try await authManager.login(username: username, password: password)
+                try await AuthManager.shared.login(username: username, password: password)
                 isShowingLoginSheet = false
             } catch {
                 errorMessage = error.localizedDescription
@@ -84,7 +81,7 @@ class SSOLoginViewModel: ObservableObject {
 
         Task {
             do {
-                try await authManager.getDynamicCode(username: username, captcha: captcha)
+                try await AuthManager.shared.getDynamicCode(username: username, captcha: captcha)
 
                 countdown = 120
                 Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
@@ -111,7 +108,7 @@ class SSOLoginViewModel: ObservableObject {
     func handleRefreshCaptcha() {
         Task {
             do {
-                captchaImageData = try await authManager.getCaptcha()
+                captchaImageData = try await AuthManager.shared.getCaptcha()
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -122,7 +119,7 @@ class SSOLoginViewModel: ObservableObject {
     func handleDynamicLogin() {
         Task {
             do {
-                try await authManager.dynamicLogin(username: username, captcha: captcha, dynamicCode: smsCode)
+                try await AuthManager.shared.dynamicLogin(username: username, captcha: captcha, dynamicCode: smsCode)
                 isShowingLoginSheet = false
             }
         }
@@ -141,10 +138,10 @@ class SSOLoginViewModel: ObservableObject {
         Task {
             do {
                 let ssoProfile = try await ssoHelper.getLoginUser()
-                authManager.ssoProfile = ssoProfile
-                authManager.ssoHelper = ssoHelper
-                authManager.ssoHelper.saveCookies()
-                authManager.loginToHelpers()
+                AuthManager.shared.ssoProfile = ssoProfile
+                AuthManager.shared.ssoHelper = ssoHelper
+                AuthManager.shared.ssoHelper.saveCookies()
+                AuthManager.shared.loginToHelpers()
                 isShowingBrowser = false
                 isShowingLoginSheet = false
                 if mode == .username {

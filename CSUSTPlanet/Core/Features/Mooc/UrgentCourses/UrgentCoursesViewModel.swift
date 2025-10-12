@@ -41,14 +41,14 @@ class UrgentCoursesViewModel: ObservableObject {
         }
     }
 
-    func loadUrgentCourses(_ moocHelper: MoocHelper?) {
+    func loadUrgentCourses() {
         isLoading = true
         Task {
             defer {
                 isLoading = false
             }
 
-            if let moocHelper = moocHelper {
+            if let moocHelper = AuthManager.shared.moocHelper {
                 do {
                     let urgentCourses = try await moocHelper.getCourseNamesWithPendingHomeworks()
                     data = Cached(cachedAt: .now, value: UrgentCourseData.fromCourses(urgentCourses))

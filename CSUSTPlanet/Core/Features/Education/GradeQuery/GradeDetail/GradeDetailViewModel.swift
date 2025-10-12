@@ -26,20 +26,20 @@ class GradeDetailViewModel: NSObject, ObservableObject {
         self.courseGrade = courseGrade
     }
 
-    func task(_ eduHelper: EduHelper?) {
-        if eduHelper != nil {
-            loadDetail(eduHelper)
+    func task() {
+        if AuthManager.shared.eduHelper != nil {
+            loadDetail()
         }
     }
 
-    func loadDetail(_ eduHelper: EduHelper?) {
+    func loadDetail() {
         isLoading = true
 
         Task {
             defer {
                 isLoading = false
             }
-            if let eduHelper = eduHelper {
+            if let eduHelper = AuthManager.shared.eduHelper {
                 do {
                     gradeDetail = try await eduHelper.courseService.getGradeDetail(url: courseGrade.gradeDetailUrl)
                 } catch {
