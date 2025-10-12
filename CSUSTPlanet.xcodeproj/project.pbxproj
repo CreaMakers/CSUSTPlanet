@@ -109,17 +109,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		006CA2A72E2CDF8700340655 /* Exceptions for "CSUSTPlanetWidget" folder in "CSUSTPlanet" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Widgets/DormElectricity/DormElectricityAppIntent.swift,
-				Widgets/DormElectricity/DormElectricityWidget.swift,
-				Widgets/DormElectricity/DormEntity.swift,
-				Widgets/DormElectricity/DormQuery.swift,
-				Widgets/DormElectricity/RefreshElectricityTimelineIntent.swift,
-			);
-			target = 007CF85A2E1BD68900E319F2 /* CSUSTPlanet */;
-		};
 		006CA2AE2E2D01F300340655 /* Exceptions for "CSUSTPlanet" folder in "CSUSTPlanetWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -168,7 +157,6 @@
 		00E89C662E2C88D800B43162 /* CSUSTPlanetWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				006CA2A72E2CDF8700340655 /* Exceptions for "CSUSTPlanetWidget" folder in "CSUSTPlanet" target */,
 				00E89C772E2C88D800B43162 /* Exceptions for "CSUSTPlanetWidget" folder in "CSUSTPlanetWidgetExtension" target */,
 			);
 			path = CSUSTPlanetWidget;
