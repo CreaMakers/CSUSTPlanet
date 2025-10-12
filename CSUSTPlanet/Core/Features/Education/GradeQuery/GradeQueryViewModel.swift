@@ -196,4 +196,72 @@ class GradeQueryViewModel: NSObject, ObservableObject {
             isShowingSuccess = true
         }
     }
+
+    func exportGradesAsCSV() {
+        guard let csvString = generateCSVString(from: filteredCourseGrades) else {
+            errorMessage = "没有可导出的成绩数据"
+            isShowingError = true
+            return
+        }
+
+        guard let csvData = csvString.data(using: .utf8) else {
+            errorMessage = "无法将CSV数据编码为UTF-8"
+            isShowingError = true
+            return
+        }
+
+        let temporaryDirectory = FileManager.default.temporaryDirectory
+        let fileName = "成绩导出-\(Date().formatted(date: .numeric, time: .shortened)).csv"
+        let sanitizedFileName = fileName.replacingOccurrences(of: "/", with: "-")
+        let fileURL = temporaryDirectory.appendingPathComponent(sanitizedFileName)
+
+        do {
+            try csvData.write(to: fileURL)
+
+            shareContent = fileURL
+            isShowingShareSheet = true
+
+        } catch {
+            errorMessage = "无法保存临时的CSV文件: \(error.localizedDescription)"
+            isShowingError = true
+        }
+    }
+
+    private func generateCSVString(from courseGrades: [EduHelper.CourseGrade]) -> String? {
+        guard !courseGrades.isEmpty else { return nil }
+        let header = "开课学期,课程编号,课程名称,分组名,成绩,详细成绩链接,修读方式,成绩标识,学分,总学时,绩点,补重学期,考核方式,考试性质,课程属性,课程性质,课程类别\n"
+
+        let rows = courseGrades.map { grade -> String in
+            let semester = escapeCSVField(grade.semester)
+            let courseID = escapeCSVField(grade.courseID)
+            let courseName = escapeCSVField(grade.courseName)
+            let groupName = escapeCSVField(grade.groupName)
+            let gradeValue = "\(grade.grade)"
+            let gradeDetailUrl = escapeCSVField(grade.gradeDetailUrl)
+            let studyMode = escapeCSVField(grade.studyMode)
+            let gradeIdentifier = escapeCSVField(grade.gradeIdentifier)
+            let credit = "\(grade.credit)"
+            let totalHours = "\(grade.totalHours)"
+            let gradePoint = "\(grade.gradePoint)"
+            let retakeSemester = escapeCSVField(grade.retakeSemester)
+            let assessmentMethod = escapeCSVField(grade.assessmentMethod)
+            let examNature = escapeCSVField(grade.examNature)
+            let courseAttribute = escapeCSVField(grade.courseAttribute)
+            let courseNature = escapeCSVField(grade.courseNature.rawValue)
+            let courseCategory = escapeCSVField(grade.courseCategory)
+
+            return [semester, courseID, courseName, groupName, gradeValue, gradeDetailUrl, studyMode, gradeIdentifier, credit, totalHours, gradePoint, retakeSemester, assessmentMethod, examNature, courseAttribute, courseNature, courseCategory].joined(separator: ",")
+        }
+
+        return header + rows.joined(separator: "\n")
+    }
+
+    private func escapeCSVField(_ field: String) -> String {
+        var escapedField = field
+        escapedField = escapedField.replacingOccurrences(of: "\"", with: "\"\"")
+        if escapedField.contains(",") || escapedField.contains("\"") {
+            escapedField = "\"\(escapedField)\""
+        }
+        return escapedField
+    }
 }

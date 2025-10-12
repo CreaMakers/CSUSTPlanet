@@ -293,6 +293,10 @@ struct GradeQueryView: View {
                     Label("保存结果到相册", systemImage: "photo")
                 }
                 .disabled(viewModel.isLoading)
+                Button(action: viewModel.exportGradesAsCSV) {
+                    Label("导出为CSV表格", systemImage: "doc.plaintext")
+                }
+                .disabled(viewModel.isLoading || viewModel.data == nil)
             } label: {
                 Label("更多操作", systemImage: "ellipsis.circle")
             }
