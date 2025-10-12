@@ -5,8 +5,8 @@
 //  Created by Zhe_Learn on 2025/7/9.
 //
 
-import SwiftUI
 import RealmSwift
+import SwiftUI
 
 struct ElectricityQueryView: View {
     @State var isShowingAddDormSheet: Bool = false
@@ -21,9 +21,7 @@ struct ElectricityQueryView: View {
                         .foregroundColor(.secondary)
                         .font(.headline)
                         .padding()
-                    Button(action: {
-                        isShowingAddDormSheet.toggle()
-                    }) {
+                    Button(action: { isShowingAddDormSheet = true }) {
                         Label("添加宿舍", systemImage: "plus")
                     }
                     .buttonStyle(.borderedProminent)
@@ -35,16 +33,16 @@ struct ElectricityQueryView: View {
             }
         }
         .navigationTitle("电量查询")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(
-            trailing: Button(action: {
-                isShowingAddDormSheet.toggle()
-            }) {
-                Label("添加宿舍", systemImage: "plus")
+        .toolbarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: { isShowingAddDormSheet = true }) {
+                    Label("添加宿舍", systemImage: "plus")
+                }
             }
-        )
+        }
         .sheet(isPresented: $isShowingAddDormSheet) {
-            AddDormitoryView(dorms: Array(dorms), isShowingAddDormitorySheetBinding: $isShowingAddDormSheet)
+            AddDormitoryView(isShowingAddDormSheet: $isShowingAddDormSheet)
         }
     }
 }

@@ -9,17 +9,8 @@ import CSUSTKit
 import SwiftUI
 
 struct AddDormitoryView: View {
-    @StateObject var viewModel: AddDormitoryViewModel
-
-    init(dorms: [Dorm], isShowingAddDormitorySheetBinding: Binding<Bool>) {
-        _viewModel = StateObject(
-            wrappedValue:
-                AddDormitoryViewModel(
-                    dorms: dorms,
-                    isShowingAddDormitorySheetBinding: isShowingAddDormitorySheetBinding
-                )
-        )
-    }
+    @StateObject var viewModel = AddDormitoryViewModel()
+    @Binding var isShowingAddDormSheet: Bool
 
     var body: some View {
         NavigationStack {
@@ -125,7 +116,7 @@ struct AddDormitoryView: View {
                     }
                     .padding(.bottom, 20)
 
-                    Button(action: viewModel.handleAddDormitory) {
+                    Button(action: { viewModel.handleAddDormitory($isShowingAddDormSheet) }) {
                         Text("确认添加")
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 5)
@@ -143,7 +134,7 @@ struct AddDormitoryView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(action: { viewModel.isShowingAddDormSheet = false }) {
+                    Button(action: { isShowingAddDormSheet = false }) {
                         Text("取消")
                     }
                 }

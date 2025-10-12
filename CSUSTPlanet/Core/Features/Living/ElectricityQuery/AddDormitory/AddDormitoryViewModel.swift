@@ -12,16 +12,7 @@ import SwiftUI
 
 @MainActor
 class AddDormitoryViewModel: ObservableObject {
-    private var campusCardHelper: CampusCardHelper
-    private var dorms: [Dorm]
-
-    @Published var isShowingAddDormSheet: Bool {
-        didSet {
-            isShowingAddDormSheetBinding.wrappedValue = isShowingAddDormSheet
-        }
-    }
-
-    private var isShowingAddDormSheetBinding: Binding<Bool>
+    private var campusCardHelper = CampusCardHelper()
 
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
@@ -32,13 +23,6 @@ class AddDormitoryViewModel: ObservableObject {
 
     @Published var buildings: [CampusCardHelper.Campus: [CampusCardHelper.Building]] = [:]
     @Published var isBuildingsLoading: Bool = false
-
-    init(dorms: [Dorm], isShowingAddDormitorySheetBinding: Binding<Bool>) {
-        self.campusCardHelper = CampusCardHelper()
-        self.dorms = dorms
-        self.isShowingAddDormSheet = isShowingAddDormitorySheetBinding.wrappedValue
-        self.isShowingAddDormSheetBinding = isShowingAddDormitorySheetBinding
-    }
 
     func handleCampusPickerChange(oldCampus: CampusCardHelper.Campus, newCampus: CampusCardHelper.Campus) {
         if let firstBuilding = buildings[newCampus]?.first {
@@ -71,28 +55,27 @@ class AddDormitoryViewModel: ObservableObject {
         }
     }
 
-    func handleAddDormitory() {
-        let building = buildings[selectedCampus]?.first(where: { $0.id == selectedBuildingID })
-        guard let building = building else {
-            errorMessage = "请选择有效的宿舍楼"
-            isShowingError = true
-            return
-        }
-
-        let dorm = Dorm(room: room, building: building)
-        if dorms.contains(where: { $0.room == dorm.room && $0.buildingID == building.id && $0.buildingName == building.name }) {
-            errorMessage = "该宿舍信息已存在"
-            isShowingError = true
-            return
-        }
-
+    func handleAddDormitory(_ isShowingAddDormSheet: Binding<Bool>) {
         Task {
             do {
+                let building = buildings[selectedCampus]?.first(where: { $0.id == selectedBuildingID })
+                guard let building = building else {
+                    errorMessage = "请选择有效的宿舍楼"
+                    isShowingError = true
+                    return
+                }
+
                 let realm = try await Realm()
+                let dorm = Dorm(room: room, building: building)
+                if realm.objects(Dorm.self).contains(where: { $0.room == dorm.room && $0.buildingID == building.id && $0.buildingName == building.name }) {
+                    errorMessage = "该宿舍已存在"
+                    isShowingError = true
+                    return
+                }
                 try realm.write {
                     realm.add(dorm)
                 }
-                isShowingAddDormSheet = false
+                isShowingAddDormSheet.wrappedValue = false
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
