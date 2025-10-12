@@ -7,10 +7,12 @@
 
 import Alamofire
 import Charts
+import RealmSwift
 import SwiftUI
 
 struct DormDetailView: View {
     @ObservedObject var viewModel: DormElectricityViewModel
+    @ObservedRealmObject var dorm: Dorm
 
     struct InfoRow: View {
         let icon: String
@@ -52,7 +54,7 @@ struct DormDetailView: View {
             } else {
                 currentElectricitySection
 
-                if !viewModel.dorm.records.isEmpty {
+                if !dorm.records.isEmpty {
                     electricityTrendSection
                     historyRecordsSection
                 } else {
@@ -68,12 +70,12 @@ struct DormDetailView: View {
                         Button(action: viewModel.handleShowTerms) {
                             Label("设置定时查询", systemImage: "bell").tint(.blue)
                         }
-                        .disabled(viewModel.isScheduleLoading || viewModel.isScheduleEnabled)
+                        .disabled(viewModel.isScheduleLoading || dorm.schedule != nil)
 
-                        Button(action: { _ = viewModel.removeSchedule() }) {
+                        Button(action: { _ = viewModel.removeSchedule(dorm) }) {
                             Label("取消定时查询", systemImage: "bell.slash").tint(.red)
                         }
-                        .disabled(viewModel.isScheduleLoading || !viewModel.isScheduleEnabled)
+                        .disabled(viewModel.isScheduleLoading || dorm.schedule == nil)
                     } label: {
                         Label("定时查询", systemImage: "clock").tint(.purple)
                         if viewModel.isScheduleLoading {
@@ -82,7 +84,7 @@ struct DormDetailView: View {
                         }
                     }
 
-                    Button(action: { viewModel.deleteAllRecords() }) {
+                    Button(action: { viewModel.deleteAllRecords(dorm) }) {
                         Label("清除历史", systemImage: "trash").tint(.red)
                     }
                 } label: {
@@ -90,7 +92,7 @@ struct DormDetailView: View {
                 }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button(action: viewModel.handleQueryElectricity) {
+                Button(action: { viewModel.handleQueryElectricity(dorm) }) {
                     Label("查询电量", systemImage: "bolt.fill")
                 }
                 .tint(.yellow)
@@ -103,11 +105,11 @@ struct DormDetailView: View {
 
     private var dormInfoSection: some View {
         Section(header: Text("宿舍信息")) {
-            InfoRow(icon: "house.fill", iconColor: .blue, label: "宿舍号", value: viewModel.dorm.room)
-            InfoRow(icon: "building.fill", iconColor: .green, label: "楼栋", value: viewModel.dorm.buildingName)
-            InfoRow(icon: "map.fill", iconColor: .orange, label: "校区", value: viewModel.dorm.campusName)
+            InfoRow(icon: "house.fill", iconColor: .blue, label: "宿舍号", value: dorm.room)
+            InfoRow(icon: "building.fill", iconColor: .green, label: "楼栋", value: dorm.buildingName)
+            InfoRow(icon: "map.fill", iconColor: .orange, label: "校区", value: dorm.campusName)
 
-            if viewModel.isScheduleEnabled, let schedule = viewModel.dorm.schedule {
+            if let schedule = dorm.schedule {
                 InfoRow(icon: "clock.fill", iconColor: .purple, label: "定时查询时间", value: String(format: "%02d:%02d", schedule.hour, schedule.minute))
             }
         }
@@ -115,7 +117,7 @@ struct DormDetailView: View {
 
     private var currentElectricitySection: some View {
         Section(header: Text("当前电量")) {
-            if let record = viewModel.dorm.latestRecord {
+            if let record = dorm.latestRecord {
                 VStack(spacing: 8) {
                     HStack {
                         Text("\(String(format: "%.2f", record.electricity))")
@@ -151,14 +153,14 @@ struct DormDetailView: View {
 
     private var electricityTrendSection: some View {
         Section(header: Text("电量趋势")) {
-            Chart(viewModel.dorm.records.sorted(by: { $0.date < $1.date })) { record in
+            Chart(dorm.records.sorted(by: { $0.date < $1.date })) { record in
                 LineMark(
                     x: .value("日期", record.date),
                     y: .value("电量", record.electricity)
                 )
                 .interpolationMethod(.catmullRom)
                 .symbol {
-                    if viewModel.dorm.records.count <= 1 {
+                    if dorm.records.count <= 1 {
                         Circle()
                             .frame(width: 8)
                             .foregroundStyle(.primary)
@@ -177,7 +179,7 @@ struct DormDetailView: View {
 
     private var historyRecordsSection: some View {
         Section(header: Text("历史记录")) {
-            ForEach(viewModel.dorm.records.sorted(by: { $0.date > $1.date })) { record in
+            ForEach(dorm.records.sorted(by: { $0.date > $1.date })) { record in
                 HStack {
                     Image(systemName: "bolt.fill")
                         .foregroundColor(.yellow)

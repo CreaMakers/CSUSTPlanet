@@ -10,26 +10,21 @@ import RealmSwift
 import SwiftUI
 
 struct DormRowView: View {
-    init(dorm: Dorm) {
-        _dorm = ObservedRealmObject(wrappedValue: dorm)
-        _viewModel = StateObject(wrappedValue: DormElectricityViewModel(dorm: dorm))
-    }
 
-    @StateObject var viewModel: DormElectricityViewModel
-
+    @StateObject var viewModel = DormElectricityViewModel()
     @ObservedRealmObject var dorm: Dorm
 
     var body: some View {
         NavigationLink {
-            DormDetailView(viewModel: viewModel)
+            DormDetailView(viewModel: viewModel, dorm: dorm)
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("宿舍号：\(viewModel.dorm.room)")
+                    Text("宿舍号：\(dorm.room)")
                         .font(.headline)
-                    Text("楼栋：\(viewModel.dorm.buildingName)")
+                    Text("楼栋：\(dorm.buildingName)")
                         .font(.subheadline)
-                    Text("校区：\(viewModel.dorm.campusName)")
+                    Text("校区：\(dorm.campusName)")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -38,7 +33,7 @@ struct DormRowView: View {
 
                 if viewModel.isQueryingElectricity {
                     ProgressView()
-                } else if let record = viewModel.dorm.latestRecord {
+                } else if let record = dorm.latestRecord {
                     VStack(alignment: .trailing, spacing: 4) {
                         Text("\(String(format: "%.2f", record.electricity)) kWh")
                             .font(.headline)
@@ -55,7 +50,7 @@ struct DormRowView: View {
             }
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            Button(action: viewModel.handleQueryElectricity) {
+            Button(action: { viewModel.handleQueryElectricity(dorm) }) {
                 Label("查询", systemImage: "bolt.fill")
             }
             .tint(.yellow)
@@ -75,7 +70,7 @@ struct DormRowView: View {
                 Label("删除宿舍", systemImage: "trash")
                     .tint(.red)
             }
-            Button(action: viewModel.handleQueryElectricity) {
+            Button(action: { viewModel.handleQueryElectricity(dorm) }) {
                 Label("查询电量", systemImage: "bolt.fill")
                     .tint(.yellow)
             }
@@ -86,12 +81,12 @@ struct DormRowView: View {
                     Label("设置定时查询", systemImage: "bell")
                         .tint(.blue)
                 }
-                .disabled(viewModel.isScheduleLoading || viewModel.isScheduleEnabled)
-                Button(action: { _ = viewModel.removeSchedule() }) {
+                .disabled(viewModel.isScheduleLoading || dorm.schedule != nil)
+                Button(action: { _ = viewModel.removeSchedule(dorm) }) {
                     Label("取消定时查询", systemImage: "bell.slash")
                         .tint(.red)
                 }
-                .disabled(viewModel.isScheduleLoading || !viewModel.isScheduleEnabled)
+                .disabled(viewModel.isScheduleLoading || dorm.schedule == nil)
             } label: {
                 Label("定时查询", systemImage: "clock")
                     .tint(.purple)
@@ -103,9 +98,9 @@ struct DormRowView: View {
         }
         .alert("删除宿舍", isPresented: $viewModel.isConfirmationDialogPresented) {
             Button("取消", role: .cancel) {}
-            Button("删除", role: .destructive, action: viewModel.deleteDorm)
+            Button("删除", role: .destructive, action: { viewModel.deleteDorm(dorm.id) })
         } message: {
-            Text("确定要删除 \(viewModel.dorm.room) 宿舍吗？")
+            Text("确定要删除 \(dorm.room) 宿舍吗？")
         }
         .alert(isPresented: $viewModel.isShowingError) {
             Alert(title: Text("错误"), message: Text(viewModel.errorMessage), dismissButton: .default(Text("确定")))
@@ -114,10 +109,14 @@ struct DormRowView: View {
             ElectricityTermsView(isPresented: $viewModel.isTermsPresented, onAgree: viewModel.handleTermsAgree)
         }
         .sheet(isPresented: $viewModel.isShowNotificationSettings) {
-            NotificationSettingsView(isPresented: $viewModel.isShowNotificationSettings, onConfirm: viewModel.handleNotificationSettings)
+            NotificationSettingsView(
+                isPresented: $viewModel.isShowNotificationSettings,
+                onConfirm: { hour, minute in
+                    viewModel.handleNotificationSettings(scheduleHour: hour, scheduleMinute: minute, dorm: dorm)
+                })
         }
         .task {
-            viewModel.loadSchedule()
+            viewModel.loadSchedule(dorm)
         }
     }
 }

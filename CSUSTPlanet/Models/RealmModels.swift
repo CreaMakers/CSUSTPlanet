@@ -24,7 +24,8 @@ import RealmSwift
         @Persisted var records: List<ElectricityRecord>
 
         var latestRecord: ElectricityRecord? {
-            records.sorted(by: \.date, ascending: false).first
+            guard !isInvalidated else { return nil }
+            return records.sorted(by: \.date, ascending: false).first
         }
 
         convenience init(room: String, building: CampusCardHelper.Building) {

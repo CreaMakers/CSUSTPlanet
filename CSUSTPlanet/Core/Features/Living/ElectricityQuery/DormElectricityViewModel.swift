@@ -14,23 +14,7 @@ import WidgetKit
 
 @MainActor
 class DormElectricityViewModel: ObservableObject {
-    private var campusCardHelper: CampusCardHelper
-
-    private var dormBinding: Binding<Dorm> {
-        Binding(
-            get: { self.dorm },
-            set: { newValue in
-                if let realm = try? Realm() {
-                    try? realm.write {
-                        self.dorm = newValue
-                    }
-                }
-                //                try? self.modelContext.save()
-            }
-        )
-    }
-
-    @Published var dorm: Dorm
+    private var campusCardHelper = CampusCardHelper()
 
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
@@ -43,10 +27,6 @@ class DormElectricityViewModel: ObservableObject {
 
     @Published var isScheduleLoading: Bool = false
 
-    var isScheduleEnabled: Bool {
-        return dorm.schedule?.id != nil
-    }
-
     private let dateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -54,16 +34,11 @@ class DormElectricityViewModel: ObservableObject {
         return dateFormatter
     }()
 
-    init(dorm: Dorm) {
-        campusCardHelper = CampusCardHelper()
-        self.dorm = dorm
-    }
-
     func formatDate(_ date: Date) -> String {
         return dateFormatter.string(from: date)
     }
 
-    func loadSchedule() {
+    func loadSchedule(_ dorm: Dorm) {
         guard MMKVManager.shared.isElectricityTermAccepted else {
             return
         }
@@ -115,7 +90,7 @@ class DormElectricityViewModel: ObservableObject {
         }
     }
 
-    func removeSchedule() -> Task<Void, Never> {
+    func removeSchedule(_ dorm: Dorm) -> Task<Void, Never> {
         guard let scheduleId = dorm.schedule?.id else {
             return Task {}
         }
@@ -157,7 +132,7 @@ class DormElectricityViewModel: ObservableObject {
         }
     }
 
-    func handleQueryElectricity() {
+    func handleQueryElectricity(_ dorm: Dorm) {
         isQueryingElectricity = true
         guard let campus = CampusCardHelper.Campus(rawValue: dorm.campusName) else {
             errorMessage = "无效的校区ID"
@@ -185,9 +160,6 @@ class DormElectricityViewModel: ObservableObject {
                     dorm.records.append(record)
                 }
 
-                // modelContext.insert(record)
-                // try modelContext.save()
-
                 WidgetCenter.shared.reloadTimelines(ofKind: "DormElectricityWidget")
             } catch {
                 errorMessage = error.localizedDescription
@@ -196,25 +168,28 @@ class DormElectricityViewModel: ObservableObject {
         }
     }
 
-    func deleteDorm() {
-        Task {
-            do {
-                if isScheduleEnabled {
-                    await removeSchedule().value
+    func deleteDorm(_ dormId: ObjectId) {
+        do {
+            let realm = try Realm()
+            guard let dormToDelete = realm.object(ofType: Dorm.self, forPrimaryKey: dormId) else { return }
+
+            if dormToDelete.schedule != nil {
+                Task {
+                    await removeSchedule(dormToDelete).value
                 }
-                let realm = try await Realm()
-                try realm.write {
-                    realm.delete(dorm)
-                }
-                // modelContext.delete(dorm)
-            } catch {
-                errorMessage = error.localizedDescription
-                isShowingError = true
             }
+
+            try realm.write {
+                realm.delete(dormToDelete.records)
+                realm.delete(dormToDelete)
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+            isShowingError = true
         }
     }
 
-    func deleteAllRecords() {
+    func deleteAllRecords(_ dorm: Dorm) {
         Task {
             do {
                 let realm = try await Realm()
@@ -261,7 +236,7 @@ class DormElectricityViewModel: ObservableObject {
         isShowNotificationSettings = true
     }
 
-    func handleNotificationSettings(scheduleHour: Int, scheduleMinute: Int) {
+    func handleNotificationSettings(scheduleHour: Int, scheduleMinute: Int, dorm: Dorm) {
         Task {
             do {
                 let granted = try await NotificationHelper.shared.requestAuthorization()
