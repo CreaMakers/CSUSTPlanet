@@ -6,6 +6,7 @@
 //
 
 import AlertToast
+import Charts
 import SwiftData
 import SwiftUI
 
@@ -93,6 +94,49 @@ struct DormRowView: View {
                     ProgressView("加载中...")
                         .progressViewStyle(.circular)
                 }
+            }
+        } preview: {
+            let electricityValues = dorm.records?.map { $0.electricity } ?? []
+            let minValue = electricityValues.min() ?? 0
+            let maxValue = electricityValues.max() ?? 0
+
+            let yMin = max(0, minValue - 5)
+            let yMax = maxValue + 5
+
+            return VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("宿舍号：\(dorm.room)")
+                        .font(.headline)
+                    Text("楼栋：\(dorm.buildingName)")
+                        .font(.subheadline)
+                    Text("校区：\(dorm.campusName)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+
+                Chart(dorm.records?.sorted(by: { $0.date < $1.date }) ?? []) { record in
+                    LineMark(
+                        x: .value("日期", record.date),
+                        y: .value("电量", record.electricity)
+                    )
+                    .interpolationMethod(.catmullRom)
+                    .symbol {
+                        if dorm.records?.count ?? 0 <= 1 {
+                            Circle()
+                                .frame(width: 8)
+                                .foregroundStyle(.primary)
+                        }
+                    }
+                }
+                .chartXAxis {
+                    AxisMarks(values: .automatic(desiredCount: 3)) { _ in
+                        AxisValueLabel(format: .dateTime.month().day())
+                    }
+                }
+                .chartYScale(domain: yMin...yMax)
+                .frame(width: 300, height: 200)
+                .padding(8)
             }
         }
         .alert("删除宿舍", isPresented: $viewModel.isConfirmationDialogPresented) {
