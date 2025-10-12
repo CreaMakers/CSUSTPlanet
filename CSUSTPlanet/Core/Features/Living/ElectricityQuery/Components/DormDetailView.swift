@@ -44,22 +44,13 @@ struct DormDetailView: View {
     var body: some View {
         Form {
             dormInfoSection
+            currentElectricitySection
 
-            if viewModel.isQueryingElectricity {
-                Section {
-                    ProgressView("正在查询电量...")
-                        .progressViewStyle(.circular)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
+            if let records = dorm.records, !records.isEmpty {
+                electricityTrendSection
+                historyRecordsSection
             } else {
-                currentElectricitySection
-
-                if let records = dorm.records, !records.isEmpty {
-                    electricityTrendSection
-                    historyRecordsSection
-                } else {
-                    emptyStateSection
-                }
+                emptyStateSection
             }
         }
         .navigationTitle("宿舍电量")
@@ -92,11 +83,15 @@ struct DormDetailView: View {
                 }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { viewModel.handleQueryElectricity(dorm) }) {
-                    Label("查询电量", systemImage: "bolt.fill")
+                if viewModel.isQueryingElectricity {
+                    ProgressView()
+                } else {
+                    Button(action: { viewModel.handleQueryElectricity(dorm) }) {
+                        Label("查询电量", systemImage: "bolt.fill")
+                    }
+                    .tint(.yellow)
+                    .disabled(viewModel.isQueryingElectricity)
                 }
-                .tint(.yellow)
-                .disabled(viewModel.isQueryingElectricity)
             }
         }
     }
@@ -152,7 +147,14 @@ struct DormDetailView: View {
     }
 
     private var electricityTrendSection: some View {
-        Section(header: Text("电量趋势")) {
+        let electricityValues = dorm.records?.map { $0.electricity } ?? []
+        let minValue = electricityValues.min() ?? 0
+        let maxValue = electricityValues.max() ?? 0
+
+        let yMin = max(0, minValue - 5)
+        let yMax = maxValue + 5
+
+        return Section(header: Text("电量趋势")) {
             Chart(dorm.records?.sorted(by: { $0.date < $1.date }) ?? []) { record in
                 LineMark(
                     x: .value("日期", record.date),
@@ -172,6 +174,7 @@ struct DormDetailView: View {
                     AxisValueLabel(format: .dateTime.month().day())
                 }
             }
+            .chartYScale(domain: yMin...yMax)
             .frame(height: 200)
             .padding(.vertical, 8)
         }
