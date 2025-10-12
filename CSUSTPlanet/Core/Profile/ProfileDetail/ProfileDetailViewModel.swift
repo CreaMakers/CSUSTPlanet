@@ -58,8 +58,8 @@ class ProfileDetailViewModel: ObservableObject {
 
     func loadEduProfile() {
         guard let eduHelper = eduHelper else {
-//            errorMessage = "教务服务未初始化"
-//            isShowingError = true
+            // errorMessage = "教务服务未初始化"
+            // isShowingError = true
             return
         }
 
@@ -80,8 +80,8 @@ class ProfileDetailViewModel: ObservableObject {
 
     func loadMoocProfile() {
         guard let moocHelper = moocHelper else {
-//            errorMessage = "网络课程中心服务未初始化"
-//            isShowingError = true
+            // errorMessage = "网络课程中心服务未初始化"
+            // isShowingError = true
             return
         }
 

@@ -31,7 +31,7 @@ class NotificationHelper {
             self.tokenContinuations[taskId] = continuation
 
             Task {
-                try await Task.sleep(nanoseconds: 10 * 1_000_000_000) // 10 seconds timeout
+                try await Task.sleep(nanoseconds: 10 * 1_000_000_000)  // 10 seconds timeout
                 if let continuation = self.tokenContinuations.removeValue(forKey: taskId) {
                     continuation.resume(throwing: NotificationHelperError.deviceTokenTimeout)
                 }

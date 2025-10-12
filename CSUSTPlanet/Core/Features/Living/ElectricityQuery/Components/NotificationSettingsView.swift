@@ -102,8 +102,10 @@ struct NotificationSettingsView: View {
 
 #Preview {
     NavigationStack {
-        NotificationSettingsView(isPresented: .constant(true), onConfirm: {
-            _, _ in
-        })
+        NotificationSettingsView(
+            isPresented: .constant(true),
+            onConfirm: {
+                _, _ in
+            })
     }
 }

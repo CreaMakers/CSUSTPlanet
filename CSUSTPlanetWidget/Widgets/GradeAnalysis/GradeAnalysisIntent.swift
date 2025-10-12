@@ -16,7 +16,7 @@ enum ChartType: String, AppEnum {
     static var caseDisplayRepresentations: [ChartType: DisplayRepresentation] = [
         .semesterAverage: "各学期平均成绩",
         .semesterGPA: "各学期GPA",
-        .gpaDistribution: "GPA分布"
+        .gpaDistribution: "GPA分布",
     ]
 
     static func defaultResult() async -> ChartType? {

@@ -27,7 +27,8 @@ public class KeychainCookieStorage: CookieStorage {
 
     public func restoreCookies(to session: Session) {
         guard let dataString = KeychainHelper.retrieve(key: keychainKey),
-              let data = Data(base64Encoded: dataString) else { return }
+            let data = Data(base64Encoded: dataString)
+        else { return }
 
         do {
             if let cookies = try NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, HTTPCookie.self], from: data) as? [HTTPCookie] {

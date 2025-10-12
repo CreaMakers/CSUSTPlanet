@@ -70,7 +70,7 @@ extension MMKVManager {
     func clearAll() {
         defaultMMKV?.clearAll()
     }
-    
+
     func sync() {
         defaultMMKV?.sync()
     }

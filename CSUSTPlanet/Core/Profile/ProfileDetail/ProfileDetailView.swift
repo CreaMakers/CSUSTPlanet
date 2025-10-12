@@ -11,12 +11,13 @@ struct ProfileDetailView: View {
     @StateObject private var viewModel: ProfileDetailViewModel
 
     init(authManager: AuthManager) {
-        _viewModel = StateObject(wrappedValue: ProfileDetailViewModel(
-            ssoHelper: authManager.ssoHelper,
-            eduHelper: authManager.eduHelper,
-            moocHelper: authManager.moocHelper,
-            ssoProfile: authManager.ssoProfile
-        ))
+        _viewModel = StateObject(
+            wrappedValue: ProfileDetailViewModel(
+                ssoHelper: authManager.ssoHelper,
+                eduHelper: authManager.eduHelper,
+                moocHelper: authManager.moocHelper,
+                ssoProfile: authManager.ssoProfile
+            ))
     }
 
     var body: some View {

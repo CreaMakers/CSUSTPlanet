@@ -75,10 +75,16 @@ class ColorHelper {
     }
 
     private static func interpolate(from fromColor: UIColor, to toColor: UIColor, with factor: CGFloat) -> UIColor {
-        var fromR: CGFloat = 0, fromG: CGFloat = 0, fromB: CGFloat = 0, fromA: CGFloat = 0
+        var fromR: CGFloat = 0
+        var fromG: CGFloat = 0
+        var fromB: CGFloat = 0
+        var fromA: CGFloat = 0
         fromColor.getRed(&fromR, green: &fromG, blue: &fromB, alpha: &fromA)
 
-        var toR: CGFloat = 0, toG: CGFloat = 0, toB: CGFloat = 0, toA: CGFloat = 0
+        var toR: CGFloat = 0
+        var toG: CGFloat = 0
+        var toB: CGFloat = 0
+        var toA: CGFloat = 0
         toColor.getRed(&toR, green: &toG, blue: &toB, alpha: &toA)
 
         let newR = fromR + (toR - fromR) * factor
@@ -92,7 +98,7 @@ class ColorHelper {
     static func electricityColor(electricity: Double) -> Color {
         switch electricity {
         case ..<10: return .red
-        case 10 ..< 30: return .orange
+        case 10..<30: return .orange
         default: return .green
         }
     }

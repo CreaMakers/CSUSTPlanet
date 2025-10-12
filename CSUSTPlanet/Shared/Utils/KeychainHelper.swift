@@ -13,7 +13,7 @@ enum KeychainHelper {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: "bundleSeedID",
             kSecAttrService as String: "",
-            kSecReturnAttributes as String: kCFBooleanTrue as Any
+            kSecReturnAttributes as String: kCFBooleanTrue as Any,
         ]
 
         var result: CFTypeRef?
@@ -46,7 +46,7 @@ enum KeychainHelper {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
             kSecValueData as String: data,
-            kSecAttrAccessGroup as String: accessGroup
+            kSecAttrAccessGroup as String: accessGroup,
         ]
 
         SecItemDelete(query as CFDictionary)
@@ -60,7 +60,7 @@ enum KeychainHelper {
             kSecAttrAccount as String: key,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecAttrAccessGroup as String: accessGroup
+            kSecAttrAccessGroup as String: accessGroup,
         ]
 
         var dataTypeRef: AnyObject?
@@ -76,7 +76,7 @@ enum KeychainHelper {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
-            kSecAttrAccessGroup as String: accessGroup
+            kSecAttrAccessGroup as String: accessGroup,
         ]
 
         let status = SecItemDelete(query as CFDictionary)
@@ -89,13 +89,13 @@ enum KeychainHelper {
             kSecClassInternetPassword,
             kSecClassCertificate,
             kSecClassKey,
-            kSecClassIdentity
+            kSecClassIdentity,
         ]
         for secClass in secClasses {
             let query: [String: Any] = [
                 kSecClass as String: secClass,
                 kSecAttrSynchronizable as String: kSecAttrSynchronizableAny,
-                kSecAttrAccessGroup as String: accessGroup
+                kSecAttrAccessGroup as String: accessGroup,
             ]
             SecItemDelete(query as CFDictionary)
         }
