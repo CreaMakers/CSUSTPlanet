@@ -11,7 +11,6 @@ import SwiftUI
 struct HomeElectricityView: View {
     let electricityDorms: [Dorm]
     let totalElectricityDorms: Int
-    let getLastRecord: (Dorm) -> ElectricityRecord?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -100,7 +99,7 @@ struct HomeElectricityView: View {
 
             Spacer()
 
-            if let record = getLastRecord(dorm) {
+            if let record = dorm.latestRecord {
                 VStack(alignment: .trailing, spacing: 4) {
                     HStack(spacing: 4) {
                         Text(String(format: "%.2f", record.electricity))
@@ -155,7 +154,6 @@ struct HomeElectricityView: View {
 #Preview {
     HomeElectricityView(
         electricityDorms: [],
-        totalElectricityDorms: 0,
-        getLastRecord: { _ in nil }
+        totalElectricityDorms: 0
     )
 }

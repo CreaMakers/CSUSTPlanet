@@ -5,15 +5,13 @@
 //  Created by Zhe_Learn on 2025/7/9.
 //
 
-import SwiftData
 import SwiftUI
+import RealmSwift
 
 struct ElectricityQueryView: View {
     @State var isShowingAddDormSheet: Bool = false
-    @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject var authManager: AuthManager
 
-    @Query var dorms: [Dorm]
+    @ObservedResults(Dorm.self) var dorms
 
     var body: some View {
         ZStack {
@@ -32,7 +30,7 @@ struct ElectricityQueryView: View {
                 }
             } else {
                 List(dorms) { dorm in
-                    DormRowView(authManager: authManager, modelContext: modelContext, dorm: dorm)
+                    DormRowView(dorm: dorm)
                 }
             }
         }
@@ -46,7 +44,7 @@ struct ElectricityQueryView: View {
             }
         )
         .sheet(isPresented: $isShowingAddDormSheet) {
-            AddDormitoryView(dorms: dorms, modelContext: modelContext, isShowingAddDormitorySheetBinding: $isShowingAddDormSheet)
+            AddDormitoryView(dorms: Array(dorms), isShowingAddDormitorySheetBinding: $isShowingAddDormSheet)
         }
     }
 }
@@ -55,5 +53,4 @@ struct ElectricityQueryView: View {
     NavigationStack {
         ElectricityQueryView()
     }
-    .modelContainer((try? ModelContainer(for: Dorm.self, ElectricityRecord.self))!)
 }

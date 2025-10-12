@@ -140,6 +140,6 @@ struct ProfileView: View {
     NavigationStack {
         ProfileView()
     }
-    .environmentObject(AuthManager())
+    .environmentObject(AuthManager.shared)
     .environmentObject(GlobalVars.shared)
 }

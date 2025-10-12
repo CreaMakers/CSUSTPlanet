@@ -5,7 +5,6 @@
 //  Created by Zhe_Learn on 2025/7/23.
 //
 
-import SwiftData
 import SwiftUI
 import WidgetKit
 

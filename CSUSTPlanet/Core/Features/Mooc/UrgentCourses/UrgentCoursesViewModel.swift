@@ -7,7 +7,6 @@
 
 import CSUSTKit
 import Foundation
-import SwiftData
 
 @MainActor
 class UrgentCoursesViewModel: ObservableObject {

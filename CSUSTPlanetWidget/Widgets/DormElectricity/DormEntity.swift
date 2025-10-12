@@ -9,7 +9,7 @@ import AppIntents
 import Foundation
 
 struct DormEntity: AppEntity, Identifiable {
-    var id: UUID
+    var id: String
 
     var room: String
 
@@ -31,14 +31,14 @@ struct DormEntity: AppEntity, Identifiable {
     static var defaultQuery = DormQuery()
 
     struct ElectricityRecord: Identifiable {
-        let id = UUID()
+        let id: String
 
         var electricity: Double
         var date: Date
     }
 
     init(dorm: Dorm) {
-        self.id = dorm.id
+        self.id = dorm.id.stringValue
 
         self.room = dorm.room
         self.buildingID = dorm.buildingID
@@ -46,7 +46,7 @@ struct DormEntity: AppEntity, Identifiable {
         self.campusID = dorm.campusID
         self.campusName = dorm.campusName
 
-        self.records = dorm.records?.map { ElectricityRecord(electricity: $0.electricity, date: $0.date) } ?? []
+        self.records = dorm.records.map { ElectricityRecord(id: $0.id.stringValue, electricity: $0.electricity, date: $0.date) }
     }
 
     var last: ElectricityRecord? {

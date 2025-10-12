@@ -10,6 +10,8 @@ import Foundation
 
 @MainActor
 class AuthManager: ObservableObject {
+    public static let shared = AuthManager()
+
     @Published var ssoProfile: SSOHelper.Profile?
     var isLoggedIn: Bool {
         return ssoProfile != nil
@@ -36,7 +38,7 @@ class AuthManager: ObservableObject {
     var eduHelper: EduHelper?
     var moocHelper: MoocHelper?
 
-    init() {
+    private init() {
         Task {
             isSSOLoggingIn = true
 

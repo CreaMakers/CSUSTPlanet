@@ -29,8 +29,7 @@ struct HomeView: View {
                 // 电量查询部分
                 HomeElectricityView(
                     electricityDorms: viewModel.electricityDorms,
-                    totalElectricityDorms: viewModel.totalElectricityDorms,
-                    getLastRecord: viewModel.getLastRecord
+                    totalElectricityDorms: viewModel.totalElectricityDorms
                 )
 
                 // 考试安排部分

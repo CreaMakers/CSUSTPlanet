@@ -7,7 +7,6 @@
 
 import CSUSTKit
 import Foundation
-import SwiftData
 import SwiftUI
 
 struct CourseDisplayInfo: Identifiable, Codable {

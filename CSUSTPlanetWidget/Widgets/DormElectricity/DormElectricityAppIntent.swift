@@ -6,7 +6,6 @@
 //
 
 import AppIntents
-import SwiftData
 import WidgetKit
 
 struct DormElectricityAppIntent: AppIntent, WidgetConfigurationIntent {

@@ -7,13 +7,12 @@
 
 import CSUSTKit
 import Foundation
-import SwiftData
+import RealmSwift
 import SwiftUI
 
 @MainActor
 class AddDormitoryViewModel: ObservableObject {
     private var campusCardHelper: CampusCardHelper
-    private var modelContext: ModelContext
     private var dorms: [Dorm]
 
     @Published var isShowingAddDormSheet: Bool {
@@ -34,10 +33,9 @@ class AddDormitoryViewModel: ObservableObject {
     @Published var buildings: [CampusCardHelper.Campus: [CampusCardHelper.Building]] = [:]
     @Published var isBuildingsLoading: Bool = false
 
-    init(dorms: [Dorm], modelContext: ModelContext, isShowingAddDormitorySheetBinding: Binding<Bool>) {
+    init(dorms: [Dorm], isShowingAddDormitorySheetBinding: Binding<Bool>) {
         self.campusCardHelper = CampusCardHelper()
         self.dorms = dorms
-        self.modelContext = modelContext
         self.isShowingAddDormSheet = isShowingAddDormitorySheetBinding.wrappedValue
         self.isShowingAddDormSheetBinding = isShowingAddDormitorySheetBinding
     }
@@ -88,7 +86,17 @@ class AddDormitoryViewModel: ObservableObject {
             return
         }
 
-        modelContext.insert(dorm)
-        isShowingAddDormSheet = false
+        Task {
+            do {
+                let realm = try await Realm()
+                try realm.write {
+                    realm.add(dorm)
+                }
+                isShowingAddDormSheet = false
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
+            }
+        }
     }
 }

@@ -7,7 +7,7 @@
 
 import CSUSTKit
 import Foundation
-import SwiftData
+import RealmSwift
 
 @MainActor
 class HomeViewModel: ObservableObject {
@@ -31,28 +31,25 @@ class HomeViewModel: ObservableObject {
     }
 
     func loadData() {
-        let context = SharedModel.context
-
         gradeAnalysisData = MMKVManager.shared.courseGradesCache
         examScheduleData = MMKVManager.shared.examSchedulesCache
         courseScheduleData = MMKVManager.shared.courseScheduleCache
         urgentCourseData = MMKVManager.shared.urgentCoursesCache
 
         // 加载宿舍电量数据，按最新记录时间排序，最多取2个
-        let dormDescriptor = FetchDescriptor<Dorm>()
-        if let dorms = try? context.fetch(dormDescriptor) {
-            let domsWithRecords = dorms.filter { !($0.records?.isEmpty ?? true) }  // 只保留有电量记录的宿舍
-            totalElectricityDorms = domsWithRecords.count
-            electricityDorms =
-                domsWithRecords
-                .sorted { dorm1, dorm2 in
-                    let record1 = dorm1.records?.max(by: { $0.date < $1.date })
-                    let record2 = dorm2.records?.max(by: { $0.date < $1.date })
-                    return (record1?.date ?? Date.distantPast) > (record2?.date ?? Date.distantPast)
-                }
-                .prefix(2)
-                .map { $0 }
-        }
+        guard let realm = try? Realm() else { return }
+        let dorms = realm.objects(Dorm.self)
+        let domsWithRecords = dorms.filter { !($0.records.isEmpty) }  // 只保留有电量记录的宿舍
+        totalElectricityDorms = domsWithRecords.count
+        electricityDorms =
+            domsWithRecords
+            .sorted { dorm1, dorm2 in
+                let record1 = dorm1.records.max(by: { $0.date < $1.date })
+                let record2 = dorm2.records.max(by: { $0.date < $1.date })
+                return (record1?.date ?? Date.distantPast) > (record2?.date ?? Date.distantPast)
+            }
+            .prefix(2)
+            .map { $0 }
 
         // 加载今日课程数据
         if let scheduleData = courseScheduleData {
@@ -63,9 +60,5 @@ class HomeViewModel: ObservableObject {
                 at: currentTime
             )
         }
-    }
-
-    func getLastRecord(for dorm: Dorm) -> ElectricityRecord? {
-        return dorm.records?.max(by: { $0.date < $1.date })
     }
 }

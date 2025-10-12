@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftData
 
 struct UrgentCourseData: Codable {
     struct Course: Codable {

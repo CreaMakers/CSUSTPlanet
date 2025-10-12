@@ -6,17 +6,18 @@
 //
 
 import AlertToast
-import SwiftData
+import RealmSwift
 import SwiftUI
 
 struct DormRowView: View {
+    init(dorm: Dorm) {
+        _dorm = ObservedRealmObject(wrappedValue: dorm)
+        _viewModel = StateObject(wrappedValue: DormElectricityViewModel(dorm: dorm))
+    }
+
     @StateObject var viewModel: DormElectricityViewModel
 
-    init(authManager: AuthManager, modelContext: ModelContext, dorm: Dorm) {
-        _viewModel = StateObject(
-            wrappedValue: DormElectricityViewModel(authManager: authManager, modelContext: modelContext, dorm: dorm)
-        )
-    }
+    @ObservedRealmObject var dorm: Dorm
 
     var body: some View {
         NavigationLink {
@@ -37,7 +38,7 @@ struct DormRowView: View {
 
                 if viewModel.isQueryingElectricity {
                     ProgressView()
-                } else if let record = viewModel.getLastRecord() {
+                } else if let record = viewModel.dorm.latestRecord {
                     VStack(alignment: .trailing, spacing: 4) {
                         Text("\(String(format: "%.2f", record.electricity)) kWh")
                             .font(.headline)

@@ -6,17 +6,13 @@
 //
 
 import AppIntents
-import SwiftData
 import SwiftUI
 import WidgetKit
 
 @main
 struct CSUSTPlanetWidgetBundle: WidgetBundle {
     init() {
-        let asyncDependency: @Sendable () async -> ModelContainer = { @MainActor in
-            return SharedModel.container
-        }
-        AppDependencyManager.shared.add(key: "ModelContainer", dependency: asyncDependency)
+        RealmManager.shared.setup()
     }
 
     var body: some Widget {

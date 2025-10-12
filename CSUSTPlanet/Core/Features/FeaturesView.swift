@@ -212,6 +212,6 @@ struct FeaturesView: View {
 
 #Preview {
     FeaturesView()
-        .environmentObject(AuthManager())
+        .environmentObject(AuthManager.shared)
         .environmentObject(GlobalVars.shared)
 }

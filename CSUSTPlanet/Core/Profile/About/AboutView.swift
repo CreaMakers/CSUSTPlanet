@@ -55,13 +55,6 @@ struct AboutView: View {
             #if DEBUG
                 Section("Debug") {
                     Button(action: {
-                        try? SharedModel.clearAllData()
-                    }) {
-                        Label("清除所有SwiftData数据", systemImage: "trash")
-                            .foregroundColor(.red)
-                    }
-
-                    Button(action: {
                         MMKVManager.shared.clearAll()
                     }) {
                         Label("清除所有MMKV数据", systemImage: "trash")

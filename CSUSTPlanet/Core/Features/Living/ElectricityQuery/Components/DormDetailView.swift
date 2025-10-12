@@ -7,7 +7,6 @@
 
 import Alamofire
 import Charts
-import SwiftData
 import SwiftUI
 
 struct DormDetailView: View {
@@ -53,7 +52,7 @@ struct DormDetailView: View {
             } else {
                 currentElectricitySection
 
-                if let records = viewModel.dorm.records, !records.isEmpty {
+                if !viewModel.dorm.records.isEmpty {
                     electricityTrendSection
                     historyRecordsSection
                 } else {
@@ -108,15 +107,15 @@ struct DormDetailView: View {
             InfoRow(icon: "building.fill", iconColor: .green, label: "楼栋", value: viewModel.dorm.buildingName)
             InfoRow(icon: "map.fill", iconColor: .orange, label: "校区", value: viewModel.dorm.campusName)
 
-            if viewModel.isScheduleEnabled, let scheduleHour = viewModel.dorm.scheduleHour, let scheduleMinute = viewModel.dorm.scheduleMinute {
-                InfoRow(icon: "clock.fill", iconColor: .purple, label: "定时查询时间", value: String(format: "%02d:%02d", scheduleHour, scheduleMinute))
+            if viewModel.isScheduleEnabled, let schedule = viewModel.dorm.schedule {
+                InfoRow(icon: "clock.fill", iconColor: .purple, label: "定时查询时间", value: String(format: "%02d:%02d", schedule.hour, schedule.minute))
             }
         }
     }
 
     private var currentElectricitySection: some View {
         Section(header: Text("当前电量")) {
-            if let record = viewModel.getLastRecord() {
+            if let record = viewModel.dorm.latestRecord {
                 VStack(spacing: 8) {
                     HStack {
                         Text("\(String(format: "%.2f", record.electricity))")
@@ -152,14 +151,14 @@ struct DormDetailView: View {
 
     private var electricityTrendSection: some View {
         Section(header: Text("电量趋势")) {
-            Chart(viewModel.dorm.records?.sorted(by: { $0.date < $1.date }) ?? []) { record in
+            Chart(viewModel.dorm.records.sorted(by: { $0.date < $1.date })) { record in
                 LineMark(
                     x: .value("日期", record.date),
                     y: .value("电量", record.electricity)
                 )
                 .interpolationMethod(.catmullRom)
                 .symbol {
-                    if viewModel.dorm.records?.count ?? 0 <= 1 {
+                    if viewModel.dorm.records.count <= 1 {
                         Circle()
                             .frame(width: 8)
                             .foregroundStyle(.primary)
@@ -178,7 +177,7 @@ struct DormDetailView: View {
 
     private var historyRecordsSection: some View {
         Section(header: Text("历史记录")) {
-            ForEach(viewModel.dorm.records?.sorted(by: { $0.date > $1.date }) ?? []) { record in
+            ForEach(viewModel.dorm.records.sorted(by: { $0.date > $1.date })) { record in
                 HStack {
                     Image(systemName: "bolt.fill")
                         .foregroundColor(.yellow)

@@ -126,10 +126,6 @@
 		006CA2A72E2CDF8700340655 /* Exceptions for "CSUSTPlanetWidget" folder in "CSUSTPlanet" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Widgets/DormElectricity/DormElectricityAppIntent.swift,
-				Widgets/DormElectricity/DormElectricityWidget.swift,
-				Widgets/DormElectricity/DormEntity.swift,
-				Widgets/DormElectricity/DormQuery.swift,
 				Widgets/DormElectricity/RefreshElectricityTimelineIntent.swift,
 			);
 			target = 007CF85A2E1BD68900E319F2 /* CSUSTPlanet */;
@@ -138,9 +134,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Models/CourseScheduleData.swift,
-				Models/Database/Dorm.swift,
-				Models/Database/ElectricityRecord.swift,
 				Models/GradeAnalysisData.swift,
+				Models/RealmModels.swift,
 				Models/UrgentCourseData.swift,
 				Shared/Managers/MMKVManager.swift,
 				Shared/Managers/RealmManager.swift,
@@ -150,7 +145,6 @@
 				Shared/Utils/KeychainCookieStorage.swift,
 				Shared/Utils/KeychainHelper.swift,
 				Shared/Utils/ScheduleHelper.swift,
-				Shared/Utils/SharedModel.swift,
 			);
 			target = 00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */;
 		};

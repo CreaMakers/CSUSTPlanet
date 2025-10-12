@@ -146,6 +146,6 @@ struct ProfileDetailView: View {
 
 #Preview {
     NavigationStack {
-        ProfileDetailView(authManager: AuthManager())
+        ProfileDetailView(authManager: AuthManager.shared)
     }
 }

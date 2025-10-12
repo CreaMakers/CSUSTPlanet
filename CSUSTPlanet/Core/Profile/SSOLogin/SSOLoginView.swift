@@ -284,6 +284,6 @@ struct SSOLoginView: View {
 
 #Preview {
     NavigationStack {
-        SSOLoginView(authManager: AuthManager(), isShowingLoginSheet: .constant(true))
+        SSOLoginView(authManager: AuthManager.shared, isShowingLoginSheet: .constant(true))
     }
 }

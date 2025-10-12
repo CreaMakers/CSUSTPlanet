@@ -7,24 +7,18 @@
 
 import AppIntents
 import Foundation
-import SwiftData
+import RealmSwift
 
 struct DormQuery: EntityQuery {
-    @Dependency(key: "ModelContainer")
-    private var modelContainer: ModelContainer
-
     func suggestedEntities() async throws -> [DormEntity] {
-        let context = ModelContext(modelContainer)
-        let dorms = try context.fetch(FetchDescriptor<Dorm>())
+        let realm = try await Realm()
+        let dorms = realm.objects(Dorm.self)
         return dorms.map { DormEntity(dorm: $0) }
     }
 
-    func entities(for identifiers: [UUID]) async throws -> [DormEntity] {
-        let context = ModelContext(modelContainer)
-        let predicate = #Predicate<Dorm> { dorm in
-            identifiers.contains(dorm.id)
-        }
-        let dorms = try context.fetch(FetchDescriptor(predicate: predicate))
+    func entities(for identifiers: [String]) async throws -> [DormEntity] {
+        let realm = try await Realm()
+        let dorms = realm.objects(Dorm.self).filter { identifiers.contains($0.id.stringValue) }
         return dorms.map { DormEntity(dorm: $0) }
     }
 

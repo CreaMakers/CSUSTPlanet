@@ -8,7 +8,6 @@
 import CSUSTKit
 import Charts
 import Foundation
-import SwiftData
 import SwiftUI
 import WidgetKit
 

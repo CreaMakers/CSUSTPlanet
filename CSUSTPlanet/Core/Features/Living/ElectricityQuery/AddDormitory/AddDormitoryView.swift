@@ -6,18 +6,16 @@
 //
 
 import CSUSTKit
-import SwiftData
 import SwiftUI
 
 struct AddDormitoryView: View {
     @StateObject var viewModel: AddDormitoryViewModel
 
-    init(dorms: [Dorm], modelContext: ModelContext, isShowingAddDormitorySheetBinding: Binding<Bool>) {
+    init(dorms: [Dorm], isShowingAddDormitorySheetBinding: Binding<Bool>) {
         _viewModel = StateObject(
             wrappedValue:
                 AddDormitoryViewModel(
                     dorms: dorms,
-                    modelContext: modelContext,
                     isShowingAddDormitorySheetBinding: isShowingAddDormitorySheetBinding
                 )
         )

@@ -6,14 +6,12 @@
 //
 
 import AppIntents
-import SwiftData
 import SwiftUI
 import Toasts
 
 @main
 struct CSUSTPlanetApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject private var authManager = AuthManager()
 
     init() {
         if !UserDefaults.standard.bool(forKey: "hasLaunchedBefore") {
@@ -21,11 +19,6 @@ struct CSUSTPlanetApp: App {
             UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
         }
 
-        let asyncDependency: @Sendable () async -> ModelContainer = { @MainActor in
-            return SharedModel.container
-        }
-        AppDependencyManager.shared.add(key: "ModelContainer", dependency: asyncDependency)
-        
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithTransparentBackground()
         tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
@@ -38,8 +31,7 @@ struct CSUSTPlanetApp: App {
             ContentView()
                 .installToast(position: .top)
                 .environmentObject(GlobalVars.shared)
-                .environmentObject(authManager)
+                .environmentObject(AuthManager.shared)
         }
-        .modelContainer(SharedModel.container)
     }
 }

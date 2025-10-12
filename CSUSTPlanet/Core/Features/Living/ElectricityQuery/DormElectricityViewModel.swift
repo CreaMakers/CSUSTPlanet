@@ -8,22 +8,24 @@
 import Alamofire
 import CSUSTKit
 import Foundation
-import SwiftData
+import RealmSwift
 import SwiftUI
 import WidgetKit
 
 @MainActor
 class DormElectricityViewModel: ObservableObject {
     private var campusCardHelper: CampusCardHelper
-    private var authManager: AuthManager
-    private var modelContext: ModelContext
 
     private var dormBinding: Binding<Dorm> {
         Binding(
             get: { self.dorm },
             set: { newValue in
-                self.dorm = newValue
-                try? self.modelContext.save()
+                if let realm = try? Realm() {
+                    try? realm.write {
+                        self.dorm = newValue
+                    }
+                }
+                //                try? self.modelContext.save()
             }
         )
     }
@@ -42,7 +44,7 @@ class DormElectricityViewModel: ObservableObject {
     @Published var isScheduleLoading: Bool = false
 
     var isScheduleEnabled: Bool {
-        return dorm.scheduleId != nil
+        return dorm.schedule?.id != nil
     }
 
     private let dateFormatter = {
@@ -52,10 +54,8 @@ class DormElectricityViewModel: ObservableObject {
         return dateFormatter
     }()
 
-    init(authManager: AuthManager, modelContext: ModelContext, dorm: Dorm) {
+    init(dorm: Dorm) {
         campusCardHelper = CampusCardHelper()
-        self.authManager = authManager
-        self.modelContext = modelContext
         self.dorm = dorm
     }
 
@@ -67,7 +67,7 @@ class DormElectricityViewModel: ObservableObject {
         guard MMKVManager.shared.isElectricityTermAccepted else {
             return
         }
-        guard let scheduleId = dorm.scheduleId else {
+        guard let scheduleId = dorm.schedule?.id else {
             return
         }
         isScheduleLoading = true
@@ -92,17 +92,22 @@ class DormElectricityViewModel: ObservableObject {
                     } catch {
                         errorMessage = "服务器返回错误"
                     }
-                    dorm.scheduleId = nil
-                    try modelContext.save()
+                    let realm = try await Realm()
+                    try realm.write {
+                        dorm.schedule = nil
+                    }
+                    // try modelContext.save()
                     isShowingError = true
                     return
                 }
 
                 let successResponse = try JSONDecoder().decode(ElectricityBindingDTO.self, from: response.data ?? Data())
-                dorm.scheduleId = successResponse.id
-                dorm.scheduleHour = successResponse.scheduleHour
-                dorm.scheduleMinute = successResponse.scheduleMinute
-                try modelContext.save()
+                guard let id = successResponse.id else { return }
+                let realm = try await Realm()
+                try realm.write {
+                    dorm.schedule = DormSchedule(id: id, hour: successResponse.scheduleHour, minute: successResponse.scheduleMinute)
+                }
+                // try modelContext.save()
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -111,7 +116,7 @@ class DormElectricityViewModel: ObservableObject {
     }
 
     func removeSchedule() -> Task<Void, Never> {
-        guard let scheduleId = dorm.scheduleId else {
+        guard let scheduleId = dorm.schedule?.id else {
             return Task {}
         }
         isScheduleLoading = true
@@ -140,10 +145,11 @@ class DormElectricityViewModel: ObservableObject {
                     return
                 }
 
-                dorm.scheduleId = nil
-                dorm.scheduleHour = nil
-                dorm.scheduleMinute = nil
-                try modelContext.save()
+                let realm = try await Realm()
+                try realm.write {
+                    dorm.schedule = nil
+                }
+                // try modelContext.save()
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -165,16 +171,22 @@ class DormElectricityViewModel: ObservableObject {
                     isQueryingElectricity = false
                 }
                 let electricity = try await campusCardHelper.getElectricity(building: building, room: dorm.room)
-                if let lastRecord = getLastRecord() {
+                if let lastRecord = dorm.latestRecord {
                     if lastRecord.electricity == electricity {
                         return
                     }
                 }
 
-                let record = ElectricityRecord(electricity: electricity, date: Date(), dorm: dorm)
-                modelContext.insert(record)
+                let record = ElectricityRecord(electricity: electricity, date: .now)
 
-                try modelContext.save()
+                let realm = try await Realm()
+                guard let dorm = realm.object(ofType: Dorm.self, forPrimaryKey: dorm.id) else { return }
+                try realm.write {
+                    dorm.records.append(record)
+                }
+
+                // modelContext.insert(record)
+                // try modelContext.save()
 
                 WidgetCenter.shared.reloadTimelines(ofKind: "DormElectricityWidget")
             } catch {
@@ -184,51 +196,55 @@ class DormElectricityViewModel: ObservableObject {
         }
     }
 
-    func getLastRecord() -> ElectricityRecord? {
-        return dorm.records?.sorted { $0.date > $1.date }.first
-    }
-
     func deleteDorm() {
-        if isScheduleEnabled {
-            Task {
-                await removeSchedule().value
-                modelContext.delete(dorm)
+        Task {
+            do {
+                if isScheduleEnabled {
+                    await removeSchedule().value
+                }
+                let realm = try await Realm()
+                try realm.write {
+                    realm.delete(dorm)
+                }
+                // modelContext.delete(dorm)
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
             }
-        } else {
-            modelContext.delete(dorm)
-        }
-        do {
-            try modelContext.save()
-        } catch {
-            errorMessage = error.localizedDescription
-            isShowingError = true
         }
     }
 
     func deleteAllRecords() {
-        for record in dorm.records ?? [] {
-            modelContext.delete(record)
-        }
-        do {
-            try modelContext.save()
-        } catch {
-            errorMessage = error.localizedDescription
-            isShowingError = true
+        Task {
+            do {
+                let realm = try await Realm()
+                try realm.write {
+                    realm.delete(dorm.records)
+                }
+                // try modelContext.save()
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
+            }
         }
     }
 
     func deleteRecord(record: ElectricityRecord) {
-        modelContext.delete(record)
-        do {
-            try modelContext.save()
-        } catch {
-            errorMessage = error.localizedDescription
-            isShowingError = true
+        Task {
+            do {
+                let realm = try await Realm()
+                try realm.write {
+                    realm.delete(record)
+                }
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
+            }
         }
     }
 
     func handleShowTerms() {
-        guard authManager.isLoggedIn else {
+        guard AuthManager.shared.isLoggedIn else {
             errorMessage = "请先登录"
             isShowingError = true
             return
@@ -257,7 +273,7 @@ class DormElectricityViewModel: ObservableObject {
 
                 let token = try await NotificationHelper.shared.getDeviceToken()
 
-                guard let studentId = authManager.ssoProfile?.userAccount else {
+                guard let studentId = AuthManager.shared.ssoProfile?.userAccount else {
                     errorMessage = "未能获取学号，请先登录"
                     isShowingError = true
                     return
@@ -295,10 +311,11 @@ class DormElectricityViewModel: ObservableObject {
                     return
                 }
                 let successResponse = try JSONDecoder().decode(ElectricityBindingDTO.self, from: response.data ?? Data())
-                dorm.scheduleId = successResponse.id
-                dorm.scheduleHour = scheduleHour
-                dorm.scheduleMinute = scheduleMinute
-                try modelContext.save()
+                guard let id = successResponse.id else { return }
+                let realm = try await Realm()
+                try realm.write {
+                    dorm.schedule = DormSchedule(id: id, hour: scheduleHour, minute: scheduleMinute)
+                }
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
