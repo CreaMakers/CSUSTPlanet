@@ -99,6 +99,7 @@ struct FeaturesView: View {
                     featureLink(destination: ElectricityQueryView(), title: "电量查询", icon: "bolt.fill", color: .yellow)
                     featureLink(destination: CampusMapView(), title: "校园地图", icon: "map", color: .mint)
                     featureLink(destination: SchoolCalendarListView(), title: "校历", icon: "calendar", color: .pink)
+                    featureLink(destination: ElectricityRechargeView(), title: "电费充值", icon: "creditcard.fill", color: .cyan)
                 }
 
                 featureSection(title: "考试查询") {
