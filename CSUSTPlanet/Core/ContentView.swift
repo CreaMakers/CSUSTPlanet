@@ -44,6 +44,15 @@ struct ContentView: View {
                 }
             }
             .toolbarTitleDisplayMode(.inline)
+            .navigationDestination(isPresented: $globalVars.isFromElectricityWidget) {
+                ElectricityQueryView()
+            }
+            .navigationDestination(isPresented: $globalVars.isFromCourseScheduleWidget) {
+                CourseScheduleView()
+            }
+            .navigationDestination(isPresented: $globalVars.isFromGradeAnalysisWidget) {
+                GradeAnalysisView()
+            }
         }
         .onChange(of: authManager.isShowingEducationError) { _, newValue in
             guard newValue else { return }

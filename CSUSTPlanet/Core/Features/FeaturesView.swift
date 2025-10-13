@@ -110,15 +110,6 @@ struct FeaturesView: View {
             .padding()
         }
         .background(sectionBackgroundColor)
-        .navigationDestination(isPresented: $globalVars.isFromElectricityWidget) {
-            ElectricityQueryView()
-        }
-        .navigationDestination(isPresented: $globalVars.isFromCourseScheduleWidget) {
-            CourseScheduleView()
-        }
-        .navigationDestination(isPresented: $globalVars.isFromGradeAnalysisWidget) {
-            GradeAnalysisView()
-        }
     }
 
     // MARK: - Feature Section
