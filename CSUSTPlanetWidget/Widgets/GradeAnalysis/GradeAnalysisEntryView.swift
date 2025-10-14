@@ -45,13 +45,8 @@ struct GradeAnalysisEntryView: View {
     func systemSmall(_ data: GradeAnalysisData, _ lastUpdated: Date) -> some View {
         VStack(spacing: 4) {
             HStack {
-                Image(systemName: "chart.bar.xaxis")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(.purple)
                 Text("成绩分析")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: 14, weight: .bold))
                 Spacer()
                 Button(intent: RefreshGradeAnalysisTimelineIntent()) {
                     Image(systemName: "arrow.clockwise.circle")
@@ -118,7 +113,7 @@ struct GradeAnalysisEntryView: View {
             }
             .frame(maxWidth: .infinity)
 
-            Text(dateFormatter.string(from: lastUpdated))
+            Text("更新时间: \(dateFormatter.string(from: lastUpdated))")
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.secondary)
         }

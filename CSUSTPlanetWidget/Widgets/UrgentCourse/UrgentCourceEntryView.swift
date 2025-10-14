@@ -38,7 +38,6 @@ struct UrgentCourseEntryView: View {
                         .buttonStyle(.plain)
                     }
                     Divider()
-                    Spacer()
                     if data.courses.isEmpty {
                         Text("无待提交作业")
                             .font(.system(size: 20))
@@ -57,7 +56,7 @@ struct UrgentCourseEntryView: View {
                                 .font(.system(size: 13, weight: .bold))
                         }
                         Spacer()
-                        Text(dateFormatter.string(from: lastUpdated))
+                        Text("更新时间: \(dateFormatter.string(from: lastUpdated))")
                             .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(.secondary)
                     }

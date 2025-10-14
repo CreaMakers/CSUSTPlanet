@@ -131,9 +131,9 @@ struct DormElectricityEntryView: View {
                                         .font(.system(size: 14))
                                         .foregroundColor(.secondary)
 
-                                    Text(dateFormatter.string(from: last.date))
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.secondary)
+                                    Text("\(dateFormatter.string(from: last.date))")
+                                        .font(.system(size: 10, weight: .medium))
+                                        .foregroundStyle(.secondary)
                                 }
                             }
                         }
@@ -162,11 +162,11 @@ struct DormElectricityEntryView: View {
                                 .font(.system(size: 14))
                                 .foregroundColor(.secondary)
 
-                            Text(dateFormatter.string(from: last.date))
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-
                             Spacer()
+
+                            Text("更新时间: \(dateFormatter.string(from: last.date))")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundStyle(.secondary)
                         } else if family == .systemMedium || family == .systemLarge {
                             Chart(dormitory.records.sorted { $0.date < $1.date }) { record in
                                 LineMark(x: .value("日期", record.date), y: .value("电量", record.electricity))
