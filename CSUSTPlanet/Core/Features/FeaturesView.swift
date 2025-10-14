@@ -106,6 +106,10 @@ struct FeaturesView: View {
                     featureLink(destination: CETView(), title: "四六级", icon: "character.book.closed", color: .brown)
                     featureLink(destination: MandarinView(), title: "普通话", icon: "mic.fill", color: .teal)
                 }
+
+                featureSection(title: "其他") {
+                    featureLink(destination: WebVPNConverterView(), title: "WebVPN 转换", icon: "arrow.triangle.2.circlepath", color: .gray)
+                }
             }
             .padding()
         }
