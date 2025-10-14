@@ -43,7 +43,7 @@ struct GradeAnalysisEntryView: View {
     }()
 
     func systemSmall(_ data: GradeAnalysisData, _ lastUpdated: Date) -> some View {
-        VStack(spacing: 4) {
+        VStack {
             HStack {
                 Text("成绩分析")
                     .font(.system(size: 14, weight: .bold))
@@ -54,9 +54,8 @@ struct GradeAnalysisEntryView: View {
                 .foregroundStyle(.blue)
                 .buttonStyle(.plain)
             }
-
+            Divider()
             Spacer()
-
             HStack {
                 VStack {
                     Text("课程数")
@@ -88,8 +87,6 @@ struct GradeAnalysisEntryView: View {
             }
             .frame(maxWidth: .infinity)
 
-            Divider().padding(.vertical, 2)
-
             HStack {
                 VStack {
                     Text("平均成绩")
@@ -113,6 +110,8 @@ struct GradeAnalysisEntryView: View {
             }
             .frame(maxWidth: .infinity)
 
+            Spacer()
+
             Text("更新时间: \(dateFormatter.string(from: lastUpdated))")
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.secondary)
@@ -129,11 +128,6 @@ struct GradeAnalysisEntryView: View {
     func systemLarge(_ data: GradeAnalysisData, _ lastUpdated: Date) -> some View {
         VStack(spacing: 12) {
             HStack {
-                Image(systemName: "chart.bar.xaxis")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(.purple)
                 Text("成绩分析")
                     .font(.system(size: 16, weight: .bold))
                 Text(dateFormatter.string(from: lastUpdated))
