@@ -50,7 +50,7 @@ struct CourseStatusWidgetLiveActivity: Widget {
                                 .lineLimit(1)
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity)
-                                .foregroundStyle(.green)
+                                .foregroundStyle(.cyan)
                         } else if Date() >= context.attributes.startDate && Date() <= context.attributes.endDate {
                             Text("距离下课还有")
                                 .font(.caption2)
@@ -60,7 +60,7 @@ struct CourseStatusWidgetLiveActivity: Widget {
                                 .lineLimit(1)
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity)
-                                .foregroundStyle(.green)
+                                .foregroundStyle(.cyan)
                         } else {
                             Text("已下课")
                                 .font(.title)
@@ -126,15 +126,8 @@ struct LockScreenView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
                 Text(context.attributes.courseName)
                     .font(.title2).bold()
-                Spacer()
-                if Date() > context.attributes.endDate {
-                    Label("已下课", systemImage: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                }
-            }
 
             Divider()
 
@@ -168,6 +161,9 @@ struct LockScreenView: View {
                         .tint(.cyan)
                 }
                 .padding(.top, 5)
+            } else {
+                Label("已下课", systemImage: "checkmark.circle.fill")
+                    .foregroundColor(.green)
             }
         }
         .padding()
@@ -182,8 +178,8 @@ extension CourseStatusWidgetAttributes {
             courseName: "程序设计、算法与数据结构（三）",
             teacher: "陈曦(小)副教授",
             classroom: "金12-106",
-            startDate: dateFormatter.date(from: "2025-10-15 18:50")!,
-            endDate: dateFormatter.date(from: "2025-10-15 19:30")!
+            startDate: dateFormatter.date(from: "2025-10-15 18:00")!,
+            endDate: dateFormatter.date(from: "2025-10-15 19:00")!
         )
     }
 }
