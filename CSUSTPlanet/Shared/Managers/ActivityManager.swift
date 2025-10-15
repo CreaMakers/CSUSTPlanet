@@ -16,9 +16,8 @@ class ActivityManager {
     private init() {}
 
     func setup() {
-        guard let existingActivity = Activity<CourseStatusWidgetAttributes>.activities.first else {
-            return
-        }
+        guard activity == nil else { return }
+        guard let existingActivity = Activity<CourseStatusWidgetAttributes>.activities.first else { return }
         activity = existingActivity
     }
 
@@ -28,15 +27,14 @@ class ActivityManager {
 
         let activity = try Activity.request(
             attributes: attributes,
-            content: .init(state: contentState, staleDate: nil)
+            content: .init(state: contentState, staleDate: attributes.startDate)
         )
         self.activity = activity
+        scheduleUpdateTasks(for: activity, attributes: attributes)
     }
 
     func stopActivity() {
-        guard let activity = activity else {
-            return
-        }
+        guard let activity = activity else { return }
         guard activity.activityState == .active else {
             self.activity = nil
             return
@@ -44,6 +42,24 @@ class ActivityManager {
         Task {
             await activity.end(nil, dismissalPolicy: .immediate)
             self.activity = nil
+        }
+    }
+
+    private func scheduleUpdateTasks(for activity: Activity<CourseStatusWidgetAttributes>, attributes: CourseStatusWidgetAttributes) {
+        Task {
+            let sleepDuration = attributes.startDate.timeIntervalSinceNow
+            guard sleepDuration > 0 else { return }
+            try? await Task.sleep(for: .seconds(sleepDuration))
+            guard activity.activityState == .active else { return }
+            await activity.update(.init(state: .init(), staleDate: attributes.endDate))
+        }
+
+        Task {
+            let sleepDuration = attributes.endDate.timeIntervalSinceNow
+            guard sleepDuration > 0 else { return }
+            try? await Task.sleep(for: .seconds(sleepDuration))
+            guard activity.activityState == .active else { return }
+            await activity.update(.init(state: .init(), staleDate: nil))
         }
     }
 }

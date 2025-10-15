@@ -80,7 +80,7 @@ struct CourseStatusWidgetLiveActivity: Widget {
                         if Date() >= context.attributes.startDate && Date() <= context.attributes.endDate {
                             ProgressView(timerInterval: context.attributes.startDate...context.attributes.endDate, countsDown: false)
                                 .progressViewStyle(.linear)
-                                .tint(.green)
+                                .tint(.cyan)
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity)
                         }
@@ -126,8 +126,8 @@ struct LockScreenView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-                Text(context.attributes.courseName)
-                    .font(.title2).bold()
+            Text(context.attributes.courseName)
+                .font(.title2).bold()
 
             Divider()
 
@@ -178,8 +178,8 @@ extension CourseStatusWidgetAttributes {
             courseName: "程序设计、算法与数据结构（三）",
             teacher: "陈曦(小)副教授",
             classroom: "金12-106",
-            startDate: dateFormatter.date(from: "2025-10-15 18:00")!,
-            endDate: dateFormatter.date(from: "2025-10-15 19:00")!
+            startDate: dateFormatter.date(from: "2025-10-15 21:55")!,
+            endDate: dateFormatter.date(from: "2025-10-15 21:56")!
         )
     }
 }
