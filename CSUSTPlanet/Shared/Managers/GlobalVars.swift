@@ -21,6 +21,7 @@ class GlobalVars: ObservableObject {
     private init() {
         appearance = MMKVManager.shared.appearance
         isUserAgreementAccepted = MMKVManager.shared.isUserAgreementAccepted
+        isLiveActivityEnabled = MMKVManager.shared.isLiveActivityEnabled
     }
 
     @Published var selectedTab: TabItem = .home
@@ -32,6 +33,9 @@ class GlobalVars: ObservableObject {
     }
     var isUserAgreementShowing: Binding<Bool> {
         Binding(get: { !self.isUserAgreementAccepted }, set: { self.isUserAgreementAccepted = !$0 })
+    }
+    @Published var isLiveActivityEnabled: Bool {
+        didSet { MMKVManager.shared.isLiveActivityEnabled = isLiveActivityEnabled }
     }
 
     @Published var isFromElectricityWidget: Bool = false

@@ -185,6 +185,11 @@ extension MMKVManager {
         get { bool(forKey: "GlobalVars.hasLaunchedBefore") ?? false }
         set { set(forKey: "GlobalVars.hasLaunchedBefore", newValue) }
     }
+
+    var isLiveActivityEnabled: Bool {
+        get { bool(forKey: "GlobalVars.isLiveActivityEnabled") ?? true }
+        set { set(forKey: "GlobalVars.isLiveActivityEnabled", newValue) }
+    }
 }
 
 // MARK: - Cached

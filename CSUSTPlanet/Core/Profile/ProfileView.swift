@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/8.
 //
 
+import ActivityKit
 import SwiftUI
 
 struct ProfileView: View {
@@ -12,6 +13,8 @@ struct ProfileView: View {
     @EnvironmentObject var globalVars: GlobalVars
 
     @State private var showLoginSheet = false
+
+    @State private var activity: Activity<CourseStatusWidgetAttributes>? = nil
 
     var body: some View {
         Form {
@@ -99,6 +102,19 @@ struct ProfileView: View {
                     ColoredLabel(title: "外观主题", iconName: "paintbrush", color: .purple)
                 }
 
+                Toggle(isOn: $globalVars.isLiveActivityEnabled) {
+                    ColoredLabel(title: "启用实时活动/灵动岛", iconName: "bolt.circle", color: .yellow)
+                }
+
+                #if DEBUG
+                    Button(action: startActivity) {
+                        ColoredLabel(title: "开启实时活动", iconName: "bolt.circle", color: .yellow)
+                    }
+                    Button(action: stopActivity) {
+                        ColoredLabel(title: "关闭实时活动", iconName: "bolt.circle", color: .yellow)
+                    }
+                #endif
+
                 if authManager.isEducationLoggingIn {
                     Button(action: authManager.loginToEducation) {
                         HStack {
@@ -132,6 +148,36 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showLoginSheet) {
             SSOLoginView(isShowingLoginSheet: $showLoginSheet)
+        }
+    }
+}
+
+extension ProfileView {
+    func startActivity() {
+        let courseStatusAttributes = CourseStatusWidgetAttributes()
+        let courseStatusContentState = CourseStatusWidgetAttributes.ContentState()
+
+        do {
+            let activity = try Activity.request(
+                attributes: courseStatusAttributes,
+                content: .init(state: courseStatusContentState, staleDate: nil)
+            )
+            self.activity = activity
+            debugPrint("开启实时活动成功", activity)
+        } catch {
+            debugPrint("开启实时活动失败", error.localizedDescription)
+        }
+    }
+
+    func stopActivity() {
+        guard let activity = activity else {
+            debugPrint("无实时活动")
+            return
+        }
+        Task {
+            await activity.end(nil)
+            self.activity = nil
+            debugPrint("实时活动已停止")
         }
     }
 }

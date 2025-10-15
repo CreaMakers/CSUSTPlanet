@@ -5,8 +5,8 @@
 //  Created by Zhe_Learn on 2025/10/13.
 //
 
-import Foundation
 import AppIntents
+import Foundation
 import WidgetKit
 
 struct RefreshUrgentCourceTimelineIntent: AppIntent {
