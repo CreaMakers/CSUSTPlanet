@@ -14,8 +14,6 @@ struct ProfileView: View {
 
     @State private var showLoginSheet = false
 
-    @State private var activity: Activity<CourseStatusWidgetAttributes>? = nil
-
     var body: some View {
         Form {
             Section(header: Text("账号管理")) {
@@ -108,10 +106,10 @@ struct ProfileView: View {
 
                 #if DEBUG
                     Button(action: startActivity) {
-                        ColoredLabel(title: "开启实时活动", iconName: "bolt.circle", color: .yellow)
+                        ColoredLabel(title: "开启实时活动 (DEBUG)", iconName: "bolt.circle", color: .yellow)
                     }
-                    Button(action: stopActivity) {
-                        ColoredLabel(title: "关闭实时活动", iconName: "bolt.circle", color: .yellow)
+                    Button(action: ActivityManager.shared.stopActivity) {
+                        ColoredLabel(title: "关闭实时活动 (DEBUG)", iconName: "bolt.circle", color: .yellow)
                     }
                 #endif
 
@@ -154,30 +152,11 @@ struct ProfileView: View {
 
 extension ProfileView {
     func startActivity() {
-        let courseStatusAttributes = CourseStatusWidgetAttributes()
-        let courseStatusContentState = CourseStatusWidgetAttributes.ContentState()
-
         do {
-            let activity = try Activity.request(
-                attributes: courseStatusAttributes,
-                content: .init(state: courseStatusContentState, staleDate: nil)
-            )
-            self.activity = activity
-            debugPrint("开启实时活动成功", activity)
+            try ActivityManager.shared.startActivity()
+            debugPrint("开启实时活动成功")
         } catch {
             debugPrint("开启实时活动失败", error.localizedDescription)
-        }
-    }
-
-    func stopActivity() {
-        guard let activity = activity else {
-            debugPrint("无实时活动")
-            return
-        }
-        Task {
-            await activity.end(nil)
-            self.activity = nil
-            debugPrint("实时活动已停止")
         }
     }
 }

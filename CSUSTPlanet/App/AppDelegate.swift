@@ -17,6 +17,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
 
+        ActivityManager.shared.setup()
         MMKVManager.shared.setup()
 
         if !MMKVManager.shared.hasLaunchedBefore {

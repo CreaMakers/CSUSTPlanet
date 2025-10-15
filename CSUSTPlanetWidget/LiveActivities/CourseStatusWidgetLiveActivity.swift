@@ -6,48 +6,189 @@
 //
 
 import ActivityKit
+import CSUSTKit
 import SwiftUI
 import WidgetKit
 
 struct CourseStatusWidgetAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
+    public struct ContentState: Codable, Hashable {}
 
-    }
+    var courseName: String
+    var teacher: String
+    var classroom: String?
+
+    var startDate: Date
+    var endDate: Date
 }
 
 struct CourseStatusWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: CourseStatusWidgetAttributes.self) { context in
-            Text("Hello World")
+            LockScreenView(context: context)
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Text("Leading")
+                    Text(context.attributes.teacher)
+                        .font(.caption)
+                        .padding(.top, 4)
                 }
 
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text("Trailing")
-                }
-
-                DynamicIslandExpandedRegion(.center) {
-                    Text("Center")
+                    Text(context.attributes.classroom ?? "未知教室")
+                        .font(.caption)
+                        .padding(.top, 4)
                 }
 
                 DynamicIslandExpandedRegion(.bottom) {
-                    Text("Bottom")
+                    VStack(alignment: .center) {
+                        if Date() < context.attributes.startDate {
+                            Text("距离上课还有")
+                                .font(.callout)
+                            Text(timerInterval: Date()...context.attributes.startDate, countsDown: true)
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .lineLimit(1)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                                .foregroundStyle(.green)
+                        } else if Date() >= context.attributes.startDate && Date() <= context.attributes.endDate {
+                            Text("距离下课还有")
+                                .font(.caption2)
+                            Text(timerInterval: Date()...context.attributes.endDate, countsDown: true)
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .lineLimit(1)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                                .foregroundStyle(.green)
+                        } else {
+                            Text("已下课")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .lineLimit(1)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                                .foregroundStyle(.green)
+                        }
+
+                        Text(context.attributes.courseName)
+                            .font(.headline)
+                            .lineLimit(1)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+
+                        if Date() >= context.attributes.startDate && Date() <= context.attributes.endDate {
+                            ProgressView(timerInterval: context.attributes.startDate...context.attributes.endDate, countsDown: false)
+                                .progressViewStyle(.linear)
+                                .tint(.green)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
                 }
             } compactLeading: {
-                Text("Leading")
+                Image(systemName: "timer")
             } compactTrailing: {
-                Text("Trailing")
+                if Date() < context.attributes.startDate {
+                    Text("00:00")
+                        .font(.caption2)
+                        .hidden()
+                        .overlay(alignment: .trailing) {
+                            Text(timerInterval: Date()...context.attributes.startDate, countsDown: true)
+                                .font(.caption2)
+                                .monospacedDigit()
+                        }
+                } else if Date() >= context.attributes.startDate && Date() <= context.attributes.endDate {
+                    let remainingTime = context.attributes.endDate.timeIntervalSince(Date())
+                    let placeholder = remainingTime >= 3600 ? "00:00:00" : "00:00"
+
+                    Text(placeholder)
+                        .font(.caption2)
+                        .hidden()
+                        .overlay(alignment: .trailing) {
+                            Text(timerInterval: Date()...context.attributes.endDate, countsDown: true)
+                                .font(.caption2)
+                                .monospacedDigit()
+                        }
+                } else {
+                    Text("已下课")
+                        .font(.caption2)
+                }
             } minimal: {
-                Text("Mini")
+                Image(systemName: "timer")
             }
         }
     }
 }
 
-#Preview("Notification", as: .content, using: CourseStatusWidgetAttributes()) {
+struct LockScreenView: View {
+    let context: ActivityViewContext<CourseStatusWidgetAttributes>
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(context.attributes.courseName)
+                    .font(.title2).bold()
+                Spacer()
+                if Date() > context.attributes.endDate {
+                    Label("已下课", systemImage: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                }
+            }
+
+            Divider()
+
+            HStack {
+                Label(context.attributes.teacher, systemImage: "person.fill")
+                Spacer()
+                Label(context.attributes.classroom ?? "未知", systemImage: "location.fill")
+            }
+            .font(.subheadline)
+
+            if Date() < context.attributes.startDate {
+                VStack(alignment: .leading) {
+                    Text("距离上课还有：")
+                        .font(.caption)
+                    Text(timerInterval: Date()...context.attributes.startDate, countsDown: true)
+                        .font(.largeTitle)
+                        .bold()
+                        .foregroundStyle(.cyan)
+                }
+                .padding(.top, 5)
+            } else if Date() <= context.attributes.endDate {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("距离下课还有：")
+                            .font(.caption)
+                        Text(timerInterval: Date()...context.attributes.endDate)
+                            .font(.caption)
+                    }
+                    ProgressView(timerInterval: context.attributes.startDate...context.attributes.endDate, countsDown: false)
+                        .progressViewStyle(.linear)
+                        .tint(.cyan)
+                }
+                .padding(.top, 5)
+            }
+        }
+        .padding()
+    }
+}
+
+extension CourseStatusWidgetAttributes {
+    static var preview: CourseStatusWidgetAttributes {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        return .init(
+            courseName: "程序设计、算法与数据结构（三）",
+            teacher: "陈曦(小)副教授",
+            classroom: "金12-106",
+            startDate: dateFormatter.date(from: "2025-10-15 18:50")!,
+            endDate: dateFormatter.date(from: "2025-10-15 19:30")!
+        )
+    }
+}
+
+#Preview("Notification", as: .content, using: CourseStatusWidgetAttributes.preview) {
     CourseStatusWidgetLiveActivity()
 } contentStates: {
     CourseStatusWidgetAttributes.ContentState()
