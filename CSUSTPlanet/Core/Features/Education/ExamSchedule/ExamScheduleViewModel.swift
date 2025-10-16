@@ -65,14 +65,14 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
     func addToCalendar(exam: EduHelper.Exam) {
         Task {
             do {
-                let calendar = try await calendarHelper.getOrCreateCalendar(named: "长理星球 - 考试")
+                let calendar = try await calendarHelper.getOrCreateEventCalendar(named: "长理星球 - 考试")
                 try await calendarHelper.addEvent(
+                    calendar: calendar,
                     title: "考试：\(exam.courseName)",
                     startDate: exam.examStartTime,
                     endDate: exam.examEndTime,
-                    notes: exam.teacher,
-                    location: exam.examRoom,
-                    calendar: calendar
+                    notes: "课程老师：\(exam.teacher)",
+                    location: exam.examRoom
                 )
             } catch {
                 errorMessage = error.localizedDescription
@@ -89,15 +89,15 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
         }
         Task {
             do {
-                let calendar = try await calendarHelper.getOrCreateCalendar(named: "长理星球 - 考试")
+                let calendar = try await calendarHelper.getOrCreateEventCalendar(named: "长理星球 - 考试")
                 for exam in exams {
                     try await calendarHelper.addEvent(
+                        calendar: calendar,
                         title: "考试：\(exam.courseName)",
                         startDate: exam.examStartTime,
                         endDate: exam.examEndTime,
-                        notes: exam.teacher,
-                        location: exam.examRoom,
-                        calendar: calendar
+                        notes: "课程老师：\(exam.teacher)",
+                        location: exam.examRoom
                     )
                 }
             } catch {
