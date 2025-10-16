@@ -15,13 +15,13 @@ class CalendarHelper {
         return try await eventStore.requestFullAccessToEvents()
     }
 
-    func getOrCreateCalendar(named: String) async throws -> EKCalendar {
-        if let existingCalendar = eventStore.calendars(for: .event).first(where: { $0.title == named }) {
+    func getOrCreateCalendar(named title: String) async throws -> EKCalendar {
+        if let existingCalendar = eventStore.calendars(for: .event).first(where: { $0.title == title }) {
             return existingCalendar
         }
 
         let newCalendar = EKCalendar(for: .event, eventStore: eventStore)
-        newCalendar.title = named
+        newCalendar.title = title
 
         if let iCloudSource = eventStore.sources.first(where: { $0.sourceType == .calDAV && $0.title == "iCloud" }) {
             newCalendar.source = iCloudSource
@@ -37,9 +37,7 @@ class CalendarHelper {
 
     func eventExists(title: String, startDate: Date, endDate: Date) async throws -> Bool {
         let granted = try await requestAccess()
-        guard granted else {
-            throw CalendarHelperError.permissionDenied
-        }
+        guard granted else { throw CalendarHelperError.permissionDenied }
 
         let predicate = eventStore.predicateForEvents(withStart: startDate, end: endDate, calendars: nil)
 
@@ -49,13 +47,9 @@ class CalendarHelper {
 
     func addEvent(title: String, startDate: Date, endDate: Date, notes: String? = nil, location: String? = nil, calendar: EKCalendar? = nil) async throws {
         let granted = try await requestAccess()
-        guard granted else {
-            throw CalendarHelperError.permissionDenied
-        }
+        guard granted else { throw CalendarHelperError.permissionDenied }
 
-        if try await eventExists(title: title, startDate: startDate, endDate: endDate) {
-            return
-        }
+        guard !(try await eventExists(title: title, startDate: startDate, endDate: endDate)) else { return }
 
         let event = EKEvent(eventStore: eventStore)
         event.title = title

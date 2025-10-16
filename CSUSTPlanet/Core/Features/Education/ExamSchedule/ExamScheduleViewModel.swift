@@ -65,7 +65,7 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
     func addToCalendar(exam: EduHelper.Exam) {
         Task {
             do {
-                let calendar = try await calendarHelper.getOrCreateCalendar(named: "考试")
+                let calendar = try await calendarHelper.getOrCreateCalendar(named: "长理星球 - 考试")
                 try await calendarHelper.addEvent(
                     title: "考试：\(exam.courseName)",
                     startDate: exam.examStartTime,
@@ -89,7 +89,7 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
         }
         Task {
             do {
-                let calendar = try await calendarHelper.getOrCreateCalendar(named: "考试")
+                let calendar = try await calendarHelper.getOrCreateCalendar(named: "长理星球 - 考试")
                 for exam in exams {
                     try await calendarHelper.addEvent(
                         title: "考试：\(exam.courseName)",
