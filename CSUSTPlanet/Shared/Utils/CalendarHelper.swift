@@ -131,7 +131,6 @@ extension CalendarHelper {
         calendar: EKCalendar,
         title: String,
         dueDate: Date?,
-        alarmOffset: TimeInterval? = nil,
         notes: String? = nil
     ) async throws {
         guard try await requestReminderAccess() else { throw CalendarHelperError.reminderPermissionDenied }
@@ -145,11 +144,6 @@ extension CalendarHelper {
         if let dueDate = dueDate {
             let dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
             reminder.dueDateComponents = dueDateComponents
-
-            if let offset = alarmOffset {
-                let alarm = EKAlarm(relativeOffset: -offset)
-                reminder.addAlarm(alarm)
-            }
         }
 
         try eventStore.save(reminder, commit: true)
@@ -168,12 +162,17 @@ extension CalendarHelper {
         }
 
         return reminders.contains { reminder in
-            let hasSameTitle = reminder.title == title
-            if let dueDate = dueDate {
-                let targetComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-                return hasSameTitle && reminder.dueDateComponents == targetComponents
+            guard reminder.title == title else {
+                return false
+            }
+
+            let calendar = Calendar.current
+            let existingDueDate: Date? = reminder.dueDateComponents.flatMap { calendar.date(from: $0) }
+
+            if let dueDate = dueDate, let existingDueDate = existingDueDate {
+                return calendar.compare(dueDate, to: existingDueDate, toGranularity: .minute) == .orderedSame
             } else {
-                return hasSameTitle && reminder.dueDateComponents == nil
+                return dueDate == nil && existingDueDate == nil
             }
         }
     }

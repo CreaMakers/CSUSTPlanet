@@ -222,7 +222,7 @@ struct ExamScheduleView: View {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
         .toast(isPresenting: $viewModel.isShowingSuccess) {
-            AlertToast(type: .complete(.green), title: "图片保存成功")
+            AlertToast(type: .complete(.green), title: viewModel.successMessage)
         }
         .toast(isPresenting: $viewModel.isShowingWarning) {
             AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)

@@ -10,13 +10,18 @@ import Foundation
 
 @MainActor
 class CourseDetailViewModel: ObservableObject {
+    private let calendarHelper = CalendarHelper()
+
     @Published var homeworks: [MoocHelper.Homework] = []
     @Published var tests: [MoocHelper.Test] = []
     @Published var errorMessage = ""
 
+    @Published var isShowingSuccess = false
     @Published var isShowingError = false
     @Published var isHomeworksLoading = false
     @Published var isTestsLoading = false
+
+    @Published var isShowingRemindersSettings = false
 
     private var course: MoocHelper.Course
     @Published var isSimplified = false
@@ -72,6 +77,42 @@ class CourseDetailViewModel: ObservableObject {
                 }
             } else {
                 errorMessage = "请先等待网络课程中心登录完成后再重试"
+                isShowingError = true
+            }
+        }
+    }
+
+    lazy var dateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        return dateFormatter
+    }()
+
+    func addHomeworksToReminders(_ alertHourOffset: Int, _ alertMinuteOffset: Int) {
+        guard !homeworks.isEmpty else {
+            errorMessage = "当前没有可添加的作业"
+            isShowingError = true
+            return
+        }
+
+        Task {
+            do {
+                let calendar = try await calendarHelper.getOrCreateReminderCalendar(named: "长理星球 - 作业")
+                for homework in homeworks {
+                    guard homework.canSubmit else { continue }
+                    guard let dueDate = dateFormatter.date(from: homework.deadline) else { continue }
+                    let alarmOffset = TimeInterval(-(alertHourOffset * 3600 + alertMinuteOffset * 60))
+                    let dueDateWithAlarm = dueDate.addingTimeInterval(alarmOffset)
+                    try await calendarHelper.addReminder(
+                        calendar: calendar,
+                        title: homework.title,
+                        dueDate: dueDateWithAlarm,
+                        notes: "截止提交时间：\(homework.deadline)\n课程老师：\(homework.publisher)"
+                    )
+                }
+                isShowingSuccess = true
+            } catch {
+                errorMessage = error.localizedDescription
                 isShowingError = true
             }
         }

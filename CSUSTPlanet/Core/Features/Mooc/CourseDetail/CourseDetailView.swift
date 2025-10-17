@@ -20,6 +20,8 @@ struct CourseDetailView: View {
         _viewModel = StateObject(wrappedValue: CourseDetailViewModel(id: id, name: name))
     }
 
+    // MARK: - Body
+
     var body: some View {
         Form {
             courseInfoSection
@@ -28,6 +30,14 @@ struct CourseDetailView: View {
         }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
+        }
+        .sheet(isPresented: $viewModel.isShowingRemindersSettings) {
+            ReminderOffsetSettingsView(
+                isPresented: $viewModel.isShowingRemindersSettings,
+                onConfirm: { hourOffset, minuteOffset in
+                    viewModel.addHomeworksToReminders(hourOffset, minuteOffset)
+                }
+            )
         }
         .task {
             viewModel.loadHomeworks()
@@ -38,19 +48,28 @@ struct CourseDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button(action: { viewModel.loadHomeworks() }) {
+                    Button(action: viewModel.loadHomeworks) {
                         Label("刷新作业列表", systemImage: "arrow.clockwise")
                     }
                     .disabled(viewModel.isHomeworksLoading)
 
-                    Button(action: { viewModel.loadTests() }) {
+                    Button(action: viewModel.loadTests) {
                         Label("刷新考试列表", systemImage: "arrow.clockwise")
                     }
                     .disabled(viewModel.isTestsLoading)
+
+                    Button(action: {
+                        viewModel.isShowingRemindersSettings = true
+                    }) {
+                        Label("添加作业列表到提醒事项", systemImage: "list.bullet.rectangle")
+                    }
                 } label: {
                     Label("操作", systemImage: "ellipsis.circle")
                 }
             }
+        }
+        .toast(isPresenting: $viewModel.isShowingSuccess) {
+            AlertToast(type: .complete(.green), title: "添加到提醒事项成功")
         }
     }
 
@@ -68,6 +87,8 @@ struct CourseDetailView: View {
             }
         }
     }
+
+    // MARK: - Homeworks Section
 
     private var homeworksSection: some View {
         Section(header: Text("作业列表")) {
@@ -98,6 +119,8 @@ struct CourseDetailView: View {
         }
     }
 
+    // MARK: - Tests Section
+
     private var testsSection: some View {
         Section(header: Text("考试列表")) {
             if viewModel.isTestsLoading {
@@ -127,7 +150,7 @@ struct CourseDetailView: View {
         }
     }
 
-    // MARK: - Subviews
+    // MARK: - Homework Card
 
     private func homeworkCard(homework: MoocHelper.Homework) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -192,6 +215,8 @@ struct CourseDetailView: View {
         }
         .padding(.vertical, 4)
     }
+
+    // MARK: - Test Card
 
     private func testCard(test: MoocHelper.Test) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -278,6 +303,8 @@ struct CourseDetailView: View {
         }
         .padding(.vertical, 4)
     }
+
+    // MARK: - Info Row
 
     struct InfoRow: View {
         let label: String

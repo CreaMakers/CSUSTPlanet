@@ -12,11 +12,12 @@ import SwiftUI
 
 @MainActor
 class ExamScheduleViewModel: NSObject, ObservableObject {
-    private var calendarHelper = CalendarHelper()
+    private let calendarHelper = CalendarHelper()
 
     @Published var availableSemesters: [String] = []
     @Published var errorMessage = ""
     @Published var warningMessage = ""
+    @Published var successMessage = ""
     @Published var data: Cached<[EduHelper.Exam]>? = nil
 
     @Published var isShowingAddToCalendarAlert = false
@@ -100,6 +101,8 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
                         location: exam.examRoom
                     )
                 }
+                successMessage = "添加到日历成功"
+                isShowingSuccess = true
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -174,6 +177,7 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
             errorMessage = "保存图片失败，可能是没有权限: \(error.localizedDescription)"
             isShowingError = true
         } else {
+            successMessage = "图片保存成功"
             isShowingSuccess = true
         }
     }
