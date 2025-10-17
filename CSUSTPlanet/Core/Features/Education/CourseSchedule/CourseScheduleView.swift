@@ -18,10 +18,12 @@ struct CourseScheduleView: View {
         VStack(spacing: 0) {
             topControlBar
             if let courseScheduleData = viewModel.data {
+                let weeklyCourses = CourseScheduleHelper.calculateWeeklyCourses(courseScheduleData.value.courses)
+
                 // 课表的每一周翻页
                 TabView(selection: $viewModel.currentWeek) {
-                    ForEach(1...viewModel.weekCount, id: \.self) { week in
-                        tableView(for: week, semesterStartDate: courseScheduleData.value.semesterStartDate, weeklyCourses: viewModel.weeklyCourses)
+                    ForEach(1...CourseScheduleHelper.weekCount, id: \.self) { week in
+                        tableView(for: week, semesterStartDate: courseScheduleData.value.semesterStartDate, weeklyCourses: weeklyCourses)
                             .tag(week)
                     }
                 }
@@ -86,7 +88,7 @@ struct CourseScheduleView: View {
     private var topControlBar: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text("今日 \(viewModel.formatDate(viewModel.today))")
+                Text("今日 \(CourseScheduleHelper.dateFormatter.string(from: viewModel.today))")
                     .font(.headline)
                     .foregroundColor(.primary)
 
@@ -113,7 +115,7 @@ struct CourseScheduleView: View {
                         set: { newValue in withAnimation { viewModel.currentWeek = newValue } }
                     )
                 ) {
-                    ForEach(1...viewModel.weekCount, id: \.self) { week in
+                    ForEach(1...CourseScheduleHelper.weekCount, id: \.self) { week in
                         Text("第 \(week) 周").tag(week)
                     }
                 }
@@ -153,18 +155,12 @@ struct CourseScheduleView: View {
     // MARK: - 星期头部视图
 
     private func headerView(for week: Int, semesterStartDate: Date) -> some View {
-        let dates = viewModel.getDatesForWeek(week, semesterStartDate: semesterStartDate)
-        let monthFormatter = DateFormatter()
-        monthFormatter.dateFormat = "M"
-        let monthString = monthFormatter.string(from: dates.first ?? Date())
-
-        let dayFormatter = DateFormatter()
-        dayFormatter.dateFormat = "d"
+        let dates = CourseScheduleHelper.getDatesForWeek(semesterStartDate: semesterStartDate, week: week)
 
         return HStack(spacing: viewModel.colSpacing) {
             // 左上角月份显示区
             VStack {
-                Text(monthString)
+                Text(CourseScheduleHelper.monthFormatter.string(from: dates.first ?? Date()))
                     .font(.subheadline)
                     .fontWeight(.bold)
                 Text("月")
@@ -176,15 +172,15 @@ struct CourseScheduleView: View {
             // "周日" 到 "周六"
             ForEach(Array(zip(EduHelper.DayOfWeek.allCases, dates)), id: \.0) { day, date in
                 VStack {
-                    Text(viewModel.dayOfWeekToString(day))
+                    Text(day.stringValue)
                         .font(.subheadline)
-                        .foregroundColor(viewModel.isToday(date) ? .primary : .secondary)
-                        .fontWeight(viewModel.isToday(date) ? .bold : .regular)
+                        .foregroundColor(CourseScheduleHelper.isToday(date) ? .primary : .secondary)
+                        .fontWeight(CourseScheduleHelper.isToday(date) ? .bold : .regular)
 
-                    Text(dayFormatter.string(from: date))
+                    Text(CourseScheduleHelper.dayFormatter.string(from: date))
                         .font(.subheadline)
-                        .foregroundColor(viewModel.isToday(date) ? .primary : .secondary)
-                        .fontWeight(viewModel.isToday(date) ? .bold : .regular)
+                        .foregroundColor(CourseScheduleHelper.isToday(date) ? .primary : .secondary)
+                        .fontWeight(CourseScheduleHelper.isToday(date) ? .bold : .regular)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -205,9 +201,9 @@ struct CourseScheduleView: View {
                         Text("\(section)")
                             .font(.caption)
                             .fontWeight(.medium)
-                        Text(viewModel.sectionTime[section - 1].0)
+                        Text(CourseScheduleHelper.sectionTime[section - 1].0)
                             .font(.system(size: 10))
-                        Text(viewModel.sectionTime[section - 1].1)
+                        Text(CourseScheduleHelper.sectionTime[section - 1].1)
                             .font(.system(size: 10))
                     }
                     .frame(width: viewModel.timeColWidth, height: viewModel.sectionHeight)
