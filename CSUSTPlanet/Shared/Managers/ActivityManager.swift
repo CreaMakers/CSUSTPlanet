@@ -27,7 +27,7 @@ class ActivityManager {
 
         let activity = try Activity.request(
             attributes: attributes,
-            content: .init(state: contentState, staleDate: attributes.startDate)
+            content: .init(state: contentState, staleDate: nil)
         )
         self.activity = activity
         scheduleUpdateTasks(for: activity, attributes: attributes)
@@ -51,7 +51,7 @@ class ActivityManager {
             guard sleepDuration > 0 else { return }
             try? await Task.sleep(for: .seconds(sleepDuration))
             guard activity.activityState == .active else { return }
-            await activity.update(.init(state: .init(), staleDate: attributes.endDate))
+            await activity.update(.init(state: .init(), staleDate: nil))
         }
 
         Task {

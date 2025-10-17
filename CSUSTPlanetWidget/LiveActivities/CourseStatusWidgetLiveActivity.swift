@@ -167,6 +167,7 @@ struct LockScreenView: View {
             }
         }
         .padding()
+        .activityBackgroundTint(.black.opacity(0.5))
     }
 }
 
@@ -178,8 +179,8 @@ extension CourseStatusWidgetAttributes {
             courseName: "程序设计、算法与数据结构（三）",
             teacher: "陈曦(小)副教授",
             classroom: "金12-106",
-            startDate: dateFormatter.date(from: "2025-10-15 21:55")!,
-            endDate: dateFormatter.date(from: "2025-10-15 21:56")!
+            startDate: dateFormatter.date(from: "2025-10-17 10:10")!,
+            endDate: dateFormatter.date(from: "2025-10-17 11:50")!
         )
     }
 }
