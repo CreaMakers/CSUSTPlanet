@@ -10,32 +10,19 @@ import SwiftUI
 
 struct HomeTodayCoursesView: View {
     let courseScheduleData: CourseScheduleData?
-    let todayCourses: [CourseDisplayInfo]
+    let todayCourses: [(course: CourseDisplayInfo, isCurrent: Bool)]
 
     func formatCourseTime(_ startSection: Int, _ endSection: Int) -> String {
-        let sectionTimes: [(String, String)] = [
-            ("08:00", "08:45"),
-            ("08:55", "09:40"),
-            ("10:10", "10:55"),
-            ("11:05", "11:50"),
-            ("14:00", "14:45"),
-            ("14:55", "15:40"),
-            ("16:10", "16:55"),
-            ("17:05", "17:50"),
-            ("19:30", "20:15"),
-            ("20:25", "21:10"),
-        ]
-
         let startIndex = startSection - 1
         let endIndex = endSection - 1
 
-        guard startIndex >= 0 && startIndex < sectionTimes.count,
-            endIndex >= 0 && endIndex < sectionTimes.count
+        guard startIndex >= 0 && startIndex < CourseScheduleHelper.sectionTimeString.count,
+            endIndex >= 0 && endIndex < CourseScheduleHelper.sectionTimeString.count
         else {
             return "时间未知"
         }
 
-        return "\(sectionTimes[startIndex].0) - \(sectionTimes[endIndex].1)"
+        return "\(CourseScheduleHelper.sectionTimeString[startIndex].0) - \(CourseScheduleHelper.sectionTimeString[endIndex].1)"
     }
 
     var body: some View {
@@ -72,7 +59,7 @@ struct HomeTodayCoursesView: View {
                 if !todayCourses.isEmpty {
                     VStack(spacing: 0) {
                         ForEach(Array(todayCourses.enumerated()), id: \.offset) { index, course in
-                            courseCard(course: course)
+                            courseCard(course: course.course, isCurrent: course.isCurrent)
 
                             if index < todayCourses.count - 1 {
                                 Divider()
@@ -102,14 +89,22 @@ struct HomeTodayCoursesView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    private func courseCard(course: CourseDisplayInfo) -> some View {
+    private func courseCard(course: CourseDisplayInfo, isCurrent: Bool) -> some View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(course.course.courseName)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .lineLimit(1)
-                    .foregroundColor(.primary)
+                HStack(spacing: 6) {
+                    Text(course.course.courseName)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .lineLimit(1)
+                        .foregroundColor(.primary)
+
+                    if isCurrent {
+                        Image(systemName: "circle.fill")
+                            .font(.system(size: 7))
+                            .foregroundColor(.green)
+                    }
+                }
 
                 HStack(spacing: 8) {
                     if let classroom = course.session.classroom {
@@ -117,7 +112,6 @@ struct HomeTodayCoursesView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
-
                     Text(course.course.teacher)
                         .font(.caption)
                         .foregroundColor(.secondary)

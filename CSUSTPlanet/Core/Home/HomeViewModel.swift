@@ -17,7 +17,7 @@ class HomeViewModel: ObservableObject {
     @Published var urgentCourseData: Cached<UrgentCourseData>?
     @Published var electricityDorms: [Dorm] = []
     @Published var totalElectricityDorms: Int = 0
-    @Published var todayCourses: [CourseDisplayInfo] = []
+    @Published var todayCourses: [(course: CourseDisplayInfo, isCurrent: Bool)] = []
 
     // MARK: - DEBUG时间处理
     private var currentTime: Date {

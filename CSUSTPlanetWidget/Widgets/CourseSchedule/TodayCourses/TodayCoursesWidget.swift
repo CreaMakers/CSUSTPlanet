@@ -23,7 +23,16 @@ struct TodayCoursesProvider: AppIntentTimelineProvider {
         defer {
             MMKVManager.shared.close()
         }
+
+        // #if DEBUG
+        //     let currentDate = {
+        //         let dateFormatter = DateFormatter()
+        //         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        //         return dateFormatter.date(from: "2025-10-20 11:49")!
+        //     }()
+        // #else
         let currentDate: Date = .now
+        // #endif
 
         guard let data = MMKVManager.shared.courseScheduleCache else {
             let entry = TodayCoursesEntry(date: .now, configuration: configuration, data: nil)

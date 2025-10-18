@@ -181,16 +181,13 @@ class CourseScheduleHelper {
         return days > 0 ? days : nil
     }
 
-    /// 获取指定日期的所有未完成课程
+    /// 获取当天未结束的课程列表
     /// - Parameters:
-    ///   - date: 目标日期和时间，用于定位课表和判断课程状态。
-    ///   - schedule: 课程表数据。
-    /// - Returns: 当天所有未完成课程的列表，按开始时间排序。
-    static func getUnfinishedCourses(
-        semesterStartDate: Date,
-        now: Date,
-        courses: [EduHelper.Course]
-    ) -> [CourseDisplayInfo] {
+    ///   - semesterStartDate: 学期开始日期
+    ///   - now: 当前时间
+    ///   - courses: 课程列表
+    /// - Returns: 一个包含未结束课程信息和是否为当前课程的元组数组
+    static func getUnfinishedCourses(semesterStartDate: Date, now: Date, courses: [EduHelper.Course]) -> [(course: CourseDisplayInfo, isCurrent: Bool)] {
         let startOfTargetDate = calendar.startOfDay(for: now)
         let startOfSemester = calendar.startOfDay(for: semesterStartDate)
 
@@ -213,18 +210,31 @@ class CourseScheduleHelper {
             }
         }.sorted { $0.session.startSection < $1.session.startSection }
 
-        return allDailyCourses.filter { courseInfo in
+        return allDailyCourses.compactMap { courseInfo -> (course: CourseDisplayInfo, isCurrent: Bool)? in
+            let startSectionIndex = courseInfo.session.startSection - 1
             let endSectionIndex = courseInfo.session.endSection - 1
-            guard endSectionIndex < sectionTimeString.count else { return false }
-            let endTimeString = sectionTimeString[endSectionIndex].1
-            let components = endTimeString.split(separator: ":").compactMap { Int($0) }
-            guard components.count == 2,
-                let courseEndDate = calendar.date(bySettingHour: components[0], minute: components[1], second: 0, of: now)
+            guard startSectionIndex >= 0, startSectionIndex < sectionTimeString.count,
+                endSectionIndex >= 0, endSectionIndex < sectionTimeString.count
             else {
-                return false
+                return nil
             }
+            let startTimeString = sectionTimeString[startSectionIndex].0
+            let endTimeString = sectionTimeString[endSectionIndex].1
 
-            return now < courseEndDate
+            let startComponents = startTimeString.split(separator: ":").compactMap { Int($0) }
+            let endComponents = endTimeString.split(separator: ":").compactMap { Int($0) }
+
+            guard startComponents.count == 2, endComponents.count == 2,
+                let courseStartDate = calendar.date(bySettingHour: startComponents[0], minute: startComponents[1], second: 0, of: now),
+                let courseEndDate = calendar.date(bySettingHour: endComponents[0], minute: endComponents[1], second: 0, of: now)
+            else {
+                return nil
+            }
+            guard now < courseEndDate else {
+                return nil
+            }
+            let isCurrent = now >= courseStartDate
+            return (course: courseInfo, isCurrent: isCurrent)
         }
     }
 }

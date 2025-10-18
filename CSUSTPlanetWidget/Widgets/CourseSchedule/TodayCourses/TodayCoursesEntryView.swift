@@ -252,8 +252,8 @@ struct TodayCoursesEntryView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 } else {
                     VStack(alignment: .leading, spacing: 8) {
-                        ForEach(courseDisplayInfos) { courseDisplayInfo in
-                            courseCard(courseDisplayInfo: courseDisplayInfo, courseColors: courseColors)
+                        ForEach(courseDisplayInfos, id: \.course.id) { courseDisplayInfo in
+                            courseCard(courseDisplayInfo: courseDisplayInfo.course, courseColors: courseColors, isCurrent: courseDisplayInfo.isCurrent)
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -262,11 +262,20 @@ struct TodayCoursesEntryView: View {
         }
     }
 
-    private func courseCard(courseDisplayInfo: CourseDisplayInfo, courseColors: [String: Color]) -> some View {
+    private func courseCard(courseDisplayInfo: CourseDisplayInfo, courseColors: [String: Color], isCurrent: Bool) -> some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(courseDisplayInfo.course.courseName)
-                    .font(.system(size: 16, weight: .bold))
+                HStack(spacing: 6) {
+                    Text(courseDisplayInfo.course.courseName)
+                        .font(.system(size: 16, weight: .bold))
+                        .lineLimit(1)
+
+                    if isCurrent {
+                        Image(systemName: "circle.fill")
+                            .font(.system(size: 7))
+                            .foregroundColor(.green)
+                    }
+                }
                 HStack {
                     Text(courseDisplayInfo.session.classroom ?? "无教室")
                         .fixedSize()
