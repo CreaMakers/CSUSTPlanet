@@ -18,7 +18,7 @@ struct CourseScheduleView: View {
         VStack(spacing: 0) {
             topControlBar
             if let courseScheduleData = viewModel.data {
-                let weeklyCourses = CourseScheduleHelper.calculateWeeklyCourses(courseScheduleData.value.courses)
+                let weeklyCourses = CourseScheduleHelper.getWeeklyCourses(courseScheduleData.value.courses)
 
                 // 课表的每一周翻页
                 TabView(selection: $viewModel.currentWeek) {
@@ -201,9 +201,9 @@ struct CourseScheduleView: View {
                         Text("\(section)")
                             .font(.caption)
                             .fontWeight(.medium)
-                        Text(CourseScheduleHelper.sectionTime[section - 1].0)
+                        Text(CourseScheduleHelper.sectionTimeString[section - 1].0)
                             .font(.system(size: 10))
-                        Text(CourseScheduleHelper.sectionTime[section - 1].1)
+                        Text(CourseScheduleHelper.sectionTimeString[section - 1].1)
                             .font(.system(size: 10))
                     }
                     .frame(width: viewModel.timeColWidth, height: viewModel.sectionHeight)

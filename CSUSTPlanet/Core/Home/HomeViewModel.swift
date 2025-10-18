@@ -22,9 +22,9 @@ class HomeViewModel: ObservableObject {
     // MARK: - DEBUG时间处理
     private var currentTime: Date {
         // #if DEBUG
-        //     // let formatter = DateFormatter()
-        //     // formatter.dateFormat = "yyyy-MM-dd HH:mm"
-        //     // return formatter.date(from: "2025-09-18 17:38") ?? Date()
+        //     let formatter = DateFormatter()
+        //     formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        //     return formatter.date(from: "2025-10-20 11:49") ?? Date()
         // #else
         return Date()
         // #endif
@@ -56,12 +56,7 @@ class HomeViewModel: ObservableObject {
 
         // 加载今日课程数据
         if let scheduleData = courseScheduleData {
-            todayCourses = ScheduleHelper.getUnfinishedCourses(
-                for: currentTime,
-                in: scheduleData.value,
-                maxCount: 5,
-                at: currentTime
-            )
+            todayCourses = CourseScheduleHelper.getUnfinishedCourses(semesterStartDate: scheduleData.value.semesterStartDate, now: currentTime, courses: scheduleData.value.courses)
         }
     }
 

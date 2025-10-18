@@ -90,7 +90,7 @@ class CourseScheduleViewModel: ObservableObject {
     }
 
     private func updateSchedules(_ semesterStartDate: Date, _ courses: [EduHelper.Course]) {
-        self.realCurrentWeek = CourseScheduleHelper.calculateCurrentWeek(semesterStartDate: semesterStartDate, now: today)
+        self.realCurrentWeek = CourseScheduleHelper.getCurrentWeek(semesterStartDate: semesterStartDate, now: today)
 
         // 为每门课程分配颜色
         courseColors = [:]

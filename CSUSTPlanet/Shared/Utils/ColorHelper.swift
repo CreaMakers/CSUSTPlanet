@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/22.
 //
 
+import CSUSTKit
 import Foundation
 import SwiftUI
 
@@ -136,4 +137,19 @@ class ColorHelper {
         color(hex: 0x00B4D8),
         color(hex: 0xC34A36),
     ]
+
+    /// 为课程分配颜色
+    /// - Parameter courses: 课程列表
+    /// - Returns: 课程名称到颜色的映射字典
+    static func getCourseColors(_ courses: [EduHelper.Course]) -> [String: Color] {
+        var courseColors: [String: Color] = [:]
+        var colorIndex = 0
+        for course in courses.sorted(by: { $0.courseName < $1.courseName }) {
+            if courseColors[course.courseName] == nil {
+                courseColors[course.courseName] = ColorHelper.courseColors[colorIndex % ColorHelper.courseColors.count]
+                colorIndex += 1
+            }
+        }
+        return courseColors
+    }
 }

@@ -40,11 +40,11 @@ struct WeeklyCoursesEntryView: View {
                     Text(data.semester ?? "默认学期")
                         .font(.system(size: 14))
                         .foregroundStyle(.secondary)
-                    Text(ScheduleHelper.getWeekday(from: entry.date))
+                    Text("周\(CourseScheduleHelper.getDayOfWeek(entry.date).stringValue)")
                         .font(.system(size: 14))
                         .foregroundStyle(.red)
                     Spacer()
-                    switch ScheduleHelper.getSemesterStatus(for: entry.date, semesterStartDate: data.semesterStartDate) {
+                    switch CourseScheduleHelper.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: entry.date) {
                     case .beforeSemester:
                         Text("学期未开始")
                             .font(.system(size: 14))
@@ -54,7 +54,7 @@ struct WeeklyCoursesEntryView: View {
                             .font(.system(size: 14))
                             .foregroundStyle(.secondary)
                     case .inSemester:
-                        if let currentWeek = ScheduleHelper.calculateCurrentWeek(from: data.semesterStartDate, for: entry.date) {
+                        if let currentWeek = CourseScheduleHelper.getCurrentWeek(semesterStartDate: data.semesterStartDate, now: entry.date) {
                             Text("第 \(currentWeek) 周")
                                 .font(.system(size: 14))
                                 .foregroundStyle(.primary)
@@ -79,11 +79,11 @@ struct WeeklyCoursesEntryView: View {
 
     @ViewBuilder
     func courseScheduleView(data: CourseScheduleData) -> some View {
-        switch ScheduleHelper.getSemesterStatus(for: entry.date, semesterStartDate: data.semesterStartDate) {
+        switch CourseScheduleHelper.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: entry.date) {
         case .beforeSemester:
             VStack {
                 Text("学期未开始")
-                if let daysUntilStart = ScheduleHelper.daysUntilSemesterStart(from: data.semesterStartDate, currentDate: entry.date) {
+                if let daysUntilStart = CourseScheduleHelper.getDaysUntilSemesterStart(semesterStartDate: data.semesterStartDate, currentDate: entry.date) {
                     Text("还有 \(daysUntilStart) 天开学")
                         .font(.system(size: 12))
                         .foregroundStyle(.primary)
@@ -95,10 +95,10 @@ struct WeeklyCoursesEntryView: View {
             Text("学期已结束")
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         case .inSemester:
-            let currentWeek = ScheduleHelper.calculateCurrentWeek(from: data.semesterStartDate, for: entry.date) ?? 1
+            let currentWeek = CourseScheduleHelper.getCurrentWeek(semesterStartDate: data.semesterStartDate, now: entry.date) ?? 1
             let firstVisibleSection = firstVisibleSection(for: entry.date)
 
-            let courseColors = ScheduleHelper.getCourseColors(courses: data.courses)
+            let courseColors = ColorHelper.getCourseColors(data.courses)
 
             let weeklyCourses = {
                 var processedCourses: [Int: [CourseDisplayInfo]] = [:]
@@ -247,7 +247,7 @@ struct WeeklyCoursesEntryView: View {
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(.white)
 
-                Text("@\(session.classroom ?? "待定")")
+                Text("@\(session.classroom ?? "无教室")")
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
             }

@@ -186,13 +186,13 @@ struct TodayCoursesEntryView: View {
                             .font(.system(size: 14))
                             .foregroundStyle(.secondary)
                     }
-                    Text(ScheduleHelper.getWeekday(from: entry.date))
+                    Text("周\(CourseScheduleHelper.getDayOfWeek(entry.date).stringValue)")
                         .font(.system(size: 14))
                         .foregroundStyle(.red)
 
                     Spacer()
 
-                    switch ScheduleHelper.getSemesterStatus(for: entry.date, semesterStartDate: data.semesterStartDate) {
+                    switch CourseScheduleHelper.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: entry.date) {
                     case .beforeSemester:
                         Text("学期未开始")
                             .font(.system(size: 14))
@@ -202,7 +202,7 @@ struct TodayCoursesEntryView: View {
                             .font(.system(size: 14))
                             .foregroundStyle(.secondary)
                     case .inSemester:
-                        if let currentWeek = ScheduleHelper.calculateCurrentWeek(from: data.semesterStartDate, for: entry.date) {
+                        if let currentWeek = CourseScheduleHelper.getCurrentWeek(semesterStartDate: data.semesterStartDate, now: entry.date) {
                             Text("第 \(currentWeek) 周")
                                 .font(.system(size: 14))
                                 .foregroundStyle(.primary)
@@ -227,11 +227,11 @@ struct TodayCoursesEntryView: View {
 
     func coursesView(data: CourseScheduleData) -> some View {
         Group {
-            switch ScheduleHelper.getSemesterStatus(for: entry.date, semesterStartDate: data.semesterStartDate) {
+            switch CourseScheduleHelper.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: entry.date) {
             case .beforeSemester:
                 VStack {
                     Text("学期未开始")
-                    if let daysUntilStart = ScheduleHelper.daysUntilSemesterStart(from: data.semesterStartDate, currentDate: entry.date) {
+                    if let daysUntilStart = CourseScheduleHelper.getDaysUntilSemesterStart(semesterStartDate: data.semesterStartDate, currentDate: entry.date) {
                         Text("还有 \(daysUntilStart) 天开学")
                             .font(.system(size: 12))
                             .foregroundStyle(.primary)
@@ -243,13 +243,9 @@ struct TodayCoursesEntryView: View {
                 Text("学期已结束")
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             case .inSemester:
-                let courseColors = ScheduleHelper.getCourseColors(courses: data.courses)
-                let courseDisplayInfos = ScheduleHelper.getUnfinishedCourses(
-                    for: entry.date,
-                    in: data,
-                    maxCount: widgetFamily == .systemLarge ? 5 : 2,
-                    at: entry.date
-                )
+                let courseColors = ColorHelper.getCourseColors(data.courses)
+                let courseDisplayInfos = CourseScheduleHelper.getUnfinishedCourses(semesterStartDate: data.semesterStartDate, now: entry.date, courses: data.courses)
+                    .prefix(widgetFamily == .systemLarge ? 5 : 2)
 
                 if courseDisplayInfos.isEmpty {
                     Text("今天已经没有课程啦")
@@ -272,22 +268,22 @@ struct TodayCoursesEntryView: View {
                 Text(courseDisplayInfo.course.courseName)
                     .font(.system(size: 16, weight: .bold))
                 HStack {
-                    Text(courseDisplayInfo.session.classroom ?? "未知教室")
+                    Text(courseDisplayInfo.session.classroom ?? "无教室")
                         .fixedSize()
                     Text(courseDisplayInfo.course.teacher)
                 }
                 .font(.system(size: widgetFamily == .systemSmall ? 12 : 14))
                 if widgetFamily == .systemSmall {
-                    Text("\(ScheduleHelper.sectionTimes[courseDisplayInfo.session.startSection - 1].0) - \(ScheduleHelper.sectionTimes[courseDisplayInfo.session.endSection - 1].1)")
+                    Text("\(CourseScheduleHelper.sectionTimeString[courseDisplayInfo.session.startSection - 1].0) - \(CourseScheduleHelper.sectionTimeString[courseDisplayInfo.session.endSection - 1].1)")
                         .font(.system(size: 12))
                 }
             }
             if widgetFamily != .systemSmall {
                 Spacer()
                 VStack(alignment: .trailing) {
-                    Text(ScheduleHelper.sectionTimes[courseDisplayInfo.session.startSection - 1].0)
+                    Text(CourseScheduleHelper.sectionTimeString[courseDisplayInfo.session.startSection - 1].0)
                         .font(.system(size: 16))
-                    Text(ScheduleHelper.sectionTimes[courseDisplayInfo.session.endSection - 1].1)
+                    Text(CourseScheduleHelper.sectionTimeString[courseDisplayInfo.session.endSection - 1].1)
                         .font(.system(size: 16))
                 }
             }

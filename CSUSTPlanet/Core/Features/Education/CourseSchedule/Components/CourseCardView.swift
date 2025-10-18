@@ -22,7 +22,7 @@ struct CourseCardView: View {
                 .foregroundColor(.white)
                 .padding(.horizontal, 0)
 
-            Text("@\(session.classroom ?? "待定")")
+            Text("@\(session.classroom ?? "无教室")")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.white)
                 .padding(.horizontal, 0)
@@ -80,7 +80,7 @@ struct CourseCardView: View {
                     InfoRow(label: "课程周次", value: formatWeeks(session.weeks))
                     InfoRow(label: "课程节次", value: "第\(session.startSection)节-第\(session.endSection)节")
                     InfoRow(label: "每周日期", value: "周\(dayOfWeekToString(session.dayOfWeek))")
-                    InfoRow(label: "上课教室", value: session.classroom ?? "待定")
+                    InfoRow(label: "上课教室", value: session.classroom ?? "无教室")
                 }
             }
             .navigationTitle("课程详情")
