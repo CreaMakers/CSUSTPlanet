@@ -1,3 +1,4 @@
 {
-    "sweetpad.build.xcodeWorkspacePath": "CSUSTPlanet.xcodeproj/project.xcworkspace"
+    "sweetpad.build.xcodeWorkspacePath": "CSUSTPlanet.xcodeproj/project.xcworkspace",
+    "cmake.ignoreCMakeListsMissing": true
 }
