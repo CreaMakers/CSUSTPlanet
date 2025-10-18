@@ -168,6 +168,13 @@ struct DormElectricityEntryView: View {
                                 .font(.system(size: 10, weight: .medium))
                                 .foregroundStyle(.secondary)
                         } else if family == .systemMedium || family == .systemLarge {
+                            let electricityValues = dormitory.records.map { $0.electricity }
+                            let minValue = electricityValues.min() ?? 0
+                            let maxValue = electricityValues.max() ?? 0
+
+                            let yMin = max(0, minValue - 5)
+                            let yMax = maxValue + 5
+
                             Chart(dormitory.records.sorted { $0.date < $1.date }) { record in
                                 LineMark(x: .value("日期", record.date), y: .value("电量", record.electricity))
                                     .interpolationMethod(.catmullRom)
@@ -184,6 +191,7 @@ struct DormElectricityEntryView: View {
                                     AxisValueLabel(format: .dateTime.month().day())
                                 }
                             }
+                            .chartYScale(domain: yMin...yMax)
                         }
                     } else {
                         Text("暂无数据")
