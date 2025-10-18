@@ -10,8 +10,6 @@ import SwiftUI
 
 struct HomeElectricityView: View {
     let electricityDorms: [Dorm]
-    let totalElectricityDorms: Int
-    let getLastRecord: (Dorm) -> ElectricityRecord?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -53,22 +51,6 @@ struct HomeElectricityView: View {
                                 .padding(.horizontal, 16)
                         }
                     }
-
-                    if totalElectricityDorms > 2 {
-                        HStack {
-                            Text("...")
-                                .font(.headline)
-                                .foregroundColor(.secondary)
-
-                            Spacer()
-
-                            Text("还有 \(totalElectricityDorms - 2) 个宿舍")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 6)
-                    }
                 }
                 .padding(.vertical, 12)
 
@@ -100,7 +82,7 @@ struct HomeElectricityView: View {
 
             Spacer()
 
-            if let record = getLastRecord(dorm) {
+            if let record = dorm.lastRecord {
                 VStack(alignment: .trailing, spacing: 4) {
                     HStack(spacing: 4) {
                         Text(String(format: "%.2f", record.electricity))
@@ -153,9 +135,5 @@ struct HomeElectricityView: View {
 }
 
 #Preview {
-    HomeElectricityView(
-        electricityDorms: [],
-        totalElectricityDorms: 0,
-        getLastRecord: { _ in nil }
-    )
+    HomeElectricityView(electricityDorms: [])
 }

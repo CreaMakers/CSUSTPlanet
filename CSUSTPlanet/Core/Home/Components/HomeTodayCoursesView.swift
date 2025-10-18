@@ -9,8 +9,17 @@ import CSUSTKit
 import SwiftUI
 
 struct HomeTodayCoursesView: View {
-    let courseScheduleData: CourseScheduleData?
-    let todayCourses: [(course: CourseDisplayInfo, isCurrent: Bool)]
+    let courseScheduleData: Cached<CourseScheduleData>?
+
+    private var currentTime: Date {
+        // #if DEBUG
+        //     let formatter = DateFormatter()
+        //     formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        //     return formatter.date(from: "2025-10-20 11:49") ?? Date()
+        // #else
+        return Date()
+        // #endif
+    }
 
     func formatCourseTime(_ startSection: Int, _ endSection: Int) -> String {
         let startIndex = startSection - 1
@@ -55,7 +64,8 @@ struct HomeTodayCoursesView: View {
             Divider()
 
             // 内容
-            if courseScheduleData != nil {
+            if let courseScheduleData = courseScheduleData {
+                let todayCourses = CourseScheduleHelper.getUnfinishedCourses(semesterStartDate: courseScheduleData.value.semesterStartDate, now: currentTime, courses: courseScheduleData.value.courses)
                 if !todayCourses.isEmpty {
                     VStack(spacing: 0) {
                         ForEach(Array(todayCourses.enumerated()), id: \.offset) { index, course in
@@ -155,8 +165,5 @@ struct HomeTodayCoursesView: View {
 }
 
 #Preview {
-    HomeTodayCoursesView(
-        courseScheduleData: nil,
-        todayCourses: []
-    )
+    HomeTodayCoursesView(courseScheduleData: nil)
 }

@@ -16,19 +16,6 @@ class HomeViewModel: ObservableObject {
     @Published var courseScheduleData: Cached<CourseScheduleData>?
     @Published var urgentCourseData: Cached<UrgentCourseData>?
     @Published var electricityDorms: [Dorm] = []
-    @Published var totalElectricityDorms: Int = 0
-    @Published var todayCourses: [(course: CourseDisplayInfo, isCurrent: Bool)] = []
-
-    // MARK: - DEBUG时间处理
-    private var currentTime: Date {
-        // #if DEBUG
-        //     let formatter = DateFormatter()
-        //     formatter.dateFormat = "yyyy-MM-dd HH:mm"
-        //     return formatter.date(from: "2025-10-20 11:49") ?? Date()
-        // #else
-        return Date()
-        // #endif
-    }
 
     func loadData() {
         let context = SharedModel.mainContext
@@ -38,29 +25,9 @@ class HomeViewModel: ObservableObject {
         courseScheduleData = MMKVManager.shared.courseScheduleCache
         urgentCourseData = MMKVManager.shared.urgentCoursesCache
 
-        // 加载宿舍电量数据，按最新记录时间排序，最多取2个
         let dormDescriptor = FetchDescriptor<Dorm>()
         if let dorms = try? context.fetch(dormDescriptor) {
-            let domsWithRecords = dorms.filter { !($0.records?.isEmpty ?? true) }  // 只保留有电量记录的宿舍
-            totalElectricityDorms = domsWithRecords.count
-            electricityDorms =
-                domsWithRecords
-                .sorted { dorm1, dorm2 in
-                    let record1 = dorm1.records?.max(by: { $0.date < $1.date })
-                    let record2 = dorm2.records?.max(by: { $0.date < $1.date })
-                    return (record1?.date ?? Date.distantPast) > (record2?.date ?? Date.distantPast)
-                }
-                .prefix(2)
-                .map { $0 }
+            electricityDorms = dorms
         }
-
-        // 加载今日课程数据
-        if let scheduleData = courseScheduleData {
-            todayCourses = CourseScheduleHelper.getUnfinishedCourses(semesterStartDate: scheduleData.value.semesterStartDate, now: currentTime, courses: scheduleData.value.courses)
-        }
-    }
-
-    func getLastRecord(for dorm: Dorm) -> ElectricityRecord? {
-        return dorm.records?.max(by: { $0.date < $1.date })
     }
 }

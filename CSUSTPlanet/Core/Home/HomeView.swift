@@ -18,20 +18,13 @@ struct HomeView: View {
                 HomeGradeAnalysisView(data: viewModel.gradeAnalysisData)
 
                 // 今日课程部分
-                HomeTodayCoursesView(
-                    courseScheduleData: viewModel.courseScheduleData?.value,
-                    todayCourses: viewModel.todayCourses,
-                )
+                HomeTodayCoursesView(courseScheduleData: viewModel.courseScheduleData)
 
                 // 待提交作业部分
                 HomeUrgentCoursesView(urgentCourseData: viewModel.urgentCourseData)
 
                 // 电量查询部分
-                HomeElectricityView(
-                    electricityDorms: viewModel.electricityDorms,
-                    totalElectricityDorms: viewModel.totalElectricityDorms,
-                    getLastRecord: viewModel.getLastRecord
-                )
+                HomeElectricityView(electricityDorms: viewModel.electricityDorms)
 
                 // 考试安排部分
                 HomeExamScheduleView(examScheduleData: viewModel.examScheduleData)
