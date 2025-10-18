@@ -237,6 +237,72 @@ class CourseScheduleHelper {
             return (course: courseInfo, isCurrent: isCurrent)
         }
     }
+
+    /// 获取用于“课程状态”实时活动功能的课程信息
+    ///
+    /// 符合要求的课程包括：
+    /// 1. 当前正在进行的课程
+    /// 2. 即将开始且距离开始时间在20分钟以内的课程
+    ///
+    /// - Parameters:
+    ///   - semesterStartDate: 学期开始日期
+    ///   - now: 当前时间
+    ///   - courses: 课程列表
+    /// - Returns: 符合要求的课程信息，若无符合要求的课程则返回nil
+    static func getCurrentCourseForStatus(semesterStartDate: Date, now: Date, courses: [EduHelper.Course]) -> CourseDisplayInfo? {
+        guard let currentWeek = getCurrentWeek(semesterStartDate: semesterStartDate, now: now) else {
+            return nil
+        }
+
+        let currentDayOfWeek = getDayOfWeek(now)
+
+        let todaysCourses = courses.flatMap { course -> [CourseDisplayInfo] in
+            course.sessions.compactMap { session -> CourseDisplayInfo? in
+                guard session.weeks.contains(currentWeek), session.dayOfWeek == currentDayOfWeek else {
+                    return nil
+                }
+                return CourseDisplayInfo(course: course, session: session)
+            }
+        }.sorted { $0.session.startSection < $1.session.startSection }
+
+        for courseInfo in todaysCourses {
+            let startSectionIndex = courseInfo.session.startSection - 1
+            let endSectionIndex = courseInfo.session.endSection - 1
+
+            guard startSectionIndex >= 0, startSectionIndex < sectionTimeString.count,
+                endSectionIndex >= 0, endSectionIndex < sectionTimeString.count
+            else {
+                continue
+            }
+
+            let startTimeString = sectionTimeString[startSectionIndex].0
+            let endTimeString = sectionTimeString[endSectionIndex].1
+
+            let startComponents = startTimeString.split(separator: ":").compactMap { Int($0) }
+            let endComponents = endTimeString.split(separator: ":").compactMap { Int($0) }
+
+            guard startComponents.count == 2, endComponents.count == 2,
+                let courseStartDate = calendar.date(bySettingHour: startComponents[0], minute: startComponents[1], second: 0, of: now),
+                let courseEndDate = calendar.date(bySettingHour: endComponents[0], minute: endComponents[1], second: 0, of: now)
+            else {
+                continue
+            }
+
+            if now >= courseStartDate && now < courseEndDate {
+                return courseInfo
+            }
+
+            if now < courseStartDate {
+                let timeInterval = courseStartDate.timeIntervalSince(now)
+                if timeInterval > 0 && timeInterval <= 1200 {
+                    return courseInfo
+                } else {
+                    return nil
+                }
+            }
+        }
+        return nil
+    }
 }
 
 // MARK: - DayOfWeek Extension

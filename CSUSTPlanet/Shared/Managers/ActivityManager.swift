@@ -21,8 +21,7 @@ class ActivityManager {
         activity = existingActivity
     }
 
-    func startActivity() throws {
-        let attributes = CourseStatusWidgetAttributes.preview
+    private func startActivity(_ attributes: CourseStatusWidgetAttributes) throws {
         let contentState = CourseStatusWidgetAttributes.ContentState()
 
         let activity = try Activity.request(
@@ -33,7 +32,66 @@ class ActivityManager {
         scheduleUpdateTasks(for: activity, attributes: attributes)
     }
 
-    func stopActivity() {
+    private func getCourseDates(from startSection: Int, to endSection: Int, now: Date) -> (startDate: Date, endDate: Date)? {
+        let calendar = Calendar.current
+
+        let startIndex = startSection - 1
+        let endIndex = endSection - 1
+
+        guard startIndex >= 0, startIndex < CourseScheduleHelper.sectionTimeString.count,
+            endIndex >= 0, endIndex < CourseScheduleHelper.sectionTimeString.count
+        else {
+            return nil
+        }
+
+        let startTimeString = CourseScheduleHelper.sectionTimeString[startIndex].0
+        let endTimeString = CourseScheduleHelper.sectionTimeString[endIndex].1
+
+        let startComponents = startTimeString.split(separator: ":").compactMap { Int($0) }
+        guard startComponents.count == 2 else { return nil }
+        let startHour = startComponents[0]
+        let startMinute = startComponents[1]
+
+        let endComponents = endTimeString.split(separator: ":").compactMap { Int($0) }
+        guard endComponents.count == 2 else { return nil }
+        let endHour = endComponents[0]
+        let endMinute = endComponents[1]
+
+        guard let startDate = calendar.date(bySettingHour: startHour, minute: startMinute, second: 0, of: now),
+            let endDate = calendar.date(bySettingHour: endHour, minute: endMinute, second: 0, of: now)
+        else {
+            return nil
+        }
+
+        return (startDate, endDate)
+    }
+
+    func startActivityIfNeed() {
+        // #if DEBUG
+        //     let currentDate = {
+        //         let dateFormatter = DateFormatter()
+        //         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        //         return dateFormatter.date(from: "2025-10-20 10:08")!
+        //     }()
+        // #else
+        let currentDate = Date()
+        // #endif
+
+        guard let data = MMKVManager.shared.courseScheduleCache else { return }
+        guard let courseDisplayInfo = CourseScheduleHelper.getCurrentCourseForStatus(semesterStartDate: data.value.semesterStartDate, now: currentDate, courses: data.value.courses) else { return }
+        debugPrint("Starting Course Status Live Activity for course: \(courseDisplayInfo.course.courseName)")
+        guard let courseDates = getCourseDates(from: courseDisplayInfo.session.startSection, to: courseDisplayInfo.session.endSection, now: currentDate) else { return }
+        let attributes = CourseStatusWidgetAttributes(
+            courseName: courseDisplayInfo.course.courseName,
+            teacher: courseDisplayInfo.course.teacher,
+            classroom: courseDisplayInfo.session.classroom,
+            startDate: courseDates.startDate,
+            endDate: courseDates.endDate
+        )
+        try? startActivity(attributes)
+    }
+
+    private func stopActivity() {
         guard let activity = activity else { return }
         guard activity.activityState == .active else {
             self.activity = nil
@@ -60,6 +118,15 @@ class ActivityManager {
             try? await Task.sleep(for: .seconds(sleepDuration))
             guard activity.activityState == .active else { return }
             await activity.update(.init(state: .init(), staleDate: nil))
+        }
+    }
+
+    @MainActor
+    func onLiveActivitySettingChanged(oldValue: Bool, newValue: Bool) {
+        if GlobalVars.shared.isLiveActivityEnabled {
+            startActivityIfNeed()
+        } else {
+            stopActivity()
         }
     }
 }

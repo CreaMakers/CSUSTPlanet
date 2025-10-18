@@ -172,9 +172,9 @@ class AuthManager: ObservableObject {
             }
             do {
                 let moocSession = try await ssoHelper.loginToMooc()
-                #if DEBUG
-                    // try await Task.sleep(nanoseconds: 5_000_000_000)
-                #endif
+                // #if DEBUG
+                //     try await Task.sleep(nanoseconds: 5_000_000_000)
+                // #endif
                 if Task.isCancelled { return }
                 moocHelper = MoocHelper(session: moocSession)
             } catch {

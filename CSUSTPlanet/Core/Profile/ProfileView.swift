@@ -103,15 +103,7 @@ struct ProfileView: View {
                 Toggle(isOn: $globalVars.isLiveActivityEnabled) {
                     ColoredLabel(title: "启用实时活动/灵动岛", iconName: "bolt.circle", color: .yellow)
                 }
-
-                #if DEBUG
-                    Button(action: startActivity) {
-                        ColoredLabel(title: "开启实时活动 (DEBUG)", iconName: "bolt.circle", color: .yellow)
-                    }
-                    Button(action: ActivityManager.shared.stopActivity) {
-                        ColoredLabel(title: "关闭实时活动 (DEBUG)", iconName: "bolt.circle", color: .yellow)
-                    }
-                #endif
+                .onChange(of: globalVars.isLiveActivityEnabled, ActivityManager.shared.onLiveActivitySettingChanged)
 
                 if authManager.isEducationLoggingIn {
                     Button(action: authManager.loginToEducation) {
@@ -146,17 +138,6 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showLoginSheet) {
             SSOLoginView(isShowingLoginSheet: $showLoginSheet)
-        }
-    }
-}
-
-extension ProfileView {
-    func startActivity() {
-        do {
-            try ActivityManager.shared.startActivity()
-            debugPrint("开启实时活动成功")
-        } catch {
-            debugPrint("开启实时活动失败", error.localizedDescription)
         }
     }
 }

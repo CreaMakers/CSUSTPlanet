@@ -15,16 +15,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        UNUserNotificationCenter.current().delegate = self
-
-        ActivityManager.shared.setup()
-        MMKVManager.shared.setup()
-
-        if !MMKVManager.shared.hasLaunchedBefore {
-            KeychainHelper.deleteAll()
-            MMKVManager.shared.hasLaunchedBefore = true
-        }
-
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithTransparentBackground()
         tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
@@ -34,6 +24,19 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         #if DEBUG
             Bundle(path: "/Applications/InjectionIII.app/Contents/Resources/iOSInjection.bundle")?.load()
         #endif
+
+        UNUserNotificationCenter.current().delegate = self
+
+        MMKVManager.shared.setup()
+        if !MMKVManager.shared.hasLaunchedBefore {
+            KeychainHelper.deleteAll()
+            MMKVManager.shared.hasLaunchedBefore = true
+        }
+
+        ActivityManager.shared.setup()
+        if GlobalVars.shared.isLiveActivityEnabled {
+            ActivityManager.shared.startActivityIfNeed()
+        }
 
         return true
     }
