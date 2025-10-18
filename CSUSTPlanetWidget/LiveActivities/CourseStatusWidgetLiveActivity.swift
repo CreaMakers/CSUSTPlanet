@@ -10,7 +10,7 @@ import CSUSTKit
 import SwiftUI
 import WidgetKit
 
-struct CourseStatusWidgetAttributes: ActivityAttributes {
+struct CourseStatusWidgetAttributes: ActivityAttributes, Equatable {
     public struct ContentState: Codable, Hashable {}
 
     var courseName: String

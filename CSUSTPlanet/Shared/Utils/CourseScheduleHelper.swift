@@ -240,22 +240,22 @@ class CourseScheduleHelper {
 
     /// 获取用于“课程状态”实时活动功能的课程信息
     ///
-    /// 符合要求的课程包括：
-    /// 1. 当前正在进行的课程
-    /// 2. 即将开始且距离开始时间在20分钟以内的课程
+    /// 查找逻辑按以下优先级进行：
+    /// 1. 返回当前正在进行的课程。
+    /// 2. 如果没有正在进行的课程，则返回20分钟内即将开始的课程。
+    /// 3. 如果也没有即将开始的课程，则返回5分钟内刚刚结束的课程，以供实时活动显示结束状态。
     ///
     /// - Parameters:
     ///   - semesterStartDate: 学期开始日期
     ///   - now: 当前时间
     ///   - courses: 课程列表
-    /// - Returns: 符合要求的课程信息，若无符合要求的课程则返回nil
-    static func getCurrentCourseForStatus(semesterStartDate: Date, now: Date, courses: [EduHelper.Course]) -> CourseDisplayInfo? {
+    /// - Returns: 符合要求的、最相关的课程信息，若无则返回nil
+    static func getRelevantCourseForStatus(semesterStartDate: Date, now: Date, courses: [EduHelper.Course]) -> CourseDisplayInfo? {
         guard let currentWeek = getCurrentWeek(semesterStartDate: semesterStartDate, now: now) else {
             return nil
         }
 
         let currentDayOfWeek = getDayOfWeek(now)
-
         let todaysCourses = courses.flatMap { course -> [CourseDisplayInfo] in
             course.sessions.compactMap { session -> CourseDisplayInfo? in
                 guard session.weeks.contains(currentWeek), session.dayOfWeek == currentDayOfWeek else {
@@ -264,6 +264,13 @@ class CourseScheduleHelper {
                 return CourseDisplayInfo(course: course, session: session)
             }
         }.sorted { $0.session.startSection < $1.session.startSection }
+
+        guard !todaysCourses.isEmpty else {
+            return nil
+        }
+
+        var closestUpcomingCourse: (info: CourseDisplayInfo, interval: TimeInterval)?
+        var mostRecentlyFinishedCourse: (info: CourseDisplayInfo, interval: TimeInterval)?
 
         for courseInfo in todaysCourses {
             let startSectionIndex = courseInfo.session.startSection - 1
@@ -277,7 +284,6 @@ class CourseScheduleHelper {
 
             let startTimeString = sectionTimeString[startSectionIndex].0
             let endTimeString = sectionTimeString[endSectionIndex].1
-
             let startComponents = startTimeString.split(separator: ":").compactMap { Int($0) }
             let endComponents = endTimeString.split(separator: ":").compactMap { Int($0) }
 
@@ -293,14 +299,27 @@ class CourseScheduleHelper {
             }
 
             if now < courseStartDate {
-                let timeInterval = courseStartDate.timeIntervalSince(now)
-                if timeInterval > 0 && timeInterval <= 1200 {
-                    return courseInfo
-                } else {
-                    return nil
+                let interval = courseStartDate.timeIntervalSince(now)
+                if closestUpcomingCourse == nil || interval < closestUpcomingCourse!.interval {
+                    closestUpcomingCourse = (info: courseInfo, interval: interval)
+                }
+            }
+
+            if now >= courseEndDate {
+                let interval = now.timeIntervalSince(courseEndDate)
+                if mostRecentlyFinishedCourse == nil || interval < mostRecentlyFinishedCourse!.interval {
+                    mostRecentlyFinishedCourse = (info: courseInfo, interval: interval)
                 }
             }
         }
+        if let upcoming = closestUpcomingCourse, upcoming.interval <= 1200 {
+            return upcoming.info
+        }
+
+        if let finished = mostRecentlyFinishedCourse, finished.interval <= 300 {
+            return finished.info
+        }
+
         return nil
     }
 }

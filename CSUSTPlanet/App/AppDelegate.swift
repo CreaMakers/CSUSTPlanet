@@ -34,16 +34,45 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         }
 
         ActivityManager.shared.setup()
-        if GlobalVars.shared.isLiveActivityEnabled {
-            ActivityManager.shared.startActivityIfNeed()
-        }
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
 
         return true
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .sound, .badge])
+    }
+}
+
+extension AppDelegate {
+    @objc
+    private func appDidEnterBackground() {
+        debugPrint("App entered background")
+        ActivityManager.shared.autoUpdateActivity()
+    }
+
+    @objc
+    private func appWillEnterForeground() {
+        debugPrint("App will enter foreground")
+        ActivityManager.shared.autoUpdateActivity()
     }
 }
