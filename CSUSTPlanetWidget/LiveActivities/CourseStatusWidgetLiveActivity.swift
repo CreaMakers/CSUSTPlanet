@@ -11,7 +11,9 @@ import SwiftUI
 import WidgetKit
 
 struct CourseStatusWidgetAttributes: ActivityAttributes, Equatable {
-    public struct ContentState: Codable, Hashable {}
+    public struct ContentState: Codable, Hashable {
+        var now: Date
+    }
 
     var courseName: String
     var teacher: String
@@ -41,20 +43,20 @@ struct CourseStatusWidgetLiveActivity: Widget {
 
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(alignment: .center) {
-                        if Date() < context.attributes.startDate {
+                        if context.state.now < context.attributes.startDate {
                             Text("距离上课还有")
                                 .font(.callout)
-                            Text(timerInterval: Date()...context.attributes.startDate, countsDown: true)
+                            Text(timerInterval: context.state.now...context.attributes.startDate, countsDown: true)
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .lineLimit(1)
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity)
                                 .foregroundStyle(.cyan)
-                        } else if Date() >= context.attributes.startDate && Date() <= context.attributes.endDate {
+                        } else if context.state.now >= context.attributes.startDate && context.state.now <= context.attributes.endDate {
                             Text("距离下课还有")
                                 .font(.caption2)
-                            Text(timerInterval: Date()...context.attributes.endDate, countsDown: true)
+                            Text(timerInterval: context.state.now...context.attributes.endDate, countsDown: true)
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .lineLimit(1)
@@ -77,7 +79,7 @@ struct CourseStatusWidgetLiveActivity: Widget {
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity)
 
-                        if Date() >= context.attributes.startDate && Date() <= context.attributes.endDate {
+                        if context.state.now >= context.attributes.startDate && context.state.now <= context.attributes.endDate {
                             ProgressView(timerInterval: context.attributes.startDate...context.attributes.endDate, countsDown: false)
                                 .progressViewStyle(.linear)
                                 .tint(.cyan)
@@ -87,26 +89,35 @@ struct CourseStatusWidgetLiveActivity: Widget {
                     }
                 }
             } compactLeading: {
-                Image(systemName: "timer")
+                if context.state.now < context.attributes.startDate {
+                    Text("即将上课")
+                        .font(.caption2)
+                } else if context.state.now >= context.attributes.startDate && context.state.now <= context.attributes.endDate {
+                    Text("上课中")
+                        .font(.caption2)
+                } else {
+                    Text("已下课")
+                        .font(.caption2)
+                }
             } compactTrailing: {
-                if Date() < context.attributes.startDate {
+                if context.state.now < context.attributes.startDate {
                     Text("00:00")
                         .font(.caption2)
                         .hidden()
                         .overlay(alignment: .trailing) {
-                            Text(timerInterval: Date()...context.attributes.startDate, countsDown: true)
+                            Text(timerInterval: context.state.now...context.attributes.startDate, countsDown: true)
                                 .font(.caption2)
                                 .monospacedDigit()
                         }
-                } else if Date() >= context.attributes.startDate && Date() <= context.attributes.endDate {
-                    let remainingTime = context.attributes.endDate.timeIntervalSince(Date())
+                } else if context.state.now >= context.attributes.startDate && context.state.now <= context.attributes.endDate {
+                    let remainingTime = context.attributes.endDate.timeIntervalSince(context.state.now)
                     let placeholder = remainingTime >= 3600 ? "00:00:00" : "00:00"
 
                     Text(placeholder)
                         .font(.caption2)
                         .hidden()
                         .overlay(alignment: .trailing) {
-                            Text(timerInterval: Date()...context.attributes.endDate, countsDown: true)
+                            Text(timerInterval: context.state.now...context.attributes.endDate, countsDown: true)
                                 .font(.caption2)
                                 .monospacedDigit()
                         }
@@ -138,22 +149,22 @@ struct LockScreenView: View {
             }
             .font(.subheadline)
 
-            if Date() < context.attributes.startDate {
+            if context.state.now < context.attributes.startDate {
                 VStack(alignment: .leading) {
                     Text("距离上课还有：")
                         .font(.caption)
-                    Text(timerInterval: Date()...context.attributes.startDate, countsDown: true)
+                    Text(timerInterval: context.state.now...context.attributes.startDate, countsDown: true)
                         .font(.largeTitle)
                         .bold()
                         .foregroundStyle(.cyan)
                 }
                 .padding(.top, 5)
-            } else if Date() <= context.attributes.endDate {
+            } else if context.state.now <= context.attributes.endDate {
                 VStack(alignment: .leading) {
                     HStack {
                         Text("距离下课还有：")
                             .font(.caption)
-                        Text(timerInterval: Date()...context.attributes.endDate)
+                        Text(timerInterval: context.state.now...context.attributes.endDate)
                             .font(.caption)
                     }
                     ProgressView(timerInterval: context.attributes.startDate...context.attributes.endDate, countsDown: false)
@@ -188,5 +199,5 @@ extension CourseStatusWidgetAttributes {
 #Preview("Notification", as: .content, using: CourseStatusWidgetAttributes.preview) {
     CourseStatusWidgetLiveActivity()
 } contentStates: {
-    CourseStatusWidgetAttributes.ContentState()
+    CourseStatusWidgetAttributes.ContentState(now: .now)
 }

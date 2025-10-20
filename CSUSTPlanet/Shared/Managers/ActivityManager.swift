@@ -56,7 +56,7 @@ class ActivityManager {
                 if existingActivity.attributes == attributes {
                     debugPrint("Live Activity is correct. Forcing a UI refresh.")
                     Task {
-                        let content = ActivityContent(state: CourseStatusWidgetAttributes.ContentState(), staleDate: nil)
+                        let content = ActivityContent(state: CourseStatusWidgetAttributes.ContentState(now: .now), staleDate: nil)
                         await existingActivity.update(content)
                     }
                 } else {
@@ -76,7 +76,7 @@ class ActivityManager {
     private func startActivity(_ attributes: CourseStatusWidgetAttributes) throws {
         stopActivity()
 
-        let content = ActivityContent(state: CourseStatusWidgetAttributes.ContentState(), staleDate: nil)
+        let content = ActivityContent(state: CourseStatusWidgetAttributes.ContentState(now: .now), staleDate: nil)
 
         let newActivity = try Activity.request(
             attributes: attributes,
