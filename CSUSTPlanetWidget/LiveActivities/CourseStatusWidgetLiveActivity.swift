@@ -48,7 +48,7 @@ struct CourseStatusWidgetLiveActivity: Widget {
                             .lineLimit(1)
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity)
-                        
+
                         if context.state.now < context.attributes.startDate {
                             Text("距离上课还有")
                                 .font(.callout)
@@ -142,6 +142,9 @@ struct LockScreenView: View {
             HStack {
                 Text(context.attributes.courseName)
                     .font(.title2).bold()
+
+                Spacer()
+
                 VStack(alignment: .trailing) {
                     Text(context.attributes.teacher)
                         .font(.caption)
