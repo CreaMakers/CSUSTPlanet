@@ -42,12 +42,18 @@ struct CourseStatusWidgetLiveActivity: Widget {
                 }
 
                 DynamicIslandExpandedRegion(.bottom) {
-                    VStack(alignment: .center) {
+                    VStack(alignment: .center, spacing: 6) {
+                        Text(context.attributes.courseName)
+                            .font(.headline)
+                            .lineLimit(1)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                        
                         if context.state.now < context.attributes.startDate {
                             Text("距离上课还有")
                                 .font(.callout)
                             Text(timerInterval: context.state.now...context.attributes.startDate, countsDown: true)
-                                .font(.title)
+                                .font(.title2)
                                 .fontWeight(.bold)
                                 .lineLimit(1)
                                 .multilineTextAlignment(.center)
@@ -57,7 +63,7 @@ struct CourseStatusWidgetLiveActivity: Widget {
                             Text("距离下课还有")
                                 .font(.caption2)
                             Text(timerInterval: context.state.now...context.attributes.endDate, countsDown: true)
-                                .font(.title)
+                                .font(.title2)
                                 .fontWeight(.bold)
                                 .lineLimit(1)
                                 .multilineTextAlignment(.center)
@@ -72,12 +78,6 @@ struct CourseStatusWidgetLiveActivity: Widget {
                                 .frame(maxWidth: .infinity)
                                 .foregroundStyle(.green)
                         }
-
-                        Text(context.attributes.courseName)
-                            .font(.headline)
-                            .lineLimit(1)
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: .infinity)
 
                         if context.state.now >= context.attributes.startDate && context.state.now <= context.attributes.endDate {
                             ProgressView(timerInterval: context.attributes.startDate...context.attributes.endDate, countsDown: false)
@@ -126,7 +126,9 @@ struct CourseStatusWidgetLiveActivity: Widget {
                         .font(.caption2)
                 }
             } minimal: {
-                Image(systemName: "timer")
+                Image("MinimalLogo")
+                    .resizable()
+                    .scaledToFit()
             }
         }
     }
@@ -136,42 +138,41 @@ struct LockScreenView: View {
     let context: ActivityViewContext<CourseStatusWidgetAttributes>
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(context.attributes.courseName)
-                .font(.title2).bold()
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(context.attributes.courseName)
+                    .font(.title2).bold()
+                VStack(alignment: .trailing) {
+                    Text(context.attributes.teacher)
+                        .font(.caption)
+                    Text(context.attributes.classroom ?? "无教室")
+                        .font(.caption)
+                }
+            }
 
             Divider()
 
-            HStack {
-                Label(context.attributes.teacher, systemImage: "person.fill")
-                Spacer()
-                Label(context.attributes.classroom ?? "无教室", systemImage: "location.fill")
-            }
-            .font(.subheadline)
-
             if context.state.now < context.attributes.startDate {
                 VStack(alignment: .leading) {
-                    Text("距离上课还有：")
+                    Text("距离上课还有")
                         .font(.caption)
                     Text(timerInterval: context.state.now...context.attributes.startDate, countsDown: true)
                         .font(.largeTitle)
                         .bold()
                         .foregroundStyle(.cyan)
                 }
-                .padding(.top, 5)
             } else if context.state.now <= context.attributes.endDate {
                 VStack(alignment: .leading) {
-                    HStack {
-                        Text("距离下课还有：")
-                            .font(.caption)
-                        Text(timerInterval: context.state.now...context.attributes.endDate)
-                            .font(.caption)
-                    }
-                    ProgressView(timerInterval: context.attributes.startDate...context.attributes.endDate, countsDown: false)
-                        .progressViewStyle(.linear)
-                        .tint(.cyan)
+                    Text("距离下课还有")
+                        .font(.caption)
+                    Text(timerInterval: context.state.now...context.attributes.endDate)
+                        .font(.largeTitle)
+                        .bold()
+                        .foregroundStyle(.cyan)
                 }
-                .padding(.top, 5)
+                ProgressView(timerInterval: context.attributes.startDate...context.attributes.endDate, countsDown: false)
+                    .progressViewStyle(.linear)
+                    .tint(.cyan)
             } else {
                 Label("已下课", systemImage: "checkmark.circle.fill")
                     .foregroundColor(.green)
@@ -190,8 +191,8 @@ extension CourseStatusWidgetAttributes {
             courseName: "程序设计、算法与数据结构（三）",
             teacher: "陈曦(小)副教授",
             classroom: "金12-106",
-            startDate: dateFormatter.date(from: "2025-10-17 14:00")!,
-            endDate: dateFormatter.date(from: "2025-10-17 15:40")!
+            startDate: dateFormatter.date(from: "2025-10-20 13:50")!,
+            endDate: dateFormatter.date(from: "2025-10-20 15:40")!
         )
     }
 }
