@@ -52,7 +52,7 @@ class DormElectricityViewModel: ObservableObject {
                 isScheduleLoading = false
             }
             do {
-                let deviceToken = try await NotificationHelper.shared.getDeviceToken()
+                let deviceToken = try await NotificationHelper.shared.getToken().hexString
                 let response = await AF.request("https://api.csustplanet.zhelearn.com/electricity-bindings/\(deviceToken)/\(scheduleId)", method: .get).serializingData().response
 
                 guard let httpResponse = response.response else {
@@ -61,20 +61,24 @@ class DormElectricityViewModel: ObservableObject {
                     return
                 }
 
-                guard httpResponse.statusCode == 200 else {
-                    do {
-                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: response.data ?? Data())
-                        errorMessage = errorResponse.reason
-                    } catch {
-                        errorMessage = "服务器返回错误"
-                    }
-                    dorm.scheduleId = nil
-                    try modelContext.save()
+                guard let data = response.data else {
+                    errorMessage = "服务器无响应数据"
                     isShowingError = true
                     return
                 }
 
-                let successResponse = try JSONDecoder().decode(ElectricityBindingDTO.self, from: response.data ?? Data())
+                guard httpResponse.statusCode == 200 else {
+                    do {
+                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+                        errorMessage = errorResponse.reason
+                    } catch {
+                        errorMessage = "服务器返回错误"
+                    }
+                    isShowingError = true
+                    return
+                }
+
+                let successResponse = try JSONDecoder().decode(ElectricityBindingDTO.self, from: data)
                 dorm.scheduleId = successResponse.id
                 dorm.scheduleHour = successResponse.scheduleHour
                 dorm.scheduleMinute = successResponse.scheduleMinute
@@ -96,7 +100,7 @@ class DormElectricityViewModel: ObservableObject {
                 isScheduleLoading = false
             }
             do {
-                let deviceToken = try await NotificationHelper.shared.getDeviceToken()
+                let deviceToken = try await NotificationHelper.shared.getToken().hexString
                 let response = await AF.request("https://api.csustplanet.zhelearn.com/electricity-bindings/\(deviceToken)/\(scheduleId)", method: .delete).serializingData().response
 
                 guard let httpResponse = response.response else {
@@ -105,9 +109,15 @@ class DormElectricityViewModel: ObservableObject {
                     return
                 }
 
+                guard let data = response.data else {
+                    errorMessage = "服务器无响应数据"
+                    isShowingError = true
+                    return
+                }
+
                 guard httpResponse.statusCode == 200 else {
                     do {
-                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: response.data ?? Data())
+                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
                         errorMessage = errorResponse.reason
                     } catch {
                         errorMessage = "服务器返回错误"
@@ -211,14 +221,7 @@ class DormElectricityViewModel: ObservableObject {
     func handleNotificationSettings(_ dorm: Dorm, scheduleHour: Int, scheduleMinute: Int) {
         Task {
             do {
-                let granted = try await NotificationHelper.shared.requestAuthorization()
-                guard granted else {
-                    errorMessage = "未能获取通知权限，请在设置中开启"
-                    isShowingError = true
-                    return
-                }
-
-                let token = try await NotificationHelper.shared.getDeviceToken()
+                let deviceToken = try await NotificationHelper.shared.getToken().hexString
 
                 guard let studentId = AuthManager.shared.ssoProfile?.userAccount else {
                     errorMessage = "未能获取学号，请先登录"
@@ -230,7 +233,7 @@ class DormElectricityViewModel: ObservableObject {
                 let request = ElectricityBindingDTO(
                     id: nil,
                     studentId: studentId,
-                    deviceToken: token,
+                    deviceToken: deviceToken,
                     isDebug: environment == .debug,
                     campus: dorm.campusName,
                     building: dorm.buildingName,
@@ -247,9 +250,15 @@ class DormElectricityViewModel: ObservableObject {
                     return
                 }
 
+                guard let data = response.data else {
+                    errorMessage = "服务器无响应数据"
+                    isShowingError = true
+                    return
+                }
+
                 guard httpResponse.statusCode == 200 else {
                     do {
-                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: response.data ?? Data())
+                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
                         errorMessage = errorResponse.reason
                     } catch {
                         errorMessage = "服务器返回错误"
@@ -257,7 +266,7 @@ class DormElectricityViewModel: ObservableObject {
                     isShowingError = true
                     return
                 }
-                let successResponse = try JSONDecoder().decode(ElectricityBindingDTO.self, from: response.data ?? Data())
+                let successResponse = try JSONDecoder().decode(ElectricityBindingDTO.self, from: data)
                 dorm.scheduleId = successResponse.id
                 dorm.scheduleHour = scheduleHour
                 dorm.scheduleMinute = scheduleMinute

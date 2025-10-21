@@ -10,31 +10,48 @@ import MMKV
 import UIKit
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        NotificationHelper.shared.handleNotificationRegistrationSuccess(token: deviceToken)
-    }
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        let tabBarAppearance = UITabBarAppearance()
-        tabBarAppearance.configureWithTransparentBackground()
-        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
-        UITabBar.appearance().standardAppearance = tabBarAppearance
-        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
-
-        #if DEBUG
-            Bundle(path: "/Applications/InjectionIII.app/Contents/Resources/iOSInjection.bundle")?.load()
-        #endif
-
         UNUserNotificationCenter.current().delegate = self
 
+        setupInjectionIII()
+        setupStorage()
+        setupNotificationCenter()
+        setupUI()
+
+        ActivityManager.shared.setup()
+        NotificationHelper.shared.setup()
+
+        return true
+    }
+
+    // MARK: - Setup Methods
+
+    func setupStorage() {
         MMKVManager.shared.setup()
         if !MMKVManager.shared.hasLaunchedBefore {
             KeychainHelper.deleteAll()
             MMKVManager.shared.hasLaunchedBefore = true
         }
+    }
 
-        ActivityManager.shared.setup()
+    func setupInjectionIII() {
+        #if DEBUG
+            Bundle(path: "/Applications/InjectionIII.app/Contents/Resources/iOSInjection.bundle")?.load()
+        #endif
+    }
 
+    func setupUI() {
+        let tabBarAppearance = {
+            let tabBarAppearance = UITabBarAppearance()
+            tabBarAppearance.configureWithTransparentBackground()
+            tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+            return tabBarAppearance
+        }()
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+    }
+
+    func setupNotificationCenter() {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(appDidEnterBackground),
@@ -48,8 +65,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             name: UIApplication.willEnterForegroundNotification,
             object: nil
         )
-
-        return true
     }
 
     deinit {
@@ -57,11 +72,27 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
+// MARK: - Remote Notification
+
+extension AppDelegate {
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        NotificationHelper.shared.handleNotificationRegistration(token: deviceToken, error: nil)
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: any Error) {
+        NotificationHelper.shared.handleNotificationRegistration(token: nil, error: error)
+    }
+}
+
+// MARK: - UNUserNotificationCenterDelegate
+
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .sound, .badge])
     }
 }
+
+// MARK: - App Lifecycle
 
 extension AppDelegate {
     @objc
