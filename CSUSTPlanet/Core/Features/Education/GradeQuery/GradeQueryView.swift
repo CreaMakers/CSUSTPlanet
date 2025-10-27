@@ -15,6 +15,7 @@ struct GradeQueryView: View {
 
     // MARK: - Stat Item
 
+    @ViewBuilder
     private func statItem(title: String, value: String, color: Color) -> some View {
         VStack(alignment: .center, spacing: 8) {
             Text(title)
@@ -60,6 +61,7 @@ struct GradeQueryView: View {
 
     // MARK: - Filter View
 
+    @ViewBuilder
     private var filterView: some View {
         NavigationStack {
             Form {
@@ -101,9 +103,9 @@ struct GradeQueryView: View {
                 }
             }
             .navigationTitle("筛选")
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("取消") {
                         viewModel.isShowingFilterPopover = false
                     }
@@ -120,6 +122,7 @@ struct GradeQueryView: View {
 
     // MARK: - Empty State Section
 
+    @ViewBuilder
     private var emptyStateSection: some View {
         VStack(spacing: 8) {
             Image(systemName: "doc.text.magnifyingglass")
@@ -141,6 +144,7 @@ struct GradeQueryView: View {
 
     // MARK: - Grade Card
 
+    @ViewBuilder
     private func gradeCardContent(courseGrade: EduHelper.CourseGrade) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
@@ -193,6 +197,7 @@ struct GradeQueryView: View {
         .padding(.vertical, 8)
     }
 
+    @ViewBuilder
     private func gradeCard(courseGrade: EduHelper.CourseGrade) -> some View {
         NavigationLink(destination: GradeDetailView(courseGrade: courseGrade)) {
             gradeCardContent(courseGrade: courseGrade)
@@ -201,6 +206,7 @@ struct GradeQueryView: View {
 
     // MARK: - Shareable View
 
+    @ViewBuilder
     private var shareableView: some View {
         VStack(spacing: 0) {
             statsSection

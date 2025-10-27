@@ -12,19 +12,26 @@ import SwiftUI
 
 @MainActor
 class GradeQueryViewModel: NSObject, ObservableObject {
+    // MARK: States
+
     @Published var availableSemesters: [String] = []
-    @Published var data: Cached<[EduHelper.CourseGrade]>? = nil
+    @Published var data: Cached<[EduHelper.CourseGrade]>? = nil {
+        didSet {
+            updateAnalysis()
+        }
+    }
     @Published var analysis: GradeAnalysisData? = nil
     @Published var errorMessage: String = ""
     @Published var warningMessage: String = ""
 
     @Published var isLoading: Bool = false
     @Published var isSemestersLoading: Bool = false
+    @Published var isShowingFilterPopover: Bool = false
+    @Published var isShowingShareSheet: Bool = false
+
+    @Published var isShowingSuccess: Bool = false
     @Published var isShowingError: Bool = false
     @Published var isShowingWarning: Bool = false
-    @Published var isShowingFilterPopover: Bool = false
-    @Published var isShowingSuccess: Bool = false
-    @Published var isShowingShareSheet: Bool = false
 
     @Published var searchText: String = ""
     @Published var selectedSemester: String = ""
@@ -58,9 +65,13 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         }
     }
 
-    override init() {
-        super.init()
-        loadDataFromLocal()
+    // MARK: - Methods
+
+    func task() {
+        guard !isLoaded else { return }
+        isLoaded = true
+        loadAvailableSemesters()
+        loadCourseGrades()
     }
 
     private func updateAnalysis() {
@@ -80,13 +91,6 @@ class GradeQueryViewModel: NSObject, ObservableObject {
         analysis = GradeAnalysisData.fromCourseGrades(coursesToAnalyze)
     }
 
-    func task() {
-        guard !isLoaded else { return }
-        isLoaded = true
-        loadAvailableSemesters()
-        loadCourseGrades()
-    }
-
     func enterSelectionMode() {
         isSelectionMode = true
         selectedCourseIDs = Set(filteredCourseGrades.map { $0.courseID })
@@ -98,45 +102,17 @@ class GradeQueryViewModel: NSObject, ObservableObject {
     }
 
     func loadAvailableSemesters() {
+        guard let eduHelper = AuthManager.shared.eduHelper else { return }
         isSemestersLoading = true
         Task {
             defer {
                 isSemestersLoading = false
             }
-
             do {
-                availableSemesters = try await AuthManager.shared.eduHelper?.courseService.getAvailableSemestersForCourseGrades() ?? []
+                availableSemesters = try await eduHelper.courseService.getAvailableSemestersForCourseGrades()
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
-            }
-        }
-    }
-
-    private func getDataFromRemote(_ eduHelper: EduHelper) async throws -> [EduHelper.CourseGrade] {
-        return try await eduHelper.courseService.getCourseGrades(
-            academicYearSemester: selectedSemester,
-            courseNature: selectedCourseNature,
-            courseName: "",
-            displayMode: selectedDisplayMode,
-            studyMode: selectedStudyMode
-        )
-    }
-
-    private func saveDataToLocal(_ data: Cached<[EduHelper.CourseGrade]>) {
-        MMKVManager.shared.courseGradesCache = data
-        MMKVManager.shared.sync()
-    }
-
-    private func loadDataFromLocal(_ prompt: String? = nil) {
-        guard let data = MMKVManager.shared.courseGradesCache else { return }
-        self.data = data
-        updateAnalysis()
-
-        if let prompt = prompt {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.cachedAt))
-                self.isShowingWarning = true
             }
         }
     }
@@ -147,19 +123,36 @@ class GradeQueryViewModel: NSObject, ObservableObject {
             defer {
                 isLoading = false
             }
-
             if let eduHelper = AuthManager.shared.eduHelper {
                 do {
-                    let courseGrades = try await getDataFromRemote(eduHelper)
-                    data = Cached(cachedAt: .now, value: courseGrades)
-                    saveDataToLocal(data!)
-                    updateAnalysis()
+                    let courseGrades = try await eduHelper.courseService.getCourseGrades(
+                        academicYearSemester: selectedSemester,
+                        courseNature: selectedCourseNature,
+                        courseName: "",
+                        displayMode: selectedDisplayMode,
+                        studyMode: selectedStudyMode
+                    )
+                    let data = Cached(cachedAt: .now, value: courseGrades)
+                    self.data = data
+                    MMKVManager.shared.courseGradesCache = data
+                    MMKVManager.shared.sync()
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
                 }
             } else {
-                loadDataFromLocal("教务系统未登录，已加载上次查询数据（%@）")
+                guard let data = MMKVManager.shared.courseGradesCache else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.warningMessage = "请先登录教务系统后再查询数据"
+                        self.isShowingWarning = true
+                    }
+                    return
+                }
+                self.data = data
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.warningMessage = String(format: "教务系统未登录，\n已加载上次查询数据（%@）", DateHelper.relativeTimeString(for: data.cachedAt))
+                    self.isShowingWarning = true
+                }
             }
         }
     }
