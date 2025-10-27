@@ -12,16 +12,13 @@ import SwiftUI
 
 struct GradeDetailView: View {
     @Environment(\.colorScheme) var colorScheme
-    @StateObject var viewModel: GradeDetailViewModel
-
-    init(courseGrade: EduHelper.CourseGrade) {
-        _viewModel = StateObject(wrappedValue: GradeDetailViewModel(courseGrade))
-    }
+    @StateObject var viewModel = GradeDetailViewModel()
+    var courseGrade: EduHelper.CourseGrade
 
     // MARK: - Course Title
 
     private var courseTitle: some View {
-        Text(viewModel.courseGrade.courseName)
+        Text(courseGrade.courseName)
             .font(.largeTitle)
             .bold()
             .padding(.horizontal)
@@ -46,10 +43,10 @@ struct GradeDetailView: View {
 
     private var scoresSection: some View {
         HStack(alignment: .top, spacing: 16) {
-            scoreItem(value: "\(viewModel.courseGrade.grade)", label: "总成绩", color: ColorHelper.dynamicColor(grade: Double(viewModel.courseGrade.grade)))
-            scoreItem(value: String(format: "%.1f", viewModel.courseGrade.gradePoint), label: "绩点", color: ColorHelper.dynamicColor(point: viewModel.courseGrade.gradePoint))
-            scoreItem(value: String(format: "%.1f", viewModel.courseGrade.credit), label: "学分", color: .primary)
-            scoreItem(value: "\(viewModel.courseGrade.totalHours)", label: "学时", color: .primary)
+            scoreItem(value: "\(courseGrade.grade)", label: "总成绩", color: ColorHelper.dynamicColor(grade: Double(courseGrade.grade)))
+            scoreItem(value: String(format: "%.1f", courseGrade.gradePoint), label: "绩点", color: ColorHelper.dynamicColor(point: courseGrade.gradePoint))
+            scoreItem(value: String(format: "%.1f", courseGrade.credit), label: "学分", color: .primary)
+            scoreItem(value: "\(courseGrade.totalHours)", label: "学时", color: .primary)
         }
         .padding(.horizontal)
     }
@@ -104,19 +101,19 @@ struct GradeDetailView: View {
 
     private var courseInfoSection: some View {
         infoGroupBox(title: "课程信息") {
-            detailRow(label: "课程编号", value: viewModel.courseGrade.courseID)
-            detailRow(label: "开课学期", value: viewModel.courseGrade.semester)
-            if !viewModel.courseGrade.groupName.isEmpty {
-                detailRow(label: "分组名", value: viewModel.courseGrade.groupName)
+            detailRow(label: "课程编号", value: courseGrade.courseID)
+            detailRow(label: "开课学期", value: courseGrade.semester)
+            if !courseGrade.groupName.isEmpty {
+                detailRow(label: "分组名", value: courseGrade.groupName)
             }
-            detailRow(label: "修读方式", value: viewModel.courseGrade.studyMode)
-            detailRow(label: "课程性质", value: viewModel.courseGrade.courseNature.rawValue)
-            if !viewModel.courseGrade.courseCategory.isEmpty {
-                detailRow(label: "课程类别", value: viewModel.courseGrade.courseCategory)
+            detailRow(label: "修读方式", value: courseGrade.studyMode)
+            detailRow(label: "课程性质", value: courseGrade.courseNature.rawValue)
+            if !courseGrade.courseCategory.isEmpty {
+                detailRow(label: "课程类别", value: courseGrade.courseCategory)
             }
-            detailRow(label: "课程属性", value: viewModel.courseGrade.courseAttribute)
-            detailRow(label: "考核方式", value: viewModel.courseGrade.assessmentMethod)
-            detailRow(label: "考试性质", value: viewModel.courseGrade.examNature)
+            detailRow(label: "课程属性", value: courseGrade.courseAttribute)
+            detailRow(label: "考核方式", value: courseGrade.assessmentMethod)
+            detailRow(label: "考试性质", value: courseGrade.examNature)
         }
     }
 
@@ -164,13 +161,16 @@ struct GradeDetailView: View {
             .padding()
         }
         .background(Color(.systemGroupedBackground))
-        .navigationBarTitleDisplayMode(.inline)
-        .task { viewModel.task() }
+        .toolbarTitleDisplayMode(.inline)
+        .task { viewModel.task(courseGrade) }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
         .toast(isPresenting: $viewModel.isShowingSuccess) {
             AlertToast(type: .complete(.green), title: "图片保存成功")
+        }
+        .toast(isPresenting: $viewModel.isShowingWarning) {
+            AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -194,7 +194,7 @@ struct GradeDetailView: View {
                         .progressViewStyle(.circular)
                         .scaleEffect(0.9, anchor: .center)
                 } else {
-                    Button(action: viewModel.loadDetail) {
+                    Button(action: { viewModel.loadDetail(courseGrade) }) {
                         Label("刷新成绩分布", systemImage: "arrow.clockwise")
                     }
                 }

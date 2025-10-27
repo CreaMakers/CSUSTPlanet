@@ -11,28 +11,23 @@ import SwiftUI
 
 @MainActor
 class GradeDetailViewModel: NSObject, ObservableObject {
-    @Published var courseGrade: EduHelper.CourseGrade
     @Published var gradeDetail: EduHelper.GradeDetail?
     @Published var errorMessage: String = ""
+    @Published var warningMessage: String = ""
 
     @Published var isLoading = false
     @Published var isShowingError = false
     @Published var isShowingSuccess = false
+    @Published var isShowingWarning = false
     @Published var isShowingShareSheet = false
 
     var shareContent: Any? = nil
 
-    init(_ courseGrade: EduHelper.CourseGrade) {
-        self.courseGrade = courseGrade
+    func task(_ courseGrade: EduHelper.CourseGrade) {
+        loadDetail(courseGrade)
     }
 
-    func task() {
-        if AuthManager.shared.eduHelper != nil {
-            loadDetail()
-        }
-    }
-
-    func loadDetail() {
+    func loadDetail(_ courseGrade: EduHelper.CourseGrade) {
         isLoading = true
 
         Task {
@@ -47,8 +42,10 @@ class GradeDetailViewModel: NSObject, ObservableObject {
                     isShowingError = true
                 }
             } else {
-                errorMessage = "请先等待教务系统登录完成后再重试"
-                isShowingError = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.warningMessage = "请先登录教务系统后再查询数据"
+                    self.isShowingWarning = true
+                }
             }
         }
     }
