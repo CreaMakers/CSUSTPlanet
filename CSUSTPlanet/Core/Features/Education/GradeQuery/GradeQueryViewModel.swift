@@ -67,6 +67,13 @@ class GradeQueryViewModel: NSObject, ObservableObject {
 
     // MARK: - Methods
 
+    override init() {
+        super.init()
+        guard let data = MMKVManager.shared.courseGradesCache else { return }
+        self.data = data
+        updateAnalysis()
+    }
+
     func task() {
         guard !isLoaded else { return }
         isLoaded = true
