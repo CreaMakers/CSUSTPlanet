@@ -48,7 +48,7 @@ struct CourseScheduleView: View {
             }
         }
         .navigationTitle("我的课表")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { viewModel.isShowingSemestersSheet = true }) {
@@ -67,10 +67,7 @@ struct CourseScheduleView: View {
                 }
             }
         }
-        .task {
-            viewModel.loadAvailableSemesters()
-            viewModel.loadCourses()
-        }
+        .task { viewModel.task() }
         .toast(isPresenting: $viewModel.isShowingWarning) {
             AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
@@ -85,6 +82,7 @@ struct CourseScheduleView: View {
 
     // MARK: - 顶部全局控制栏
 
+    @ViewBuilder
     private var topControlBar: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -134,6 +132,7 @@ struct CourseScheduleView: View {
 
     // MARK: - 单周课表页面
 
+    @ViewBuilder
     private func tableView(for week: Int, semesterStartDate: Date, weeklyCourses: [Int: [CourseDisplayInfo]]) -> some View {
         VStack(spacing: 0) {
             // 星期头部（日期和周几）
@@ -154,10 +153,11 @@ struct CourseScheduleView: View {
 
     // MARK: - 星期头部视图
 
+    @ViewBuilder
     private func headerView(for week: Int, semesterStartDate: Date) -> some View {
         let dates = CourseScheduleHelper.getDatesForWeek(semesterStartDate: semesterStartDate, week: week)
 
-        return HStack(spacing: viewModel.colSpacing) {
+        HStack(spacing: viewModel.colSpacing) {
             // 左上角月份显示区
             VStack {
                 Text(CourseScheduleHelper.monthFormatter.string(from: dates.first ?? Date()))
@@ -192,6 +192,7 @@ struct CourseScheduleView: View {
 
     // MARK: - 背景网格视图
 
+    @ViewBuilder
     private var backgroundGrid: some View {
         HStack(spacing: viewModel.colSpacing) {
             // 左侧时间列
@@ -230,6 +231,7 @@ struct CourseScheduleView: View {
 
     // MARK: - 课程浮层视图
 
+    @ViewBuilder
     private func coursesOverlay(for week: Int, weeklyCourses: [Int: [CourseDisplayInfo]]) -> some View {
         GeometryReader { geometry in
             // 计算每日的列宽
