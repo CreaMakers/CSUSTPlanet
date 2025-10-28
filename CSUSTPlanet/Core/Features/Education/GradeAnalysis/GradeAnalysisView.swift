@@ -16,6 +16,7 @@ struct GradeAnalysisView: View {
 
     // MARK: - Statistic Item
 
+    @ViewBuilder
     func statisticItem(title: String, value: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
@@ -29,6 +30,7 @@ struct GradeAnalysisView: View {
 
     // MARK: - Summary Card
 
+    @ViewBuilder
     private func summaryCard(_ gradeAnalysisData: GradeAnalysisData) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("学习总览")
@@ -70,6 +72,7 @@ struct GradeAnalysisView: View {
 
     // MARK: - Semester Analysis Section
 
+    @ViewBuilder
     private func semesterAnalysisSection(_ gradeAnalysisData: GradeAnalysisData) -> some View {
         VStack(spacing: 30) {
             VStack(alignment: .leading, spacing: 8) {
@@ -166,6 +169,7 @@ struct GradeAnalysisView: View {
 
     // MARK: - Analysis Content
 
+    @ViewBuilder
     private func analysisContent(_ gradeAnalysisData: GradeAnalysisData) -> some View {
         VStack(spacing: 20) {
             summaryCard(gradeAnalysisData)
@@ -175,6 +179,7 @@ struct GradeAnalysisView: View {
 
     // MARK: - Empty State Section
 
+    @ViewBuilder
     private var emptyStateSection: some View {
         VStack(spacing: 8) {
             Image(systemName: "doc.text.magnifyingglass")
@@ -221,9 +226,7 @@ struct GradeAnalysisView: View {
                 emptyStateSection
             }
         }
-        .task {
-            viewModel.loadGradeAnalysis()
-        }
+        .task { viewModel.task() }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
@@ -235,6 +238,7 @@ struct GradeAnalysisView: View {
         }
         .sheet(isPresented: $viewModel.isShowingShareSheet) { ShareSheet(items: [viewModel.shareContent!]) }
         .navigationTitle("成绩分析")
+        .toolbarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {

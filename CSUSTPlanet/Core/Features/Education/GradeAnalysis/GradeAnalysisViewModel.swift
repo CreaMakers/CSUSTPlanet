@@ -33,28 +33,12 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
 
     override init() {
         super.init()
-        loadDataFromLocal()
-    }
-
-    private func getDataFromRemote(_ eduHelper: EduHelper) async throws -> [EduHelper.CourseGrade] {
-        return try await eduHelper.courseService.getCourseGrades()
-    }
-
-    private func saveDataToLocal(_ data: Cached<[EduHelper.CourseGrade]>) {
-        MMKVManager.shared.courseGradesCache = data
-        MMKVManager.shared.sync()
-    }
-
-    private func loadDataFromLocal(_ prompt: String? = nil) {
         guard let data = MMKVManager.shared.courseGradesCache else { return }
         self.data = data
+    }
 
-        if let prompt = prompt {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.cachedAt))
-                self.isShowingWarning = true
-            }
-        }
+    func task() {
+        loadGradeAnalysis()
     }
 
     func loadGradeAnalysis() {
@@ -67,15 +51,28 @@ class GradeAnalysisViewModel: NSObject, ObservableObject {
             if let eduHelper = AuthManager.shared.eduHelper {
                 do {
                     let courseGrades = try await eduHelper.courseService.getCourseGrades()
-                    data = Cached(cachedAt: .now, value: courseGrades)
-                    saveDataToLocal(data!)
+                    let data = Cached(cachedAt: .now, value: courseGrades)
+                    self.data = data
+                    MMKVManager.shared.courseGradesCache = data
+                    MMKVManager.shared.sync()
                     WidgetCenter.shared.reloadTimelines(ofKind: "GradeAnalysisWidget")
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
                 }
             } else {
-                loadDataFromLocal("教务系统未登录，已加载上次查询数据（%@）")
+                guard let data = MMKVManager.shared.courseGradesCache else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.warningMessage = "请先登录教务系统后再查询数据"
+                        self.isShowingWarning = true
+                    }
+                    return
+                }
+                self.data = data
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.warningMessage = String(format: "教务系统未登录，\n已加载上次查询数据（%@）", DateHelper.relativeTimeString(for: data.cachedAt))
+                    self.isShowingWarning = true
+                }
             }
         }
     }

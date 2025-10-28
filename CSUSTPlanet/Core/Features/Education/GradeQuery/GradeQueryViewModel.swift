@@ -9,6 +9,7 @@ import CSUSTKit
 import Foundation
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 @MainActor
 class GradeQueryViewModel: NSObject, ObservableObject {
@@ -143,6 +144,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
                     self.data = data
                     MMKVManager.shared.courseGradesCache = data
                     MMKVManager.shared.sync()
+                    WidgetCenter.shared.reloadTimelines(ofKind: "GradeAnalysisWidget")
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
