@@ -14,6 +14,7 @@ struct UrgentCoursesView: View {
 
     // MARK: - Course Card
 
+    @ViewBuilder
     private func courseCard(course: UrgentCourseData.Course) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(course.name)
@@ -25,6 +26,7 @@ struct UrgentCoursesView: View {
 
     // MARK: - Empty State
 
+    @ViewBuilder
     private var emptyState: some View {
         VStack(spacing: 8) {
             Image(systemName: "book.closed")
@@ -88,7 +90,7 @@ struct UrgentCoursesView: View {
             }
         }
         .navigationTitle("待提交作业")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbarTitleDisplayMode(.inline)
     }
 }
 
