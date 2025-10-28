@@ -8,6 +8,7 @@
 import CSUSTKit
 import Foundation
 import SwiftData
+import WidgetKit
 
 @MainActor
 class UrgentCoursesViewModel: ObservableObject {
@@ -39,6 +40,8 @@ class UrgentCoursesViewModel: ObservableObject {
                     let data = Cached(cachedAt: .now, value: UrgentCourseData.fromCourses(urgentCourses))
                     self.data = data
                     MMKVManager.shared.urgentCoursesCache = data
+                    MMKVManager.shared.sync()
+                    WidgetCenter.shared.reloadTimelines(ofKind: "UrgentCourseWidget")
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true

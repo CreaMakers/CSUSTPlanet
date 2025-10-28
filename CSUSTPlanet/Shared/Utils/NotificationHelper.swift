@@ -42,7 +42,7 @@ class NotificationHelper {
             guard await hasAuthorization() else { return }
             guard let token = try? await getToken() else { return }
             self.token = token
-            debugPrint("Device Token obtained silently: \(token)")
+            debugPrint("Device Token obtained silently: \(token.hexString)")
         }
     }
 
