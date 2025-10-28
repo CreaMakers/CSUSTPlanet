@@ -44,6 +44,7 @@ struct ExamScheduleView: View {
 
     // MARK: - Filter View
 
+    @ViewBuilder
     private var filterView: some View {
         NavigationStack {
             Form {
@@ -75,7 +76,7 @@ struct ExamScheduleView: View {
                 }
             }
             .navigationTitle("筛选")
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("取消") {
@@ -94,6 +95,7 @@ struct ExamScheduleView: View {
 
     // MARK: - Empty State Section
 
+    @ViewBuilder
     private var emptyStateSection: some View {
         VStack(spacing: 8) {
             Image(systemName: "calendar.badge.exclamationmark")
@@ -115,6 +117,7 @@ struct ExamScheduleView: View {
 
     // MARK: - Exam Card
 
+    @ViewBuilder
     private func examCardContent(exam: EduHelper.Exam) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(exam.courseName)
@@ -160,6 +163,7 @@ struct ExamScheduleView: View {
         .padding(.vertical, 8)
     }
 
+    @ViewBuilder
     private func examCard(exam: EduHelper.Exam) -> some View {
         examCardContent(exam: exam)
             .contextMenu {
@@ -173,6 +177,7 @@ struct ExamScheduleView: View {
 
     // MARK: - Shareable View
 
+    @ViewBuilder
     private var shareableView: some View {
         VStack(spacing: 0) {
             Text("考试安排")
@@ -229,7 +234,7 @@ struct ExamScheduleView: View {
         }
         .task { viewModel.task() }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItem(placement: .secondaryAction) {
                 Menu {
                     Button(action: { viewModel.isShowingFilter.toggle() }) {
                         Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
@@ -274,6 +279,6 @@ struct ExamScheduleView: View {
             Text("是否将所有考试安排添加到系统日历？")
         }
         .navigationTitle("考试安排")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbarTitleDisplayMode(.inline)
     }
 }

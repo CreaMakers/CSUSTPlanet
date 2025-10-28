@@ -37,7 +37,8 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
 
     override init() {
         super.init()
-        loadDataFromLocal()
+        guard let data = MMKVManager.shared.examSchedulesCache else { return }
+        self.data = data
     }
 
     func task() {
@@ -110,22 +111,6 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
         }
     }
 
-    private func saveDataToLocal(_ data: Cached<[EduHelper.Exam]>) {
-        MMKVManager.shared.examSchedulesCache = data
-    }
-
-    private func loadDataFromLocal(_ prompt: String? = nil) {
-        guard let data = MMKVManager.shared.examSchedulesCache else { return }
-        self.data = data
-
-        if let prompt = prompt {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.warningMessage = String(format: prompt, DateHelper.relativeTimeString(for: data.cachedAt))
-                self.isShowingWarning = true
-            }
-        }
-    }
-
     func loadExams() {
         isLoading = true
         Task {
@@ -136,14 +121,26 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
             if let eduHelper = AuthManager.shared.eduHelper {
                 do {
                     let exams = try await eduHelper.examService.getExamSchedule(academicYearSemester: selectedSemesters, semesterType: selectedSemesterType)
-                    data = Cached<[EduHelper.Exam]>(cachedAt: .now, value: exams)
-                    saveDataToLocal(data!)
+                    let data = Cached<[EduHelper.Exam]>(cachedAt: .now, value: exams)
+                    self.data = data
+                    MMKVManager.shared.examSchedulesCache = data
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
                 }
             } else {
-                loadDataFromLocal("教务系统未登录，已加载上次查询数据（%@）")
+                guard let data = MMKVManager.shared.examSchedulesCache else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.warningMessage = "请先登录教务系统后再查询数据"
+                        self.isShowingWarning = true
+                    }
+                    return
+                }
+                self.data = data
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.warningMessage = String(format: "教务系统未登录，\n已加载上次查询数据（%@）", DateHelper.relativeTimeString(for: data.cachedAt))
+                    self.isShowingWarning = true
+                }
             }
         }
     }
