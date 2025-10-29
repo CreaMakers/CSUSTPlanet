@@ -37,6 +37,7 @@ struct CourseScheduleView: View {
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                .ignoresSafeArea(.container, edges: .bottom)
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: "doc.text.magnifyingglass")
