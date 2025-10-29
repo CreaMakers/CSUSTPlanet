@@ -13,35 +13,6 @@ struct ExamScheduleView: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel = ExamScheduleViewModel()
 
-    // MARK: - Info Row
-
-    struct InfoRow: View {
-        let icon: String
-        let iconColor: Color
-        let label: String
-        let value: String
-
-        var body: some View {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .foregroundColor(iconColor)
-                    .frame(width: 20)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(label)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text(value)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                }
-
-                Spacer()
-            }
-            .padding(.vertical, 4)
-        }
-    }
-
     // MARK: - Filter View
 
     @ViewBuilder
@@ -125,19 +96,19 @@ struct ExamScheduleView: View {
                 .lineLimit(1)
                 .padding(.bottom, 8)
 
-            InfoRow(icon: "clock", iconColor: .blue, label: "考试时间", value: exam.examTime)
-            InfoRow(icon: "building.columns", iconColor: .green, label: "考场", value: exam.examRoom)
+            InfoRow(icon: ("clock", .blue), label: "考试时间", value: exam.examTime)
+            InfoRow(icon: ("building.columns", .green), label: "考场", value: exam.examRoom)
 
             if !exam.seatNumber.isEmpty {
-                InfoRow(icon: "number", iconColor: .orange, label: "座位号", value: exam.seatNumber)
+                InfoRow(icon: ("number", .orange), label: "座位号", value: exam.seatNumber)
             }
 
             if !exam.teacher.isEmpty {
-                InfoRow(icon: "person", iconColor: .purple, label: "授课教师", value: exam.teacher)
+                InfoRow(icon: ("person", .purple), label: "授课教师", value: exam.teacher)
             }
 
             if !exam.admissionTicketNumber.isEmpty {
-                InfoRow(icon: "doc.text", iconColor: .red, label: "准考证号", value: exam.admissionTicketNumber)
+                InfoRow(icon: ("doc.text", .red), label: "准考证号", value: exam.admissionTicketNumber)
             }
 
             if !exam.remarks.isEmpty {

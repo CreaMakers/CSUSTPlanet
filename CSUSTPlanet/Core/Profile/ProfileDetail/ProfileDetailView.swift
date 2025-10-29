@@ -26,12 +26,12 @@ struct ProfileDetailView: View {
                 if viewModel.isSSOProfileLoading {
                     LoadingView()
                 } else if let ssoProfile = viewModel.ssoProfile {
-                    RowView(title: "学生类型", value: ssoProfile.categoryName)
-                    RowView(title: "账号", value: ssoProfile.userAccount)
-                    RowView(title: "用户名", value: ssoProfile.userName)
-                    RowView(title: "手机号", value: ssoProfile.phone)
-                    RowView(title: "邮箱", value: ssoProfile.email ?? "未设置")
-                    RowView(title: "所属院系", value: ssoProfile.deptName)
+                    InfoRow(label: "学生类型", value: ssoProfile.categoryName)
+                    InfoRow(label: "账号", value: ssoProfile.userAccount)
+                    InfoRow(label: "用户名", value: ssoProfile.userName)
+                    InfoRow(label: "手机号", value: ssoProfile.phone)
+                    InfoRow(label: "邮箱", value: ssoProfile.email ?? "未设置")
+                    InfoRow(label: "所属院系", value: ssoProfile.deptName)
                 } else {
                     ErrorView(message: "统一认证信息加载失败").padding()
                 }
@@ -41,14 +41,14 @@ struct ProfileDetailView: View {
                 if viewModel.isEduProfileLoading {
                     LoadingView()
                 } else if let eduProfile = viewModel.eduProfile {
-                    RowView(title: "院系", value: eduProfile.department)
-                    RowView(title: "专业", value: eduProfile.major)
-                    RowView(title: "学制", value: eduProfile.educationSystem)
-                    RowView(title: "班级", value: eduProfile.className)
-                    RowView(title: "学号", value: eduProfile.studentID)
-                    RowView(title: "姓名", value: eduProfile.name)
-                    RowView(title: "性别", value: eduProfile.gender)
-                    RowView(title: "名族", value: eduProfile.ethnicity)
+                    InfoRow(label: "院系", value: eduProfile.department)
+                    InfoRow(label: "专业", value: eduProfile.major)
+                    InfoRow(label: "学制", value: eduProfile.educationSystem)
+                    InfoRow(label: "班级", value: eduProfile.className)
+                    InfoRow(label: "学号", value: eduProfile.studentID)
+                    InfoRow(label: "姓名", value: eduProfile.name)
+                    InfoRow(label: "性别", value: eduProfile.gender)
+                    InfoRow(label: "名族", value: eduProfile.ethnicity)
                 } else {
                     ErrorView(message: "教务信息加载失败").padding()
                 }
@@ -58,10 +58,10 @@ struct ProfileDetailView: View {
                 if viewModel.isMoocProfileLoading {
                     LoadingView()
                 } else if let moocProfile = viewModel.moocProfile {
-                    RowView(title: "姓名", value: moocProfile.name)
-                    RowView(title: "上次登录时间", value: moocProfile.lastLoginTime)
-                    RowView(title: "总在线时间", value: moocProfile.totalOnlineTime)
-                    RowView(title: "登录次数", value: "\(moocProfile.loginCount)")
+                    InfoRow(label: "姓名", value: moocProfile.name)
+                    InfoRow(label: "上次登录时间", value: moocProfile.lastLoginTime)
+                    InfoRow(label: "总在线时间", value: moocProfile.totalOnlineTime)
+                    InfoRow(label: "登录次数", value: "\(moocProfile.loginCount)")
                 } else {
                     ErrorView(message: "网络课程中心信息加载失败").padding()
                 }
@@ -94,27 +94,6 @@ struct ProfileDetailView: View {
         .onAppear {
             viewModel.loadEduProfile()
             viewModel.loadMoocProfile()
-        }
-    }
-
-    struct RowView: View {
-        let title: String
-        let value: String
-
-        var body: some View {
-            HStack {
-                Text(title)
-                Spacer()
-                Text(value)
-                    .foregroundColor(.secondary)
-            }
-            .contextMenu {
-                Button(action: {
-                    UIPasteboard.general.string = value
-                }) {
-                    Label("复制值", systemImage: "doc.on.doc")
-                }
-            }
         }
     }
 

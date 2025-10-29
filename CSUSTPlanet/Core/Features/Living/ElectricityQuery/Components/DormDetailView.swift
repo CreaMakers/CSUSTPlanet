@@ -7,39 +7,15 @@
 
 import Alamofire
 import Charts
+import Inject
 import SwiftData
 import SwiftUI
 
 struct DormDetailView: View {
+    @ObserveInjection var inject
+
     @ObservedObject var viewModel: DormElectricityViewModel
     @Bindable var dorm: Dorm
-
-    struct InfoRow: View {
-        let icon: String
-        let iconColor: Color
-        let label: String
-        let value: String
-
-        var body: some View {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .foregroundColor(iconColor)
-                    .frame(width: 20)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(label)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text(value)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                }
-
-                Spacer()
-            }
-            .padding(.vertical, 4)
-        }
-    }
 
     var body: some View {
         Form {
@@ -94,18 +70,19 @@ struct DormDetailView: View {
                 }
             }
         }
+        .enableInjection()
     }
 
     // MARK: - Form Sections
 
     private var dormInfoSection: some View {
         Section(header: Text("宿舍信息")) {
-            InfoRow(icon: "house.fill", iconColor: .blue, label: "宿舍号", value: dorm.room)
-            InfoRow(icon: "building.fill", iconColor: .green, label: "楼栋", value: dorm.buildingName)
-            InfoRow(icon: "map.fill", iconColor: .orange, label: "校区", value: dorm.campusName)
+            InfoRow(icon: ("house.fill", .blue), label: "宿舍号", value: dorm.room)
+            InfoRow(icon: ("building.fill", .green), label: "楼栋", value: dorm.buildingName)
+            InfoRow(icon: ("map.fill", .orange), label: "校区", value: dorm.campusName)
 
             if dorm.scheduleId != nil, let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute {
-                InfoRow(icon: "clock.fill", iconColor: .purple, label: "定时查询时间", value: String(format: "%02d:%02d", scheduleHour, scheduleMinute))
+                InfoRow(icon: ("clock.fill", .purple), label: "定时查询时间", value: String(format: "%02d:%02d", scheduleHour, scheduleMinute))
             }
         }
     }

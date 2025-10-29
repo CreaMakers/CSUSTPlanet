@@ -303,31 +303,4 @@ struct CourseDetailView: View {
         }
         .padding(.vertical, 4)
     }
-
-    // MARK: - Info Row
-
-    struct InfoRow: View {
-        let label: String
-        let value: String
-
-        var body: some View {
-            HStack {
-                Text(label)
-                    .foregroundColor(.primary)
-
-                Spacer()
-
-                Text(value)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.trailing)
-            }
-            .contextMenu {
-                Button(action: {
-                    UIPasteboard.general.string = value
-                }) {
-                    Label("复制", systemImage: "doc.on.doc")
-                }
-            }
-        }
-    }
 }

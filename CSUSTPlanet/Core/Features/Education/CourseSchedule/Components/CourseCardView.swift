@@ -51,27 +51,6 @@ struct CourseCardView: View {
         .enableInjection()
     }
 
-    struct InfoRow: View {
-        let label: String
-        let value: String
-
-        var body: some View {
-            HStack {
-                Text(label)
-                Spacer()
-                Text(value)
-                    .foregroundColor(.secondary)
-            }
-            .contextMenu {
-                Button(action: {
-                    UIPasteboard.general.string = value
-                }) {
-                    Label("复制值", systemImage: "doc.on.doc")
-                }
-            }
-        }
-    }
-
     private var courseDetailView: some View {
         NavigationStack {
             Form {
