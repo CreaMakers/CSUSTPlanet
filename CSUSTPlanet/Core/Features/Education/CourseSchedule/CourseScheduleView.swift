@@ -7,12 +7,21 @@
 
 import AlertToast
 import CSUSTKit
+import Inject
 import SwiftUI
 
 // MARK: - CourseScheduleView
 
 struct CourseScheduleView: View {
+    @ObserveInjection var inject
+
     @StateObject var viewModel = CourseScheduleViewModel()
+
+    let colSpacing: CGFloat = 2  // 列间距
+    let rowSpacing: CGFloat = 2  // 行间距
+    let timeColWidth: CGFloat = 30  // 左侧时间列宽度
+    let headerHeight: CGFloat = 50  // 顶部日期行的高度
+    let sectionHeight: CGFloat = 60  // 单个课程格子的高度
 
     var body: some View {
         VStack(spacing: 0) {
@@ -78,6 +87,7 @@ struct CourseScheduleView: View {
             CourseSemesterView()
                 .environmentObject(viewModel)
         }
+        .enableInjection()
     }
 
     // MARK: - 顶部全局控制栏
@@ -88,17 +98,15 @@ struct CourseScheduleView: View {
             VStack(alignment: .leading) {
                 Text("今日 \(CourseScheduleHelper.dateFormatter.string(from: viewModel.today))")
                     .font(.headline)
+                    .fontWeight(.semibold)
                     .foregroundColor(.primary)
 
                 HStack {
                     Text(viewModel.selectedSemester ?? "默认学期")
-                        .font(.subheadline)
-                    if let realCurrentWeek = viewModel.realCurrentWeek {
-                        Text(viewModel.currentWeek == realCurrentWeek ? " (本周)" : " (非本周)")
-                            .font(.subheadline)
-                    } else {
+                        .font(.footnote)
+                    if viewModel.realCurrentWeek == nil {
                         Text("(不在学期内)")
-                            .font(.subheadline)
+                            .font(.footnote)
                     }
                 }
             }
@@ -121,9 +129,10 @@ struct CourseScheduleView: View {
                 .fixedSize(horizontal: true, vertical: false)
 
                 Button(action: viewModel.goToCurrentWeek) {
-                    Text("本周")
+                    Text("回到本周")
                 }
-                .disabled(viewModel.realCurrentWeek == nil)
+                .fixedSize(horizontal: true, vertical: false)
+                .disabled(viewModel.realCurrentWeek == nil || viewModel.currentWeek == viewModel.realCurrentWeek)
             }
         }
         .padding()
@@ -157,7 +166,7 @@ struct CourseScheduleView: View {
     private func headerView(for week: Int, semesterStartDate: Date) -> some View {
         let dates = CourseScheduleHelper.getDatesForWeek(semesterStartDate: semesterStartDate, week: week)
 
-        HStack(spacing: viewModel.colSpacing) {
+        HStack(spacing: colSpacing) {
             // 左上角月份显示区
             VStack {
                 Text(CourseScheduleHelper.monthFormatter.string(from: dates.first ?? Date()))
@@ -167,7 +176,7 @@ struct CourseScheduleView: View {
                     .font(.subheadline)
                     .fontWeight(.bold)
             }
-            .frame(width: viewModel.timeColWidth)
+            .frame(width: timeColWidth)
 
             // "周日" 到 "周六"
             ForEach(Array(zip(EduHelper.DayOfWeek.allCases, dates)), id: \.0) { day, date in
@@ -185,7 +194,7 @@ struct CourseScheduleView: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .frame(height: viewModel.headerHeight)
+        .frame(height: headerHeight)
         .padding(.horizontal, 5)
         .background(Color(.secondarySystemBackground))
     }
@@ -194,20 +203,20 @@ struct CourseScheduleView: View {
 
     @ViewBuilder
     private var backgroundGrid: some View {
-        HStack(spacing: viewModel.colSpacing) {
+        HStack(spacing: colSpacing) {
             // 左侧时间列
-            VStack(spacing: viewModel.rowSpacing) {
+            VStack(spacing: rowSpacing) {
                 ForEach(1...10, id: \.self) { section in
                     VStack {
                         Text("\(section)")
-                            .font(.caption)
-                            .fontWeight(.medium)
+                            .font(.system(size: 12))
+                            .fontWeight(.bold)
                         Text(CourseScheduleHelper.sectionTimeString[section - 1].0)
                             .font(.system(size: 10))
                         Text(CourseScheduleHelper.sectionTimeString[section - 1].1)
                             .font(.system(size: 10))
                     }
-                    .frame(width: viewModel.timeColWidth, height: viewModel.sectionHeight)
+                    .frame(width: timeColWidth, height: sectionHeight)
                     .background(Color(.tertiarySystemBackground))
                     .cornerRadius(5)
                 }
@@ -215,11 +224,11 @@ struct CourseScheduleView: View {
 
             // 右侧课程区域背景
             // ForEach(EduHelper.DayOfWeek.allCases, id: \.self) { _ in
-            //     VStack(spacing: viewModel.rowSpacing) {
+            //     VStack(spacing: rowSpacing) {
             //         ForEach(1...5, id: \.self) { _ in
             //             Rectangle()
             //                 .fill(Color(.secondarySystemBackground))
-            //                 .frame(height: viewModel.sectionHeight * 2 + viewModel.rowSpacing)
+            //                 .frame(height: sectionHeight * 2 + rowSpacing)
             //                 .cornerRadius(5)
             //         }
             //     }
@@ -241,26 +250,46 @@ struct CourseScheduleView: View {
             let contentWidth = geometry.size.width - (horizontalPadding * 2)
 
             // 正确计算间距的总宽度。8列之间有7个间隔
-            let totalSpacingWidth = viewModel.colSpacing * 7
+            let totalSpacingWidth = colSpacing * 7
 
             // 计算每一天列的最终宽度
-            let dayColumnWidth = (contentWidth - viewModel.timeColWidth - totalSpacingWidth) / 7
+            let dayColumnWidth = (contentWidth - timeColWidth - totalSpacingWidth) / 7
 
             ZStack(alignment: .topLeading) {
                 if let coursesForWeek = weeklyCourses[week] {
                     ForEach(coursesForWeek) { courseInfo in
                         CourseCardView(course: courseInfo.course, session: courseInfo.session, color: viewModel.courseColors[courseInfo.course.courseName] ?? .gray)
                             .frame(width: dayColumnWidth)
-                            .frame(height: viewModel.calculateHeight(for: courseInfo.session))
+                            .frame(height: calculateHeight(for: courseInfo.session))
                             .offset(
                                 // 应用初始内边距到 x 偏移量以对齐坐标系
-                                x: horizontalPadding + viewModel.calculateXOffset(for: courseInfo.session.dayOfWeek, columnWidth: dayColumnWidth),
-                                y: viewModel.calculateYOffset(for: courseInfo.session)
+                                x: horizontalPadding + calculateXOffset(for: courseInfo.session.dayOfWeek, columnWidth: dayColumnWidth),
+                                y: calculateYOffset(for: courseInfo.session)
                             )
                     }
                 }
             }
         }
         .padding(.vertical)
+    }
+}
+
+extension CourseScheduleView {
+    // 计算课程卡片的高度
+    func calculateHeight(for session: EduHelper.ScheduleSession) -> CGFloat {
+        let sections = CGFloat(session.endSection - session.startSection + 1)
+        return sections * sectionHeight + (sections - 1) * rowSpacing
+    }
+
+    // 计算课程卡片的 Y 轴偏移
+    func calculateYOffset(for session: EduHelper.ScheduleSession) -> CGFloat {
+        let y = CGFloat(session.startSection - 1)
+        return y * sectionHeight + y * rowSpacing
+    }
+
+    // 计算课程卡片的 X 轴偏移
+    func calculateXOffset(for day: EduHelper.DayOfWeek, columnWidth: CGFloat) -> CGFloat {
+        let x = CGFloat(day.rawValue)
+        return timeColWidth + colSpacing + (x * columnWidth) + (x * colSpacing)
     }
 }

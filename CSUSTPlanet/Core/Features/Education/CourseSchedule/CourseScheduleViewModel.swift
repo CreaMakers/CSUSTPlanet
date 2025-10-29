@@ -45,12 +45,6 @@ class CourseScheduleViewModel: ObservableObject {
     // 当前日期在第几周
     @Published var realCurrentWeek: Int? = nil
 
-    let colSpacing: CGFloat = 4  // 列间距
-    let rowSpacing: CGFloat = 4  // 行间距
-    let timeColWidth: CGFloat = 35  // 左侧时间列宽度
-    let headerHeight: CGFloat = 50  // 顶部日期行的高度
-    let sectionHeight: CGFloat = 70  // 单个课程格子的高度
-
     var isLoaded = false
 
     init() {
@@ -148,23 +142,5 @@ class CourseScheduleViewModel: ObservableObject {
                 self.currentWeek = 1
             }
         }
-    }
-
-    // 计算课程卡片的高度
-    func calculateHeight(for session: EduHelper.ScheduleSession) -> CGFloat {
-        let sections = CGFloat(session.endSection - session.startSection + 1)
-        return sections * sectionHeight + (sections - 1) * rowSpacing
-    }
-
-    // 计算课程卡片的 Y 轴偏移
-    func calculateYOffset(for session: EduHelper.ScheduleSession) -> CGFloat {
-        let y = CGFloat(session.startSection - 1)
-        return y * sectionHeight + y * rowSpacing
-    }
-
-    // 计算课程卡片的 X 轴偏移
-    func calculateXOffset(for day: EduHelper.DayOfWeek, columnWidth: CGFloat) -> CGFloat {
-        let x = CGFloat(day.rawValue)
-        return timeColWidth + colSpacing + (x * columnWidth) + (x * colSpacing)
     }
 }

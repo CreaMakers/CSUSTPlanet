@@ -5,9 +5,12 @@
 //  Created by Zhe_Learn on 2025/7/8.
 //
 
+import Inject
 import SwiftUI
 
 struct FeaturesView: View {
+    @ObserveInjection var inject
+
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var globalVars: GlobalVars
     @Environment(\.colorScheme) private var colorScheme
@@ -114,6 +117,7 @@ struct FeaturesView: View {
             .padding()
         }
         .background(sectionBackgroundColor)
+        .enableInjection()
     }
 
     // MARK: - Feature Section

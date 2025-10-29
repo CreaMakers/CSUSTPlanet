@@ -8,8 +8,11 @@
 import AlertToast
 import SwiftUI
 import Toasts
+import Inject
 
 struct ContentView: View {
+    @ObserveInjection var inject
+
     @EnvironmentObject var globalVars: GlobalVars
     @EnvironmentObject var authManager: AuthManager
     @Environment(\.presentToast) var presentToast
@@ -98,6 +101,7 @@ struct ContentView: View {
                 break
             }
         }
+        .enableInjection()
     }
 }
 
