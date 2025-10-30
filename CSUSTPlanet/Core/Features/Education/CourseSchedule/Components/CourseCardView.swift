@@ -46,7 +46,7 @@ struct CourseCardView: View {
         .cornerRadius(5)
         .overlay(
             RoundedRectangle(cornerRadius: 5)
-                .stroke(.white.opacity(0.6), lineWidth: 4)
+                .strokeBorder(.white.opacity(0.6), lineWidth: 3)
         )
         .enableInjection()
     }
