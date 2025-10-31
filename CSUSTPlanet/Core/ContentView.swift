@@ -6,9 +6,9 @@
 //
 
 import AlertToast
+import Inject
 import SwiftUI
 import Toasts
-import Inject
 
 struct ContentView: View {
     @ObserveInjection var inject

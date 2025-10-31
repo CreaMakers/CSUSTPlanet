@@ -277,21 +277,4 @@ class DormElectricityViewModel: ObservableObject {
             }
         }
     }
-
-    struct ElectricityBindingDTO: Codable {
-        let id: String?
-        let studentId: String
-        let deviceToken: String
-        let isDebug: Bool
-        let campus: String
-        let building: String
-        let room: String
-        let scheduleHour: Int
-        let scheduleMinute: Int
-    }
-
-    struct ErrorResponse: Decodable {
-        let reason: String
-        let error: Bool
-    }
 }

@@ -119,11 +119,11 @@
 		006CA2AE2E2D01F300340655 /* Exceptions for "CSUSTPlanet" folder in "CSUSTPlanetWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Models/CourseScheduleData.swift,
-				Models/Database/Dorm.swift,
-				Models/Database/ElectricityRecord.swift,
-				Models/GradeAnalysisData.swift,
-				Models/UrgentCourseData.swift,
+				Models/Storage/CourseScheduleData.swift,
+				Models/Storage/Database/Dorm.swift,
+				Models/Storage/Database/ElectricityRecord.swift,
+				Models/Storage/GradeAnalysisData.swift,
+				Models/Storage/UrgentCourseData.swift,
 				Shared/Managers/MMKVManager.swift,
 				Shared/Utils/AppEnvironmentHelper.swift,
 				Shared/Utils/ColorHelper.swift,
