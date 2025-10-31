@@ -31,7 +31,7 @@ class SchoolCalendarListViewModel: ObservableObject {
             }
 
             do {
-                schoolCalendars = try (await AF.request("https://api.csustplanet.zhelearn.com/static/school_calendar/list.json").serializingDecodable([SchoolCalendar].self).value).sorted { $0.semester > $1.semester }
+                schoolCalendars = try (await AF.request("\(Constants.backendHost)/static/school_calendar/list.json").serializingDecodable([SchoolCalendar].self).value).sorted { $0.semester > $1.semester }
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
