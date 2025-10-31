@@ -13,7 +13,6 @@ struct ElectricityQueryView: View {
     @ObserveInjection var inject
 
     @State var isShowingAddDormSheet: Bool = false
-    @Environment(\.modelContext) private var modelContext
 
     @Query var dorms: [Dorm]
 

@@ -37,12 +37,12 @@ struct DormDetailView: View {
                         Button(action: viewModel.handleShowTerms) {
                             Label("设置定时查询", systemImage: "bell").tint(.blue)
                         }
-                        .disabled(viewModel.isScheduleLoading || dorm.scheduleId != nil)
+                        .disabled(viewModel.isScheduleLoading || dorm.scheduleEnabled)
 
-                        Button(action: { _ = viewModel.removeSchedule(dorm) }) {
+                        Button(action: { viewModel.removeSchedule(dorm) }) {
                             Label("取消定时查询", systemImage: "bell.slash").tint(.red)
                         }
-                        .disabled(viewModel.isScheduleLoading || dorm.scheduleId == nil)
+                        .disabled(viewModel.isScheduleLoading || !dorm.scheduleEnabled)
                     } label: {
                         Label("定时查询", systemImage: "clock").tint(.purple)
                         if viewModel.isScheduleLoading {
@@ -81,7 +81,7 @@ struct DormDetailView: View {
             InfoRow(icon: ("building.fill", .green), label: "楼栋", value: dorm.buildingName)
             InfoRow(icon: ("map.fill", .orange), label: "校区", value: dorm.campusName)
 
-            if dorm.scheduleId != nil, let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute {
+            if dorm.scheduleEnabled, let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute {
                 InfoRow(icon: ("clock.fill", .purple), label: "定时查询时间", value: String(format: "%02d:%02d", scheduleHour, scheduleMinute))
             }
         }

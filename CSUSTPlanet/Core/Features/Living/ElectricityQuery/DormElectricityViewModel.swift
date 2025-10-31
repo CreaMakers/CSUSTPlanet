@@ -39,13 +39,8 @@ class DormElectricityViewModel: ObservableObject {
         return dateFormatter.string(from: date)
     }
 
-    func loadSchedule(_ dorm: Dorm) {
-        guard MMKVManager.shared.isElectricityTermAccepted else {
-            return
-        }
-        guard let scheduleId = dorm.scheduleId else {
-            return
-        }
+    func removeSchedule(_ dorm: Dorm) {
+        guard dorm.scheduleEnabled else { return }
         isScheduleLoading = true
         Task {
             defer {
@@ -53,84 +48,17 @@ class DormElectricityViewModel: ObservableObject {
             }
             do {
                 let deviceToken = try await NotificationHelper.shared.getToken().hexString
-                let response = await AF.request("https://api.csustplanet.zhelearn.com/electricity-bindings/\(deviceToken)/\(scheduleId)", method: .get).serializingData().response
-
-                guard let httpResponse = response.response else {
-                    errorMessage = "网络请求失败"
+                guard let studentId = AuthManager.shared.ssoProfile?.userAccount else {
+                    errorMessage = "未能获取学号，请先登录"
                     isShowingError = true
                     return
                 }
-
-                guard let data = response.data else {
-                    errorMessage = "服务器无响应数据"
-                    isShowingError = true
-                    return
-                }
-
-                guard httpResponse.statusCode == 200 else {
-                    do {
-                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-                        errorMessage = errorResponse.reason
-                    } catch {
-                        errorMessage = "服务器返回错误"
-                    }
-                    isShowingError = true
-                    return
-                }
-
-                let successResponse = try JSONDecoder().decode(ElectricityBindingDTO.self, from: data)
-                dorm.scheduleId = successResponse.id
-                dorm.scheduleHour = successResponse.scheduleHour
-                dorm.scheduleMinute = successResponse.scheduleMinute
-                try modelContext.save()
-            } catch {
-                errorMessage = error.localizedDescription
-                isShowingError = true
-            }
-        }
-    }
-
-    func removeSchedule(_ dorm: Dorm) -> Task<Void, Never> {
-        guard let scheduleId = dorm.scheduleId else {
-            return Task {}
-        }
-        isScheduleLoading = true
-        return Task {
-            defer {
-                isScheduleLoading = false
-            }
-            do {
-                let deviceToken = try await NotificationHelper.shared.getToken().hexString
-                let response = await AF.request("https://api.csustplanet.zhelearn.com/electricity-bindings/\(deviceToken)/\(scheduleId)", method: .delete).serializingData().response
-
-                guard let httpResponse = response.response else {
-                    errorMessage = "网络请求失败"
-                    isShowingError = true
-                    return
-                }
-
-                guard let data = response.data else {
-                    errorMessage = "服务器无响应数据"
-                    isShowingError = true
-                    return
-                }
-
-                guard httpResponse.statusCode == 200 else {
-                    do {
-                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-                        errorMessage = errorResponse.reason
-                    } catch {
-                        errorMessage = "服务器返回错误"
-                    }
-                    isShowingError = true
-                    return
-                }
-
-                dorm.scheduleId = nil
                 dorm.scheduleHour = nil
                 dorm.scheduleMinute = nil
+                try await ElectricityBindingHelper.sync(studentId: studentId, deviceToken: deviceToken)
                 try modelContext.save()
             } catch {
+                modelContext.rollback()
                 errorMessage = error.localizedDescription
                 isShowingError = true
             }
@@ -165,13 +93,21 @@ class DormElectricityViewModel: ObservableObject {
 
     func deleteDorm(_ dorm: Dorm) {
         Task {
-            if dorm.scheduleId != nil {
-                await removeSchedule(dorm).value
-            }
-            modelContext.delete(dorm)
             do {
+                let scheduleEnabled = dorm.scheduleEnabled
+                modelContext.delete(dorm)
+                if scheduleEnabled {
+                    let deviceToken = try await NotificationHelper.shared.getToken().hexString
+                    guard let studentId = AuthManager.shared.ssoProfile?.userAccount else {
+                        errorMessage = "未能获取学号，请先登录"
+                        isShowingError = true
+                        return
+                    }
+                    try await ElectricityBindingHelper.sync(studentId: studentId, deviceToken: deviceToken)
+                }
                 try modelContext.save()
             } catch {
+                modelContext.rollback()
                 errorMessage = error.localizedDescription
                 isShowingError = true
             }
@@ -222,56 +158,17 @@ class DormElectricityViewModel: ObservableObject {
         Task {
             do {
                 let deviceToken = try await NotificationHelper.shared.getToken().hexString
-
                 guard let studentId = AuthManager.shared.ssoProfile?.userAccount else {
                     errorMessage = "未能获取学号，请先登录"
                     isShowingError = true
                     return
                 }
-
-                let environment = AppEnvironmentHelper.environment
-                let request = ElectricityBindingDTO(
-                    id: nil,
-                    studentId: studentId,
-                    deviceToken: deviceToken,
-                    isDebug: environment == .debug,
-                    campus: dorm.campusName,
-                    building: dorm.buildingName,
-                    room: dorm.room,
-                    scheduleHour: scheduleHour,
-                    scheduleMinute: scheduleMinute
-                )
-
-                let response = await AF.request("https://api.csustplanet.zhelearn.com/electricity-bindings", method: .post, parameters: request, encoder: .json).serializingData().response
-
-                guard let httpResponse = response.response else {
-                    errorMessage = "网络请求失败"
-                    isShowingError = true
-                    return
-                }
-
-                guard let data = response.data else {
-                    errorMessage = "服务器无响应数据"
-                    isShowingError = true
-                    return
-                }
-
-                guard httpResponse.statusCode == 200 else {
-                    do {
-                        let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-                        errorMessage = errorResponse.reason
-                    } catch {
-                        errorMessage = "服务器返回错误"
-                    }
-                    isShowingError = true
-                    return
-                }
-                let successResponse = try JSONDecoder().decode(ElectricityBindingDTO.self, from: data)
-                dorm.scheduleId = successResponse.id
                 dorm.scheduleHour = scheduleHour
                 dorm.scheduleMinute = scheduleMinute
+                try await ElectricityBindingHelper.sync(studentId: studentId, deviceToken: deviceToken)
                 try modelContext.save()
             } catch {
+                modelContext.rollback()
                 errorMessage = error.localizedDescription
                 isShowingError = true
             }

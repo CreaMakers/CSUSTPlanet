@@ -81,12 +81,12 @@ struct DormRowView: View {
                     Label("设置定时查询", systemImage: "bell")
                         .tint(.blue)
                 }
-                .disabled(viewModel.isScheduleLoading || dorm.scheduleId != nil)
-                Button(action: { _ = viewModel.removeSchedule(dorm) }) {
+                .disabled(viewModel.isScheduleLoading || dorm.scheduleEnabled)
+                Button(action: { viewModel.removeSchedule(dorm) }) {
                     Label("取消定时查询", systemImage: "bell.slash")
                         .tint(.red)
                 }
-                .disabled(viewModel.isScheduleLoading || dorm.scheduleId == nil)
+                .disabled(viewModel.isScheduleLoading || !dorm.scheduleEnabled)
             } label: {
                 Label("定时查询", systemImage: "clock")
                     .tint(.purple)
@@ -158,9 +158,6 @@ struct DormRowView: View {
                     viewModel.handleNotificationSettings(dorm, scheduleHour: hour, scheduleMinute: minute)
                 }
             )
-        }
-        .task {
-            viewModel.loadSchedule(dorm)
         }
     }
 }
