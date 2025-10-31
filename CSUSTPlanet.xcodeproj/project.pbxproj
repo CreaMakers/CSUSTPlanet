@@ -650,7 +650,7 @@
 				INFOPLIST_FILE = CSUSTPlanetWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "长理星球小组件";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -680,7 +680,7 @@
 				INFOPLIST_FILE = CSUSTPlanetWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "长理星球小组件";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
