@@ -142,7 +142,7 @@ class DormElectricityViewModel: ObservableObject {
             isShowingError = true
             return
         }
-        if MMKVManager.shared.isElectricityTermAccepted {
+        if GlobalVars.shared.isElectricityTermAccepted {
             handleTermsAgree()
         } else {
             isTermsPresented = true
@@ -150,7 +150,7 @@ class DormElectricityViewModel: ObservableObject {
     }
 
     func handleTermsAgree() {
-        isTermsPresented = false
+        GlobalVars.shared.isElectricityTermAccepted = true
         isShowNotificationSettings = true
     }
 

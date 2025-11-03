@@ -38,7 +38,7 @@ class NotificationHelper {
     func setup() {
         // 静默获取设备令牌
         Task {
-            guard MMKVManager.shared.isElectricityTermAccepted else { return }
+            guard await GlobalVars.shared.isElectricityTermAccepted else { return }
             guard await hasAuthorization() else { return }
             guard let token = try? await getToken() else { return }
             self.token = token
