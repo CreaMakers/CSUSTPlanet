@@ -12,9 +12,23 @@ struct ProfileView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var globalVars: GlobalVars
 
-    @State private var showLoginSheet = false
+    @State private var isLoginSheetPresented = false
+    @State private var isElectricityTermsSheetPresented = false
 
     var body: some View {
+        let electricityToggleBinding = Binding<Bool>(
+            get: { globalVars.isElectricityTermAccepted },
+            set: { newValue in
+                if newValue == true && !globalVars.isElectricityTermAccepted {
+                    // 如果用户尝试开启 Toggle (从 false -> true), 则显示 sheet
+                    isElectricityTermsSheetPresented = true
+                } else {
+                    // 否则 (尝试关闭 Toggle), 直接更新状态
+                    globalVars.isElectricityTermAccepted = newValue
+                }
+            }
+        )
+
         Form {
             Section(header: Text("账号管理")) {
                 if let ssoProfile = authManager.ssoProfile {
@@ -93,7 +107,7 @@ struct ProfileView: View {
                     }
                 } else {
                     Button(action: {
-                        showLoginSheet = true
+                        isLoginSheetPresented = true
                     }) {
                         ColoredLabel(title: "登录统一认证账号", iconName: "person.crop.circle.badge.plus", color: .blue)
                     }
@@ -108,6 +122,10 @@ struct ProfileView: View {
                     Text("跟随系统").tag("system")
                 } label: {
                     ColoredLabel(title: "外观主题", iconName: "paintbrush", color: .purple)
+                }
+
+                Toggle(isOn: electricityToggleBinding) {
+                    ColoredLabel(title: "开启电量提醒通知", iconName: "lightbulb.circle", color: .indigo)
                 }
 
                 Toggle(isOn: $globalVars.isLiveActivityEnabled) {
@@ -136,8 +154,13 @@ struct ProfileView: View {
                 }
             }
         }
-        .sheet(isPresented: $showLoginSheet) {
-            SSOLoginView(isShowingLoginSheet: $showLoginSheet)
+        .sheet(isPresented: $isLoginSheetPresented) {
+            SSOLoginView(isShowingLoginSheet: $isLoginSheetPresented)
+        }
+        .sheet(isPresented: $isElectricityTermsSheetPresented) {
+            ElectricityTermsView(isPresented: $isElectricityTermsSheetPresented) {
+                globalVars.isElectricityTermAccepted = true
+            }
         }
     }
 }
