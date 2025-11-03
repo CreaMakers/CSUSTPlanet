@@ -22,30 +22,54 @@ enum ElectricityBindingHelperError: Error, LocalizedError {
 
 @MainActor
 class ElectricityBindingHelper {
-    static func sync(studentId: String, deviceToken: String) async throws {
-        let descriptor = FetchDescriptor<Dorm>()
-        let dorms = try SharedModel.mainContext.fetch(descriptor)
+    static func sync() async {
+        debugPrint("ElectricityBindingHelper: Starting sync...")
+        try? await syncThrows()
+    }
 
-        let bindings: [ElectricityBindingSyncDTO] = dorms.compactMap { dorm in
-            guard let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute else {
-                return nil
+    static func syncThrows() async throws {
+        let deviceToken = try await NotificationHelper.shared.getToken().hexString
+        guard let studentId = AuthManager.shared.ssoProfile?.userAccount else {
+            throw ElectricityBindingHelperError.syncFailed(reason: "未能获取学号，请先登录")
+        }
+
+        debugPrint("ElectricityBindingHelper: Fetched device token and student ID")
+
+        var syncList: ElectricityBindingSyncListDTO
+
+        if GlobalVars.shared.isElectricityTermAccepted {
+            let descriptor = FetchDescriptor<Dorm>()
+            let dorms = try SharedModel.mainContext.fetch(descriptor)
+
+            let bindings: [ElectricityBindingSyncDTO] = dorms.compactMap { dorm in
+                guard let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute else {
+                    return nil
+                }
+                return ElectricityBindingSyncDTO(
+                    campus: dorm.campusName,
+                    building: dorm.buildingName,
+                    room: dorm.room,
+                    scheduleHour: scheduleHour,
+                    scheduleMinute: scheduleMinute
+                )
             }
-            return ElectricityBindingSyncDTO(
-                campus: dorm.campusName,
-                building: dorm.buildingName,
-                room: dorm.room,
-                scheduleHour: scheduleHour,
-                scheduleMinute: scheduleMinute
+            syncList = ElectricityBindingSyncListDTO(
+                studentId: studentId,
+                deviceToken: deviceToken,
+                bindings: bindings
+            )
+        } else {
+            syncList = ElectricityBindingSyncListDTO(
+                studentId: studentId,
+                deviceToken: deviceToken,
+                bindings: []
             )
         }
-        let syncList = ElectricityBindingSyncListDTO(
-            studentId: studentId,
-            deviceToken: deviceToken,
-            bindings: bindings
-        )
 
-        debugPrint("Syncing electricity bindings: \(syncList)")
+        try await updateSyncList(syncList)
+    }
 
+    private static func updateSyncList(_ syncList: ElectricityBindingSyncListDTO) async throws {
         let response = await AF.request("\(Constants.backendHost)/electricity-bindings/sync", method: .post, parameters: syncList, encoder: .json).serializingData().response
         guard let httpResponse = response.response else {
             throw ElectricityBindingHelperError.syncFailed(reason: "无响应")

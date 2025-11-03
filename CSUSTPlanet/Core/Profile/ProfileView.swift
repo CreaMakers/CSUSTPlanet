@@ -25,6 +25,8 @@ struct ProfileView: View {
                 } else {
                     // 否则 (尝试关闭 Toggle), 直接更新状态
                     globalVars.isElectricityTermAccepted = newValue
+
+                    Task { await ElectricityBindingHelper.sync() }
                 }
             }
         )
@@ -160,6 +162,7 @@ struct ProfileView: View {
         .sheet(isPresented: $isElectricityTermsSheetPresented) {
             ElectricityTermsView(isPresented: $isElectricityTermsSheetPresented) {
                 globalVars.isElectricityTermAccepted = true
+                Task { await ElectricityBindingHelper.sync() }
             }
         }
     }

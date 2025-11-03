@@ -47,15 +47,9 @@ class DormElectricityViewModel: ObservableObject {
                 isScheduleLoading = false
             }
             do {
-                let deviceToken = try await NotificationHelper.shared.getToken().hexString
-                guard let studentId = AuthManager.shared.ssoProfile?.userAccount else {
-                    errorMessage = "未能获取学号，请先登录"
-                    isShowingError = true
-                    return
-                }
                 dorm.scheduleHour = nil
                 dorm.scheduleMinute = nil
-                try await ElectricityBindingHelper.sync(studentId: studentId, deviceToken: deviceToken)
+                try await ElectricityBindingHelper.syncThrows()
                 try modelContext.save()
             } catch {
                 modelContext.rollback()
@@ -97,13 +91,7 @@ class DormElectricityViewModel: ObservableObject {
                 let scheduleEnabled = dorm.scheduleEnabled
                 modelContext.delete(dorm)
                 if scheduleEnabled {
-                    let deviceToken = try await NotificationHelper.shared.getToken().hexString
-                    guard let studentId = AuthManager.shared.ssoProfile?.userAccount else {
-                        errorMessage = "未能获取学号，请先登录"
-                        isShowingError = true
-                        return
-                    }
-                    try await ElectricityBindingHelper.sync(studentId: studentId, deviceToken: deviceToken)
+                    await ElectricityBindingHelper.sync()
                 }
                 try modelContext.save()
             } catch {
@@ -157,15 +145,9 @@ class DormElectricityViewModel: ObservableObject {
     func handleNotificationSettings(_ dorm: Dorm, scheduleHour: Int, scheduleMinute: Int) {
         Task {
             do {
-                let deviceToken = try await NotificationHelper.shared.getToken().hexString
-                guard let studentId = AuthManager.shared.ssoProfile?.userAccount else {
-                    errorMessage = "未能获取学号，请先登录"
-                    isShowingError = true
-                    return
-                }
                 dorm.scheduleHour = scheduleHour
                 dorm.scheduleMinute = scheduleMinute
-                try await ElectricityBindingHelper.sync(studentId: studentId, deviceToken: deviceToken)
+                try await ElectricityBindingHelper.syncThrows()
                 try modelContext.save()
             } catch {
                 modelContext.rollback()
