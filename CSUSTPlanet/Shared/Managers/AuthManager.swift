@@ -71,8 +71,8 @@ class AuthManager: ObservableObject {
         }
         try await ssoHelper.login(username: username, password: password)
 
-        _ = KeychainHelper.save(key: "SSOUsername", value: username)
-        _ = KeychainHelper.save(key: "SSOPassword", value: password)
+        KeychainHelper.save(key: "SSOUsername", value: username)
+        KeychainHelper.save(key: "SSOPassword", value: password)
 
         ssoProfile = try await ssoHelper.getLoginUser()
         ssoHelper.saveCookies()
@@ -91,8 +91,8 @@ class AuthManager: ObservableObject {
         try await ssoHelper.logout()
         ssoProfile = nil
 
-        _ = KeychainHelper.delete(key: "SSOUsername")
-        _ = KeychainHelper.delete(key: "SSOPassword")
+        KeychainHelper.delete(key: "SSOUsername")
+        KeychainHelper.delete(key: "SSOPassword")
 
         ssoHelper.clearCookies()
 

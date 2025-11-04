@@ -38,6 +38,7 @@ enum KeychainHelper {
         "\(teamID()).com.zhelearn.CSUSTPlanet"
     }
 
+    @discardableResult
     static func save(key: String, value: String) -> Bool {
         guard let data = value.data(using: .utf8) else {
             return false
@@ -72,6 +73,7 @@ enum KeychainHelper {
         return nil
     }
 
+    @discardableResult
     static func delete(key: String) -> Bool {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,

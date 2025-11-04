@@ -21,7 +21,7 @@ public class KeychainCookieStorage: CookieStorage {
             let data = try NSKeyedArchiver.archivedData(withRootObject: cookies, requiringSecureCoding: false)
             let dataString = data.base64EncodedString()
 
-            _ = KeychainHelper.save(key: keychainKey, value: dataString)
+            KeychainHelper.save(key: keychainKey, value: dataString)
         } catch {}
     }
 
@@ -40,6 +40,6 @@ public class KeychainCookieStorage: CookieStorage {
     }
 
     public func clearCookies() {
-        _ = KeychainHelper.delete(key: keychainKey)
+        KeychainHelper.delete(key: keychainKey)
     }
 }
