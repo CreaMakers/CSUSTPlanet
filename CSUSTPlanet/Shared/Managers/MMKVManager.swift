@@ -214,4 +214,9 @@ extension MMKVManager {
         get { object(forKey: "Cached.courseScheduleCache", as: Cached<CourseScheduleData>.self) }
         set { set(forKey: "Cached.courseScheduleCache", newValue) }
     }
+
+    var physicsExperimentScheduleCache: Cached<[PhysicsExperimentHelper.Course]>? {
+        get { object(forKey: "Cached.physicsExperimentScheduleCache", as: Cached<[PhysicsExperimentHelper.Course]>.self) }
+        set { set(forKey: "Cached.physicsExperimentScheduleCache", newValue) }
+    }
 }
