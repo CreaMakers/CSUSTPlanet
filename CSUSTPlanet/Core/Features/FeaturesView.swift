@@ -114,21 +114,19 @@ struct FeaturesView: View {
                     featureLink(destination: MandarinView(), title: "普通话", icon: "mic.fill", color: .teal)
                 }
 
-                Group {
-                    featureSection(
-                        title: "大学物理实验",
-                        status: {
-                            actionPillView("登录账号") { isPhysicsExperimentLoginPresented = true }
-                        }
-                    ) {
-                        featureLink(destination: PhysicsExperimentScheduleView(), title: "实验安排", icon: "calendar", color: .purple)
-                        featureLink(destination: PhysicsExperimentGradeView(), title: "成绩查询", icon: "doc.text.magnifyingglass", color: .blue)
+                featureSection(
+                    title: "大学物理实验",
+                    status: {
+                        actionPillView("登录账号") { isPhysicsExperimentLoginPresented = true }
                     }
-                    .sheet(isPresented: $isPhysicsExperimentLoginPresented) {
-                        PhysicsExperimentLoginView(isPresented: $isPhysicsExperimentLoginPresented)
-                    }
+                ) {
+                    featureLink(destination: PhysicsExperimentScheduleView().environmentObject(physicsExperimentManager), title: "实验安排", icon: "calendar", color: .purple)
+                    featureLink(destination: PhysicsExperimentGradeView().environmentObject(physicsExperimentManager), title: "成绩查询", icon: "doc.text.magnifyingglass", color: .blue)
                 }
-                .environmentObject(physicsExperimentManager)
+                .sheet(isPresented: $isPhysicsExperimentLoginPresented) {
+                    PhysicsExperimentLoginView(isPresented: $isPhysicsExperimentLoginPresented)
+                        .environmentObject(physicsExperimentManager)
+                }
 
                 featureSection(title: "其他") {
                     featureLink(destination: WebVPNConverterView(), title: "WebVPN 转换", icon: "arrow.triangle.2.circlepath", color: .gray)

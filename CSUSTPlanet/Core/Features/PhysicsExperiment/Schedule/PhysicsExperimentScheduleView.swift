@@ -11,6 +11,7 @@ import SwiftUI
 
 struct PhysicsExperimentScheduleView: View {
     @StateObject var viewModel = PhysicsExperimentScheduleViewModel()
+    @State private var isLoginPresented: Bool = false
 
     var body: some View {
         Form {
@@ -19,6 +20,9 @@ struct PhysicsExperimentScheduleView: View {
             } else {
                 scheduleListSection
             }
+        }
+        .sheet(isPresented: $isLoginPresented) {
+            PhysicsExperimentLoginView(isPresented: $isLoginPresented)
         }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
@@ -34,6 +38,13 @@ struct PhysicsExperimentScheduleView: View {
         .navigationTitle("大物实验安排")
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    isLoginPresented = true
+                }) {
+                    Text("登录")
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 if viewModel.isLoading {
                     ProgressView()
@@ -136,12 +147,12 @@ struct PhysicsExperimentScheduleView: View {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         let date = dateFormatter.string(from: course.startTime)
-        
+
         let timeFormatter = DateFormatter()
         timeFormatter.dateFormat = "HH:mm"
         let startTime = timeFormatter.string(from: course.startTime)
         let endTime = timeFormatter.string(from: course.endTime)
-        
+
         return "\(date) 周\(course.dayOfWeek.stringValue) \(startTime)-\(endTime) (\(course.classHours)课时)"
     }
 }

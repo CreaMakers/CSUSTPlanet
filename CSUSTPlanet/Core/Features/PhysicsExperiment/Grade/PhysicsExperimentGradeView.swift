@@ -11,6 +11,7 @@ import SwiftUI
 
 struct PhysicsExperimentGradeView: View {
     @StateObject var viewModel = PhysicsExperimentGradeViewModel()
+    @State private var isLoginPresented: Bool = false
 
     var body: some View {
         Form {
@@ -23,6 +24,9 @@ struct PhysicsExperimentGradeView: View {
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.warningMessage)
         }
+        .sheet(isPresented: $isLoginPresented) {
+            PhysicsExperimentLoginView(isPresented: $isLoginPresented)
+        }
         .task {
             guard !viewModel.isLoaded else { return }
             viewModel.isLoaded = true
@@ -31,6 +35,13 @@ struct PhysicsExperimentGradeView: View {
         .navigationTitle("大物实验成绩")
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    isLoginPresented = true
+                }) {
+                    Text("登录")
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 if viewModel.isLoading {
                     ProgressView()
