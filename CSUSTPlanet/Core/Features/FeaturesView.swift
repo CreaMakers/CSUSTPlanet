@@ -15,6 +15,8 @@ struct FeaturesView: View {
     @EnvironmentObject var globalVars: GlobalVars
     @Environment(\.colorScheme) private var colorScheme
 
+    @State private var isPhysicsExperimentLoginPresented: Bool = false
+
     // MARK: - Unified Colors
     private var sectionBackgroundColor: Color {
         Color(UIColor.systemGroupedBackground)
@@ -108,6 +110,19 @@ struct FeaturesView: View {
                 featureSection(title: "考试查询") {
                     featureLink(destination: CETView(), title: "四六级", icon: "character.book.closed", color: .brown)
                     featureLink(destination: MandarinView(), title: "普通话", icon: "mic.fill", color: .teal)
+                }
+
+                featureSection(
+                    title: "大学物理实验",
+                    status: {
+                        actionPillView("登录账号") { isPhysicsExperimentLoginPresented = true }
+                    }
+                ) {
+                    featureLink(destination: PhysicsExperimentScheduleView(), title: "实验安排", icon: "calendar", color: .purple)
+                    featureLink(destination: PhysicsExperimentGradeView(), title: "成绩查询", icon: "doc.text.magnifyingglass", color: .blue)
+                }
+                .sheet(isPresented: $isPhysicsExperimentLoginPresented) {
+                    PhysicsExperimentLoginView(isPresented: $isPhysicsExperimentLoginPresented)
                 }
 
                 featureSection(title: "其他") {
