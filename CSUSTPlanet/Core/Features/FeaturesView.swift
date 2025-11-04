@@ -17,6 +17,8 @@ struct FeaturesView: View {
 
     @State private var isPhysicsExperimentLoginPresented: Bool = false
 
+    @StateObject var physicsExperimentManager = PhysicsExperimentManager.shared
+
     // MARK: - Unified Colors
     private var sectionBackgroundColor: Color {
         Color(UIColor.systemGroupedBackground)
@@ -112,18 +114,21 @@ struct FeaturesView: View {
                     featureLink(destination: MandarinView(), title: "普通话", icon: "mic.fill", color: .teal)
                 }
 
-                featureSection(
-                    title: "大学物理实验",
-                    status: {
-                        actionPillView("登录账号") { isPhysicsExperimentLoginPresented = true }
+                Group {
+                    featureSection(
+                        title: "大学物理实验",
+                        status: {
+                            actionPillView("登录账号") { isPhysicsExperimentLoginPresented = true }
+                        }
+                    ) {
+                        featureLink(destination: PhysicsExperimentScheduleView(), title: "实验安排", icon: "calendar", color: .purple)
+                        featureLink(destination: PhysicsExperimentGradeView(), title: "成绩查询", icon: "doc.text.magnifyingglass", color: .blue)
                     }
-                ) {
-                    featureLink(destination: PhysicsExperimentScheduleView(), title: "实验安排", icon: "calendar", color: .purple)
-                    featureLink(destination: PhysicsExperimentGradeView(), title: "成绩查询", icon: "doc.text.magnifyingglass", color: .blue)
+                    .sheet(isPresented: $isPhysicsExperimentLoginPresented) {
+                        PhysicsExperimentLoginView(isPresented: $isPhysicsExperimentLoginPresented)
+                    }
                 }
-                .sheet(isPresented: $isPhysicsExperimentLoginPresented) {
-                    PhysicsExperimentLoginView(isPresented: $isPhysicsExperimentLoginPresented)
-                }
+                .environmentObject(physicsExperimentManager)
 
                 featureSection(title: "其他") {
                     featureLink(destination: WebVPNConverterView(), title: "WebVPN 转换", icon: "arrow.triangle.2.circlepath", color: .gray)
