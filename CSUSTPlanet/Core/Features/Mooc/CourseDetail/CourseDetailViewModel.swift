@@ -10,8 +10,6 @@ import Foundation
 
 @MainActor
 class CourseDetailViewModel: ObservableObject {
-    private let calendarHelper = CalendarHelper()
-
     @Published var homeworks: [MoocHelper.Homework] = []
     @Published var tests: [MoocHelper.Test] = []
     @Published var errorMessage = ""
@@ -97,13 +95,13 @@ class CourseDetailViewModel: ObservableObject {
 
         Task {
             do {
-                let calendar = try await calendarHelper.getOrCreateReminderCalendar(named: "长理星球 - 作业")
+                let calendar = try await CalendarHelper.getOrCreateReminderCalendar(named: "长理星球 - 作业")
                 for homework in homeworks {
                     guard homework.canSubmit else { continue }
                     guard let dueDate = dateFormatter.date(from: homework.deadline) else { continue }
                     let alarmOffset = TimeInterval(-(alertHourOffset * 3600 + alertMinuteOffset * 60))
                     let dueDateWithAlarm = dueDate.addingTimeInterval(alarmOffset)
-                    try await calendarHelper.addReminder(
+                    try await CalendarHelper.addReminder(
                         calendar: calendar,
                         title: homework.title,
                         dueDate: dueDateWithAlarm,

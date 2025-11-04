@@ -12,8 +12,6 @@ import SwiftUI
 
 @MainActor
 class ExamScheduleViewModel: NSObject, ObservableObject {
-    private let calendarHelper = CalendarHelper()
-
     @Published var availableSemesters: [String] = []
     @Published var errorMessage = ""
     @Published var warningMessage = ""
@@ -67,8 +65,8 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
     func addToCalendar(exam: EduHelper.Exam) {
         Task {
             do {
-                let calendar = try await calendarHelper.getOrCreateEventCalendar(named: "长理星球 - 考试")
-                try await calendarHelper.addEvent(
+                let calendar = try await CalendarHelper.getOrCreateEventCalendar(named: "长理星球 - 考试")
+                try await CalendarHelper.addEvent(
                     calendar: calendar,
                     title: "考试：\(exam.courseName)",
                     startDate: exam.examStartTime,
@@ -91,9 +89,9 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
         }
         Task {
             do {
-                let calendar = try await calendarHelper.getOrCreateEventCalendar(named: "长理星球 - 考试")
+                let calendar = try await CalendarHelper.getOrCreateEventCalendar(named: "长理星球 - 考试")
                 for exam in exams {
-                    try await calendarHelper.addEvent(
+                    try await CalendarHelper.addEvent(
                         calendar: calendar,
                         title: "考试：\(exam.courseName)",
                         startDate: exam.examStartTime,
