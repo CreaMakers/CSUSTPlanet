@@ -30,6 +30,14 @@ struct PhysicsExperimentScheduleView: View {
         .toast(isPresenting: $viewModel.isShowingWarning) {
             AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
+        .onChange(
+            of: isLoginPresented,
+            { _, newValue in
+                if newValue == false {
+                    viewModel.loadSchedules()
+                }
+            }
+        )
         .task {
             guard !viewModel.isLoaded else { return }
             viewModel.isLoaded = true

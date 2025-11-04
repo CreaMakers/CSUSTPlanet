@@ -27,10 +27,18 @@ struct PhysicsExperimentGradeView: View {
         .sheet(isPresented: $isLoginPresented) {
             PhysicsExperimentLoginView(isPresented: $isLoginPresented)
         }
+        .onChange(
+            of: isLoginPresented,
+            { _, newValue in
+                if newValue == false {
+                    viewModel.loadGrades()
+                }
+            }
+        )
         .task {
             guard !viewModel.isLoaded else { return }
             viewModel.isLoaded = true
-            viewModel.loadSchedules()
+            viewModel.loadGrades()
         }
         .navigationTitle("大物实验成绩")
         .toolbarTitleDisplayMode(.inline)
@@ -48,7 +56,7 @@ struct PhysicsExperimentGradeView: View {
                         .progressViewStyle(.circular)
                         .scaleEffect(0.9, anchor: .center)
                 } else {
-                    Button(action: viewModel.loadSchedules) {
+                    Button(action: viewModel.loadGrades) {
                         Label("刷新", systemImage: "arrow.clockwise")
                     }
                     .disabled(viewModel.isLoading)

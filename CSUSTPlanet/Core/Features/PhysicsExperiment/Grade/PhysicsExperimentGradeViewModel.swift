@@ -17,7 +17,7 @@ class PhysicsExperimentGradeViewModel: ObservableObject {
     @Published var isShowingError = false
     @Published var isLoaded = false
 
-    func loadSchedules() {
+    func loadGrades() {
         isLoading = true
         Task {
             defer {
