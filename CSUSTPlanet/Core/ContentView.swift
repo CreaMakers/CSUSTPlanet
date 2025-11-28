@@ -41,11 +41,7 @@ struct ContentView: View {
                     .tabItem { Label(TabItem.profile.rawValue, systemImage: "person") }
                     .tag(TabItem.profile)
             }
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text(globalVars.selectedTab.rawValue)
-                }
-            }
+            .navigationTitle(globalVars.selectedTab.rawValue)
             .toolbarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $globalVars.isFromElectricityWidget) {
                 ElectricityQueryView()
