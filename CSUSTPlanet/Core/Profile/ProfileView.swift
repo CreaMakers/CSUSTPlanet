@@ -14,6 +14,8 @@ struct ProfileView: View {
 
     @State private var isLoginSheetPresented = false
     @State private var isElectricityTermsSheetPresented = false
+    @State private var isWebVPNSheetPresented = false
+    @State private var isWebVPNDisableAlertPresented = false
 
     var body: some View {
         let electricityToggleBinding = Binding<Bool>(
@@ -27,6 +29,19 @@ struct ProfileView: View {
                     globalVars.isElectricityTermAccepted = newValue
 
                     Task { await ElectricityBindingHelper.sync() }
+                }
+            }
+        )
+
+        let webVPNToggleBinding = Binding<Bool>(
+            get: { globalVars.isWebVPNModeEnabled },
+            set: { newValue in
+                if newValue == true && !globalVars.isWebVPNModeEnabled {
+                    isWebVPNSheetPresented = true
+                } else if newValue == false && globalVars.isWebVPNModeEnabled {
+                    isWebVPNDisableAlertPresented = true
+                } else {
+                    globalVars.isWebVPNModeEnabled = newValue
                 }
             }
         )
@@ -134,6 +149,10 @@ struct ProfileView: View {
                     ColoredLabel(title: "启用实时活动/灵动岛", iconName: "bolt.circle", color: .yellow)
                 }
                 .onChange(of: globalVars.isLiveActivityEnabled, { _, _ in ActivityManager.shared.autoUpdateActivity() })
+
+                Toggle(isOn: webVPNToggleBinding) {
+                    ColoredLabel(title: "开启WebVPN模式（实验）", iconName: "globe", color: .orange)
+                }
             }
 
             Section(header: Text("帮助与支持")) {
@@ -164,6 +183,18 @@ struct ProfileView: View {
                 globalVars.isElectricityTermAccepted = true
                 Task { await ElectricityBindingHelper.sync() }
             }
+        }
+        .sheet(isPresented: $isWebVPNSheetPresented) {
+            WebVPNGuideView(isPresented: $isWebVPNSheetPresented)
+        }
+        .alert("关闭 WebVPN 模式", isPresented: $isWebVPNDisableAlertPresented) {
+            Button("取消", role: .cancel) {}
+            Button("关闭并重启", role: .destructive) {
+                globalVars.isWebVPNModeEnabled = false
+                exit(0)
+            }
+        } message: {
+            Text("关闭 WebVPN 模式需要重启应用才能生效。")
         }
     }
 }

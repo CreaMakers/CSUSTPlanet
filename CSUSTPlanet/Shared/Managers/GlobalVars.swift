@@ -23,6 +23,7 @@ class GlobalVars: ObservableObject {
         isUserAgreementAccepted = MMKVManager.shared.isUserAgreementAccepted
         isLiveActivityEnabled = MMKVManager.shared.isLiveActivityEnabled
         isElectricityTermAccepted = MMKVManager.shared.isElectricityTermAccepted
+        isWebVPNModeEnabled = MMKVManager.shared.isWebVPNModeEnabled
     }
 
     @Published var selectedTab: TabItem = .home
@@ -40,6 +41,9 @@ class GlobalVars: ObservableObject {
     }
     @Published var isElectricityTermAccepted: Bool {
         didSet { MMKVManager.shared.isElectricityTermAccepted = isElectricityTermAccepted }
+    }
+    @Published var isWebVPNModeEnabled: Bool {
+        didSet { MMKVManager.shared.isWebVPNModeEnabled = isWebVPNModeEnabled }
     }
 
     @Published var isFromElectricityWidget: Bool = false

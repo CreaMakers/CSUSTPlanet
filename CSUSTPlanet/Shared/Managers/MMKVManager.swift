@@ -190,6 +190,10 @@ extension MMKVManager {
         get { bool(forKey: "GlobalVars.isLiveActivityEnabled") ?? true }
         set { set(forKey: "GlobalVars.isLiveActivityEnabled", newValue) }
     }
+    var isWebVPNModeEnabled: Bool {
+        get { bool(forKey: "GlobalVars.isWebVPNModeEnabled") ?? false }
+        set { set(forKey: "GlobalVars.isWebVPNModeEnabled", newValue) }
+    }
 }
 
 // MARK: - Cached

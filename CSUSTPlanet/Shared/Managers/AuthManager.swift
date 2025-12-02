@@ -34,7 +34,10 @@ class AuthManager: ObservableObject {
     private var moocLoginTask: Task<Void, Error>?
     var moocLoginID = UUID()
 
-    var ssoHelper = SSOHelper(cookieStorage: KeychainCookieStorage())
+    var ssoHelper = SSOHelper(
+        mode: GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct,
+        cookieStorage: KeychainCookieStorage()
+    )
     var eduHelper: EduHelper?
     var moocHelper: MoocHelper?
 
@@ -144,7 +147,10 @@ class AuthManager: ObservableObject {
                 //     try await Task.sleep(nanoseconds: 5_000_000_000)
                 // #endif
                 if Task.isCancelled { return }
-                eduHelper = EduHelper(session: eduSession)
+                eduHelper = EduHelper(
+                    mode: GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct,
+                    session: eduSession
+                )
             } catch {
                 if !Task.isCancelled && !(error is CancellationError) {
                     educationErrorMessage = "教务服务初始化失败: \(error.localizedDescription)"
@@ -176,7 +182,10 @@ class AuthManager: ObservableObject {
                 //     try await Task.sleep(nanoseconds: 5_000_000_000)
                 // #endif
                 if Task.isCancelled { return }
-                moocHelper = MoocHelper(session: moocSession)
+                moocHelper = MoocHelper(
+                    mode: GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct,
+                    session: moocSession
+                )
             } catch {
                 if !Task.isCancelled && !(error is CancellationError) {
                     moocErrorMessage = "网络课程中心服务初始化失败: \(error.localizedDescription)"
