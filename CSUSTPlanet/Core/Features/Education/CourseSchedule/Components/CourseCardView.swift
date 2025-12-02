@@ -29,7 +29,7 @@ struct CourseCardView: View {
                 .foregroundColor(.white)
                 .padding(.horizontal, 0)
 
-            Text(course.teacher)
+            Text(course.teacher ?? "无教师")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.white)
                 .padding(.horizontal, 0)
@@ -59,7 +59,9 @@ struct CourseCardView: View {
                     if let groupName = course.groupName {
                         InfoRow(label: "课程分组名称", value: groupName)
                     }
-                    InfoRow(label: "授课教师", value: course.teacher)
+                    if let teacher = course.teacher {
+                        InfoRow(label: "授课教师", value: teacher)
+                    }
                 }
 
                 Section(header: Text("课程安排")) {

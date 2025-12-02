@@ -46,7 +46,7 @@ class ActivityManager {
 
             let attributes = CourseStatusWidgetAttributes(
                 courseName: courseDisplayInfo.course.courseName,
-                teacher: courseDisplayInfo.course.teacher,
+                teacher: courseDisplayInfo.course.teacher ?? "无老师",
                 classroom: courseDisplayInfo.session.classroom,
                 startDate: courseDates.startDate,
                 endDate: courseDates.endDate

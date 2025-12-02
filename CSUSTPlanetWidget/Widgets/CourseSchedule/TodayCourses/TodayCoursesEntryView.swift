@@ -279,7 +279,7 @@ struct TodayCoursesEntryView: View {
                 HStack {
                     Text(courseDisplayInfo.session.classroom ?? "无教室")
                         .fixedSize()
-                    Text(courseDisplayInfo.course.teacher)
+                    Text(courseDisplayInfo.course.teacher ?? "无教师")
                 }
                 .font(.system(size: widgetFamily == .systemSmall ? 12 : 14))
                 if widgetFamily == .systemSmall {

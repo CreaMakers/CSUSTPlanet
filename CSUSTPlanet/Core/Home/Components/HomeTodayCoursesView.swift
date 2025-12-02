@@ -122,9 +122,11 @@ struct HomeTodayCoursesView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
-                    Text(course.course.teacher)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    if let teacher = course.course.teacher{
+                        Text(teacher)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
 
