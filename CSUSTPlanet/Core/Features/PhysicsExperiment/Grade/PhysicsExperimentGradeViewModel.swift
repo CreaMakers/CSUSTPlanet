@@ -24,7 +24,7 @@ class PhysicsExperimentGradeViewModel: ObservableObject {
                 isLoading = false
             }
             do {
-                self.data = try await PhysicsExperimentManager.shared.physicsExperimentHelper.getCourseGrades()
+                self.data = try await PhysicsExperimentManager.shared.getCourseGrades()
             } catch {
                 warningMessage = error.localizedDescription
                 isShowingError = true

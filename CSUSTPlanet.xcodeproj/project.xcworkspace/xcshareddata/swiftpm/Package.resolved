@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/CreaMakers/CSUSTKit.git",
       "state" : {
-        "revision" : "68a3ea35b1354dfefbc707d8db7d851cd4ce0383",
-        "version" : "1.3.3"
+        "revision" : "13d91dbda0b3be9cc55bcf15ce4ada01be789c13",
+        "version" : "1.3.4"
       }
     },
     {

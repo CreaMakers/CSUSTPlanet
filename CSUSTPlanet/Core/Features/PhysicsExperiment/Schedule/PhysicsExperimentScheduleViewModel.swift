@@ -31,7 +31,7 @@ class PhysicsExperimentScheduleViewModel: ObservableObject {
                 isLoading = false
             }
             do {
-                let schedules = try await PhysicsExperimentManager.shared.physicsExperimentHelper.getCourses()
+                let schedules = try await PhysicsExperimentManager.shared.getCourses()
                 let data = Cached(cachedAt: .now, value: schedules)
                 self.data = data
                 MMKVManager.shared.physicsExperimentScheduleCache = data
