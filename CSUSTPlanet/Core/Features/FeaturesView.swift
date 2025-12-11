@@ -13,7 +13,6 @@ struct FeaturesView: View {
 
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var globalVars: GlobalVars
-    @Environment(\.colorScheme) private var colorScheme
 
     @State private var isPhysicsExperimentLoginPresented: Bool = false
     @StateObject var physicsExperimentManager = PhysicsExperimentManager.shared
@@ -29,13 +28,13 @@ struct FeaturesView: View {
                     sectionHeader(title: "教务系统", icon: "graduationcap.fill", color: .blue) {
                         Group {
                             if authManager.isSSOLoggingIn {
-                                StatusBadge(text: "SSO登录中", state: .loading)
+                                StatusBadge(text: "SSO登录中")
                             } else if !authManager.isLoggedIn {
                                 ActionBadge(text: "点击登录", icon: "person.crop.circle.badge.exclamationmark") {
                                     globalVars.selectedTab = .profile
                                 }
                             } else if authManager.isEducationLoggingIn {
-                                StatusBadge(text: "教务登录中", state: .loading)
+                                StatusBadge(text: "教务登录中")
                             } else {
                                 ActionBadge(text: "刷新登录", icon: "arrow.clockwise") {
                                     authManager.loginToEducation()
@@ -57,7 +56,7 @@ struct FeaturesView: View {
                     sectionHeader(title: "网络课程中心", icon: "book.closed.fill", color: .indigo) {
                         Group {
                             if authManager.isMoocLoggingIn {
-                                StatusBadge(text: "课程中心登录中", state: .loading)
+                                StatusBadge(text: "课程中心登录中")
                             } else if authManager.isLoggedIn && !authManager.isSSOLoggingIn {
                                 ActionBadge(text: "刷新登录", icon: "arrow.clockwise") {
                                     authManager.loginToMooc()
@@ -175,7 +174,7 @@ struct FeaturesView: View {
 
 // MARK: - Custom Card Components
 
-internal struct HeroCard<Destination: View>: View {
+private struct HeroCard<Destination: View>: View {
     let destination: Destination
     let title: String
     let subtitle: String
@@ -200,7 +199,7 @@ internal struct HeroCard<Destination: View>: View {
                 Image(systemName: icon)
                     .font(.system(size: 60))
                     .foregroundColor(.white.opacity(0.15))
-                    .offset(x: 20, y: 10)
+                    .offset(x: 30, y: 10)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .clipped()
 
@@ -228,7 +227,7 @@ internal struct HeroCard<Destination: View>: View {
     }
 }
 
-internal struct MediumCard<Destination: View>: View {
+private struct MediumCard<Destination: View>: View {
     let destination: Destination
     let title: String
     let icon: String
@@ -262,7 +261,7 @@ internal struct MediumCard<Destination: View>: View {
     }
 }
 
-internal struct ServiceSquare<Destination: View>: View {
+private struct ServiceSquare<Destination: View>: View {
     let destination: Destination
     let title: String
     let icon: String
@@ -289,7 +288,7 @@ internal struct ServiceSquare<Destination: View>: View {
     }
 }
 
-internal struct ToolRow<Destination: View, Accessory: View>: View {
+private struct ToolRow<Destination: View, Accessory: View>: View {
     let destination: Destination
     let title: String
     let icon: String
@@ -345,7 +344,7 @@ internal struct ToolRow<Destination: View, Accessory: View>: View {
 
 // MARK: - Status Indicators
 
-struct ActionBadge: View {
+private struct ActionBadge: View {
     let text: String
     let icon: String
     let action: () -> Void
@@ -365,18 +364,15 @@ struct ActionBadge: View {
     }
 }
 
-struct StatusBadge: View {
-    enum State { case loading, success, error }
+private struct StatusBadge: View {
     let text: String
-    let state: State
 
     var body: some View {
         HStack(spacing: 6) {
-            if state == .loading {
-                ProgressView()
-                    .scaleEffect(0.6)
-                    .frame(width: 10, height: 10)
-            }
+            ProgressView()
+                .scaleEffect(0.6)
+                .frame(width: 10, height: 10)
+
             Text(text)
         }
         .font(.caption)
