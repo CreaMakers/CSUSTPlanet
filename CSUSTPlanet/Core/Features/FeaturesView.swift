@@ -247,7 +247,6 @@ private struct HeroCard<Destination: View>: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .shadow(color: gradient.opacity(0.3), radius: 8, x: 0, y: 4)
 
                 // Decor Icon
                 Image(systemName: icon)
@@ -255,7 +254,6 @@ private struct HeroCard<Destination: View>: View {
                     .foregroundColor(.white.opacity(0.15))
                     .offset(x: 30, y: 10)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                    .clipped()
 
                 // Content
                 VStack(alignment: .leading, spacing: 4) {
@@ -269,6 +267,7 @@ private struct HeroCard<Destination: View>: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .lineLimit(1)
+                        
 
                     Text(subtitle)
                         .font(.caption)
@@ -278,6 +277,8 @@ private struct HeroCard<Destination: View>: View {
                 }
                 .padding(16)
             }
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .shadow(color: gradient.opacity(0.3), radius: 8, x: 0, y: 4)
             .frame(height: 120)
         }
     }
