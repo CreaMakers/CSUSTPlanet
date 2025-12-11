@@ -205,7 +205,7 @@ struct ExamScheduleView: View {
         }
         .task { viewModel.task() }
         .toolbar {
-            ToolbarItem(placement: .secondaryAction) {
+            ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button(action: { viewModel.isShowingFilter.toggle() }) {
                         Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
