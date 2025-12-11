@@ -14,145 +14,199 @@ struct FeaturesView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var globalVars: GlobalVars
 
+    @Environment(\.horizontalSizeClass) var sizeClass
+
     @State private var isPhysicsExperimentLoginPresented: Bool = false
     @StateObject var physicsExperimentManager = PhysicsExperimentManager.shared
 
-    // MARK: - Layout Constants
     private let spacing: CGFloat = 16
-    private let horizontalPadding: CGFloat = 20
+
+    private var horizontalPadding: CGFloat {
+        return sizeClass == .regular ? 32 : 20
+    }
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 28) {
-                VStack(spacing: spacing) {
-                    sectionHeader(title: "教务系统", icon: "graduationcap.fill", color: .blue) {
-                        Group {
-                            if authManager.isSSOLoggingIn {
-                                StatusBadge(text: "SSO登录中")
-                            } else if !authManager.isLoggedIn {
-                                ActionBadge(text: "点击登录", icon: "person.crop.circle.badge.exclamationmark") {
-                                    globalVars.selectedTab = .profile
-                                }
-                            } else if authManager.isEducationLoggingIn {
-                                StatusBadge(text: "教务登录中")
-                            } else {
-                                ActionBadge(text: "刷新登录", icon: "arrow.clockwise") {
-                                    authManager.loginToEducation()
-                                }
-                            }
-                        }
-                    }
+            VStack(spacing: sizeClass == .regular ? 32 : 28) {
 
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: spacing), GridItem(.flexible(), spacing: spacing)], spacing: spacing) {
-                        HeroCard(destination: CourseScheduleView(), title: "我的课表", subtitle: "每周课程", icon: "calendar", gradient: .purple)
-                        HeroCard(destination: GradeQueryView(), title: "成绩查询", subtitle: "GPA / 成绩详细", icon: "doc.text.magnifyingglass", gradient: .blue)
-                        HeroCard(destination: ExamScheduleView(), title: "考试安排", subtitle: "考场 / 时间", icon: "pencil.and.outline", gradient: .orange)
-                        HeroCard(destination: GradeAnalysisView(), title: "成绩分析", subtitle: "可视化图表", icon: "chart.bar.xaxis", gradient: .green)
+                educationalSystemSection
+
+                moocSection
+
+                campusToolsSection
+
+                if sizeClass == .regular {
+                    HStack(alignment: .top, spacing: spacing) {
+                        physicsSection
+                        examQuerySection
                     }
+                    .padding(.horizontal, horizontalPadding)
+                } else {
+                    VStack(spacing: spacing) {
+                        physicsSection
+                        examQuerySection
+                    }
+                    .padding(.horizontal, horizontalPadding)
                 }
-                .padding(.horizontal, horizontalPadding)
-
-                VStack(spacing: spacing) {
-                    sectionHeader(title: "网络课程中心", icon: "book.closed.fill", color: .indigo) {
-                        Group {
-                            if authManager.isMoocLoggingIn {
-                                StatusBadge(text: "课程中心登录中")
-                            } else if authManager.isLoggedIn && !authManager.isSSOLoggingIn {
-                                ActionBadge(text: "刷新登录", icon: "arrow.clockwise") {
-                                    authManager.loginToMooc()
-                                }
-                            }
-                        }
-                    }
-
-                    HStack(spacing: spacing) {
-                        MediumCard(destination: CoursesView(), title: "所有课程", icon: "books.vertical.fill", color: .indigo)
-                        MediumCard(destination: UrgentCoursesView(), title: "待办作业", icon: "list.bullet.clipboard", color: .red)
-                    }
-                }
-                .padding(.horizontal, horizontalPadding)
-
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("校园工具")
-                        .font(.title3.bold())
-                        .padding(.horizontal, horizontalPadding)
-
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            Spacer().frame(width: horizontalPadding - 12)
-
-                            ServiceSquare(destination: ElectricityQueryView(), title: "电量查询", icon: "bolt.fill", color: .yellow)
-                            ServiceSquare(destination: ElectricityRechargeView(), title: "电费充值", icon: "creditcard.fill", color: .cyan)
-                            ServiceSquare(destination: CampusMapView(), title: "校园地图", icon: "map.fill", color: .mint)
-                            ServiceSquare(destination: SchoolCalendarListView(), title: "校历", icon: "calendar.badge.clock", color: .pink)
-                            ServiceSquare(destination: WebVPNConverterView(), title: "WebVPN", icon: "lock.shield", color: .gray)
-
-                            Spacer().frame(width: horizontalPadding - 12)
-                        }
-                    }
-                }
-
-                VStack(spacing: spacing) {
-                    sectionHeader(title: "大学物理实验", icon: "atom", color: .purple) {
-                        Button {
-                            isPhysicsExperimentLoginPresented = true
-                        } label: {
-                            Text("登录")
-                                .font(.caption.bold())
-                                .foregroundColor(.purple)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4)
-                                .background(Color.purple.opacity(0.1))
-                                .cornerRadius(8)
-                        }
-                    }
-
-                    VStack(spacing: 0) {
-                        ToolRow(
-                            destination: PhysicsExperimentScheduleView().environmentObject(physicsExperimentManager),
-                            title: "物理实验安排", icon: "calendar", color: .purple)
-
-                        Divider().padding(.leading, 56)
-
-                        ToolRow(
-                            destination: PhysicsExperimentGradeView().environmentObject(physicsExperimentManager),
-                            title: "物理实验成绩", icon: "doc.text", color: .purple
-                        )
-                    }
-                    .background(Color(uiColor: .secondarySystemGroupedBackground))
-                    .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
-                }
-                .padding(.horizontal, horizontalPadding)
-                .sheet(isPresented: $isPhysicsExperimentLoginPresented) {
-                    PhysicsExperimentLoginView(isPresented: $isPhysicsExperimentLoginPresented)
-                        .environmentObject(physicsExperimentManager)
-                }
-
-                VStack(spacing: spacing) {
-                    sectionHeader(title: "考试查询", icon: "magnifyingglass.circle.fill", color: .indigo)
-
-                    VStack(spacing: 0) {
-                        ToolRow(destination: CETView(), title: "四六级查询", icon: "character.book.closed", color: .brown)
-
-                        Divider().padding(.leading, 56)
-
-                        ToolRow(destination: MandarinView(), title: "普通话查询", icon: "mic.circle.fill", color: .teal)
-                    }
-                    .background(Color(uiColor: .secondarySystemGroupedBackground))
-                    .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
-                }
-                .padding(.horizontal, horizontalPadding)
 
                 Color.clear.frame(height: 20)
             }
+            .frame(maxWidth: sizeClass == .regular ? 900 : .infinity)
+            .frame(maxWidth: .infinity)
+            .padding(.top, sizeClass == .regular ? 20 : 0)
         }
         .background(Color(uiColor: .systemGroupedBackground))
+        .sheet(isPresented: $isPhysicsExperimentLoginPresented) {
+            PhysicsExperimentLoginView(isPresented: $isPhysicsExperimentLoginPresented)
+                .environmentObject(physicsExperimentManager)
+        }
         .enableInjection()
     }
 
-    // MARK: - Subviews & Components
+    // MARK: - Extracted Subviews (各个板块)
+
+    private var educationalSystemSection: some View {
+        VStack(spacing: spacing) {
+            sectionHeader(title: "教务系统", icon: "graduationcap.fill", color: .blue) {
+                Group {
+                    if authManager.isSSOLoggingIn {
+                        StatusBadge(text: "SSO登录中")
+                    } else if !authManager.isLoggedIn {
+                        ActionBadge(text: "点击登录", icon: "person.crop.circle.badge.exclamationmark") {
+                            globalVars.selectedTab = .profile
+                        }
+                    } else if authManager.isEducationLoggingIn {
+                        StatusBadge(text: "教务登录中")
+                    } else {
+                        ActionBadge(text: "刷新登录", icon: "arrow.clockwise") {
+                            authManager.loginToEducation()
+                        }
+                    }
+                }
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: spacing)], spacing: spacing) {
+                HeroCard(destination: CourseScheduleView(), title: "我的课表", subtitle: "每周课程", icon: "calendar", gradient: .purple)
+                HeroCard(destination: GradeQueryView(), title: "成绩查询", subtitle: "GPA / 成绩详细", icon: "doc.text.magnifyingglass", gradient: .blue)
+                HeroCard(destination: ExamScheduleView(), title: "考试安排", subtitle: "考场 / 时间", icon: "pencil.and.outline", gradient: .orange)
+                HeroCard(destination: GradeAnalysisView(), title: "成绩分析", subtitle: "可视化图表", icon: "chart.bar.xaxis", gradient: .green)
+            }
+        }
+        .padding(.horizontal, horizontalPadding)
+    }
+
+    private var moocSection: some View {
+        VStack(spacing: spacing) {
+            sectionHeader(title: "网络课程中心", icon: "book.closed.fill", color: .indigo) {
+                Group {
+                    if authManager.isSSOLoggingIn {
+                        StatusBadge(text: "SSO登录中")
+                    } else if !authManager.isLoggedIn {
+                        ActionBadge(text: "点击登录", icon: "person.crop.circle.badge.exclamationmark") {
+                            globalVars.selectedTab = .profile
+                        }
+                    } else if authManager.isMoocLoggingIn {
+                        StatusBadge(text: "课程中心登录中")
+                    } else if authManager.isLoggedIn && !authManager.isSSOLoggingIn {
+                        ActionBadge(text: "刷新登录", icon: "arrow.clockwise") {
+                            authManager.loginToMooc()
+                        }
+                    }
+                }
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), spacing: spacing)], spacing: spacing) {
+                MediumCard(destination: CoursesView(), title: "所有课程", icon: "books.vertical.fill", color: .indigo)
+                MediumCard(destination: UrgentCoursesView(), title: "待办作业", icon: "list.bullet.clipboard", color: .red)
+            }
+        }
+        .padding(.horizontal, horizontalPadding)
+    }
+
+    private var campusToolsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("校园工具")
+                .font(.title3.bold())
+                .padding(.horizontal, horizontalPadding)
+
+            if sizeClass == .regular {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 85), spacing: 12)], spacing: 12) {
+                    toolItems
+                }
+                .padding(.horizontal, horizontalPadding)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        Spacer().frame(width: horizontalPadding - 12)
+                        toolItems
+                        Spacer().frame(width: horizontalPadding - 12)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var toolItems: some View {
+        ServiceSquare(destination: ElectricityQueryView(), title: "电量查询", icon: "bolt.fill", color: .yellow)
+        ServiceSquare(destination: ElectricityRechargeView(), title: "电费充值", icon: "creditcard.fill", color: .cyan)
+        ServiceSquare(destination: CampusMapView(), title: "校园地图", icon: "map.fill", color: .mint)
+        ServiceSquare(destination: SchoolCalendarListView(), title: "校历", icon: "calendar.badge.clock", color: .pink)
+        ServiceSquare(destination: WebVPNConverterView(), title: "WebVPN", icon: "lock.shield", color: .gray)
+    }
+
+    private var physicsSection: some View {
+        VStack(spacing: spacing) {
+            sectionHeader(title: "大学物理实验", icon: "atom", color: .purple) {
+                Button {
+                    isPhysicsExperimentLoginPresented = true
+                } label: {
+                    Text("登录")
+                        .font(.caption.bold())
+                        .foregroundColor(.purple)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Color.purple.opacity(0.1))
+                        .cornerRadius(8)
+                }
+            }
+
+            VStack(spacing: 0) {
+                ToolRow(
+                    destination: PhysicsExperimentScheduleView().environmentObject(physicsExperimentManager),
+                    title: "物理实验安排", icon: "calendar", color: .purple)
+
+                Divider().padding(.leading, 56)
+
+                ToolRow(
+                    destination: PhysicsExperimentGradeView().environmentObject(physicsExperimentManager),
+                    title: "物理实验成绩", icon: "doc.text", color: .purple
+                )
+            }
+            .background(Color(uiColor: .secondarySystemGroupedBackground))
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
+        }
+    }
+
+    private var examQuerySection: some View {
+        VStack(spacing: spacing) {
+            sectionHeader(title: "考试查询", icon: "magnifyingglass.circle.fill", color: .indigo)
+
+            VStack(spacing: 0) {
+                ToolRow(destination: CETView(), title: "四六级查询", icon: "character.book.closed", color: .brown)
+
+                Divider().padding(.leading, 56)
+
+                ToolRow(destination: MandarinView(), title: "普通话查询", icon: "mic.circle.fill", color: .teal)
+            }
+            .background(Color(uiColor: .secondarySystemGroupedBackground))
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
+        }
+    }
+
+    // MARK: - Components Helper
 
     @ViewBuilder
     private func sectionHeader<Content: View>(title: String, icon: String, color: Color, @ViewBuilder actions: () -> Content = { EmptyView() }) -> some View {
@@ -195,7 +249,7 @@ private struct HeroCard<Destination: View>: View {
                     )
                     .shadow(color: gradient.opacity(0.3), radius: 8, x: 0, y: 4)
 
-                // Decor Icon (Large, transparent)
+                // Decor Icon
                 Image(systemName: icon)
                     .font(.system(size: 60))
                     .foregroundColor(.white.opacity(0.15))
@@ -214,11 +268,13 @@ private struct HeroCard<Destination: View>: View {
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
+                        .lineLimit(1)
 
                     Text(subtitle)
                         .font(.caption)
                         .fontWeight(.medium)
                         .foregroundColor(.white.opacity(0.8))
+                        .lineLimit(1)
                 }
                 .padding(16)
             }
