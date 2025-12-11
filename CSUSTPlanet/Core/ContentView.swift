@@ -32,13 +32,22 @@ struct ContentView: View {
         NavigationStack {
             TabView(selection: $globalVars.selectedTab) {
                 HomeView()
-                    .tabItem { Label(TabItem.home.rawValue, systemImage: "house") }
+                    .tabItem {
+                        Image(uiImage: UIImage(systemName: "house")!)
+                        Text(TabItem.home.rawValue)
+                    }
                     .tag(TabItem.home)
                 FeaturesView()
-                    .tabItem { Label(TabItem.features.rawValue, systemImage: "square.grid.2x2") }
+                    .tabItem {
+                        Image(uiImage: UIImage(systemName: "square.grid.2x2")!)
+                        Text(TabItem.features.rawValue)
+                    }
                     .tag(TabItem.features)
                 ProfileView()
-                    .tabItem { Label(TabItem.profile.rawValue, systemImage: "person") }
+                    .tabItem {
+                        Image(uiImage: UIImage(systemName: "person")!)
+                        Text(TabItem.profile.rawValue)
+                    }
                     .tag(TabItem.profile)
             }
             .navigationTitle(globalVars.selectedTab.rawValue)
