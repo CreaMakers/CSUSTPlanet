@@ -46,7 +46,7 @@ struct ExamScheduleView: View {
                     }
                 }
             }
-            .navigationTitle("筛选")
+            .navigationTitle("高级查询")
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -208,7 +208,7 @@ struct ExamScheduleView: View {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button(action: { viewModel.isShowingFilter.toggle() }) {
-                        Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
+                        Label("高级查询", systemImage: "slider.horizontal.3")
                     }
                     Button(action: { viewModel.showShareSheet(shareableView) }) {
                         Label("分享", systemImage: "square.and.arrow.up")
