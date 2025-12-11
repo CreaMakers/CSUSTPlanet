@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 enum TabItem: String {
-    case home = "首页"
+    case overview = "概览"
     case features = "全部功能"
     case profile = "我的"
 }
@@ -26,7 +26,7 @@ class GlobalVars: ObservableObject {
         isWebVPNModeEnabled = MMKVManager.shared.isWebVPNModeEnabled
     }
 
-    @Published var selectedTab: TabItem = .home
+    @Published var selectedTab: TabItem = .overview
     @Published var appearance: String {
         didSet { MMKVManager.shared.appearance = appearance }
     }

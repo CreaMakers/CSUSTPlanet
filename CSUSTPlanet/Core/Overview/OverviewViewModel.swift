@@ -1,5 +1,5 @@
 //
-//  HomeViewModel.swift
+//  OverviewViewModel.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/9/5.
@@ -10,7 +10,7 @@ import Foundation
 import SwiftData
 
 @MainActor
-class HomeViewModel: ObservableObject {
+class OverviewViewModel: ObservableObject {
     @Published var gradeAnalysisData: Cached<[EduHelper.CourseGrade]>?
     @Published var examScheduleData: Cached<[EduHelper.Exam]>?
     @Published var courseScheduleData: Cached<CourseScheduleData>?

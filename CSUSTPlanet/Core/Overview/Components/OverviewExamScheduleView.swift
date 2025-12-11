@@ -1,5 +1,5 @@
 //
-//  HomeUrgentCoursesView.swift
+//  OverviewExamScheduleView.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/9/5.
@@ -8,20 +8,20 @@
 import CSUSTKit
 import SwiftUI
 
-struct HomeUrgentCoursesView: View {
-    let urgentCourseData: Cached<UrgentCourseData>?
+struct OverviewExamScheduleView: View {
+    let examScheduleData: Cached<[EduHelper.Exam]>?
 
     var body: some View {
         VStack(spacing: 0) {
             // 标题栏
-            NavigationLink(destination: UrgentCoursesView()) {
+            NavigationLink(destination: ExamScheduleView()) {
                 HStack {
                     HStack(spacing: 8) {
-                        Image(systemName: "doc.text")
+                        Image(systemName: "calendar.badge.clock")
                             .symbolRenderingMode(.hierarchical)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.orange)
 
-                        Text("待提交作业")
+                        Text("考试安排")
                             .foregroundColor(.primary)
                     }
                     .font(.headline)
@@ -41,31 +41,32 @@ struct HomeUrgentCoursesView: View {
             Divider()
 
             // 内容
-            if let urgentData = urgentCourseData {
-                if !urgentData.value.courses.isEmpty {
-                    VStack(spacing: 0) {
-                        ForEach(Array(urgentData.value.courses.enumerated()), id: \.offset) { index, course in
-                            courseCard(course: course)
+            if let examData = examScheduleData {
+                if !examData.value.isEmpty {
+                    VStack(spacing: 12) {
+                        ForEach(Array(examData.value.enumerated()), id: \.offset) { index, exam in
+                            examCard(exam: exam)
 
-                            if index < urgentData.value.courses.count - 1 {
+                            if index < examData.value.count - 1 {
                                 Divider()
                                     .padding(.horizontal, 16)
                             }
                         }
                     }
+                    .padding(.vertical, 12)
                 } else {
                     emptyStateView(
-                        icon: "doc.text",
-                        title: "暂无待提交作业",
-                        description: "当前没有待提交作业"
+                        icon: "calendar.badge.clock",
+                        title: "暂无考试安排",
+                        description: "当前没有考试安排"
                     )
                     .padding(.vertical, 20)
                 }
             } else {
                 emptyStateView(
-                    icon: "doc.text",
-                    title: "暂无作业数据",
-                    description: "请前往待提交作业页面加载数据"
+                    icon: "calendar.badge.clock",
+                    title: "暂无考试数据",
+                    description: "请前往考试安排页面加载数据"
                 )
                 .padding(.vertical, 20)
             }
@@ -74,20 +75,27 @@ struct HomeUrgentCoursesView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    private func courseCard(course: UrgentCourseData.Course) -> some View {
-        HStack {
-            Circle()
-                .fill(.orange.opacity(0.2))
-                .frame(width: 8, height: 8)
-
-            Text(course.name)
+    private func examCard(exam: EduHelper.Exam) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(exam.courseName)
                 .font(.subheadline)
+                .fontWeight(.medium)
                 .lineLimit(1)
 
-            Spacer()
+            HStack(spacing: 12) {
+                Label(exam.examTime, systemImage: "clock")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                if !exam.examRoom.isEmpty {
+                    Label(exam.examRoom, systemImage: "building.columns")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
     }
 
     private func emptyStateView(icon: String, title: String, description: String) -> some View {
@@ -110,5 +118,5 @@ struct HomeUrgentCoursesView: View {
 }
 
 #Preview {
-    HomeUrgentCoursesView(urgentCourseData: nil)
+    OverviewExamScheduleView(examScheduleData: nil)
 }

@@ -31,12 +31,12 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             TabView(selection: $globalVars.selectedTab) {
-                HomeView()
+                OverviewView()
                     .tabItem {
-                        Image(uiImage: UIImage(systemName: "house")!)
-                        Text(TabItem.home.rawValue)
+                        Image(uiImage: UIImage(systemName: "rectangle.stack")!)
+                        Text(TabItem.overview.rawValue)
                     }
-                    .tag(TabItem.home)
+                    .tag(TabItem.overview)
                 FeaturesView()
                     .tabItem {
                         Image(uiImage: UIImage(systemName: "square.grid.2x2")!)

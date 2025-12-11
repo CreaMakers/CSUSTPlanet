@@ -1,5 +1,5 @@
 //
-//  HomeGradeAnalysisView.swift
+//  OverviewGradeAnalysisView.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/9/5.
@@ -8,7 +8,7 @@
 import CSUSTKit
 import SwiftUI
 
-struct HomeGradeAnalysisView: View {
+struct OverviewGradeAnalysisView: View {
     let data: Cached<[EduHelper.CourseGrade]>?
 
     var analysisData: GradeAnalysisData? {
@@ -102,5 +102,5 @@ struct HomeGradeAnalysisView: View {
 }
 
 #Preview {
-    HomeGradeAnalysisView(data: nil)
+    OverviewGradeAnalysisView(data: nil)
 }

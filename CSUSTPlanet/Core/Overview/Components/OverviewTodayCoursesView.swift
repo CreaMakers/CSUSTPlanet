@@ -1,5 +1,5 @@
 //
-//  HomeTodayCoursesView.swift
+//  OverviewTodayCoursesView.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/9/5.
@@ -8,7 +8,7 @@
 import CSUSTKit
 import SwiftUI
 
-struct HomeTodayCoursesView: View {
+struct OverviewTodayCoursesView: View {
     let courseScheduleData: Cached<CourseScheduleData>?
 
     private var currentTime: Date {
@@ -167,5 +167,5 @@ struct HomeTodayCoursesView: View {
 }
 
 #Preview {
-    HomeTodayCoursesView(courseScheduleData: nil)
+    OverviewTodayCoursesView(courseScheduleData: nil)
 }

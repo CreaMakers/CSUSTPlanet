@@ -1,5 +1,5 @@
 //
-//  HomeElectricityView.swift
+//  OverviewElectricityView.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/9/5.
@@ -8,7 +8,7 @@
 import CSUSTKit
 import SwiftUI
 
-struct HomeElectricityView: View {
+struct OverviewElectricityView: View {
     let electricityDorms: [Dorm]
 
     var body: some View {
@@ -135,5 +135,5 @@ struct HomeElectricityView: View {
 }
 
 #Preview {
-    HomeElectricityView(electricityDorms: [])
+    OverviewElectricityView(electricityDorms: [])
 }
