@@ -27,7 +27,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
 
     @Published var isLoading: Bool = false
     @Published var isSemestersLoading: Bool = false
-    @Published var isShowingFilterPopover: Bool = false
+    @Published var isShowingFilterSheet: Bool = false
     @Published var isShowingShareSheet: Bool = false
 
     @Published var isShowingSuccess: Bool = false

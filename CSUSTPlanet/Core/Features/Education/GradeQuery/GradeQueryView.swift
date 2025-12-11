@@ -107,12 +107,12 @@ struct GradeQueryView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("取消") {
-                        viewModel.isShowingFilterPopover = false
+                        viewModel.isShowingFilterSheet = false
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完成") {
-                        viewModel.isShowingFilterPopover = false
+                        viewModel.isShowingFilterSheet = false
                         viewModel.loadCourseGrades()
                     }
                 }
@@ -269,7 +269,7 @@ struct GradeQueryView: View {
             }
         }
         .sheet(isPresented: $viewModel.isShowingShareSheet) { ShareSheet(items: [viewModel.shareContent!]) }
-        .popover(isPresented: $viewModel.isShowingFilterPopover) { filterView }
+        .sheet(isPresented: $viewModel.isShowingFilterSheet) { filterView }
         .navigationTitle("成绩查询")
         .navigationBarTitleDisplayMode(.inline)
         .environment(\.editMode, .constant(viewModel.isSelectionMode ? .active : .inactive))
@@ -288,7 +288,7 @@ struct GradeQueryView: View {
                 }
                 .disabled(viewModel.isLoading || viewModel.data == nil)
 
-                Button(action: { viewModel.isShowingFilterPopover.toggle() }) {
+                Button(action: { viewModel.isShowingFilterSheet.toggle() }) {
                     Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
                 }
                 Button(action: { viewModel.showShareSheet(shareableView) }) {

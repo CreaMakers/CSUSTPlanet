@@ -240,7 +240,7 @@ struct ExamScheduleView: View {
             }
         }
         .sheet(isPresented: $viewModel.isShowingShareSheet) { ShareSheet(items: [viewModel.shareContent!]) }
-        .popover(isPresented: $viewModel.isShowingFilter) { filterView }
+        .sheet(isPresented: $viewModel.isShowingFilter) { filterView }
         .alert("添加日历", isPresented: $viewModel.isShowingAddToCalendarAlert) {
             Button(action: viewModel.addAllToCalendar) {
                 Text("确认添加")
