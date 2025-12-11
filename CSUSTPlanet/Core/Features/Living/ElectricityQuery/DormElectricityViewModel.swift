@@ -156,4 +156,24 @@ class DormElectricityViewModel: ObservableObject {
             }
         }
     }
+
+    func toggleFavorite(_ dorm: Dorm) {
+        do {
+            if dorm.isFavorite {
+                dorm.isFavorite = false
+            } else {
+                let descriptor = FetchDescriptor<Dorm>(predicate: #Predicate { $0.isFavorite == true })
+                let favorites = try modelContext.fetch(descriptor)
+                for favorite in favorites {
+                    favorite.isFavorite = false
+                }
+                dorm.isFavorite = true
+            }
+            try modelContext.save()
+        } catch {
+            modelContext.rollback()
+            errorMessage = error.localizedDescription
+            isShowingError = true
+        }
+    }
 }

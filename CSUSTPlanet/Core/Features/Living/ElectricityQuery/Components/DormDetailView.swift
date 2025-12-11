@@ -33,6 +33,10 @@ struct DormDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
+                    Button(action: { viewModel.toggleFavorite(dorm) }) {
+                        Label(dorm.isFavorite ? "取消收藏" : "设为常用", systemImage: dorm.isFavorite ? "star.slash" : "star")
+                    }
+
                     Menu {
                         Button(action: viewModel.handleShowTerms) {
                             Label("设置定时查询", systemImage: "bell").tint(.blue)
@@ -78,6 +82,9 @@ struct DormDetailView: View {
     private var dormInfoSection: some View {
         Section(header: Text("宿舍信息")) {
             InfoRow(icon: ("house.fill", .blue), label: "宿舍号", value: dorm.room)
+            if dorm.isFavorite {
+                InfoRow(icon: ("star.fill", .yellow), label: "收藏状态", value: "已设为常用")
+            }
             InfoRow(icon: ("building.fill", .green), label: "楼栋", value: dorm.buildingName)
             InfoRow(icon: ("map.fill", .orange), label: "校区", value: dorm.campusName)
 

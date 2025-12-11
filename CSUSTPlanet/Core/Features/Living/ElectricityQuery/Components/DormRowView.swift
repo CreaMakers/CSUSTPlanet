@@ -20,8 +20,14 @@ struct DormRowView: View {
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("宿舍号：\(dorm.room)")
-                        .font(.headline)
+                    HStack {
+                        Text("宿舍号：\(dorm.room)")
+                            .font(.headline)
+                        if dorm.isFavorite {
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.yellow)
+                        }
+                    }
                     Text("楼栋：\(dorm.buildingName)")
                         .font(.subheadline)
                     Text("校区：\(dorm.campusName)")
@@ -70,6 +76,9 @@ struct DormRowView: View {
                 Label("删除宿舍", systemImage: "trash")
                     .tint(.red)
             }
+            Button(action: { viewModel.toggleFavorite(dorm) }) {
+                Label(dorm.isFavorite ? "取消收藏" : "设为常用", systemImage: dorm.isFavorite ? "star.slash" : "star")
+            }
             Button(action: { viewModel.handleQueryElectricity(dorm) }) {
                 Label("查询电量", systemImage: "bolt.fill")
                     .tint(.yellow)
@@ -105,8 +114,14 @@ struct DormRowView: View {
 
             return VStack(alignment: .leading, spacing: 8) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("宿舍号：\(dorm.room)")
-                        .font(.headline)
+                    HStack {
+                        Text("宿舍号：\(dorm.room)")
+                            .font(.headline)
+                        if dorm.isFavorite {
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.yellow)
+                        }
+                    }
                     Text("楼栋：\(dorm.buildingName)")
                         .font(.subheadline)
                     Text("校区：\(dorm.campusName)")
