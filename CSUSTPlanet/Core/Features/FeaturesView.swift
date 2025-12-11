@@ -252,7 +252,7 @@ private struct HeroCard<Destination: View>: View {
                 Image(systemName: icon)
                     .font(.system(size: 60))
                     .foregroundColor(.white.opacity(0.15))
-                    .offset(x: 30, y: 10)
+                    .offset(x: 10, y: 10)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
 
                 // Content
@@ -267,7 +267,6 @@ private struct HeroCard<Destination: View>: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .lineLimit(1)
-                        
 
                     Text(subtitle)
                         .font(.caption)
