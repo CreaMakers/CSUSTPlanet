@@ -44,29 +44,13 @@ struct HomeExamScheduleView: View {
             if let examData = examScheduleData {
                 if !examData.value.isEmpty {
                     VStack(spacing: 12) {
-                        ForEach(Array(examData.value.prefix(2).enumerated()), id: \.offset) { index, exam in
+                        ForEach(Array(examData.value.enumerated()), id: \.offset) { index, exam in
                             examCard(exam: exam)
 
-                            if index < min(examData.value.count, 2) - 1 {
+                            if index < examData.value.count - 1 {
                                 Divider()
                                     .padding(.horizontal, 16)
                             }
-                        }
-
-                        if examData.value.count > 2 {
-                            HStack {
-                                Text("...")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-
-                                Spacer()
-
-                                Text("还有 \(examData.value.count - 2) 场考试")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 6)
                         }
                     }
                     .padding(.vertical, 12)
