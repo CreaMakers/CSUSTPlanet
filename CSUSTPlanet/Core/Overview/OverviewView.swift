@@ -343,7 +343,9 @@ private struct HomeGradeCard: View {
 
 private struct HomeElectricityCard: View {
     let dorms: [Dorm]
-    var primaryDorm: Dorm? { dorms.first }
+    var primaryDorm: Dorm? {
+        dorms.first(where: { $0.isFavorite }) ?? dorms.first
+    }
 
     var body: some View {
         NavigationLink(destination: ElectricityQueryView()) {
