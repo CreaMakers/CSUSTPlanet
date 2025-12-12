@@ -210,6 +210,7 @@ private struct HomeCourseCarousel: View {
                     }
                 }
                 .padding(.horizontal)
+                .padding(.vertical, 20)
             }
         }
     }
@@ -254,7 +255,7 @@ private struct CourseCard: View {
             HStack {
                 Label(session.classroom ?? "未知地点", systemImage: "location.fill")
                 Spacer()
-                Text("第 \(session.startSection)-\(session.endSection) 节")
+                Text(formatCourseTime(session.startSection, session.endSection))
             }
             .font(.caption)
             .fontWeight(.medium)
@@ -270,7 +271,20 @@ private struct CourseCard: View {
             )
         )
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: isCurrent ? .blue.opacity(0.3) : .clear, radius: 8, x: 0, y: 4)
+        .shadow(color: isCurrent ? .blue.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
+    }
+
+    func formatCourseTime(_ startSection: Int, _ endSection: Int) -> String {
+        let startIndex = startSection - 1
+        let endIndex = endSection - 1
+
+        guard startIndex >= 0 && startIndex < CourseScheduleHelper.sectionTimeString.count,
+            endIndex >= 0 && endIndex < CourseScheduleHelper.sectionTimeString.count
+        else {
+            return "时间未知"
+        }
+
+        return "\(CourseScheduleHelper.sectionTimeString[startIndex].0) - \(CourseScheduleHelper.sectionTimeString[endIndex].1)"
     }
 }
 
@@ -367,9 +381,9 @@ private struct HomeElectricityCard: View {
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                         .foregroundStyle(ColorHelper.electricityColor(electricity: record.electricity))
 
-                    HStack(spacing: 4) {
+                    HStack {
                         Text("kWh")
-                        Text("·")
+                        Spacer()
                         Text(dorm.room)
                     }
                     .font(.caption)
