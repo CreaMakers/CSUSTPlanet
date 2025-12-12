@@ -81,7 +81,11 @@ struct ProfileView: View {
                         }
                     } else {
                         Button(action: authManager.loginToEducation) {
-                            ColoredLabel(title: "重新登录教务系统", iconName: "graduationcap", color: .orange)
+                            HStack {
+                                ColoredLabel(title: "重新登录教务系统", iconName: "graduationcap", color: .orange)
+                                Spacer()
+                            }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                         .disabled(!authManager.isLoggedIn)
@@ -96,7 +100,11 @@ struct ProfileView: View {
                         }
                     } else {
                         Button(action: authManager.loginToMooc) {
-                            ColoredLabel(title: "重新登录网络课程中心", iconName: "book.closed", color: .mint)
+                            HStack {
+                                ColoredLabel(title: "重新登录网络课程中心", iconName: "book.closed", color: .mint)
+                                Spacer()
+                            }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                         .disabled(!authManager.isLoggedIn)
@@ -109,11 +117,12 @@ struct ProfileView: View {
                     }) {
                         HStack {
                             ColoredLabel(title: "退出登录", iconName: "arrow.right.circle", color: .red)
+                            Spacer()
                             if authManager.isSSOLoggingOut {
-                                Spacer()
                                 ProgressView()
                             }
                         }
+                        .contentShape(Rectangle())
                     }
                     .disabled(authManager.isSSOLoggingOut)
                     .buttonStyle(PlainButtonStyle())
@@ -126,7 +135,11 @@ struct ProfileView: View {
                     Button(action: {
                         isLoginSheetPresented = true
                     }) {
-                        ColoredLabel(title: "登录统一认证账号", iconName: "person.crop.circle.badge.plus", color: .blue)
+                        HStack {
+                            ColoredLabel(title: "登录统一认证账号", iconName: "person.crop.circle.badge.plus", color: .blue)
+                            Spacer()
+                        }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
