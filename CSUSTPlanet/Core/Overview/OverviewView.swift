@@ -16,7 +16,7 @@ struct OverviewView: View {
         ScrollView {
             VStack(spacing: 24) {
                 // 头部欢迎语
-                HomeHeaderView()
+                HomeHeaderView(courseData: viewModel.courseScheduleData)
                     .padding(.horizontal)
                     .padding(.top, 10)
 
@@ -92,6 +92,23 @@ struct OverviewView: View {
 // MARK: - Subviews & Components
 
 private struct HomeHeaderView: View {
+    let courseData: Cached<CourseScheduleData>?
+
+    private var weekInfo: String? {
+        guard let data = courseData?.value else { return nil }
+
+        let semester = data.semester ?? "默认学期"
+
+        if let currentWeek = CourseScheduleHelper.getCurrentWeek(
+            semesterStartDate: data.semesterStartDate,
+            now: Date()
+        ) {
+            return "\(semester) 第\(currentWeek)周"
+        }
+
+        return semester
+    }
+
     var greeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
@@ -105,11 +122,17 @@ private struct HomeHeaderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(Date().formatted(.dateTime.month().day().weekday()))
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-                .textCase(.uppercase)
+            HStack(spacing: 8) {
+                Text(Date().formatted(.dateTime.month().day().weekday()))
+                if let weekInfo {
+                    Text("·")
+                    Text(weekInfo)
+                }
+            }
+            .font(.caption)
+            .fontWeight(.medium)
+            .foregroundStyle(.secondary)
+            .textCase(.uppercase)
 
             Text(greeting)
                 .font(.largeTitle)
