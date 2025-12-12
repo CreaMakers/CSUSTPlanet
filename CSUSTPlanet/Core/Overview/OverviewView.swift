@@ -221,6 +221,8 @@ private struct CourseCard: View {
     let session: EduHelper.ScheduleSession
     let isCurrent: Bool
 
+    @State private var showDetail = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
@@ -272,6 +274,12 @@ private struct CourseCard: View {
         )
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .shadow(color: isCurrent ? .blue.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
+        .onTapGesture {
+            showDetail = true
+        }
+        .sheet(isPresented: $showDetail) {
+            CourseScheduleDetailView(course: course, session: session, isPresented: $showDetail)
+        }
     }
 
     func formatCourseTime(_ startSection: Int, _ endSection: Int) -> String {
