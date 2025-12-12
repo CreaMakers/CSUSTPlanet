@@ -185,16 +185,16 @@ private struct HomeCourseCarousel: View {
             )
             .padding(.horizontal)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
-                    if let schedule = data?.value {
-                        let todayCourses = CourseScheduleHelper.getUnfinishedCourses(
-                            semesterStartDate: schedule.semesterStartDate,
-                            now: currentTime,
-                            courses: schedule.courses
-                        )
+            if let schedule = data?.value {
+                let todayCourses = CourseScheduleHelper.getUnfinishedCourses(
+                    semesterStartDate: schedule.semesterStartDate,
+                    now: currentTime,
+                    courses: schedule.courses
+                )
 
-                        if !todayCourses.isEmpty {
+                if !todayCourses.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
                             ForEach(Array(todayCourses.enumerated()), id: \.offset) { _, item in
                                 CourseCard(
                                     course: item.course.course,
@@ -202,15 +202,19 @@ private struct HomeCourseCarousel: View {
                                     isCurrent: item.isCurrent
                                 )
                             }
-                        } else {
-                            EmptyCourseCard()
                         }
-                    } else {
-                        EmptyCourseCard(text: "暂无课程数据")
+                        .padding(.horizontal)
+                        .padding(.vertical, 20)
                     }
+                } else {
+                    EmptyCourseCard()
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
                 }
-                .padding(.horizontal)
-                .padding(.vertical, 20)
+            } else {
+                EmptyCourseCard(text: "暂无课程数据")
+                    .padding(.horizontal)
+                    .padding(.bottom, 20)
             }
         }
     }
@@ -308,7 +312,8 @@ private struct EmptyCourseCard: View {
                 .fontWeight(.medium)
         }
         .padding()
-        .frame(width: 300, height: 100)
+        .frame(height: 100)
+        .frame(maxWidth: .infinity)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .foregroundStyle(.secondary)
