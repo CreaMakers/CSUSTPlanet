@@ -19,20 +19,22 @@ struct ElectricityQueryView: View {
     var body: some View {
         Group {
             if dorms.isEmpty {
-                VStack {
-                    Text("暂无宿舍信息")
-                        .foregroundColor(.secondary)
-                        .font(.headline)
-                        .padding()
-                    Button(action: { isShowingAddDormSheet = true }) {
-                        Label("添加宿舍", systemImage: "plus")
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
+                ContentUnavailableView(
+                    "暂无宿舍",
+                    systemImage: "house.slash",
+                    description: Text("点击右上角添加您的宿舍信息")
+                )
             } else {
-                List(dorms) { dorm in
-                    DormRowView(dorm: dorm)
+                List {
+                    ForEach(dorms) { dorm in
+                        DormCardView(dorm: dorm)
+                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                    }
                 }
+                .listStyle(.plain)
+                .background(Color(uiColor: .systemGroupedBackground))
             }
         }
         .navigationTitle("电量查询")
@@ -49,11 +51,4 @@ struct ElectricityQueryView: View {
         }
         .enableInjection()
     }
-}
-
-#Preview {
-    NavigationStack {
-        ElectricityQueryView()
-    }
-    .modelContainer((try? ModelContainer(for: Dorm.self, ElectricityRecord.self))!)
 }
