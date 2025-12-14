@@ -31,15 +31,19 @@ class Constants {
         }
     }
 
+    private static let apiHostProd = Bundle.main.object(forInfoDictionaryKey: "ConfigApiHostProd") as! String
+    private static let apiHostDev = Bundle.main.object(forInfoDictionaryKey: "ConfigApiHostDev") as! String
+    private static let apiHostLocal = Bundle.main.object(forInfoDictionaryKey: "ConfigApiHostLocal") as! String
+
     static var backendHost: String {
         switch AppEnvironmentHelper.environment {
         case .appStore, .testFlight:
-            return "https://api.csustplanet.zhelearn.com"
+            return apiHostProd
         case .debug:
             #if targetEnvironment(simulator)
-                return "http://localhost:8080"
+                return apiHostLocal
             #else
-                return "https://api-dev.csustplanet.zhelearn.com"
+                return apiHostDev
             #endif
         }
     }

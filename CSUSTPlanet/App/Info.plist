@@ -8,6 +8,12 @@
 	<string>$(CSUSTPLANET_ICLOUD_ID)</string>
 	<key>ConfigKeychainGroup</key>
 	<string>$(CSUSTPLANET_TEAM_ID).$(CSUSTPLANET_KEYCHAIN_SUFFIX)</string>
+	<key>ConfigApiHostProd</key>
+	<string>$(CSUSTPLANET_API_HOST_PROD)</string>
+	<key>ConfigApiHostDev</key>
+	<string>$(CSUSTPLANET_API_HOST_DEV)</string>
+	<key>ConfigApiHostLocal</key>
+	<string>$(CSUSTPLANET_API_HOST_LOCAL)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

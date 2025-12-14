@@ -11,7 +11,7 @@ struct SchoolCalendarView: View {
     let semester: String
 
     var url: URL {
-        URL(string: "https://api.csustplanet.zhelearn.com/static/school_calendar/index.html?config=\(semester)")!
+        URL(string: "\(Constants.backendHost)/static/school_calendar/index.html?config=\(semester)")!
     }
 
     var body: some View {

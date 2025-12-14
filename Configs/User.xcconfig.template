@@ -13,3 +13,8 @@ CSUSTPLANET_TEAM_ID = A1B2C3D4E5
 
 // 你的 Bundle Prefix
 CSUSTPLANET_BUNDLE_PREFIX = com.example
+
+// 你的 API 主机地址
+CSUSTPLANET_API_HOST_PROD  = https:/$()/api.example.com
+CSUSTPLANET_API_HOST_DEV = https:/$()/api-dev.example.com
+CSUSTPLANET_API_HOST_LOCAL = http:/$()/localhost:8080
