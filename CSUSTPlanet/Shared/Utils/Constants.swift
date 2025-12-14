@@ -11,6 +11,7 @@ class Constants {
     static let appGroupID = AssetUtils.bundleInfo(forKey: "ConfigAppGroupID")
     static let iCloudID = AssetUtils.bundleInfo(forKey: "ConfigCloudContainerID")
     static let keychainGroup = AssetUtils.bundleInfo(forKey: "ConfigKeychainGroup")
+    static let appBundleID = AssetUtils.bundleInfo(forKey: "ConfigAppBundleID")
 
     static let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
 
