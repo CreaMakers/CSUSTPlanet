@@ -16,6 +16,8 @@
 		00A7DA052E8C60D800BA7927 /* MMKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00A7D9FF2E8C60A500BA7927 /* MMKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		00B4760D2E633E4C009C1E39 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 00B4760C2E633E4C009C1E39 /* AlertToast */; };
 		00BE890F2E94BD4600B772CD /* MMKVAppExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00BE890C2E94BD4600B772CD /* MMKVAppExtension.framework */; };
+		00C548D02EEF26DB0026A0D9 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 00C548CF2EEF26DB0026A0D9 /* KeychainAccess */; };
+		00C548D92EEF27080026A0D9 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 00C548D82EEF27080026A0D9 /* KeychainAccess */; };
 		00CD22612E6757E6008AB82B /* Toasts in Frameworks */ = {isa = PBXBuildFile; productRef = 00CD22602E6757E6008AB82B /* Toasts */; };
 		00D1CF1F2E79DCC1005E67A2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00D1CF1E2E79DCC1005E67A2 /* CSUSTKit */; };
 		00D1CF212E79DCD5005E67A2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00D1CF202E79DCD5005E67A2 /* CSUSTKit */; };
@@ -126,6 +128,7 @@
 				Models/Storage/UrgentCourseData.swift,
 				Shared/Managers/MMKVManager.swift,
 				Shared/Utils/AppEnvironmentHelper.swift,
+				Shared/Utils/AssetUtils.swift,
 				Shared/Utils/ColorHelper.swift,
 				Shared/Utils/Constants.swift,
 				Shared/Utils/CourseScheduleHelper.swift,
@@ -187,6 +190,7 @@
 				00CD22612E6757E6008AB82B /* Toasts in Frameworks */,
 				0041FC6D2E2AA269007F383F /* MarkdownUI in Frameworks */,
 				00B4760D2E633E4C009C1E39 /* AlertToast in Frameworks */,
+				00C548D02EEF26DB0026A0D9 /* KeychainAccess in Frameworks */,
 				0041FC6A2E2A91E0007F383F /* Zoomable in Frameworks */,
 				00D927752E8CF0E400EAD828 /* Inject in Frameworks */,
 				00A7DA042E8C60D800BA7927 /* MMKV.framework in Frameworks */,
@@ -203,6 +207,7 @@
 				00E89C652E2C88D800B43162 /* SwiftUI.framework in Frameworks */,
 				00E89C632E2C88D800B43162 /* WidgetKit.framework in Frameworks */,
 				00BE890F2E94BD4600B772CD /* MMKVAppExtension.framework in Frameworks */,
+				00C548D92EEF27080026A0D9 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,6 +288,7 @@
 				004D050B2E8C3E1B0055B86B /* FLEX */,
 				004D050E2E8C419F0055B86B /* LookinServer */,
 				00D927742E8CF0E400EAD828 /* Inject */,
+				00C548CF2EEF26DB0026A0D9 /* KeychainAccess */,
 			);
 			productName = CSUSTPlanet;
 			productReference = 007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */;
@@ -307,6 +313,7 @@
 			name = CSUSTPlanetWidgetExtension;
 			packageProductDependencies = (
 				00D1CF202E79DCD5005E67A2 /* CSUSTKit */,
+				00C548D82EEF27080026A0D9 /* KeychainAccess */,
 			);
 			productName = CSUSTPlanetWidgetExtension;
 			productReference = 00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */;
@@ -348,6 +355,7 @@
 				004D050A2E8C3E1B0055B86B /* XCRemoteSwiftPackageReference "FLEX" */,
 				004D050D2E8C40E80055B86B /* XCRemoteSwiftPackageReference "LookinServer" */,
 				00D927732E8CF0E400EAD828 /* XCRemoteSwiftPackageReference "Inject" */,
+				00C548CE2EEF26DB0026A0D9 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 007CF85C2E1BD68900E319F2 /* Products */;
@@ -781,6 +789,14 @@
 				minimumVersion = 1.3.9;
 			};
 		};
+		00C548CE2EEF26DB0026A0D9 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.2.2;
+			};
+		};
 		00CD225F2E675732008AB82B /* XCRemoteSwiftPackageReference "swiftui-toasts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sunghyun-k/swiftui-toasts.git";
@@ -832,6 +848,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 00B4760B2E633E4C009C1E39 /* XCRemoteSwiftPackageReference "AlertToast" */;
 			productName = AlertToast;
+		};
+		00C548CF2EEF26DB0026A0D9 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 00C548CE2EEF26DB0026A0D9 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+		00C548D82EEF27080026A0D9 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 00C548CE2EEF26DB0026A0D9 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
 		00CD22602E6757E6008AB82B /* Toasts */ = {
 			isa = XCSwiftPackageProductDependency;
