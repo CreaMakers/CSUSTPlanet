@@ -162,6 +162,11 @@
 			path = CSUSTPlanet;
 			sourceTree = "<group>";
 		};
+		00BBB2AF2EEEE5C10047AEEF /* Configs */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Configs;
+			sourceTree = "<group>";
+		};
 		00E89C662E2C88D800B43162 /* CSUSTPlanetWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -207,6 +212,7 @@
 		007CF8522E1BD68800E319F2 = {
 			isa = PBXGroup;
 			children = (
+				00BBB2AF2EEEE5C10047AEEF /* Configs */,
 				007CF85D2E1BD68900E319F2 /* CSUSTPlanet */,
 				00E89C662E2C88D800B43162 /* CSUSTPlanetWidget */,
 				00E89C612E2C88D800B43162 /* Frameworks */,
@@ -265,6 +271,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				007CF85D2E1BD68900E319F2 /* CSUSTPlanet */,
+				00BBB2AF2EEEE5C10047AEEF /* Configs */,
 			);
 			name = CSUSTPlanet;
 			packageProductDependencies = (
@@ -431,6 +438,8 @@
 /* Begin XCBuildConfiguration section */
 		007CF8642E1BD68A00E319F2 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 00BBB2AF2EEEE5C10047AEEF /* Configs */;
+			baseConfigurationReferenceRelativePath = Shared.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -495,6 +504,8 @@
 		};
 		007CF8652E1BD68A00E319F2 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 00BBB2AF2EEEE5C10047AEEF /* Configs */;
+			baseConfigurationReferenceRelativePath = Shared.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -586,7 +597,7 @@
 					"-Xlinker",
 					"-interposable",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zhelearn.CSUSTPlanet;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(CSUSTPLANET_APP_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -629,7 +640,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.zhelearn.CSUSTPlanet;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(CSUSTPLANET_APP_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -657,7 +668,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.zhelearn.CSUSTPlanet.CSUSTPlanetWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(CSUSTPLANET_WIDGET_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG WIDGET $(inherited)";
@@ -687,7 +698,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.zhelearn.CSUSTPlanet.CSUSTPlanetWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(CSUSTPLANET_WIDGET_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET;

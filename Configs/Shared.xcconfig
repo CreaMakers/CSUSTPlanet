@@ -1,0 +1,24 @@
+//
+//  Shared.xcconfig
+//  CSUSTPlanet
+//
+//  Created by Zachary Liu on 2025/12/14.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+#include "User.xcconfig"
+
+CSUSTPLANET_APP_NAME = CSUSTPlanet
+CSUSTPLANET_WIDGET_NAME = CSUSTPlanetWidget
+
+CSUSTPLANET_APP_BUNDLE_ID = $(CSUSTPLANET_BUNDLE_PREFIX).$(CSUSTPLANET_APP_NAME)
+CSUSTPLANET_WIDGET_BUNDLE_ID = $(CSUSTPLANET_APP_BUNDLE_ID).$(CSUSTPLANET_WIDGET_NAME)
+
+CSUSTPLANET_GROUP_ID = group.$(CSUSTPLANET_APP_BUNDLE_ID)
+CSUSTPLANET_ICLOUD_ID = iCloud.$(CSUSTPLANET_APP_BUNDLE_ID)
+CSUSTPLANET_KEYCHAIN_SUFFIX = $(CSUSTPLANET_APP_BUNDLE_ID)
+
+CSUSTPLANET_VERSION = 1.4
+CSUSTPLANET_BUILD_NUMBER = 1
