@@ -1,0 +1,15 @@
+//
+//  User.xcconfig
+//  CSUSTPlanet
+//
+//  Created by Zachary Liu on 2025/12/14.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+// 你的 Team ID
+CSUSTPLANET_TEAM_ID = A1B2C3D4E5
+
+// 你的 Bundle Prefix
+CSUSTPLANET_BUNDLE_PREFIX = com.example
