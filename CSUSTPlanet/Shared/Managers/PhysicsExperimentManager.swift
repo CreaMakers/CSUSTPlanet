@@ -44,8 +44,8 @@ class PhysicsExperimentManager: ObservableObject {
         }
 
         try await physicsExperimentHelper?.login(username: username, password: password)
-        KeychainHelper.save(key: "PhysicsExperimentUsername", value: username)
-        KeychainHelper.save(key: "PhysicsExperimentPassword", value: password)
+        KeychainHelper.shared.physicsExperimentUsername = username
+        KeychainHelper.shared.physicsExperimentPassword = password
     }
 
     func getCourseGrades() async throws -> [PhysicsExperimentHelper.CourseGrade] {

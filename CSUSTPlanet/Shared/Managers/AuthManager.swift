@@ -55,8 +55,8 @@ class AuthManager: ObservableObject {
                 return
             }
 
-            guard let username = KeychainHelper.retrieve(key: "SSOUsername"),
-                let password = KeychainHelper.retrieve(key: "SSOPassword")
+            guard let username = KeychainHelper.shared.ssoUsername,
+                let password = KeychainHelper.shared.ssoPassword
             else {
                 isSSOLoggingIn = false
                 return
@@ -74,8 +74,8 @@ class AuthManager: ObservableObject {
         }
         try await ssoHelper.login(username: username, password: password)
 
-        KeychainHelper.save(key: "SSOUsername", value: username)
-        KeychainHelper.save(key: "SSOPassword", value: password)
+        KeychainHelper.shared.ssoUsername = username
+        KeychainHelper.shared.ssoPassword = password
 
         ssoProfile = try await ssoHelper.getLoginUser()
         ssoHelper.saveCookies()
@@ -94,8 +94,8 @@ class AuthManager: ObservableObject {
         try await ssoHelper.logout()
         ssoProfile = nil
 
-        KeychainHelper.delete(key: "SSOUsername")
-        KeychainHelper.delete(key: "SSOPassword")
+        KeychainHelper.shared.ssoUsername = nil
+        KeychainHelper.shared.ssoPassword = nil
 
         ssoHelper.clearCookies()
 

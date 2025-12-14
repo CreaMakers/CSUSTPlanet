@@ -10,8 +10,6 @@ import CSUSTKit
 import Foundation
 
 public class KeychainCookieStorage: CookieStorage {
-    private let keychainKey = "SSOCookies"
-
     public init() {}
 
     public func saveCookies(for session: Session) {
@@ -21,12 +19,12 @@ public class KeychainCookieStorage: CookieStorage {
             let data = try NSKeyedArchiver.archivedData(withRootObject: cookies, requiringSecureCoding: false)
             let dataString = data.base64EncodedString()
 
-            KeychainHelper.save(key: keychainKey, value: dataString)
+            KeychainHelper.shared.ssoCookies = dataString
         } catch {}
     }
 
     public func restoreCookies(to session: Session) {
-        guard let dataString = KeychainHelper.retrieve(key: keychainKey),
+        guard let dataString = KeychainHelper.shared.ssoCookies,
             let data = Data(base64Encoded: dataString)
         else { return }
 
@@ -40,6 +38,6 @@ public class KeychainCookieStorage: CookieStorage {
     }
 
     public func clearCookies() {
-        KeychainHelper.delete(key: keychainKey)
+        KeychainHelper.shared.ssoCookies = nil
     }
 }
