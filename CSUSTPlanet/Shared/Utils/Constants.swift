@@ -8,7 +8,10 @@
 import Foundation
 
 class Constants {
-    static let appGroupID = "group.com.zhelearn.CSUSTPlanet"
+    static let appGroupID = Bundle.main.object(forInfoDictionaryKey: "ConfigAppGroupID") as! String
+    static let iCloudID = Bundle.main.object(forInfoDictionaryKey: "ConfigCloudContainerID") as! String
+    static let keychainGroup = Bundle.main.object(forInfoDictionaryKey: "ConfigKeychainGroup") as! String
+
     static let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
 
     static let mmkvDirectoryURL: URL? = {
@@ -30,9 +33,7 @@ class Constants {
 
     static var backendHost: String {
         switch AppEnvironmentHelper.environment {
-        case .appStore:
-            return "https://api.csustplanet.zhelearn.com"
-        case .testFlight:
+        case .appStore, .testFlight:
             return "https://api.csustplanet.zhelearn.com"
         case .debug:
             #if targetEnvironment(simulator)

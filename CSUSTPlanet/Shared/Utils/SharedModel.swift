@@ -19,15 +19,15 @@ class SharedModel {
             let config = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false,
-                groupContainer: .identifier("group.com.zhelearn.CSUSTPlanet"),
+                groupContainer: .identifier(Constants.appGroupID),
             )
             debugPrint("Using shared group container for widget: \(config.groupContainer)")
         #else
             let config = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false,
-                groupContainer: .identifier("group.com.zhelearn.CSUSTPlanet"),
-                cloudKitDatabase: .private("iCloud.com.zhelearn.CSUSTPlanet"),
+                groupContainer: .identifier(Constants.appGroupID),
+                cloudKitDatabase: .private(Constants.iCloudID),
             )
             debugPrint("Using iCloud container for app: \(config.cloudKitDatabase)")
         #endif

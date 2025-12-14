@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ConfigAppGroupID</key>
+	<string>$(CSUSTPLANET_GROUP_ID)</string>
+	<key>ConfigCloudContainerID</key>
+	<string>$(CSUSTPLANET_ICLOUD_ID)</string>
+	<key>ConfigKeychainGroup</key>
+	<string>$(CSUSTPLANET_TEAM_ID).$(CSUSTPLANET_KEYCHAIN_SUFFIX)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
