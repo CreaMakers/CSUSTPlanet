@@ -14,4 +14,11 @@ class AssetUtils {
         }
         return try? String(contentsOf: fileURL, encoding: .utf8)
     }
+
+    static func bundleInfo(forKey key: String) -> String {
+        guard let value = Bundle.main.object(forInfoDictionaryKey: key) as? String else {
+            fatalError("Missing or invalid Info.plist key: \(key)")
+        }
+        return value
+    }
 }

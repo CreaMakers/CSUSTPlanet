@@ -8,9 +8,9 @@
 import Foundation
 
 class Constants {
-    static let appGroupID = Bundle.main.object(forInfoDictionaryKey: "ConfigAppGroupID") as! String
-    static let iCloudID = Bundle.main.object(forInfoDictionaryKey: "ConfigCloudContainerID") as! String
-    static let keychainGroup = Bundle.main.object(forInfoDictionaryKey: "ConfigKeychainGroup") as! String
+    static let appGroupID = AssetUtils.bundleInfo(forKey: "ConfigAppGroupID")
+    static let iCloudID = AssetUtils.bundleInfo(forKey: "ConfigCloudContainerID")
+    static let keychainGroup = AssetUtils.bundleInfo(forKey: "ConfigKeychainGroup")
 
     static let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
 
@@ -31,9 +31,9 @@ class Constants {
         }
     }
 
-    private static let apiHostProd = Bundle.main.object(forInfoDictionaryKey: "ConfigApiHostProd") as! String
-    private static let apiHostDev = Bundle.main.object(forInfoDictionaryKey: "ConfigApiHostDev") as! String
-    private static let apiHostLocal = Bundle.main.object(forInfoDictionaryKey: "ConfigApiHostLocal") as! String
+    private static let apiHostProd = AssetUtils.bundleInfo(forKey: "ConfigApiHostProd")
+    private static let apiHostDev = AssetUtils.bundleInfo(forKey: "ConfigApiHostDev")
+    private static let apiHostLocal = AssetUtils.bundleInfo(forKey: "ConfigApiHostLocal")
 
     static var backendHost: String {
         switch AppEnvironmentHelper.environment {
