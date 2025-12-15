@@ -145,8 +145,8 @@ class SSOLoginViewModel: ObservableObject {
                 isShowingBrowser = false
                 isShowingLoginSheet = false
                 if mode == .username {
-                    KeychainHelper.save(key: "SSOUsername", value: username)
-                    KeychainHelper.save(key: "SSOPassword", value: password)
+                    KeychainHelper.shared.ssoUsername = username
+                    KeychainHelper.shared.ssoPassword = password
                 }
             } catch {
                 isShowingError = true

@@ -10,8 +10,8 @@ import SwiftUI
 
 @MainActor
 class PhysicsExperimentLoginViewModel: ObservableObject {
-    @Published var username: String = KeychainHelper.retrieve(key: "PhysicsExperimentUsername") ?? ""
-    @Published var password: String = KeychainHelper.retrieve(key: "PhysicsExperimentPassword") ?? ""
+    @Published var username: String = KeychainHelper.shared.physicsExperimentUsername ?? ""
+    @Published var password: String = KeychainHelper.shared.physicsExperimentPassword ?? ""
     @Published var isPasswordVisible: Bool = false
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""

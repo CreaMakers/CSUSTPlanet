@@ -126,6 +126,7 @@
 				Models/Storage/UrgentCourseData.swift,
 				Shared/Managers/MMKVManager.swift,
 				Shared/Utils/AppEnvironmentHelper.swift,
+				Shared/Utils/AssetUtils.swift,
 				Shared/Utils/ColorHelper.swift,
 				Shared/Utils/Constants.swift,
 				Shared/Utils/CourseScheduleHelper.swift,

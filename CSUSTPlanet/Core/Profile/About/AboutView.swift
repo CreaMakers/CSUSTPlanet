@@ -69,7 +69,7 @@ struct AboutView: View {
                     }
 
                     Button(action: {
-                        KeychainHelper.deleteAll()
+                        KeychainHelper.shared.deleteAll()
                     }) {
                         Label("清除所有Keychain数据", systemImage: "trash")
                             .foregroundColor(.red)
