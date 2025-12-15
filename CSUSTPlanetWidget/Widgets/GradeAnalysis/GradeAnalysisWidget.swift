@@ -83,7 +83,7 @@ struct GradeAnalysisProvider: AppIntentTimelineProvider {
         if (try? await ssoHelper.getLoginUser()) == nil {
             debugPrint("GradeAnalysisProvider: No valid cookie found, attempting login with username and password")
             // 保存的cookie无效，尝试账号密码登录
-            if let username = KeychainHelper.shared.ssoUsername, let password = KeychainHelper.shared.ssoPassword {
+            if let username = KeychainHelper.retrieve(key: "SSOUsername"), let password = KeychainHelper.retrieve(key: "SSOPassword") {
                 hasValidSession = (try? await ssoHelper.login(username: username, password: password)) != nil
             } else {
                 hasValidSession = false
