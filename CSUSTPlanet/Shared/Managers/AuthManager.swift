@@ -8,6 +8,7 @@
 import Alamofire
 import CSUSTKit
 import Foundation
+import OSLog
 
 @MainActor
 class AuthManager: ObservableObject {
@@ -54,6 +55,7 @@ class AuthManager: ObservableObject {
         if let ssoProfile = try? await ssoHelper.getLoginUser() {
             // 统一身份认证已登录
             self.ssoProfile = ssoProfile
+            Logger.authManager.debug("初始化: Cookies中存在统一身份认证信息 统一身份认证已登录")
 
             // 尝试登录教务
             Task {
@@ -63,16 +65,20 @@ class AuthManager: ObservableObject {
                 if await eduHelper.isLoggedIn() {
                     // 教务已登录
                     self.eduHelper = eduHelper
+                    Logger.authManager.debug("初始化: Cookies中存在教务信息 教务已登录")
                 } else {
                     // 教务未登录，尝试登录
+                    Logger.authManager.debug("初始化: Cookies中不存在教务信息 尝试登录教务")
                     _ = try? await ssoHelper.loginToEducation()
                     if await eduHelper.isLoggedIn() {
                         // 教务登录成功
                         self.eduHelper = eduHelper
                         CookieHelper.shared.save()
+                        Logger.authManager.debug("初始化: 教务登录成功")
                     } else {
                         // 教务登录失败
                         isShowingEducationError = true
+                        Logger.authManager.debug("初始化: 教务登录失败")
                     }
                 }
             }
@@ -86,27 +92,35 @@ class AuthManager: ObservableObject {
                     // 网络课程中心已登录
                     self.moocHelper = moocHelper
                     CookieHelper.shared.save()
+                    Logger.authManager.debug("初始化: Cookies中存在网络课程平台信息 网络课程平台已登录")
                 } else {
                     // 网络课程中心未登录，尝试登录
+                    Logger.authManager.debug("初始化: Cookies中不存在网络课程平台信息 尝试登录网络课程平台")
                     _ = try? await ssoHelper.loginToMooc()
                     if await moocHelper.isLoggedIn() {
                         // 网络课程中心登录成功
                         self.moocHelper = moocHelper
+                        CookieHelper.shared.save()
+                        Logger.authManager.debug("初始化: 网络课程平台登录成功")
                     } else {
                         // 网络课程中心登录失败
                         isShowingMoocError = true
+                        Logger.authManager.debug("初始化: 网络课程平台登录失败")
                     }
                 }
             }
         } else {
             // 统一身份认证未登录
+            Logger.authManager.debug("初始化: Cookies中不存在统一身份认证信息 统一身份认证未登录")
             if let username = KeychainHelper.shared.ssoUsername, let password = KeychainHelper.shared.ssoPassword {
                 // 统一身份认证未登录，密码已保存，尝试登录
+                Logger.authManager.debug("初始化: 统一身份认证未登录，密码已保存，尝试登录")
                 try? await ssoHelper.login(username: username, password: password)
                 if let ssoProfile = try? await ssoHelper.getLoginUser() {
                     // 统一身份认证已登录
                     self.ssoProfile = ssoProfile
                     CookieHelper.shared.save()
+                    Logger.authManager.debug("初始化: 统一身份认证已登录")
 
                     Task {
                         // 尝试登录教务
@@ -116,9 +130,11 @@ class AuthManager: ObservableObject {
                             // 教务登录成功
                             self.eduHelper = eduHelper
                             CookieHelper.shared.save()
+                            Logger.authManager.debug("初始化: 教务登录成功")
                         } else {
                             // 教务登录失败
                             isShowingEducationError = true
+                            Logger.authManager.debug("初始化: 教务登录失败")
                         }
                     }
 
@@ -130,16 +146,20 @@ class AuthManager: ObservableObject {
                             // 网络课程平台登录成功
                             self.moocHelper = moocHelper
                             CookieHelper.shared.save()
+                            Logger.authManager.debug("初始化: 网络课程平台登录成功")
                         } else {
                             // 网络课程平台登录失败
                             isShowingMoocError = true
+                            Logger.authManager.debug("初始化: 网络课程平台登录失败")
                         }
                     }
                 } else {
                     // 统一身份认证登录失败，不操作
+                    Logger.authManager.debug("初始化: 统一身份认证登录失败，不操作")
                 }
             } else {
                 // 统一身份认证未登录，密码未保存，不操作
+                Logger.authManager.debug("初始化: 统一身份认证未登录，密码未保存，不操作")
             }
         }
     }
