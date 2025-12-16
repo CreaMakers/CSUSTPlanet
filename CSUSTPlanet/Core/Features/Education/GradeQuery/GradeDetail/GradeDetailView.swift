@@ -133,21 +133,6 @@ struct GradeDetailView: View {
         }
     }
 
-    // MARK: - Shareable View
-
-    private var shareableView: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            courseTitle
-            scoresSection
-            distributionChart
-            courseInfoSection
-        }
-        .padding()
-        .frame(width: UIScreen.main.bounds.width)
-        .background(Color(.systemGroupedBackground))
-        .environment(\.colorScheme, colorScheme)
-    }
-
     // MARK: - Body
 
     var body: some View {
@@ -166,28 +151,10 @@ struct GradeDetailView: View {
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
-        .toast(isPresenting: $viewModel.isShowingSuccess) {
-            AlertToast(type: .complete(.green), title: "图片保存成功")
-        }
         .toast(isPresenting: $viewModel.isShowingWarning) {
             AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Button(action: { viewModel.showShareSheet(shareableView) }) {
-                        Label("分享", systemImage: "square.and.arrow.up")
-                    }
-                    .disabled(viewModel.isLoading)
-                    Button(action: { viewModel.saveToPhotoAlbum(shareableView) }) {
-                        Label("保存结果到相册", systemImage: "photo")
-                    }
-                    .disabled(viewModel.isLoading)
-                } label: {
-                    Label("更多操作", systemImage: "ellipsis.circle")
-                }
-                .disabled(viewModel.isLoading)
-            }
             ToolbarItem(placement: .primaryAction) {
                 if viewModel.isLoading {
                     ProgressView()
@@ -199,9 +166,6 @@ struct GradeDetailView: View {
                     }
                 }
             }
-        }
-        .sheet(isPresented: $viewModel.isShowingShareSheet) {
-            ShareSheet(items: [viewModel.shareContent!])
         }
     }
 }
