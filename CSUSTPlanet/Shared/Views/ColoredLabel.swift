@@ -17,7 +17,13 @@ struct ColoredLabel: View {
             Text(title)
         } icon: {
             Image(systemName: iconName)
-                .foregroundColor(color)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(width: 29, height: 29)
+                .background(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(color)
+                )
         }
     }
 }
