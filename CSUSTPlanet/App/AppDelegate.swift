@@ -11,6 +11,9 @@ import OSLog
 import UIKit
 
 class AppDelegate: NSObject, UIApplicationDelegate {
+    private var isFirstAppear = true
+    private var lastBackgroundDate: Date?
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
 
@@ -120,11 +123,34 @@ extension AppDelegate {
     private func appDidEnterBackground() {
         Logger.appDelegate.debug("App进入后台: appDidEnterBackground")
         ActivityManager.shared.autoUpdateActivity()
+
+        lastBackgroundDate = .now
     }
 
     @objc
     private func appWillEnterForeground() {
         Logger.appDelegate.debug("App回到前台: appWillEnterForeground")
         ActivityManager.shared.autoUpdateActivity()
+
+        if !isFirstAppear {
+            checkAndRelogin()
+        }
+
+        if isFirstAppear {
+            isFirstAppear = false
+        }
+    }
+
+    private func checkAndRelogin() {
+        let threshold: TimeInterval = 3 * 60
+        guard let backgroundDate = lastBackgroundDate else { return }
+
+        let timeInterval = Date().timeIntervalSince(backgroundDate)
+        if timeInterval > threshold {
+            Logger.appDelegate.debug("App后台停留时间 (\(timeInterval)s) 超过阈值，执行 SSO Relogin")
+            AuthManager.shared.ssoRelogin()
+        } else {
+            Logger.appDelegate.debug("App后台停留时间 (\(timeInterval)s) 不足 3 分钟，跳过 Relogin")
+        }
     }
 }

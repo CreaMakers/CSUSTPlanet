@@ -80,7 +80,7 @@ final class KeychainHelper {
         return [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
-            kSecAttrAccessGroup as String: Constants.keychainGroup
+            kSecAttrAccessGroup as String: Constants.keychainGroup,
         ]
     }
 }
