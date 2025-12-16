@@ -120,8 +120,6 @@ class ExamScheduleViewModel: ObservableObject {
                 do {
                     let exams = try await eduHelper.examService.getExamSchedule(academicYearSemester: selectedSemesters, semesterType: selectedSemesterType)
                     let sortedExams = exams.sorted {
-                        if $0.examStartTime > Date() && $1.examStartTime <= Date() { return true }
-                        if $0.examStartTime <= Date() && $1.examStartTime > Date() { return false }
                         return $0.examStartTime < $1.examStartTime
                     }
 
