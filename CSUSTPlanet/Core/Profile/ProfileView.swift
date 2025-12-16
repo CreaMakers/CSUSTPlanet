@@ -79,13 +79,23 @@ struct ProfileView: View {
                         }
                     }
 
+                    Button(action: {}) {
+                        HStack {
+                            ColoredLabel(title: "重新登录统一身份认证", iconName: "person.fill", color: .blue)
+                            Spacer()
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!authManager.isSSOLoggedIn)
+
                     if authManager.isEducationLoggingIn {
                         HStack {
                             ProgressView().padding(.horizontal, 6)
                             Text("正在登录教务系统")
                         }
                     } else {
-                        Button(action: authManager.loginToEducation) {
+                        Button(action: authManager.educationLogin) {
                             HStack {
                                 ColoredLabel(title: "重新登录教务系统", iconName: "graduationcap", color: .orange)
                                 Spacer()
@@ -102,7 +112,7 @@ struct ProfileView: View {
                             Text("正在登录网络课程中心")
                         }
                     } else {
-                        Button(action: authManager.loginToMooc) {
+                        Button(action: authManager.moocLogin) {
                             HStack {
                                 ColoredLabel(title: "重新登录网络课程中心", iconName: "book.closed", color: .mint)
                                 Spacer()
@@ -113,11 +123,7 @@ struct ProfileView: View {
                         .disabled(!authManager.isSSOLoggedIn)
                     }
 
-                    Button(action: {
-                        Task {
-                            try await authManager.logout()
-                        }
-                    }) {
+                    Button(action: authManager.logout) {
                         HStack {
                             ColoredLabel(title: "退出登录", iconName: "arrow.right.circle", color: .red)
                             Spacer()
@@ -132,7 +138,7 @@ struct ProfileView: View {
                 } else if authManager.isSSOLoggingIn {
                     HStack {
                         ProgressView()
-                        Text("正在登录...")
+                        Text("正在登录统一身份认证...")
                     }
                 } else {
                     Button(action: {

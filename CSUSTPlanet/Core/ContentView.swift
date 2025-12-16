@@ -67,9 +67,7 @@ struct ContentView: View {
             let toastValue = ToastValue(
                 icon: Image(systemName: "exclamationmark.triangle"),
                 message: "教务登录错误",
-                button: ToastButton(title: "重试登录", color: .red) {
-                    authManager.loginToEducation()
-                }
+                button: ToastButton(title: "重试登录", color: .red, action: authManager.educationLogin)
             )
             presentToast(toastValue)
             authManager.isShowingEducationError = false
@@ -79,9 +77,7 @@ struct ContentView: View {
             let toastValue = ToastValue(
                 icon: Image(systemName: "exclamationmark.triangle"),
                 message: "网络课程中心登录错误",
-                button: ToastButton(title: "重试登录", color: .red) {
-                    authManager.loginToMooc()
-                }
+                button: ToastButton(title: "重试登录", color: .red, action: authManager.moocLogin)
             )
             presentToast(toastValue)
             authManager.isShowingMoocError = false

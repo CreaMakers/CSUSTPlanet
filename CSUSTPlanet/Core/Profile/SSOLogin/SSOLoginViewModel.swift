@@ -141,7 +141,7 @@ class SSOLoginViewModel: ObservableObject {
                 AuthManager.shared.ssoProfile = ssoProfile
                 AuthManager.shared.ssoHelper = ssoHelper
                 CookieHelper.shared.save()
-                AuthManager.shared.loginToHelpers()
+                AuthManager.shared.allLogin()
                 isShowingBrowser = false
                 isShowingLoginSheet = false
                 if mode == .username {

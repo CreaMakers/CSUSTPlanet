@@ -44,9 +44,7 @@ class AuthManager: ObservableObject {
 
     private init() {
         ssoHelper = SSOHelper(mode: mode, session: session)
-        Task {
-            await initialize()
-        }
+        Task { await initialize() }
     }
 
     private func initialize() async {
@@ -55,116 +53,35 @@ class AuthManager: ObservableObject {
         if let ssoProfile = try? await ssoHelper.getLoginUser() {
             // 统一身份认证已登录
             self.ssoProfile = ssoProfile
-            Logger.authManager.debug("初始化: Cookies中存在统一身份认证信息 统一身份认证已登录")
-
-            // 尝试登录教务
-            Task {
-                isEducationLoggingIn = true
-                defer { isEducationLoggingIn = false }
-                let eduHelper = EduHelper(mode: mode, session: session)
-                if await eduHelper.isLoggedIn() {
-                    // 教务已登录
-                    self.eduHelper = eduHelper
-                    Logger.authManager.debug("初始化: Cookies中存在教务信息 教务已登录")
-                } else {
-                    // 教务未登录，尝试登录
-                    Logger.authManager.debug("初始化: Cookies中不存在教务信息 尝试登录教务")
-                    _ = try? await ssoHelper.loginToEducation()
-                    if await eduHelper.isLoggedIn() {
-                        // 教务登录成功
-                        self.eduHelper = eduHelper
-                        CookieHelper.shared.save()
-                        Logger.authManager.debug("初始化: 教务登录成功")
-                    } else {
-                        // 教务登录失败
-                        isShowingEducationError = true
-                        Logger.authManager.debug("初始化: 教务登录失败")
-                    }
-                }
-            }
-
-            // 尝试登录网络课程平台
-            Task {
-                isMoocLoggingIn = true
-                defer { isMoocLoggingIn = false }
-                let moocHelper = MoocHelper(mode: mode, session: session)
-                if await moocHelper.isLoggedIn() {
-                    // 网络课程中心已登录
-                    self.moocHelper = moocHelper
-                    CookieHelper.shared.save()
-                    Logger.authManager.debug("初始化: Cookies中存在网络课程平台信息 网络课程平台已登录")
-                } else {
-                    // 网络课程中心未登录，尝试登录
-                    Logger.authManager.debug("初始化: Cookies中不存在网络课程平台信息 尝试登录网络课程平台")
-                    _ = try? await ssoHelper.loginToMooc()
-                    if await moocHelper.isLoggedIn() {
-                        // 网络课程中心登录成功
-                        self.moocHelper = moocHelper
-                        CookieHelper.shared.save()
-                        Logger.authManager.debug("初始化: 网络课程平台登录成功")
-                    } else {
-                        // 网络课程中心登录失败
-                        isShowingMoocError = true
-                        Logger.authManager.debug("初始化: 网络课程平台登录失败")
-                    }
-                }
-            }
+            Logger.authManager.debug("initialize: Cookies中存在统一身份认证信息 统一身份认证已登录")
+            // 登录教务和网络课程中心
+            allLogin()
         } else {
             // 统一身份认证未登录
-            Logger.authManager.debug("初始化: Cookies中不存在统一身份认证信息 统一身份认证未登录")
+            Logger.authManager.debug("initialize: Cookies中不存在统一身份认证信息 统一身份认证未登录")
             if let username = KeychainHelper.shared.ssoUsername, let password = KeychainHelper.shared.ssoPassword {
                 // 统一身份认证未登录，密码已保存，尝试登录
-                Logger.authManager.debug("初始化: 统一身份认证未登录，密码已保存，尝试登录")
+                Logger.authManager.debug("initialize: 统一身份认证未登录，密码已保存，尝试登录")
                 try? await ssoHelper.login(username: username, password: password)
                 if let ssoProfile = try? await ssoHelper.getLoginUser() {
                     // 统一身份认证已登录
                     self.ssoProfile = ssoProfile
                     CookieHelper.shared.save()
-                    Logger.authManager.debug("初始化: 统一身份认证已登录")
-
-                    Task {
-                        // 尝试登录教务
-                        let eduHelper = EduHelper(mode: mode, session: session)
-                        _ = try? await ssoHelper.loginToEducation()
-                        if await eduHelper.isLoggedIn() {
-                            // 教务登录成功
-                            self.eduHelper = eduHelper
-                            CookieHelper.shared.save()
-                            Logger.authManager.debug("初始化: 教务登录成功")
-                        } else {
-                            // 教务登录失败
-                            isShowingEducationError = true
-                            Logger.authManager.debug("初始化: 教务登录失败")
-                        }
-                    }
-
-                    Task {
-                        // 尝试登录网络课程平台
-                        let moocHelper = MoocHelper(mode: mode, session: session)
-                        _ = try? await ssoHelper.loginToMooc()
-                        if await moocHelper.isLoggedIn() {
-                            // 网络课程平台登录成功
-                            self.moocHelper = moocHelper
-                            CookieHelper.shared.save()
-                            Logger.authManager.debug("初始化: 网络课程平台登录成功")
-                        } else {
-                            // 网络课程平台登录失败
-                            isShowingMoocError = true
-                            Logger.authManager.debug("初始化: 网络课程平台登录失败")
-                        }
-                    }
+                    Logger.authManager.debug("initialize: 统一身份认证已登录")
+                    // 登录教务和网络课程中心
+                    allLogin()
                 } else {
                     // 统一身份认证登录失败，不操作
-                    Logger.authManager.debug("初始化: 统一身份认证登录失败，不操作")
+                    Logger.authManager.debug("initialize: 统一身份认证登录失败，不操作")
                 }
             } else {
                 // 统一身份认证未登录，密码未保存，不操作
-                Logger.authManager.debug("初始化: 统一身份认证未登录，密码未保存，不操作")
+                Logger.authManager.debug("initialize: 统一身份认证未登录，密码未保存，不操作")
             }
         }
     }
 
-    // MARK: - Methods
+    // MARK: - SSO Login
 
     func login(username: String, password: String) async throws {
         guard ssoProfile == nil else { return }
@@ -181,25 +98,25 @@ class AuthManager: ObservableObject {
         ssoProfile = try await ssoHelper.getLoginUser()
         CookieHelper.shared.save()
 
-        loginToHelpers()
+        allLogin()
     }
 
-    func logout() async throws {
-        guard ssoProfile != nil else { return }
+    func logout() {
+        guard isSSOLoggedIn else { return }
+        Task {
+            isSSOLoggingOut = true
+            defer { isSSOLoggingOut = false }
 
-        isSSOLoggingOut = true
-        defer {
-            isSSOLoggingOut = false
+            try? await ssoHelper.logout()
+            CookieHelper.shared.save()
+
+            KeychainHelper.shared.ssoUsername = nil
+            KeychainHelper.shared.ssoPassword = nil
+
+            ssoProfile = nil
+            eduHelper = nil
+            moocHelper = nil
         }
-
-        try await ssoHelper.logout()
-        ssoProfile = nil
-
-        KeychainHelper.shared.ssoUsername = nil
-        KeychainHelper.shared.ssoPassword = nil
-
-        eduHelper = nil
-        moocHelper = nil
     }
 
     func getCaptcha() async throws -> Data {
@@ -221,51 +138,79 @@ class AuthManager: ObservableObject {
         CookieHelper.shared.save()
         isSSOLoggingIn = false
 
-        loginToHelpers()
+        allLogin()
     }
 
-    func loginToEducation() {
+    // MARK: - Education & Mooc Login
+
+    func educationLogin() {
+        // 这里假定统一身份认证已经登录
         guard !isEducationLoggingIn else { return }
-        eduHelper = nil
-        isEducationLoggingIn = true
         Task {
-            defer {
-                isEducationLoggingIn = false
+            isEducationLoggingIn = true
+            defer { isEducationLoggingIn = false }
+            let eduHelper = EduHelper(mode: mode, session: session)
+            guard !(await eduHelper.isLoggedIn()) else {
+                self.eduHelper = eduHelper
+                Logger.authManager.debug("educationLogin: 教务系统已登录，无需再登录")
+                return
             }
             do {
-                eduHelper = EduHelper(
-                    mode: GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct,
-                    session: try await ssoHelper.loginToEducation()
-                )
-                CookieHelper.shared.save()
+                _ = try await ssoHelper.loginToEducation()
             } catch {
+                Logger.authManager.debug("educationLogin: 教务登录失败")
                 isShowingEducationError = true
+                return
+            }
+            Logger.authManager.debug("educationLogin: 教务登录成功")
+            if await eduHelper.isLoggedIn() {
+                // 教务登录成功
+                self.eduHelper = eduHelper
+                CookieHelper.shared.save()
+                Logger.authManager.debug("educationLogin: 验证教务登录成功")
+            } else {
+                // 教务登录失败
+                isShowingEducationError = true
+                Logger.authManager.debug("educationLogin: 验证教务登录失败")
             }
         }
     }
 
-    func loginToMooc() {
+    func moocLogin() {
+        // 这里假定统一身份认证已经登录
         guard !isMoocLoggingIn else { return }
-        moocHelper = nil
-        isMoocLoggingIn = true
         Task {
-            defer {
-                isMoocLoggingIn = false
+            isMoocLoggingIn = true
+            defer { isMoocLoggingIn = false }
+            let moocHelper = MoocHelper(mode: mode, session: session)
+            guard !(await moocHelper.isLoggedIn()) else {
+                self.moocHelper = moocHelper
+                Logger.authManager.debug("moocLogin: 网络课程平台已登录，无需再登录")
+                return
             }
             do {
-                moocHelper = MoocHelper(
-                    mode: GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct,
-                    session: try await ssoHelper.loginToMooc()
-                )
-                CookieHelper.shared.save()
+                _ = try await ssoHelper.loginToMooc()
             } catch {
+                Logger.authManager.debug("moocLogin: 网络课程平台登录失败")
                 isShowingMoocError = true
+                return
+            }
+            Logger.authManager.debug("moocLogin: 网络课程平台登录成功")
+            if await moocHelper.isLoggedIn() {
+                // 网络课程平台登录成功
+                self.moocHelper = moocHelper
+                CookieHelper.shared.save()
+                Logger.authManager.debug("moocLogin: 验证网络课程平台登录成功")
+            } else {
+                // 网络课程平台登录失败
+                isShowingMoocError = true
+                Logger.authManager.debug("moocLogin: 验证网络课程平台登录失败")
             }
         }
     }
 
-    func loginToHelpers() {
-        loginToEducation()
-        loginToMooc()
+    func allLogin() {
+        educationLogin()
+        moocLogin()
     }
 }
