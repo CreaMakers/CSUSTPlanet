@@ -12,6 +12,7 @@ import SwiftUI
 struct PhysicsExperimentScheduleView: View {
     @StateObject var viewModel = PhysicsExperimentScheduleViewModel()
     @State private var isLoginPresented: Bool = false
+    @State private var now = Date()
 
     var body: some View {
         Group {
@@ -21,7 +22,7 @@ struct PhysicsExperimentScheduleView: View {
                 List {
                     if let data = viewModel.data {
                         ForEach(data.value, id: \.id) { course in
-                            ExperimentCardView(course: course)
+                            ExperimentCardView(course: course, now: now)
                                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color.clear)
@@ -63,6 +64,7 @@ struct PhysicsExperimentScheduleView: View {
             if !newValue { viewModel.loadSchedules() }
         }
         .task {
+            now = Date()
             guard !viewModel.isLoaded else { return }
             viewModel.isLoaded = true
             viewModel.loadSchedules()
@@ -80,6 +82,19 @@ struct PhysicsExperimentScheduleView: View {
 
 private struct ExperimentCardView: View {
     let course: PhysicsExperimentHelper.Course
+    let now: Date
+
+    private var isFinished: Bool {
+        return now > course.endTime
+    }
+
+    private var daysUntil: Int {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: now)
+        let courseDay = calendar.startOfDay(for: course.startTime)
+        let components = calendar.dateComponents([.day], from: startOfDay, to: courseDay)
+        return components.day ?? 0
+    }
 
     var body: some View {
         ZStack {
@@ -92,20 +107,56 @@ private struct ExperimentCardView: View {
                     Text(course.name)
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(isFinished ? .secondary : .primary)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(2)
 
                     Spacer()
 
-                    Text("批次 \(course.batch)")
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.orange)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.orange.opacity(0.15))
-                        .clipShape(Capsule())
+                    VStack(alignment: .trailing, spacing: 4) {
+                        HStack(spacing: 4) {
+                            if isFinished {
+                                Text("已结束")
+                                    .font(.caption2.bold())
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 3)
+                                    .background(Color.gray.opacity(0.15), in: Capsule())
+                            } else {
+                                if daysUntil == 0 {
+                                    Text("今天")
+                                        .font(.caption2.bold())
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 3)
+                                        .background(Color.red, in: Capsule())
+                                } else if daysUntil == 1 {
+                                    Text("明天")
+                                        .font(.caption2.bold())
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 3)
+                                        .background(Color.orange, in: Capsule())
+                                } else {
+                                    Text("还有 \(daysUntil) 天")
+                                        .font(.caption2.bold())
+                                        .foregroundColor(.blue)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 3)
+                                        .background(Color.blue.opacity(0.1), in: Capsule())
+                                }
+                            }
+
+                            Text("批次 \(course.batch)")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundStyle(isFinished ? .gray : .orange)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(isFinished ? Color.gray.opacity(0.15) : Color.orange.opacity(0.15))
+                                .clipShape(Capsule())
+                        }
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -114,17 +165,17 @@ private struct ExperimentCardView: View {
                             .fontWeight(.medium)
                     } icon: {
                         Image(systemName: "calendar")
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(isFinished ? .gray : .blue)
                     }
                     .font(.subheadline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(isFinished ? Color.secondary : Color.blue)
 
                     Label {
                         Text(course.location)
                             .foregroundStyle(.secondary)
                     } icon: {
                         Image(systemName: "mappin.and.ellipse")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(isFinished ? .gray : .red)
                     }
                     .font(.subheadline)
                 }
@@ -146,6 +197,8 @@ private struct ExperimentCardView: View {
             }
             .padding(16)
         }
+        .opacity(isFinished ? 0.6 : 1.0)
+        .saturation(isFinished ? 0.0 : 1.0)
     }
 
     private func formatTime(course: PhysicsExperimentHelper.Course) -> String {
