@@ -20,14 +20,10 @@ class AuthManager: ObservableObject {
     @Published var isEducationLoggingIn: Bool = false
     @Published var isShowingEducationError: Bool = false
     @Published var educationErrorMessage: String = ""
-    private var eduLoginTask: Task<Void, Error>?
-    var eduLoginID = UUID()
 
     @Published var isMoocLoggingIn: Bool = false
     @Published var isShowingMoocError: Bool = false
     @Published var moocErrorMessage: String = ""
-    private var moocLoginTask: Task<Void, Error>?
-    var moocLoginID = UUID()
 
     var ssoHelper = SSOHelper(
         mode: GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct,
@@ -118,73 +114,43 @@ class AuthManager: ObservableObject {
     }
 
     func loginToEducation() {
-        let isAlreadyLoggingIn = eduLoginTask != nil
+        guard !isEducationLoggingIn else { return }
         eduHelper = nil
-        eduLoginTask?.cancel()
-        eduLoginID = UUID()
-
-        if !isAlreadyLoggingIn {
-            isEducationLoggingIn = true
-        }
-        eduLoginTask = Task {
+        isEducationLoggingIn = true
+        Task {
             defer {
-                if !Task.isCancelled {
-                    isEducationLoggingIn = false
-                    eduLoginTask = nil
-                }
+                isEducationLoggingIn = false
             }
             do {
-                let eduSession = try await ssoHelper.loginToEducation()
-                // #if DEBUG
-                //     try await Task.sleep(nanoseconds: 5_000_000_000)
-                // #endif
-                if Task.isCancelled { return }
                 eduHelper = EduHelper(
                     mode: GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct,
-                    session: eduSession
+                    session: try await ssoHelper.loginToEducation()
                 )
                 CookieHelper.shared.save()
             } catch {
-                if !Task.isCancelled && !(error is CancellationError) {
-                    educationErrorMessage = "教务服务初始化失败: \(error.localizedDescription)"
-                    isShowingEducationError = true
-                }
+                educationErrorMessage = "教务服务初始化失败: \(error.localizedDescription)"
+                isShowingEducationError = true
             }
         }
     }
 
     func loginToMooc() {
-        let isAlreadyLoggingIn = moocLoginTask != nil
+        guard !isMoocLoggingIn else { return }
         moocHelper = nil
-        moocLoginTask?.cancel()
-        moocLoginID = UUID()
-
-        if !isAlreadyLoggingIn {
-            isMoocLoggingIn = true
-        }
-        moocLoginTask = Task {
+        isMoocLoggingIn = true
+        Task {
             defer {
-                if !Task.isCancelled {
-                    isMoocLoggingIn = false
-                    moocLoginTask = nil
-                }
+                isMoocLoggingIn = false
             }
             do {
-                let moocSession = try await ssoHelper.loginToMooc()
-                // #if DEBUG
-                //     try await Task.sleep(nanoseconds: 5_000_000_000)
-                // #endif
-                if Task.isCancelled { return }
                 moocHelper = MoocHelper(
                     mode: GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct,
-                    session: moocSession
+                    session: try await ssoHelper.loginToMooc()
                 )
                 CookieHelper.shared.save()
             } catch {
-                if !Task.isCancelled && !(error is CancellationError) {
-                    moocErrorMessage = "网络课程中心服务初始化失败: \(error.localizedDescription)"
-                    isShowingMoocError = true
-                }
+                moocErrorMessage = "网络课程中心服务初始化失败: \(error.localizedDescription)"
+                isShowingMoocError = true
             }
         }
     }
