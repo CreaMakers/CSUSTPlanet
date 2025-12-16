@@ -11,7 +11,7 @@ import SwiftData
 import SwiftUI
 
 @MainActor
-class ExamScheduleViewModel: NSObject, ObservableObject {
+class ExamScheduleViewModel: ObservableObject {
     @Published var availableSemesters: [String] = []
     @Published var errorMessage = ""
     @Published var warningMessage = ""
@@ -30,11 +30,9 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
     @Published var selectedSemesters: String? = nil
     @Published var selectedSemesterType: EduHelper.SemesterType? = nil
 
-    var shareContent: Any? = nil
     var isLoaded: Bool = false
 
-    override init() {
-        super.init()
+    init() {
         guard let data = MMKVManager.shared.examSchedulesCache else { return }
         self.data = data
     }
@@ -74,6 +72,8 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
                     notes: "课程老师：\(exam.teacher)",
                     location: exam.examRoom
                 )
+                successMessage = "已添加到日历"
+                isShowingSuccess = true
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -100,7 +100,7 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
                         location: exam.examRoom
                     )
                 }
-                successMessage = "添加到日历成功"
+                successMessage = "全部添加到日历成功"
                 isShowingSuccess = true
             } catch {
                 errorMessage = error.localizedDescription
@@ -119,7 +119,13 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
             if let eduHelper = AuthManager.shared.eduHelper {
                 do {
                     let exams = try await eduHelper.examService.getExamSchedule(academicYearSemester: selectedSemesters, semesterType: selectedSemesterType)
-                    let data = Cached<[EduHelper.Exam]>(cachedAt: .now, value: exams)
+                    let sortedExams = exams.sorted {
+                        if $0.examStartTime > Date() && $1.examStartTime <= Date() { return true }
+                        if $0.examStartTime <= Date() && $1.examStartTime > Date() { return false }
+                        return $0.examStartTime < $1.examStartTime
+                    }
+
+                    let data = Cached<[EduHelper.Exam]>(cachedAt: .now, value: sortedExams)
                     self.data = data
                     MMKVManager.shared.examSchedulesCache = data
                 } catch {
@@ -140,40 +146,6 @@ class ExamScheduleViewModel: NSObject, ObservableObject {
                     self.isShowingWarning = true
                 }
             }
-        }
-    }
-
-    func showShareSheet(_ shareableView: some View) {
-        let renderer = ImageRenderer(content: shareableView)
-        renderer.scale = UIScreen.main.scale
-        guard let uiImage = renderer.uiImage else {
-            errorMessage = "生成图片失败"
-            isShowingError = true
-            return
-        }
-        shareContent = ImageActivityItemSource(title: "我的考试安排", image: uiImage)
-        isShowingShareSheet = true
-    }
-
-    func saveToPhotoAlbum(_ shareableView: some View) {
-        let renderer = ImageRenderer(content: shareableView)
-        renderer.scale = UIScreen.main.scale
-        if let uiImage = renderer.uiImage {
-            UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(saveToPhotoAlbumCallback(_:didFinishSavingWithError:contextInfo:)), nil)
-        } else {
-            errorMessage = "生成图片失败"
-            isShowingError = true
-        }
-    }
-
-    @objc
-    func saveToPhotoAlbumCallback(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-        if let error = error {
-            errorMessage = "保存图片失败，可能是没有权限: \(error.localizedDescription)"
-            isShowingError = true
-        } else {
-            successMessage = "图片保存成功"
-            isShowingSuccess = true
         }
     }
 }

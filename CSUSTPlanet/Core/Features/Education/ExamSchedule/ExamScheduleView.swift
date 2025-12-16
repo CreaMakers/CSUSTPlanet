@@ -13,6 +13,8 @@ struct ExamScheduleView: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel = ExamScheduleViewModel()
 
+    @State private var now = Date()
+
     // MARK: - Filter View
 
     @ViewBuilder
@@ -86,113 +88,171 @@ struct ExamScheduleView: View {
         .padding(.vertical, 20)
     }
 
+    // MARK: - Logic Helpers
+
+    private func isExamFinished(_ exam: EduHelper.Exam) -> Bool {
+        return now > exam.examEndTime
+    }
+
+    private func daysUntilExam(_ exam: EduHelper.Exam) -> Int {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: now)
+        let examDay = calendar.startOfDay(for: exam.examStartTime)
+        let components = calendar.dateComponents([.day], from: startOfDay, to: examDay)
+        return components.day ?? 0
+    }
+
     // MARK: - Exam Card
 
     @ViewBuilder
-    private func examCardContent(exam: EduHelper.Exam) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(exam.courseName)
-                .font(.headline)
-                .lineLimit(1)
-                .padding(.bottom, 8)
-
-            InfoRow(icon: ("clock", .blue), label: "考试时间", value: exam.examTime)
-            InfoRow(icon: ("building.columns", .green), label: "考场", value: exam.examRoom)
-
-            if !exam.seatNumber.isEmpty {
-                InfoRow(icon: ("number", .orange), label: "座位号", value: exam.seatNumber)
-            }
-
-            if !exam.teacher.isEmpty {
-                InfoRow(icon: ("person", .purple), label: "授课教师", value: exam.teacher)
-            }
-
-            if !exam.admissionTicketNumber.isEmpty {
-                InfoRow(icon: ("doc.text", .red), label: "准考证号", value: exam.admissionTicketNumber)
-            }
-
-            if !exam.remarks.isEmpty {
-                HStack(alignment: .top, spacing: 8) {
-                    Image(systemName: "note.text")
-                        .foregroundColor(.gray)
-                        .frame(width: 20)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("备注")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(exam.remarks)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-
-                    Spacer()
-                }
-                .padding(.vertical, 8)
-            }
-        }
-        .padding(.vertical, 8)
-    }
-
-    @ViewBuilder
     private func examCard(exam: EduHelper.Exam) -> some View {
-        examCardContent(exam: exam)
-            .contextMenu {
-                Button(action: {
-                    viewModel.addToCalendar(exam: exam)
-                }) {
-                    Label("添加到日历", systemImage: "calendar.badge.plus")
+        let finished = isExamFinished(exam)
+        let daysLeft = daysUntilExam(exam)
+
+        VStack(alignment: .leading, spacing: 0) {
+            // Header
+            HStack(alignment: .top) {
+                Text(exam.courseName)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(finished ? .secondary : .primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+
+                Spacer()
+
+                // 状态/倒计时 Badge
+                if finished {
+                    Text("已结束")
+                        .font(.caption.bold())
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.gray.opacity(0.15), in: Capsule())
+                } else {
+                    if daysLeft == 0 {
+                        Text("今天")
+                            .font(.caption.bold())
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.red, in: Capsule())
+                    } else if daysLeft == 1 {
+                        Text("明天")
+                            .font(.caption.bold())
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.orange, in: Capsule())
+                    } else {
+                        Text("还有 \(daysLeft) 天")
+                            .font(.caption.bold())
+                            .foregroundColor(.blue)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.blue.opacity(0.1), in: Capsule())
+                    }
                 }
             }
-    }
-
-    // MARK: - Shareable View
-
-    @ViewBuilder
-    private var shareableView: some View {
-        VStack(spacing: 0) {
-            Text("考试安排")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .padding(.horizontal)
-                .padding(.vertical)
+            .padding(.bottom, 12)
 
             Divider()
+                .padding(.bottom, 12)
 
-            if let data = viewModel.data {
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(data.value, id: \.courseID) { exam in
-                        examCardContent(exam: exam)
-                            .padding(.horizontal)
-                        Divider()
+            // Info Rows
+            VStack(alignment: .leading, spacing: 10) {
+                detailRow(icon: "clock.fill", color: .blue, text: exam.examTime, finished: finished)
+
+                HStack(spacing: 0) {
+                    detailRow(icon: "building.columns.fill", color: .green, text: exam.examRoom, finished: finished)
+                    Spacer()
+                    if !exam.seatNumber.isEmpty {
+                        detailRow(icon: "number.square.fill", color: .orange, text: "座号: \(exam.seatNumber)", finished: finished)
                     }
                 }
-            } else {
-                emptyStateSection
-                    .background(Color(.systemGroupedBackground))
+
+                if !exam.teacher.isEmpty {
+                    detailRow(icon: "person.fill", color: .purple, text: exam.teacher, finished: finished)
+                }
+
+                if !exam.admissionTicketNumber.isEmpty {
+                    detailRow(icon: "doc.text.fill", color: .red, text: "准考证: \(exam.admissionTicketNumber)", finished: finished)
+                }
+
+                if !exam.remarks.isEmpty {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "note.text")
+                            .font(.caption)
+                            .foregroundColor(finished ? .gray : .secondary)
+                            .frame(width: 16)
+                        Text(exam.remarks)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.top, 4)
+                }
             }
         }
-        .padding(.vertical)
-        .frame(width: UIScreen.main.bounds.width)
-        .background(Color(.systemGroupedBackground))
-        .environment(\.colorScheme, colorScheme)
+        .padding(16)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        // 已结束状态：降低透明度，置灰
+        .opacity(finished ? 0.6 : 1.0)
+        .saturation(finished ? 0.0 : 1.0)
+        .contextMenu {
+            Button(action: {
+                viewModel.addToCalendar(exam: exam)
+            }) {
+                Label("添加到日历", systemImage: "calendar.badge.plus")
+            }
+        }
+    }
+
+    // 辅助视图：详情行
+    @ViewBuilder
+    private func detailRow(icon: String, color: Color, text: String, finished: Bool) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundColor(finished ? .gray : color)
+                .frame(width: 16)
+
+            Text(text)
+                .font(.subheadline)
+                .foregroundColor(finished ? .secondary : .primary)
+                .lineLimit(1)
+        }
     }
 
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 0) {
-            if let data = viewModel.data, !data.value.isEmpty {
-                List {
-                    ForEach(data.value, id: \.courseID) { exam in
-                        examCard(exam: exam)
+        ZStack {
+            Color(.systemGroupedBackground)
+                .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                if let data = viewModel.data, !data.value.isEmpty {
+                    ScrollView {
+                        LazyVStack(spacing: 16) {
+                            ForEach(data.value, id: \.courseID) { exam in
+                                examCard(exam: exam)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical)
                     }
+                    .refreshable {
+                        viewModel.loadExams()
+                    }
+                } else {
+                    emptyStateSection
                 }
-                .listStyle(.insetGrouped)
-            } else {
-                emptyStateSection
-                    .background(Color(.systemGroupedBackground))
             }
+        }
+        .onAppear {
+            now = Date()
         }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
@@ -210,14 +270,6 @@ struct ExamScheduleView: View {
                     Button(action: { viewModel.isShowingFilter.toggle() }) {
                         Label("高级查询", systemImage: "slider.horizontal.3")
                     }
-                    Button(action: { viewModel.showShareSheet(shareableView) }) {
-                        Label("分享", systemImage: "square.and.arrow.up")
-                    }
-                    .disabled(viewModel.isLoading)
-                    Button(action: { viewModel.saveToPhotoAlbum(shareableView) }) {
-                        Label("保存结果到相册", systemImage: "photo")
-                    }
-                    .disabled(viewModel.isLoading)
                     Button(action: { viewModel.isShowingAddToCalendarAlert = true }) {
                         Label("全部添加到日历", systemImage: "calendar.badge.plus")
                     }
@@ -239,7 +291,6 @@ struct ExamScheduleView: View {
                 }
             }
         }
-        .sheet(isPresented: $viewModel.isShowingShareSheet) { ShareSheet(items: [viewModel.shareContent!]) }
         .sheet(isPresented: $viewModel.isShowingFilter) { filterView }
         .alert("添加日历", isPresented: $viewModel.isShowingAddToCalendarAlert) {
             Button(action: viewModel.addAllToCalendar) {
