@@ -112,4 +112,9 @@ extension KeychainHelper {
         get { getData(forKey: "SSOCookies") }
         set { set(newValue, forKey: "SSOCookies") }
     }
+
+    var cookies: Data? {
+        get { getData(forKey: "Cookies") }
+        set { set(newValue, forKey: "Cookies") }
+    }
 }
