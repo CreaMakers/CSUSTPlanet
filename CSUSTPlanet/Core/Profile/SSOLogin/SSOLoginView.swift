@@ -60,7 +60,11 @@ struct SSOLoginView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button("网页登录") {
-                        viewModel.isShowingBrowser = true
+                        if GlobalVars.shared.isWebVPNModeEnabled {
+                            viewModel.isShowingWebVPNAlert = true
+                        } else {
+                            viewModel.isShowingBrowser = true
+                        }
                     }
                 }
             }
@@ -71,6 +75,11 @@ struct SSOLoginView: View {
             }
             .task {
                 viewModel.handleRefreshCaptcha()
+            }
+            .alert("警告", isPresented: $viewModel.isShowingWebVPNAlert) {
+                Button("确定", role: .cancel) {}
+            } message: {
+                Text("WebVPN模式下无法使用网页登录，请关闭WebVPN模式后重试。")
             }
             .sheet(isPresented: $viewModel.isShowingBrowser) {
                 NavigationStack {

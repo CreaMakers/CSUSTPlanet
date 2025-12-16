@@ -21,6 +21,7 @@ class SSOLoginViewModel: ObservableObject {
     private var isShowingLoginSheetBinding: Binding<Bool>
 
     @Published var isShowingBrowser: Bool = false
+    @Published var isShowingWebVPNAlert: Bool = false
 
     @Published var selectedTab = 0
 
