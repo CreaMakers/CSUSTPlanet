@@ -36,7 +36,7 @@ class AuthManager: ObservableObject {
 
     var ssoHelper = SSOHelper(
         mode: GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct,
-        cookieStorage: KeychainCookieStorage()
+        session: CookieHelper.shared.session
     )
     var eduHelper: EduHelper?
     var moocHelper: MoocHelper?
@@ -45,7 +45,6 @@ class AuthManager: ObservableObject {
         Task {
             isSSOLoggingIn = true
 
-            ssoHelper.restoreCookies()
             ssoProfile = try? await ssoHelper.getLoginUser()
 
             // If already logged in, initialize EduHelper and MoocHelper
@@ -78,7 +77,7 @@ class AuthManager: ObservableObject {
         KeychainHelper.shared.ssoPassword = password
 
         ssoProfile = try await ssoHelper.getLoginUser()
-        ssoHelper.saveCookies()
+        CookieHelper.shared.save()
 
         loginToHelpers()
     }
@@ -96,8 +95,6 @@ class AuthManager: ObservableObject {
 
         KeychainHelper.shared.ssoUsername = nil
         KeychainHelper.shared.ssoPassword = nil
-
-        ssoHelper.clearCookies()
 
         eduHelper = nil
         moocHelper = nil
@@ -119,7 +116,7 @@ class AuthManager: ObservableObject {
         try await ssoHelper.dynamicLogin(username: username, dynamicCode: dynamicCode, captcha: captcha)
 
         ssoProfile = try await ssoHelper.getLoginUser()
-        ssoHelper.saveCookies()
+        CookieHelper.shared.save()
         isSSOLoggingIn = false
 
         loginToHelpers()
@@ -151,6 +148,7 @@ class AuthManager: ObservableObject {
                     mode: GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct,
                     session: eduSession
                 )
+                CookieHelper.shared.save()
             } catch {
                 if !Task.isCancelled && !(error is CancellationError) {
                     educationErrorMessage = "教务服务初始化失败: \(error.localizedDescription)"
@@ -186,6 +184,7 @@ class AuthManager: ObservableObject {
                     mode: GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct,
                     session: moocSession
                 )
+                CookieHelper.shared.save()
             } catch {
                 if !Task.isCancelled && !(error is CancellationError) {
                     moocErrorMessage = "网络课程中心服务初始化失败: \(error.localizedDescription)"

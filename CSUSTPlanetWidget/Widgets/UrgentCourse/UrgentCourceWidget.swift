@@ -45,7 +45,7 @@ struct UrgentCourseProvider: AppIntentTimelineProvider {
             finalData = urgentCourses
         }
 
-        let ssoHelper = SSOHelper(cookieStorage: KeychainCookieStorage())
+        let ssoHelper = SSOHelper(session: CookieHelper.shared.session)
         let hasValidSession: Bool
         if (try? await ssoHelper.getLoginUser()) == nil {
             if let username = KeychainHelper.shared.ssoUsername, let password = KeychainHelper.shared.ssoPassword {

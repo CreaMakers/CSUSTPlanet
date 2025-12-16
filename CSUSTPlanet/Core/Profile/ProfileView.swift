@@ -73,11 +73,9 @@ struct ProfileView: View {
                     }
 
                     if authManager.isEducationLoggingIn {
-                        Button(action: authManager.loginToEducation) {
-                            HStack {
-                                ProgressView().padding(.horizontal, 6).id(authManager.eduLoginID)
-                                Text("正在登录教务系统 (点击重试)")
-                            }
+                        HStack {
+                            ProgressView().padding(.horizontal, 6)
+                            Text("正在登录教务系统")
                         }
                     } else {
                         Button(action: authManager.loginToEducation) {
@@ -92,11 +90,9 @@ struct ProfileView: View {
                     }
 
                     if authManager.isMoocLoggingIn {
-                        Button(action: authManager.loginToMooc) {
-                            HStack {
-                                ProgressView().padding(.horizontal, 6).id(authManager.moocLoginID)
-                                Text("正在登录网络课程中心 (点击重试)")
-                            }
+                        HStack {
+                            ProgressView().padding(.horizontal, 6)
+                            Text("正在登录网络课程中心")
                         }
                     } else {
                         Button(action: authManager.loginToMooc) {

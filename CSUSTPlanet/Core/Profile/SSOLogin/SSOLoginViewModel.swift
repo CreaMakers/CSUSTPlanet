@@ -140,7 +140,7 @@ class SSOLoginViewModel: ObservableObject {
                 let ssoProfile = try await ssoHelper.getLoginUser()
                 AuthManager.shared.ssoProfile = ssoProfile
                 AuthManager.shared.ssoHelper = ssoHelper
-                AuthManager.shared.ssoHelper.saveCookies()
+                CookieHelper.shared.save()
                 AuthManager.shared.loginToHelpers()
                 isShowingBrowser = false
                 isShowingLoginSheet = false

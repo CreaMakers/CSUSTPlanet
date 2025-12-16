@@ -196,7 +196,7 @@ struct CourseDetailView: View {
 
                 Spacer()
 
-                Text(homework.startTime)
+                Text(viewModel.dateFormatter.string(from: homework.startTime))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -208,7 +208,7 @@ struct CourseDetailView: View {
 
                 Spacer()
 
-                Text(homework.deadline)
+                Text(viewModel.dateFormatter.string(from: homework.deadline))
                     .font(.caption)
                     .foregroundColor(homework.submitStatus ? .secondary : .red)
             }

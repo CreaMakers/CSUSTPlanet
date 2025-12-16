@@ -129,9 +129,9 @@
 				Shared/Utils/AssetUtils.swift,
 				Shared/Utils/ColorHelper.swift,
 				Shared/Utils/Constants.swift,
+				Shared/Utils/CookieHelper.swift,
 				Shared/Utils/CourseScheduleHelper.swift,
 				Shared/Utils/ImageActivityItemSource.swift,
-				Shared/Utils/KeychainCookieStorage.swift,
 				Shared/Utils/KeychainHelper.swift,
 				Shared/Utils/SharedModel.swift,
 			);

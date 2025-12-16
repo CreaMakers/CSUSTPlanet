@@ -76,7 +76,7 @@ struct GradeAnalysisProvider: AppIntentTimelineProvider {
 
         // 再尝试联网获取数据
         debugPrint("GradeAnalysisProvider: Starting SSO login process")
-        let ssoHelper = SSOHelper(cookieStorage: KeychainCookieStorage())
+        let ssoHelper = SSOHelper(session: CookieHelper.shared.session)
 
         // 先尝试使用保存的cookie登录统一认证
         let hasValidSession: Bool

@@ -11,7 +11,7 @@ struct ElectricityRechargeView: View {
     var body: some View {
         WebView(
             url: URL(string: "https://hxyxh5.csust.edu.cn/plat/shouyeUser")!,
-            cookies: AuthManager.shared.ssoHelper.getSession().sessionConfiguration.httpCookieStorage?.cookies
+            cookies: CookieHelper.shared.session.sessionConfiguration.httpCookieStorage?.cookies
         )
         .toolbarTitleDisplayMode(.inline)
         .navigationTitle("电费充值")

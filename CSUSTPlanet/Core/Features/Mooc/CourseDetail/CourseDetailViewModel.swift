@@ -98,14 +98,14 @@ class CourseDetailViewModel: ObservableObject {
                 let calendar = try await CalendarHelper.getOrCreateReminderCalendar(named: "长理星球 - 作业")
                 for homework in homeworks {
                     guard homework.canSubmit else { continue }
-                    guard let dueDate = dateFormatter.date(from: homework.deadline) else { continue }
+                    let dueDate = homework.deadline
                     let alarmOffset = TimeInterval(-(alertHourOffset * 3600 + alertMinuteOffset * 60))
                     let dueDateWithAlarm = dueDate.addingTimeInterval(alarmOffset)
                     try await CalendarHelper.addReminder(
                         calendar: calendar,
                         title: homework.title,
                         dueDate: dueDateWithAlarm,
-                        notes: "截止提交时间：\(homework.deadline)\n课程老师：\(homework.publisher)"
+                        notes: "截止提交时间：\(dateFormatter.string(from: homework.deadline))\n课程老师：\(homework.publisher)"
                     )
                 }
                 isShowingSuccess = true
