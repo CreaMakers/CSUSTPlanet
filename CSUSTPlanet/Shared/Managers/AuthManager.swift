@@ -125,19 +125,19 @@ class AuthManager: ObservableObject {
             do {
                 try await ssoHelper.login(username: username, password: password)
             } catch {
-                Logger.authManager.debug("ssoRelogin: 统一身份认证登录失败")
+                Logger.authManager.error("ssoRelogin: 统一身份认证登录失败, \(error)")
                 isShowingSSOError = true
                 return
             }
             if let ssoProfile = try? await ssoHelper.getLoginUser() {
-                Logger.authManager.debug("ssoRelogin: 统一身份认证已登录")
+                Logger.authManager.debug("ssoRelogin: 验证统一身份认证登录成功")
                 self.ssoProfile = ssoProfile
                 CookieHelper.shared.save()
                 ssoInfo = "统一身份认证登录成功"
                 isShowingSSOInfo = true
                 allLogin()
             } else {
-                Logger.authManager.debug("ssoRelogin: 统一身份认证登录失败")
+                Logger.authManager.debug("ssoRelogin: 验证统一身份认证登录失败")
                 isShowingSSOError = true
             }
         }
@@ -162,7 +162,7 @@ class AuthManager: ObservableObject {
             do {
                 _ = try await ssoHelper.loginToEducation()
             } catch {
-                Logger.authManager.debug("educationLogin: 教务登录失败")
+                Logger.authManager.error("educationLogin: 教务登录失败, \(error)")
                 isShowingEducationError = true
                 return
             }
@@ -199,7 +199,7 @@ class AuthManager: ObservableObject {
             do {
                 _ = try await ssoHelper.loginToMooc()
             } catch {
-                Logger.authManager.debug("moocLogin: 网络课程平台登录失败")
+                Logger.authManager.error("moocLogin: 网络课程平台登录失败, \(error)")
                 isShowingMoocError = true
                 return
             }
