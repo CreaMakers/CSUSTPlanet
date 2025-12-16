@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 import SwiftData
 
 class SharedModel {
@@ -21,7 +22,7 @@ class SharedModel {
                 isStoredInMemoryOnly: false,
                 groupContainer: .identifier(Constants.appGroupID),
             )
-            debugPrint("Using shared group container for widget: \(config.groupContainer)")
+            Logger.sharedModel.info("小组件正在使用共享组容器：\(String(describing: config.groupContainer))")
         #else
             let config = ModelConfiguration(
                 schema: schema,
@@ -29,7 +30,7 @@ class SharedModel {
                 groupContainer: .identifier(Constants.appGroupID),
                 cloudKitDatabase: .private(Constants.iCloudID),
             )
-            debugPrint("Using iCloud container for app: \(config.cloudKitDatabase)")
+            Logger.sharedModel.info("App 正在使用 iCloud 容器：\(String(describing: config.cloudKitDatabase))")
         #endif
 
         do {

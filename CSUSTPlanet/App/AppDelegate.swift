@@ -7,6 +7,7 @@
 
 import Foundation
 import MMKV
+import OSLog
 import UIKit
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -97,13 +98,13 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 extension AppDelegate {
     @objc
     private func appDidEnterBackground() {
-        debugPrint("App entered background")
+        Logger.appDelegate.debug("App进入后台: appDidEnterBackground")
         ActivityManager.shared.autoUpdateActivity()
     }
 
     @objc
     private func appWillEnterForeground() {
-        debugPrint("App will enter foreground")
+        Logger.appDelegate.debug("App回到前台: appWillEnterForeground")
         ActivityManager.shared.autoUpdateActivity()
     }
 }

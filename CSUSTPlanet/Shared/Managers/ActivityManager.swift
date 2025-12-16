@@ -7,6 +7,7 @@
 
 import ActivityKit
 import Foundation
+import OSLog
 
 class ActivityManager {
     static let shared = ActivityManager()
@@ -18,7 +19,8 @@ class ActivityManager {
     func setup() {
         guard activity == nil, let existingActivity = Activity<CourseStatusWidgetAttributes>.activities.first else { return }
         self.activity = existingActivity
-        debugPrint("Restored an existing Live Activity.")
+
+        Logger.activityManager.info("已恢复现有的实时活动")
         Task {
             await autoUpdateActivity()
         }
@@ -27,7 +29,7 @@ class ActivityManager {
     @MainActor
     func autoUpdateActivity() {
         guard GlobalVars.shared.isLiveActivityEnabled else {
-            debugPrint("Live Activity is disabled. Stopping any active activity.")
+            Logger.activityManager.info("实时活动已禁用。正在停止所有活跃活动")
             stopActivity()
             return
         }
@@ -54,21 +56,21 @@ class ActivityManager {
 
             if let existingActivity = self.activity, existingActivity.activityState == .active {
                 if existingActivity.attributes == attributes {
-                    debugPrint("Live Activity is correct. Forcing a UI refresh.")
+                    Logger.activityManager.info("实时活动状态正确。正在强制刷新 UI")
                     Task {
                         let content = ActivityContent(state: CourseStatusWidgetAttributes.ContentState(now: .now), staleDate: nil)
                         await existingActivity.update(content)
                     }
                 } else {
-                    debugPrint("Stale activity found. Replacing it with the new one.")
+                    Logger.activityManager.info("发现过期的活动。正在替换为新活动")
                     try? startActivity(attributes)
                 }
             } else {
-                debugPrint("No active activity found. Starting a new one.")
+                Logger.activityManager.info("未找到活跃活动。正在启动新活动")
                 try? startActivity(attributes)
             }
         } else {
-            debugPrint("No relevant course found. Stopping any active activity.")
+            Logger.activityManager.info("未找到相关课程。正在停止所有活跃活动")
             stopActivity()
         }
     }
@@ -83,7 +85,7 @@ class ActivityManager {
             content: content
         )
         self.activity = newActivity
-        debugPrint("Live Activity started for course: \(attributes.courseName)")
+        Logger.activityManager.info("已为课程启动实时活动：\(attributes.courseName)")
     }
 
     private func stopActivity() {
@@ -93,7 +95,7 @@ class ActivityManager {
             await activityToStop.end(nil, dismissalPolicy: .immediate)
             if self.activity?.id == activityToStop.id {
                 self.activity = nil
-                debugPrint("Live Activity stopped.")
+                Logger.activityManager.info("实时活动已停止")
             }
         }
     }

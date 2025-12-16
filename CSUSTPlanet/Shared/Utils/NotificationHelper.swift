@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 import UIKit
 import UserNotifications
 
@@ -42,7 +43,7 @@ class NotificationHelper {
             guard await hasAuthorization() else { return }
             guard let token = try? await getToken() else { return }
             self.token = token
-            debugPrint("Device Token obtained silently: \(token.hexString)")
+            Logger.notificationHelper.debug("静默获取设备令牌成功: \(token.hexString)")
         }
     }
 
