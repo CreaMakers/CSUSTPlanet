@@ -5,7 +5,6 @@
 //  Created by Zhe_Learn on 2025/7/7.
 //
 
-import AlertToast
 import Inject
 import SwiftUI
 import Toasts
@@ -62,44 +61,54 @@ struct ContentView: View {
                 GradeAnalysisView()
             }
         }
+
+        // MARK: 全局Toast状态
+
+        .onChange(of: authManager.isShowingSSOInfo) { _, newValue in
+            guard newValue else { return }
+            presentToast(ToastValue(icon: Image(systemName: "info.circle.fill").foregroundStyle(.blue), message: authManager.ssoInfo))
+            authManager.isShowingSSOInfo = false
+        }
+        .onChange(of: authManager.isShowingSSOError) { _, newValue in
+            guard newValue else { return }
+            presentToast(ToastValue(icon: Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.red), message: "统一身份认证登录错误"))
+            authManager.isShowingSSOError = false
+        }
+        .onChange(of: authManager.isShowingEducationInfo) { _, newValue in
+            guard newValue else { return }
+            presentToast(ToastValue(icon: Image(systemName: "info.circle.fill").foregroundStyle(.blue), message: authManager.educationInfo))
+            authManager.isShowingEducationInfo = false
+        }
         .onChange(of: authManager.isShowingEducationError) { _, newValue in
             guard newValue else { return }
-            let toastValue = ToastValue(
-                icon: Image(systemName: "exclamationmark.triangle"),
-                message: "教务登录错误",
-                button: ToastButton(title: "重试登录", color: .red, action: authManager.educationLogin)
-            )
-            presentToast(toastValue)
+            presentToast(ToastValue(icon: Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.red), message: "教务登录错误"))
             authManager.isShowingEducationError = false
+        }
+        .onChange(of: authManager.isShowingMoocInfo) { _, newValue in
+            guard newValue else { return }
+            presentToast(ToastValue(icon: Image(systemName: "info.circle.fill").foregroundStyle(.blue), message: authManager.moocInfo))
+            authManager.isShowingMoocInfo = false
         }
         .onChange(of: authManager.isShowingMoocError) { _, newValue in
             guard newValue else { return }
-            let toastValue = ToastValue(
-                icon: Image(systemName: "exclamationmark.triangle"),
-                message: "网络课程中心登录错误",
-                button: ToastButton(title: "重试登录", color: .red, action: authManager.moocLogin)
-            )
-            presentToast(toastValue)
+            presentToast(ToastValue(icon: Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.red), message: "网络课程中心登录错误"))
             authManager.isShowingMoocError = false
         }
+
         .preferredColorScheme(preferredColorScheme)
         .sheet(isPresented: globalVars.isUserAgreementShowing) {
             UserAgreementView().interactiveDismissDisabled(true)
         }
+
+        // MARK: - URL处理
+
         .onOpenURL { url in
             guard url.scheme == "csustplanet", url.host == "widgets" else { return }
             switch url.pathComponents.dropFirst().first {
-            case "electricity":
-                globalVars.selectedTab = .features
-                globalVars.isFromElectricityWidget = true
-            case "gradeAnalysis":
-                globalVars.selectedTab = .features
-                globalVars.isFromGradeAnalysisWidget = true
-            case "courseSchedule":
-                globalVars.selectedTab = .features
-                globalVars.isFromCourseScheduleWidget = true
-            default:
-                break
+            case "electricity": globalVars.isFromElectricityWidget = true
+            case "gradeAnalysis": globalVars.isFromGradeAnalysisWidget = true
+            case "courseSchedule": globalVars.isFromCourseScheduleWidget = true
+            default: break
             }
         }
         .enableInjection()

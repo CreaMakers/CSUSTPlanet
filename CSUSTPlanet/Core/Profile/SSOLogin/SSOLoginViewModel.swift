@@ -24,8 +24,8 @@ class SSOLoginViewModel: ObservableObject {
 
     @Published var selectedTab = 0
 
-    @Published var username: String = ""
-    @Published var password: String = ""
+    @Published var username: String = KeychainHelper.shared.ssoUsername ?? ""
+    @Published var password: String = KeychainHelper.shared.ssoPassword ?? ""
     @Published var isPasswordVisible: Bool = false
 
     @Published var captchaImageData: Data? = nil
@@ -141,6 +141,8 @@ class SSOLoginViewModel: ObservableObject {
                 AuthManager.shared.ssoProfile = ssoProfile
                 AuthManager.shared.ssoHelper = ssoHelper
                 CookieHelper.shared.save()
+                AuthManager.shared.ssoInfo = "统一身份认证登录成功"
+                AuthManager.shared.isShowingSSOInfo = true
                 AuthManager.shared.allLogin()
                 isShowingBrowser = false
                 isShowingLoginSheet = false

@@ -20,17 +20,23 @@ class AuthManager: ObservableObject {
     @Published var isSSOLoggingIn: Bool = false
     @Published var isSSOLoggingOut: Bool = false
     @Published var isShowingSSOError: Bool = false
+    @Published var isShowingSSOInfo: Bool = false
+    @Published var ssoInfo: String = ""
     var isSSOLoggedIn: Bool { return ssoProfile != nil }
 
     // MARK: - Education Properties
 
     @Published var isEducationLoggingIn: Bool = false
     @Published var isShowingEducationError: Bool = false
+    @Published var isShowingEducationInfo: Bool = false
+    @Published var educationInfo: String = ""
 
     // MARK: - MOOC Properties
 
     @Published var isMoocLoggingIn: Bool = false
     @Published var isShowingMoocError: Bool = false
+    @Published var isShowingMoocInfo: Bool = false
+    @Published var moocInfo: String = ""
 
     // MARK: - Helpers
 
@@ -60,6 +66,8 @@ class AuthManager: ObservableObject {
         KeychainHelper.shared.ssoPassword = password
         ssoProfile = try await ssoHelper.getLoginUser()
         CookieHelper.shared.save()
+        ssoInfo = "统一身份认证登录成功"
+        isShowingSSOInfo = true
         allLogin()
     }
 
@@ -72,7 +80,6 @@ class AuthManager: ObservableObject {
             CookieHelper.shared.save()
             KeychainHelper.shared.ssoUsername = nil
             KeychainHelper.shared.ssoPassword = nil
-
             ssoProfile = nil
             eduHelper = nil
             moocHelper = nil
@@ -94,6 +101,8 @@ class AuthManager: ObservableObject {
         try await ssoHelper.dynamicLogin(username: username, dynamicCode: dynamicCode, captcha: captcha)
         ssoProfile = try await ssoHelper.getLoginUser()
         CookieHelper.shared.save()
+        ssoInfo = "统一身份认证登录成功"
+        isShowingSSOInfo = true
         allLogin()
     }
 
@@ -102,8 +111,10 @@ class AuthManager: ObservableObject {
             isSSOLoggingIn = true
             defer { isSSOLoggingIn = false }
             if let ssoProfile = try? await ssoHelper.getLoginUser() {
-                self.ssoProfile = ssoProfile
                 Logger.authManager.debug("ssoRelogin: 统一身份认证已登录，无需再登录")
+                self.ssoProfile = ssoProfile
+                ssoInfo = "统一身份认证已登录"
+                isShowingSSOInfo = true
                 allLogin()
                 return
             }
@@ -119,9 +130,11 @@ class AuthManager: ObservableObject {
                 return
             }
             if let ssoProfile = try? await ssoHelper.getLoginUser() {
+                Logger.authManager.debug("ssoRelogin: 统一身份认证已登录")
                 self.ssoProfile = ssoProfile
                 CookieHelper.shared.save()
-                Logger.authManager.debug("ssoRelogin: 统一身份认证已登录")
+                ssoInfo = "统一身份认证登录成功"
+                isShowingSSOInfo = true
                 allLogin()
             } else {
                 Logger.authManager.debug("ssoRelogin: 统一身份认证登录失败")
@@ -140,8 +153,10 @@ class AuthManager: ObservableObject {
             defer { isEducationLoggingIn = false }
             let eduHelper = EduHelper(mode: mode, session: session)
             guard !(await eduHelper.isLoggedIn()) else {
-                self.eduHelper = eduHelper
                 Logger.authManager.debug("educationLogin: 教务系统已登录，无需再登录")
+                self.eduHelper = eduHelper
+                educationInfo = "教务系统已登录"
+                isShowingEducationInfo = true
                 return
             }
             do {
@@ -154,13 +169,15 @@ class AuthManager: ObservableObject {
             Logger.authManager.debug("educationLogin: 教务登录成功")
             if await eduHelper.isLoggedIn() {
                 // 教务登录成功
+                Logger.authManager.debug("educationLogin: 验证教务登录成功")
                 self.eduHelper = eduHelper
                 CookieHelper.shared.save()
-                Logger.authManager.debug("educationLogin: 验证教务登录成功")
+                educationInfo = "教务系统登录成功"
+                isShowingEducationInfo = true
             } else {
                 // 教务登录失败
-                isShowingEducationError = true
                 Logger.authManager.debug("educationLogin: 验证教务登录失败")
+                isShowingEducationError = true
             }
         }
     }
@@ -173,8 +190,10 @@ class AuthManager: ObservableObject {
             defer { isMoocLoggingIn = false }
             let moocHelper = MoocHelper(mode: mode, session: session)
             guard !(await moocHelper.isLoggedIn()) else {
-                self.moocHelper = moocHelper
                 Logger.authManager.debug("moocLogin: 网络课程平台已登录，无需再登录")
+                self.moocHelper = moocHelper
+                moocInfo = "网络课程平台已登录"
+                isShowingMoocInfo = true
                 return
             }
             do {
@@ -187,13 +206,15 @@ class AuthManager: ObservableObject {
             Logger.authManager.debug("moocLogin: 网络课程平台登录成功")
             if await moocHelper.isLoggedIn() {
                 // 网络课程平台登录成功
+                Logger.authManager.debug("moocLogin: 验证网络课程平台登录成功")
                 self.moocHelper = moocHelper
                 CookieHelper.shared.save()
-                Logger.authManager.debug("moocLogin: 验证网络课程平台登录成功")
+                moocInfo = "网络课程平台登录成功"
+                isShowingMoocInfo = true
             } else {
                 // 网络课程平台登录失败
-                isShowingMoocError = true
                 Logger.authManager.debug("moocLogin: 验证网络课程平台登录失败")
+                isShowingMoocError = true
             }
         }
     }
