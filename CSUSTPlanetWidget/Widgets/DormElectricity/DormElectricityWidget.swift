@@ -8,6 +8,7 @@
 import AppIntents
 import CSUSTKit
 import Charts
+import OSLog
 import SwiftData
 import SwiftUI
 import WidgetKit
@@ -31,9 +32,9 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: DormElectricityAppIntent, in context: Context) async -> Timeline<DormElectricityEntry> {
-        debugPrint("DormElectricityProvider: Starting timeline generation")
+        Logger.dormElectricityWidget.info("DormElectricityProvider: 开始生成时间线")
         guard let selectedDormEntity = configuration.dormitory else {
-            debugPrint("DormElectricityProvider: No dormitory selected in configuration")
+            Logger.dormElectricityWidget.warning("DormElectricityProvider: 配置中未选择宿舍")
             let entry = DormElectricityEntry(date: .now, configuration: configuration)
             return Timeline(entries: [entry], policy: .never)
         }
@@ -47,7 +48,7 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
 
             let campusCardHelper = CampusCardHelper()
             let newElectricity = try await campusCardHelper.getElectricity(building: building, room: room)
-            debugPrint("DormElectricityProvider: Electricity fetched successfully: \(newElectricity)")
+            Logger.dormElectricityWidget.info("DormElectricityProvider: 电量获取成功: \(newElectricity)")
 
             let modelContext = SharedModel.context
             let dormID = selectedDormEntity.id
@@ -59,10 +60,10 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
                 modelContext.insert(record)
                 try modelContext.save()
                 finalDormEntity = DormEntity(dorm: dormToUpdate)
-                debugPrint("DormElectricityProvider: Dorm updated with new electricity data")
+                Logger.dormElectricityWidget.info("DormElectricityProvider: 宿舍电量数据已更新")
             }
         } catch {
-            debugPrint("DormElectricityProvider: Error fetching electricity data: \(error.localizedDescription)")
+            Logger.dormElectricityWidget.error("DormElectricityProvider: 获取电量数据失败: \(error.localizedDescription)")
         }
 
         let updatedConfiguration = configuration
@@ -70,7 +71,7 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
 
         let entry = DormElectricityEntry(date: .now, configuration: updatedConfiguration)
         let nextUpdate = Date().addingTimeInterval(2 * 3600)  // 2 hours
-        debugPrint("DormElectricityProvider: Next update scheduled for \(nextUpdate)")
+        Logger.dormElectricityWidget.info("DormElectricityProvider: 下次更新计划于 \(nextUpdate)")
         return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
 }

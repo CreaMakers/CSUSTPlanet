@@ -8,6 +8,7 @@
 import CSUSTKit
 import Charts
 import Foundation
+import OSLog
 import SwiftData
 import SwiftUI
 import WidgetKit
@@ -64,24 +65,24 @@ struct GradeAnalysisProvider: AppIntentTimelineProvider {
         defer {
             MMKVManager.shared.close()
         }
-        debugPrint("GradeAnalysisProvider: Fetching grade analysis for widget")
+        Logger.gradeAnalysisWidget.info("GradeAnalysisProvider: 开始获取成绩分析数据")
 
         var finalData: Cached<[EduHelper.CourseGrade]>? = nil
 
         // 先从缓存中获取成绩分析
         if let gradeAnalysis = MMKVManager.shared.courseGradesCache {
-            debugPrint("GradeAnalysisProvider: Successfully fetched grade analysis from database")
+            Logger.gradeAnalysisWidget.info("GradeAnalysisProvider: 成功从缓存获取成绩分析数据")
             finalData = gradeAnalysis
         }
 
         // 再尝试联网获取数据
-        debugPrint("GradeAnalysisProvider: Starting SSO login process")
+        Logger.gradeAnalysisWidget.info("GradeAnalysisProvider: 开始SSO登录流程")
         let ssoHelper = SSOHelper(session: CookieHelper.shared.session)
 
         // 先尝试使用保存的cookie登录统一认证
         let hasValidSession: Bool
         if (try? await ssoHelper.getLoginUser()) == nil {
-            debugPrint("GradeAnalysisProvider: No valid cookie found, attempting login with username and password")
+            Logger.gradeAnalysisWidget.info("GradeAnalysisProvider: 未找到有效Cookie，尝试使用账号密码登录")
             // 保存的cookie无效，尝试账号密码登录
             if let username = KeychainHelper.shared.ssoUsername, let password = KeychainHelper.shared.ssoPassword {
                 hasValidSession = (try? await ssoHelper.login(username: username, password: password)) != nil
@@ -89,18 +90,18 @@ struct GradeAnalysisProvider: AppIntentTimelineProvider {
                 hasValidSession = false
             }
         } else {
-            debugPrint("GradeAnalysisProvider: Valid cookie found, no need to login with username and password")
+            Logger.gradeAnalysisWidget.info("GradeAnalysisProvider: 找到有效Cookie，无需使用账号密码登录")
             hasValidSession = true
         }
 
         if hasValidSession, let eduHelper = try? EduHelper(session: await ssoHelper.loginToEducation()) {
-            debugPrint("GradeAnalysisProvider: EduHelper initialized successfully")
+            Logger.gradeAnalysisWidget.info("GradeAnalysisProvider: EduHelper初始化成功")
             // 教务系统登录成功
             if let courseGrades = try? await eduHelper.courseService.getCourseGrades(), !courseGrades.isEmpty {
-                debugPrint("GradeAnalysisProvider: Successfully fetched course grades from EduHelper")
+                Logger.gradeAnalysisWidget.info("GradeAnalysisProvider: 成功从EduHelper获取成绩")
                 // 成绩获取成功
                 finalData = Cached<[EduHelper.CourseGrade]>(cachedAt: .now, value: courseGrades)
-                debugPrint("GradeAnalysisProvider: Successfully created final grade analysis")
+                Logger.gradeAnalysisWidget.info("GradeAnalysisProvider: 成功创建最终成绩分析数据")
             }
         }
 
