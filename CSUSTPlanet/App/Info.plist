@@ -16,6 +16,8 @@
 	<string>$(CSUSTPLANET_API_HOST_LOCAL)</string>
 	<key>ConfigAppBundleID</key>
 	<string>$(CSUSTPLANET_APP_BUNDLE_ID)</string>
+	<key>ConfigWidgetBundleID</key>
+	<string>$(CSUSTPLANET_WIDGET_BUNDLE_ID)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

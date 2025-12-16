@@ -71,8 +71,6 @@ struct TodayCoursesProvider: AppIntentTimelineProvider {
             }
         }
 
-        debugPrint(entries.map { $0.date })
-
         let tomorrowStart = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
         return Timeline(entries: entries, policy: .after(tomorrowStart))
     }

@@ -7,6 +7,7 @@
 
 import Alamofire
 import Foundation
+import OSLog
 import SwiftData
 
 enum ElectricityBindingHelperError: Error, LocalizedError {
@@ -23,7 +24,7 @@ enum ElectricityBindingHelperError: Error, LocalizedError {
 @MainActor
 class ElectricityBindingHelper {
     static func sync() async {
-        debugPrint("ElectricityBindingHelper: Starting sync...")
+        Logger.electricityBindingHelper.debug("开始同步电量通知绑定")
         try? await syncThrows()
     }
 
@@ -33,7 +34,7 @@ class ElectricityBindingHelper {
             throw ElectricityBindingHelperError.syncFailed(reason: "未能获取学号，请先登录")
         }
 
-        debugPrint("ElectricityBindingHelper: Fetched device token and student ID")
+        Logger.electricityBindingHelper.debug("获取到设备 token 和学号")
 
         var syncList: ElectricityBindingSyncListDTO
 

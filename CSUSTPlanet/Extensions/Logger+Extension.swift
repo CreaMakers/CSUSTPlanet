@@ -9,11 +9,16 @@ import Foundation
 import OSLog
 
 extension Logger {
-    private static var subsystem = Constants.appBundleID
+    private static var appSubsystem = Constants.appBundleID
+    private static var widgetSubsystem = Constants.widgetBundleID
 
-    static let appDelegate = Logger(subsystem: subsystem, category: "AppDelegate")
-    static let authManager = Logger(subsystem: subsystem, category: "AuthManager")
-    static let activityManager = Logger(subsystem: subsystem, category: "ActivityManager")
-    static let notificationHelper = Logger(subsystem: subsystem, category: "NotificationHelper")
-    static let sharedModel = Logger(subsystem: subsystem, category: "SharedModel")
+    static let appDelegate = Logger(subsystem: appSubsystem, category: "AppDelegate")
+    static let authManager = Logger(subsystem: appSubsystem, category: "AuthManager")
+    static let activityManager = Logger(subsystem: appSubsystem, category: "ActivityManager")
+    static let notificationHelper = Logger(subsystem: appSubsystem, category: "NotificationHelper")
+    static let sharedModel = Logger(subsystem: appSubsystem, category: "SharedModel")
+    static let electricityBindingHelper = Logger(subsystem: appSubsystem, category: "ElectricityBindingHelper")
+
+    static let dormElectricityWidget = Logger(subsystem: widgetSubsystem, category: "DormElectricityWidget")
+    static let gradeAnalysisWidget = Logger(subsystem: widgetSubsystem, category: "GradeAnalysisWidget")
 }
