@@ -79,20 +79,27 @@ struct ProfileView: View {
                         }
                     }
 
-                    Button(action: {}) {
+                    if authManager.isSSOLoggingIn {
                         HStack {
-                            ColoredLabel(title: "重新登录统一身份认证", iconName: "person.fill", color: .blue)
-                            Spacer()
+                            ProgressView().padding(.horizontal, 6)
+                            Text("正在登录统一身份认证...")
                         }
-                        .contentShape(Rectangle())
+                    } else {
+                        Button(action: authManager.ssoRelogin) {
+                            HStack {
+                                ColoredLabel(title: "重新登录统一身份认证", iconName: "person.fill", color: .blue)
+                                Spacer()
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(!authManager.isSSOLoggedIn)
                     }
-                    .buttonStyle(.plain)
-                    .disabled(!authManager.isSSOLoggedIn)
 
                     if authManager.isEducationLoggingIn {
                         HStack {
                             ProgressView().padding(.horizontal, 6)
-                            Text("正在登录教务系统")
+                            Text("正在登录教务系统...")
                         }
                     } else {
                         Button(action: authManager.educationLogin) {
@@ -109,7 +116,7 @@ struct ProfileView: View {
                     if authManager.isMoocLoggingIn {
                         HStack {
                             ProgressView().padding(.horizontal, 6)
-                            Text("正在登录网络课程中心")
+                            Text("正在登录网络课程中心...")
                         }
                     } else {
                         Button(action: authManager.moocLogin) {
@@ -123,7 +130,7 @@ struct ProfileView: View {
                         .disabled(!authManager.isSSOLoggedIn)
                     }
 
-                    Button(action: authManager.logout) {
+                    Button(action: authManager.ssoLogout) {
                         HStack {
                             ColoredLabel(title: "退出登录", iconName: "arrow.right.circle", color: .red)
                             Spacer()

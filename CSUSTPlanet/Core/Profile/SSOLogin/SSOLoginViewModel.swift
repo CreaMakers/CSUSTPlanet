@@ -63,7 +63,7 @@ class SSOLoginViewModel: ObservableObject {
 
         Task {
             do {
-                try await AuthManager.shared.login(username: username, password: password)
+                try await AuthManager.shared.ssoLogin(username: username, password: password)
                 isShowingLoginSheet = false
             } catch {
                 errorMessage = error.localizedDescription
@@ -81,7 +81,7 @@ class SSOLoginViewModel: ObservableObject {
 
         Task {
             do {
-                try await AuthManager.shared.getDynamicCode(username: username, captcha: captcha)
+                try await AuthManager.shared.ssoGetDynamicCode(username: username, captcha: captcha)
 
                 countdown = 120
                 Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
@@ -108,7 +108,7 @@ class SSOLoginViewModel: ObservableObject {
     func handleRefreshCaptcha() {
         Task {
             do {
-                captchaImageData = try await AuthManager.shared.getCaptcha()
+                captchaImageData = try await AuthManager.shared.ssoGetCaptcha()
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
@@ -119,7 +119,7 @@ class SSOLoginViewModel: ObservableObject {
     func handleDynamicLogin() {
         Task {
             do {
-                try await AuthManager.shared.dynamicLogin(username: username, captcha: captcha, dynamicCode: smsCode)
+                try await AuthManager.shared.ssoDynamicLogin(username: username, captcha: captcha, dynamicCode: smsCode)
                 isShowingLoginSheet = false
             }
         }

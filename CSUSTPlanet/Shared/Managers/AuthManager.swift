@@ -19,6 +19,7 @@ class AuthManager: ObservableObject {
     @Published var ssoProfile: SSOHelper.Profile?
     @Published var isSSOLoggingIn: Bool = false
     @Published var isSSOLoggingOut: Bool = false
+    @Published var isShowingSSOError: Bool = false
     var isSSOLoggedIn: Bool { return ssoProfile != nil }
 
     // MARK: - Education Properties
@@ -44,72 +45,31 @@ class AuthManager: ObservableObject {
 
     private init() {
         ssoHelper = SSOHelper(mode: mode, session: session)
-        Task { await initialize() }
-    }
-
-    private func initialize() async {
-        isSSOLoggingIn = true
-        defer { isSSOLoggingIn = false }
-        if let ssoProfile = try? await ssoHelper.getLoginUser() {
-            // 统一身份认证已登录
-            self.ssoProfile = ssoProfile
-            Logger.authManager.debug("initialize: Cookies中存在统一身份认证信息 统一身份认证已登录")
-            // 登录教务和网络课程中心
-            allLogin()
-        } else {
-            // 统一身份认证未登录
-            Logger.authManager.debug("initialize: Cookies中不存在统一身份认证信息 统一身份认证未登录")
-            if let username = KeychainHelper.shared.ssoUsername, let password = KeychainHelper.shared.ssoPassword {
-                // 统一身份认证未登录，密码已保存，尝试登录
-                Logger.authManager.debug("initialize: 统一身份认证未登录，密码已保存，尝试登录")
-                try? await ssoHelper.login(username: username, password: password)
-                if let ssoProfile = try? await ssoHelper.getLoginUser() {
-                    // 统一身份认证已登录
-                    self.ssoProfile = ssoProfile
-                    CookieHelper.shared.save()
-                    Logger.authManager.debug("initialize: 统一身份认证已登录")
-                    // 登录教务和网络课程中心
-                    allLogin()
-                } else {
-                    // 统一身份认证登录失败，不操作
-                    Logger.authManager.debug("initialize: 统一身份认证登录失败，不操作")
-                }
-            } else {
-                // 统一身份认证未登录，密码未保存，不操作
-                Logger.authManager.debug("initialize: 统一身份认证未登录，密码未保存，不操作")
-            }
-        }
+        ssoRelogin()
     }
 
     // MARK: - SSO Login
 
-    func login(username: String, password: String) async throws {
-        guard ssoProfile == nil else { return }
-
+    // 用于登录界面的ViewModel调用
+    func ssoLogin(username: String, password: String) async throws {
+        guard !isSSOLoggedIn else { return }
         isSSOLoggingIn = true
-        defer {
-            isSSOLoggingIn = false
-        }
+        defer { isSSOLoggingIn = false }
         try await ssoHelper.login(username: username, password: password)
-
         KeychainHelper.shared.ssoUsername = username
         KeychainHelper.shared.ssoPassword = password
-
         ssoProfile = try await ssoHelper.getLoginUser()
         CookieHelper.shared.save()
-
         allLogin()
     }
 
-    func logout() {
+    func ssoLogout() {
         guard isSSOLoggedIn else { return }
         Task {
             isSSOLoggingOut = true
             defer { isSSOLoggingOut = false }
-
             try? await ssoHelper.logout()
             CookieHelper.shared.save()
-
             KeychainHelper.shared.ssoUsername = nil
             KeychainHelper.shared.ssoPassword = nil
 
@@ -119,26 +79,55 @@ class AuthManager: ObservableObject {
         }
     }
 
-    func getCaptcha() async throws -> Data {
+    func ssoGetCaptcha() async throws -> Data {
         return try await ssoHelper.getCaptcha()
     }
 
-    func getDynamicCode(username: String, captcha: String) async throws {
+    func ssoGetDynamicCode(username: String, captcha: String) async throws {
         try await ssoHelper.getDynamicCode(mobile: username, captcha: captcha)
     }
 
-    func dynamicLogin(username: String, captcha: String, dynamicCode: String) async throws {
-        guard ssoProfile == nil else { return }
-
+    func ssoDynamicLogin(username: String, captcha: String, dynamicCode: String) async throws {
+        guard !isSSOLoggedIn else { return }
         isSSOLoggingIn = true
-
+        defer { isSSOLoggingIn = false }
         try await ssoHelper.dynamicLogin(username: username, dynamicCode: dynamicCode, captcha: captcha)
-
         ssoProfile = try await ssoHelper.getLoginUser()
         CookieHelper.shared.save()
-        isSSOLoggingIn = false
-
         allLogin()
+    }
+
+    func ssoRelogin() {
+        Task {
+            isSSOLoggingIn = true
+            defer { isSSOLoggingIn = false }
+            if let ssoProfile = try? await ssoHelper.getLoginUser() {
+                self.ssoProfile = ssoProfile
+                Logger.authManager.debug("ssoRelogin: 统一身份认证已登录，无需再登录")
+                allLogin()
+                return
+            }
+            guard let username = KeychainHelper.shared.ssoUsername, let password = KeychainHelper.shared.ssoPassword else {
+                Logger.authManager.debug("ssoRelogin: 统一身份认证未登录，密码未保存，不操作")
+                return
+            }
+            do {
+                try await ssoHelper.login(username: username, password: password)
+            } catch {
+                Logger.authManager.debug("ssoRelogin: 统一身份认证登录失败")
+                isShowingSSOError = true
+                return
+            }
+            if let ssoProfile = try? await ssoHelper.getLoginUser() {
+                self.ssoProfile = ssoProfile
+                CookieHelper.shared.save()
+                Logger.authManager.debug("ssoRelogin: 统一身份认证已登录")
+                allLogin()
+            } else {
+                Logger.authManager.debug("ssoRelogin: 统一身份认证登录失败")
+                isShowingSSOError = true
+            }
+        }
     }
 
     // MARK: - Education & Mooc Login
