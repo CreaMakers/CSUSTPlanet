@@ -20,6 +20,7 @@
 		00D1CF1F2E79DCC1005E67A2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00D1CF1E2E79DCC1005E67A2 /* CSUSTKit */; };
 		00D1CF212E79DCD5005E67A2 /* CSUSTKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00D1CF202E79DCD5005E67A2 /* CSUSTKit */; };
 		00D927752E8CF0E400EAD828 /* Inject in Frameworks */ = {isa = PBXBuildFile; productRef = 00D927742E8CF0E400EAD828 /* Inject */; };
+		00E2F4CA2EF1592800F1264C /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 00E2F4C92EF1592800F1264C /* Kingfisher */; };
 		00E89C632E2C88D800B43162 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C622E2C88D800B43162 /* WidgetKit.framework */; };
 		00E89C652E2C88D800B43162 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C642E2C88D800B43162 /* SwiftUI.framework */; };
 		00E89C722E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -189,6 +190,7 @@
 				00CD22612E6757E6008AB82B /* Toasts in Frameworks */,
 				0041FC6D2E2AA269007F383F /* MarkdownUI in Frameworks */,
 				00B4760D2E633E4C009C1E39 /* AlertToast in Frameworks */,
+				00E2F4CA2EF1592800F1264C /* Kingfisher in Frameworks */,
 				0041FC6A2E2A91E0007F383F /* Zoomable in Frameworks */,
 				00D927752E8CF0E400EAD828 /* Inject in Frameworks */,
 				00A7DA042E8C60D800BA7927 /* MMKV.framework in Frameworks */,
@@ -285,6 +287,7 @@
 				004D050B2E8C3E1B0055B86B /* FLEX */,
 				004D050E2E8C419F0055B86B /* LookinServer */,
 				00D927742E8CF0E400EAD828 /* Inject */,
+				00E2F4C92EF1592800F1264C /* Kingfisher */,
 			);
 			productName = CSUSTPlanet;
 			productReference = 007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */;
@@ -350,6 +353,7 @@
 				004D050A2E8C3E1B0055B86B /* XCRemoteSwiftPackageReference "FLEX" */,
 				004D050D2E8C40E80055B86B /* XCRemoteSwiftPackageReference "LookinServer" */,
 				00D927732E8CF0E400EAD828 /* XCRemoteSwiftPackageReference "Inject" */,
+				00E2F4C82EF1592800F1264C /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 007CF85C2E1BD68900E319F2 /* Products */;
@@ -807,6 +811,14 @@
 				minimumVersion = 1.5.2;
 			};
 		};
+		00E2F4C82EF1592800F1264C /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.6.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -854,6 +866,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 00D927732E8CF0E400EAD828 /* XCRemoteSwiftPackageReference "Inject" */;
 			productName = Inject;
+		};
+		00E2F4C92EF1592800F1264C /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 00E2F4C82EF1592800F1264C /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

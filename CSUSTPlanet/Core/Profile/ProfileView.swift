@@ -6,6 +6,7 @@
 //
 
 import ActivityKit
+import Kingfisher
 import SwiftUI
 
 struct ProfileView: View {
@@ -53,16 +54,22 @@ struct ProfileView: View {
                         ProfileDetailView(authManager: authManager)
                     } label: {
                         HStack {
-                            AsyncImage(url: URL(string: ssoProfile.avatar)) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 40, height: 40)
-                                    .clipShape(Circle())
-                            } placeholder: {
-                                ProgressView()
+                            let avatarUrl = URL(string: ssoProfile.avatar)
+                            let resource = avatarUrl.map { url in
+                                KF.ImageResource(
+                                    downloadURL: url,
+                                    cacheKey: url.absoluteString.components(separatedBy: "?").first ?? ssoProfile.avatar
+                                )
                             }
-
+                            KFImage(source: resource != nil ? .network(resource!) : nil)
+                                .placeholder {
+                                    ProgressView()
+                                        .frame(width: 40, height: 40)
+                                }
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 40, height: 40)
+                                .clipShape(Circle())
                             VStack(alignment: .leading) {
                                 Text("\(ssoProfile.userName) \(ssoProfile.userAccount)")
                                     .font(.headline)
