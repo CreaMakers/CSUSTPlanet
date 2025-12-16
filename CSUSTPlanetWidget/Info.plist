@@ -20,6 +20,13 @@
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
+			<key>pt.csust.edu.cn</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
 			<key>xk.csust.edu.cn</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
