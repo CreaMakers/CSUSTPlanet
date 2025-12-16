@@ -12,7 +12,7 @@ import SwiftUI
 import WidgetKit
 
 @MainActor
-class GradeQueryViewModel: NSObject, ObservableObject {
+class GradeQueryViewModel: ObservableObject {
     // MARK: States
 
     @Published var availableSemesters: [String] = []
@@ -30,7 +30,6 @@ class GradeQueryViewModel: NSObject, ObservableObject {
     @Published var isShowingFilterSheet: Bool = false
     @Published var isShowingShareSheet: Bool = false
 
-    @Published var isShowingSuccess: Bool = false
     @Published var isShowingError: Bool = false
     @Published var isShowingWarning: Bool = false
 
@@ -68,8 +67,7 @@ class GradeQueryViewModel: NSObject, ObservableObject {
 
     // MARK: - Methods
 
-    override init() {
-        super.init()
+    init() {
         guard let data = MMKVManager.shared.courseGradesCache else { return }
         self.data = data
         updateAnalysis()
@@ -163,39 +161,6 @@ class GradeQueryViewModel: NSObject, ObservableObject {
                     self.isShowingWarning = true
                 }
             }
-        }
-    }
-
-    func showShareSheet(_ shareableView: some View) {
-        let renderer = ImageRenderer(content: shareableView)
-        renderer.scale = UIScreen.main.scale
-        guard let uiImage = renderer.uiImage else {
-            errorMessage = "生成图片失败"
-            isShowingError = true
-            return
-        }
-        shareContent = ImageActivityItemSource(title: "我的成绩单", image: uiImage)
-        isShowingShareSheet = true
-    }
-
-    func saveToPhotoAlbum(_ shareableView: some View) {
-        let renderer = ImageRenderer(content: shareableView)
-        renderer.scale = UIScreen.main.scale
-        if let uiImage = renderer.uiImage {
-            UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(saveToPhotoAlbumCallback(_:didFinishSavingWithError:contextInfo:)), nil)
-        } else {
-            errorMessage = "生成图片失败"
-            isShowingError = true
-        }
-    }
-
-    @objc
-    func saveToPhotoAlbumCallback(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-        if let error = error {
-            errorMessage = "保存图片失败，可能是没有权限: \(error.localizedDescription)"
-            isShowingError = true
-        } else {
-            isShowingSuccess = true
         }
     }
 

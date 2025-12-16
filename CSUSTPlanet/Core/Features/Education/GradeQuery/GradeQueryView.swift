@@ -204,31 +204,6 @@ struct GradeQueryView: View {
         }
     }
 
-    // MARK: - Shareable View
-
-    @ViewBuilder
-    private var shareableView: some View {
-        VStack(spacing: 0) {
-            statsSection
-                .padding(.horizontal)
-                .padding(.vertical)
-
-            Divider()
-
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(viewModel.filteredCourseGrades, id: \.courseID) { courseGrade in
-                    gradeCardContent(courseGrade: courseGrade)
-                        .padding(.horizontal)
-                    Divider()
-                }
-            }
-        }
-        .padding(.vertical)
-        .frame(width: UIScreen.main.bounds.width)
-        .background(Color(.systemGroupedBackground))
-        .environment(\.colorScheme, colorScheme)
-    }
-
     // MARK: - Body
 
     var body: some View {
@@ -254,9 +229,7 @@ struct GradeQueryView: View {
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
-        .toast(isPresenting: $viewModel.isShowingSuccess) {
-            AlertToast(type: .complete(.green), title: "图片保存成功")
-        }
+
         .toast(isPresenting: $viewModel.isShowingWarning) {
             AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
@@ -291,14 +264,7 @@ struct GradeQueryView: View {
                 Button(action: { viewModel.isShowingFilterSheet.toggle() }) {
                     Label("高级查询", systemImage: "slider.horizontal.3")
                 }
-                Button(action: { viewModel.showShareSheet(shareableView) }) {
-                    Label("分享", systemImage: "square.and.arrow.up")
-                }
-                .disabled(viewModel.isLoading)
-                Button(action: { viewModel.saveToPhotoAlbum(shareableView) }) {
-                    Label("保存结果到相册", systemImage: "photo")
-                }
-                .disabled(viewModel.isLoading)
+
                 Button(action: viewModel.exportGradesAsCSV) {
                     Label("导出为CSV表格", systemImage: "doc.plaintext")
                 }
