@@ -130,16 +130,11 @@ class SSOLoginViewModel: ObservableObject {
     }
 
     func onBrowserLoginSuccess(_ username: String, _ password: String, _ mode: SSOBrowserView.LoginMode, _ cookies: [HTTPCookie]) {
-        let session = Session()
-        for cookie in cookies {
-            session.sessionConfiguration.httpCookieStorage?.setCookie(cookie)
-        }
-        let ssoHelper = SSOHelper(session: session)
+        CookieHelper.shared.updateCookies(cookies)
         Task {
             do {
-                let ssoProfile = try await ssoHelper.getLoginUser()
+                let ssoProfile = try await AuthManager.shared.ssoHelper.getLoginUser()
                 AuthManager.shared.ssoProfile = ssoProfile
-                AuthManager.shared.ssoHelper = ssoHelper
                 CookieHelper.shared.save()
                 AuthManager.shared.ssoInfo = "统一身份认证登录成功"
                 AuthManager.shared.isShowingSSOInfo = true

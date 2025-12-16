@@ -29,6 +29,11 @@ final class CookieHelper {
         )
     }
 
+    func updateCookies(_ cookies: [HTTPCookie]) {
+        guard let storage = session.sessionConfiguration.httpCookieStorage else { return }
+        cookies.forEach { storage.setCookie($0) }
+    }
+
     func save() {
         guard let cookies = session.sessionConfiguration.httpCookieStorage?.cookies else { return }
         let data = try? NSKeyedArchiver.archivedData(withRootObject: cookies, requiringSecureCoding: true)
