@@ -36,7 +36,7 @@ class PhysicsExperimentManager: ObservableObject {
         }
 
         if physicsExperimentHelper == nil {
-            if MMKVManager.shared.isWebVPNModeEnabled && AuthManager.shared.isLoggedIn {
+            if MMKVManager.shared.isWebVPNModeEnabled && AuthManager.shared.isSSOLoggedIn {
                 physicsExperimentHelper = PhysicsExperimentHelper(mode: .webVpn, session: CookieHelper.shared.session)
             } else {
                 physicsExperimentHelper = PhysicsExperimentHelper()

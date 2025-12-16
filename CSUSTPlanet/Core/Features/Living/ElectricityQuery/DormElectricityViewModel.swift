@@ -125,7 +125,7 @@ class DormElectricityViewModel: ObservableObject {
     }
 
     func handleShowTerms() {
-        guard AuthManager.shared.isLoggedIn else {
+        guard AuthManager.shared.isSSOLoggedIn else {
             errorMessage = "请先登录"
             isShowingError = true
             return

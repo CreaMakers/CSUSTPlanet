@@ -71,7 +71,7 @@ struct FeaturesView: View {
                 Group {
                     if authManager.isSSOLoggingIn {
                         StatusBadge(text: "SSO登录中")
-                    } else if !authManager.isLoggedIn {
+                    } else if !authManager.isSSOLoggedIn {
                         ActionBadge(text: "点击登录", icon: "person.crop.circle.badge.exclamationmark") {
                             globalVars.selectedTab = .profile
                         }
@@ -101,13 +101,13 @@ struct FeaturesView: View {
                 Group {
                     if authManager.isSSOLoggingIn {
                         StatusBadge(text: "SSO登录中")
-                    } else if !authManager.isLoggedIn {
+                    } else if !authManager.isSSOLoggedIn {
                         ActionBadge(text: "点击登录", icon: "person.crop.circle.badge.exclamationmark") {
                             globalVars.selectedTab = .profile
                         }
                     } else if authManager.isMoocLoggingIn {
                         StatusBadge(text: "课程中心登录中")
-                    } else if authManager.isLoggedIn && !authManager.isSSOLoggingIn {
+                    } else if authManager.isSSOLoggedIn && !authManager.isSSOLoggingIn {
                         ActionBadge(text: "刷新登录", icon: "arrow.clockwise") {
                             authManager.loginToMooc()
                         }

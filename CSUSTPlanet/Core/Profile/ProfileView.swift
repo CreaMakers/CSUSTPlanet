@@ -86,7 +86,7 @@ struct ProfileView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .disabled(!authManager.isLoggedIn)
+                        .disabled(!authManager.isSSOLoggedIn)
                     }
 
                     if authManager.isMoocLoggingIn {
@@ -103,7 +103,7 @@ struct ProfileView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .disabled(!authManager.isLoggedIn)
+                        .disabled(!authManager.isSSOLoggedIn)
                     }
 
                     Button(action: {

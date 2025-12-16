@@ -13,24 +13,19 @@ class AuthManager: ObservableObject {
     public static let shared = AuthManager()
 
     @Published var ssoProfile: SSOHelper.Profile?
-    var isLoggedIn: Bool {
-        return ssoProfile != nil
-    }
-
     @Published var isSSOLoggingIn: Bool = false
     @Published var isSSOLoggingOut: Bool = false
+    var isSSOLoggedIn: Bool { return ssoProfile != nil }
 
     @Published var isEducationLoggingIn: Bool = false
-    @Published var isMoocLoggingIn: Bool = false
-
     @Published var isShowingEducationError: Bool = false
     @Published var educationErrorMessage: String = ""
-
-    @Published var isShowingMoocError: Bool = false
-    @Published var moocErrorMessage: String = ""
-
     private var eduLoginTask: Task<Void, Error>?
     var eduLoginID = UUID()
+
+    @Published var isMoocLoggingIn: Bool = false
+    @Published var isShowingMoocError: Bool = false
+    @Published var moocErrorMessage: String = ""
     private var moocLoginTask: Task<Void, Error>?
     var moocLoginID = UUID()
 
