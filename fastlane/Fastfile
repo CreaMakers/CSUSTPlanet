@@ -1,6 +1,21 @@
 default_platform(:ios)
 
 platform :ios do
+  def load_api_key
+    key_id = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
+    issuer_id = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
+    key_content = ENV["APP_STORE_CONNECT_API_KEY_KEY_CONTENT"]
+    return nil if key_id.to_s.empty? || issuer_id.to_s.empty? || key_content.to_s.empty?
+    app_store_connect_api_key(
+      key_id: key_id,
+      issuer_id: issuer_id,
+      key_content: key_content.gsub('\n', "\n"),
+      is_key_content_base64: false,
+      duration: 1200,
+      in_house: false
+    )
+  end
+
   desc "同步证书"
   lane :sync_certs do |options|
     type = options[:type]
@@ -18,7 +33,12 @@ platform :ios do
   lane :update_certs do |options|
     type = options[:type]
     UI.user_error!("type 参数必须是 'development' 或 'appstore'") unless ['development', 'appstore'].include?(type)
-    match(type: type, force_for_new_devices: true, readonly: false)
+    match(
+      api_key: load_api_key, 
+      type: type, 
+      force_for_new_devices: true, 
+      readonly: false
+    )
   end
 
   desc "添加新设备并刷新开发证书"
@@ -27,11 +47,65 @@ platform :ios do
     udid = options[:udid]
     UI.user_error!("请提供设备名称: fastlane add_new_device name:'iPhone 15' udid:'xxx'") unless name
     UI.user_error!("请提供设备UDID: fastlane add_new_device name:'iPhone 15' udid:'xxx'") unless udid
+    api_key = load_api_key
     register_device(
+      api_key: api_key,
       name: name,
       udid: udid
     )
-    match(type: "development", force_for_new_devices: true, readonly: false)
+    match(
+      api_key: api_key,
+      type: "development", 
+      force_for_new_devices: true, 
+      readonly: false
+    )
     UI.success("设备 #{name} 已添加，且开发证书已更新！")
+  end
+
+  desc "推送构建版本到 TestFlight"
+  lane :beta do
+    api_key = load_api_key
+    begin
+      current_build = latest_testflight_build_number(api_key: api_key).to_i
+    rescue => e
+      UI.user_error!("无法获取线上构建号，终止 lane: #{e}")
+    end
+    new_build_number = current_build + 1
+    UI.message("准备将构建号更新为: #{new_build_number}")
+    config_path = "../Configs/Shared.xcconfig" 
+    if File.exist?(config_path)
+      content = File.read(config_path)
+      # 提取当前版本号
+      version_match = content.match(/CSUSTPLANET_VERSION\s*=\s*([\d\.]+)/)
+      current_version = version_match ? version_match[1] : "unknown"
+      # 更新构建号
+      new_content = content.gsub(/(CSUSTPLANET_BUILD_NUMBER\s*=\s*)\d+/, "\\1#{new_build_number}")
+      File.open(config_path, "w") { |file| file.puts new_content }
+      UI.success("已成功将 #{config_path} 中的构建号改为 #{new_build_number}")
+    else
+      UI.user_error!("找不到 xcconfig 文件，路径是否正确？当前尝试路径: #{config_path}")
+    end
+    # 动态构造输出目录和文件名
+    output_dir = "./fastlane/builds/#{current_version}/build_#{new_build_number}"
+    output_name = "CSUSTPlanet_#{current_version}_b#{new_build_number}.ipa"
+    match(api_key: api_key, type: "appstore", readonly: true)
+    # 执行构建
+    build_app(
+      scheme: "CSUSTPlanet",
+      project: "CSUSTPlanet.xcodeproj",
+      export_method: "app-store",
+      include_bitcode: false,
+      clean: true,
+      output_directory: output_dir,
+      output_name: output_name
+    )
+    # 上传至 TestFlight
+    upload_to_testflight(
+      api_key: api_key,
+      ipa: "#{output_dir}/#{output_name}",
+      skip_waiting_for_build_processing: true
+    )
+    UI.success("应用已成功上传至 TestFlight，版本号: #{current_version}, 构建号: #{new_build_number}")
+    UI.message("本地包路径: #{output_dir}/#{output_name}")
   end
 end

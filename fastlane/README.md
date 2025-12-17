@@ -39,6 +39,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 添加新设备并刷新开发证书
 
+### ios beta
+
+```sh
+[bundle exec] fastlane ios beta
+```
+
+推送构建版本到 TestFlight
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
