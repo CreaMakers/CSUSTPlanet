@@ -39,22 +39,7 @@ struct CourseScheduleView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .ignoresSafeArea(.container, edges: .bottom)
             } else {
-                VStack(spacing: 8) {
-                    Image(systemName: "doc.text.magnifyingglass")
-                        .font(.system(size: 40))
-                        .foregroundColor(.secondary)
-                        .padding(.bottom, 8)
-
-                    Text("暂无课表数据")
-                        .font(.headline)
-
-                    Text("当前学期未设置或课程数据加载失败，请尝试刷新课表或选择其他学期。")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                .padding()
-                .frame(maxHeight: .infinity)
+                emptyStateView
             }
         }
         .navigationTitle("我的课表")
@@ -68,11 +53,9 @@ struct CourseScheduleView: View {
             ToolbarItem(placement: .primaryAction) {
                 if viewModel.isLoading {
                     ProgressView()
-                        .progressViewStyle(.circular)
-                        .scaleEffect(0.9, anchor: .center)
                 } else {
                     Button(action: viewModel.loadCourses) {
-                        Label("刷新课表", systemImage: "arrow.clockwise")
+                        Label("刷新", systemImage: "arrow.clockwise")
                     }
                 }
             }
@@ -91,53 +74,78 @@ struct CourseScheduleView: View {
         .enableInjection()
     }
 
+    // MARK: - 空状态视图
+    private var emptyStateView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "doc.text.magnifyingglass")
+                .font(.system(size: 50))
+                .foregroundColor(.secondary)
+            Text("暂无课表数据")
+                .font(.headline)
+            Text("当前学期未设置或数据加载失败")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxHeight: .infinity)
+    }
+
     // MARK: - 顶部全局控制栏
 
     @ViewBuilder
     private var topControlBar: some View {
         HStack {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("今日 \(CourseScheduleHelper.dateFormatter.string(from: viewModel.today))")
                     .font(.headline)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
                     .foregroundColor(.primary)
 
-                HStack {
+                HStack(spacing: 4) {
                     Text(viewModel.selectedSemester ?? "默认学期")
-                        .font(.footnote)
                     if viewModel.realCurrentWeek == nil {
-                        Text("(不在学期内)")
-                            .font(.footnote)
+                        Text("• 非学期内")
                     }
                 }
+                .font(.caption)
+                .foregroundColor(.secondary)
             }
 
             Spacer()
 
-            HStack {
-                Picker(
-                    "当前周",
-                    selection: Binding(
-                        get: { viewModel.currentWeek },
-                        set: { newValue in withAnimation { viewModel.currentWeek = newValue } }
-                    )
-                ) {
+            HStack(spacing: 12) {
+                Menu {
                     ForEach(1...CourseScheduleHelper.weekCount, id: \.self) { week in
-                        Text("第 \(week) 周").tag(week)
+                        Button("第 \(week) 周") {
+                            withAnimation { viewModel.currentWeek = week }
+                        }
                     }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text("第 \(viewModel.currentWeek) 周")
+                            .fontWeight(.medium)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .font(.caption2)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color(.secondarySystemBackground))
+                    .cornerRadius(8)
                 }
-                .pickerStyle(.menu)
-                .fixedSize(horizontal: true, vertical: false)
 
                 Button(action: viewModel.goToCurrentWeek) {
-                    Text("回到本周")
+                    Text("本周")
+                        .fontWeight(.medium)
                 }
-                .fixedSize(horizontal: true, vertical: false)
                 .disabled(viewModel.realCurrentWeek == nil || viewModel.currentWeek == viewModel.realCurrentWeek)
             }
         }
-        .padding()
+        .padding(.horizontal)
+        .padding(.vertical, 8)
         .background(Color(.systemBackground))
+        .overlay(
+            Divider().opacity(0.6),
+            alignment: .bottom
+        )
     }
 
     // MARK: - 单周课表页面
@@ -169,35 +177,43 @@ struct CourseScheduleView: View {
 
         HStack(spacing: colSpacing) {
             // 左上角月份显示区
-            VStack {
-                Text(CourseScheduleHelper.monthFormatter.string(from: dates.first ?? Date()))
-                    .font(.subheadline)
-                    .fontWeight(.bold)
-                Text("月")
-                    .font(.subheadline)
-                    .fontWeight(.bold)
+            VStack(alignment: .center, spacing: 0) {
+                if let firstDate = dates.first {
+                    Text(CourseScheduleHelper.monthFormatter.string(from: firstDate))
+                        .font(.system(size: 14, weight: .bold))
+                    Text("月")
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                }
             }
             .frame(width: timeColWidth)
 
             // "周日" 到 "周六"
             ForEach(Array(zip(EduHelper.DayOfWeek.allCases, dates)), id: \.0) { day, date in
-                VStack {
+                let isToday = CourseScheduleHelper.isToday(date)
+                VStack(spacing: 2) {
                     Text(day.stringValue)
-                        .font(.subheadline)
-                        .foregroundColor(CourseScheduleHelper.isToday(date) ? .primary : .secondary)
-                        .fontWeight(CourseScheduleHelper.isToday(date) ? .bold : .regular)
+                        .font(.system(size: 11))
+                        .foregroundColor(isToday ? .accentColor : .secondary)
+                        .fontWeight(isToday ? .bold : .medium)
 
-                    Text(CourseScheduleHelper.dayFormatter.string(from: date))
-                        .font(.subheadline)
-                        .foregroundColor(CourseScheduleHelper.isToday(date) ? .primary : .secondary)
-                        .fontWeight(CourseScheduleHelper.isToday(date) ? .bold : .regular)
+                    ZStack {
+                        Circle()
+                            .fill(isToday ? Color.accentColor : Color.clear)
+
+                        Text(CourseScheduleHelper.dayFormatter.string(from: date))
+                            .font(.system(size: 14, weight: isToday ? .bold : .medium))
+                            .foregroundColor(isToday ? .white : .primary)
+                    }
+                    .frame(width: 26, height: 26)
                 }
                 .frame(maxWidth: .infinity)
             }
         }
-        .frame(height: headerHeight)
+        .padding(.top, 6)
+        .padding(.bottom, 6)
         .padding(.horizontal, 5)
-        .background(Color(.secondarySystemBackground))
+        .background(Color(.systemBackground))
     }
 
     // MARK: - 背景网格视图
@@ -208,32 +224,34 @@ struct CourseScheduleView: View {
             // 左侧时间列
             VStack(spacing: rowSpacing) {
                 ForEach(1...10, id: \.self) { section in
-                    VStack {
+                    VStack(spacing: 1) {
                         Text("\(section)")
-                            .font(.system(size: 12))
-                            .fontWeight(.bold)
-                        Text(CourseScheduleHelper.sectionTimeString[section - 1].0)
-                            .font(.system(size: 10))
-                        Text(CourseScheduleHelper.sectionTimeString[section - 1].1)
-                            .font(.system(size: 10))
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .foregroundColor(.primary)
+
+                        VStack(spacing: 0) {
+                            Text(CourseScheduleHelper.sectionTimeString[section - 1].0)
+                            Text(CourseScheduleHelper.sectionTimeString[section - 1].1)
+                        }
+                        .font(.system(size: 9))
+                        .foregroundColor(.secondary)
                     }
                     .frame(width: timeColWidth, height: sectionHeight)
-                    .background(Color(.tertiarySystemBackground))
-                    .cornerRadius(5)
                 }
             }
 
-            // 右侧课程区域背景
-            // ForEach(EduHelper.DayOfWeek.allCases, id: \.self) { _ in
-            //     VStack(spacing: rowSpacing) {
-            //         ForEach(1...5, id: \.self) { _ in
-            //             Rectangle()
-            //                 .fill(Color(.secondarySystemBackground))
-            //                 .frame(height: sectionHeight * 2 + rowSpacing)
-            //                 .cornerRadius(5)
-            //         }
-            //     }
-            // }
+            VStack(spacing: rowSpacing) {
+                ForEach(1...10, id: \.self) { _ in
+                    HStack(spacing: colSpacing) {
+                        ForEach(1...7, id: \.self) { _ in
+                            Rectangle()
+                                .fill(Color(.secondarySystemBackground).opacity(0.3))
+                                .frame(height: sectionHeight)
+                                .cornerRadius(4)
+                        }
+                    }
+                }
+            }
         }
         .padding(.horizontal, 5)
         .padding(.vertical)
