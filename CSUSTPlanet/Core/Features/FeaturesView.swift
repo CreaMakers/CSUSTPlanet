@@ -187,14 +187,14 @@ struct FeaturesView: View {
 
     private var examQuerySection: some View {
         VStack(spacing: spacing) {
-            sectionHeader(title: "考试查询", icon: "magnifyingglass.circle.fill", color: .indigo)
+            sectionHeader(title: "考试查询", icon: "magnifyingglass.circle", color: .indigo)
 
             VStack(spacing: 0) {
-                ToolRow(destination: CETView(), title: "四六级查询", icon: "character.book.closed", color: .brown)
+                ToolRow(destination: CETView(), title: "四六级查询", icon: "character.book.closed", color: .indigo)
 
                 Divider().padding(.leading, 56)
 
-                ToolRow(destination: MandarinView(), title: "普通话查询", icon: "mic.circle.fill", color: .teal)
+                ToolRow(destination: MandarinView(), title: "普通话查询", icon: "mic.circle.fill", color: .indigo)
             }
             .background(Color(uiColor: .secondarySystemGroupedBackground))
             .cornerRadius(16)
