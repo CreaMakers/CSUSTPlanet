@@ -64,6 +64,7 @@ platform :ios do
 
   desc "推送构建版本到 TestFlight"
   lane :beta do
+    ENV["DELIVER_ALTOOL_ADDITIONAL_UPLOAD_PARAMETERS"] = "--use-old-altool"
     api_key = load_api_key
     begin
       current_build = latest_testflight_build_number(api_key: api_key).to_i
