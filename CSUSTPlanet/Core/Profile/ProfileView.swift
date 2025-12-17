@@ -174,14 +174,14 @@ struct ProfileView: View {
                     ColoredLabel(title: "开启电量提醒通知", iconName: "lightbulb.circle", color: .indigo)
                 }
 
+                Toggle(isOn: webVPNToggleBinding) {
+                    ColoredLabel(title: "开启WebVPN模式（实验）", iconName: "globe", color: .orange)
+                }
+
                 Toggle(isOn: $globalVars.isLiveActivityEnabled) {
                     ColoredLabel(title: "启用实时活动/灵动岛", iconName: "bolt.circle", color: .yellow)
                 }
                 .onChange(of: globalVars.isLiveActivityEnabled, { _, _ in ActivityManager.shared.autoUpdateActivity() })
-
-                Toggle(isOn: webVPNToggleBinding) {
-                    ColoredLabel(title: "开启WebVPN模式（实验）", iconName: "globe", color: .orange)
-                }
             }
 
             Section(header: Text("帮助与支持")) {
