@@ -1,225 +1,390 @@
-//
-//  DormDetailView.swift
-//  CSUSTPlanet
-//
-//  Created by Zhe_Learn on 2025/7/9.
-//
-
 import Alamofire
 import Charts
 import Inject
 import SwiftData
 import SwiftUI
 
+private enum ChartTimeRange: String, CaseIterable, Identifiable {
+    case threeDays = "近3天"
+    case oneWeek = "近1周"
+    case twoWeeks = "近2周"
+    case oneMonth = "近1月"
+    case all = "全部"
+
+    var id: String { self.rawValue }
+
+    func startDate(from date: Date = Date()) -> Date? {
+        let calendar = Calendar.current
+        switch self {
+        case .threeDays: return calendar.date(byAdding: .day, value: -3, to: date)
+        case .oneWeek: return calendar.date(byAdding: .day, value: -7, to: date)
+        case .twoWeeks: return calendar.date(byAdding: .day, value: -14, to: date)
+        case .oneMonth: return calendar.date(byAdding: .month, value: -1, to: date)
+        case .all: return nil
+        }
+    }
+}
+
 struct DormDetailView: View {
     @ObserveInjection var inject
-
     @ObservedObject var viewModel: DormElectricityViewModel
     @Bindable var dorm: Dorm
 
+    @State private var showDeleteAlert = false
+
     var body: some View {
-        Form {
-            dormInfoSection
-            currentElectricitySection
+        ScrollView {
+            VStack(spacing: 20) {
+                ElectricityDashboardCard(
+                    record: dorm.lastRecord,
+                    isLoading: viewModel.isQueryingElectricity
+                )
 
-            if let records = dorm.records, !records.isEmpty {
-                electricityTrendSection
-                historyRecordsSection
-            } else {
-                emptyStateSection
-            }
-        }
-        .navigationTitle("宿舍电量")
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Button(action: { viewModel.toggleFavorite(dorm) }) {
-                        Label(dorm.isFavorite ? "取消收藏" : "设为常用", systemImage: dorm.isFavorite ? "star.slash" : "star")
+                QuickActionsGrid(
+                    dorm: dorm,
+                    viewModel: viewModel
+                )
+
+                if let records = dorm.records, !records.isEmpty {
+                    ElectricityTrendCard(records: records)
+                }
+
+                DormInfoCard(dorm: dorm)
+
+                NavigationLink(destination: DormHistoryView(viewModel: viewModel, dorm: dorm)) {
+                    HStack {
+                        Label("查看所有历史记录", systemImage: "list.bullet.clipboard")
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
-
-                    Menu {
-                        Button(action: viewModel.handleShowTerms) {
-                            Label("设置定时查询", systemImage: "bell").tint(.blue)
-                        }
-                        .disabled(viewModel.isScheduleLoading || dorm.scheduleEnabled)
-
-                        Button(action: { viewModel.removeSchedule(dorm) }) {
-                            Label("取消定时查询", systemImage: "bell.slash").tint(.red)
-                        }
-                        .disabled(viewModel.isScheduleLoading || !dorm.scheduleEnabled)
+                    .padding()
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                if let records = dorm.records, !records.isEmpty {
+                    Button(role: .destructive) {
+                        showDeleteAlert = true
                     } label: {
-                        Label("定时查询", systemImage: "clock").tint(.purple)
-                        if viewModel.isScheduleLoading {
-                            ProgressView()
-                                .progressViewStyle(.circular)
-                        }
+                        Text("清除所有历史记录")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.red)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-
-                    Button(action: { viewModel.deleteAllRecords(dorm) }) {
-                        Label("清除历史", systemImage: "trash").tint(.red)
-                    }
-                } label: {
-                    Label("操作", systemImage: "ellipsis.circle")
+                    .padding(.top, 10)
                 }
             }
-            ToolbarItem(placement: .primaryAction) {
-                if viewModel.isQueryingElectricity {
-                    ProgressView()
-                } else {
-                    Button(action: { viewModel.handleQueryElectricity(dorm) }) {
-                        Label("查询电量", systemImage: "bolt.fill")
-                    }
-                    .tint(.yellow)
-                    .disabled(viewModel.isQueryingElectricity)
-                }
+            .padding()
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("宿舍详情")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("清除记录", isPresented: $showDeleteAlert) {
+            Button("取消", role: .cancel) {}
+            Button("确认清除", role: .destructive) {
+                viewModel.deleteAllRecords(dorm)
             }
+        } message: {
+            Text("此操作将删除该宿舍所有的历史电量记录且无法恢复，确定要继续吗？")
         }
         .enableInjection()
     }
+}
 
-    // MARK: - Form Sections
+struct ElectricityDashboardCard: View {
+    let record: ElectricityRecord?
+    let isLoading: Bool
 
-    private var dormInfoSection: some View {
-        Section(header: Text("宿舍信息")) {
-            InfoRow(icon: ("house.fill", .blue), label: "宿舍号", value: dorm.room)
-            if dorm.isFavorite {
-                InfoRow(icon: ("star.fill", .yellow), label: "收藏状态", value: "已设为常用")
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("剩余电量")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if let date = record?.date {
+                    Text("更新于 " + date.formatted(.relative(presentation: .named)))
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
             }
-            InfoRow(icon: ("building.fill", .green), label: "楼栋", value: dorm.buildingName)
-            InfoRow(icon: ("map.fill", .orange), label: "校区", value: dorm.campusName)
 
-            if dorm.scheduleEnabled, let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute {
-                InfoRow(icon: ("clock.fill", .purple), label: "定时查询时间", value: String(format: "%02d:%02d", scheduleHour, scheduleMinute))
-            }
-        }
-    }
-
-    private var currentElectricitySection: some View {
-        Section(header: Text("当前电量")) {
-            if let record = dorm.lastRecord {
-                VStack(spacing: 8) {
-                    HStack {
-                        Text("\(String(format: "%.2f", record.electricity))")
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
-                            .foregroundStyle(ColorHelper.electricityColor(electricity: record.electricity))
+            ZStack {
+                if let electricity = record?.electricity {
+                    HStack(alignment: .lastTextBaseline) {
+                        Text(String(format: "%.2f", electricity))
+                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .foregroundStyle(ColorHelper.electricityColor(electricity: electricity))
 
                         Text("kWh")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-
-                        Spacer()
-                    }
-
-                    HStack {
-                        Image(systemName: "clock")
-                            .foregroundColor(.gray)
-
-                        Text("更新时间: \(viewModel.formatDate(record.date))")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-
-                        Spacer()
-                    }
-                }
-                .padding(.vertical, 4)
-            } else {
-                Text("暂无电量记录")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-        }
-    }
-
-    private var electricityTrendSection: some View {
-        let electricityValues = dorm.records?.map { $0.electricity } ?? []
-        let minValue = electricityValues.min() ?? 0
-        let maxValue = electricityValues.max() ?? 0
-
-        let yMin = max(0, minValue - 5)
-        let yMax = maxValue + 5
-
-        return Section(header: Text("电量趋势")) {
-            Chart(dorm.records?.sorted(by: { $0.date < $1.date }) ?? []) { record in
-                LineMark(
-                    x: .value("日期", record.date),
-                    y: .value("电量", record.electricity)
-                )
-                .interpolationMethod(.catmullRom)
-                .symbol {
-                    if dorm.records?.count ?? 0 <= 1 {
-                        Circle()
-                            .frame(width: 8)
-                            .foregroundStyle(.primary)
-                    }
-                }
-            }
-            .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 4)) { _ in
-                    AxisValueLabel(format: .dateTime.month().day())
-                }
-            }
-            .chartYScale(domain: yMin...yMax)
-            .frame(height: 200)
-            .padding(.vertical, 8)
-        }
-    }
-
-    private var historyRecordsSection: some View {
-        Section(header: Text("历史记录")) {
-            ForEach(dorm.records?.sorted(by: { $0.date > $1.date }) ?? []) { record in
-                HStack {
-                    Image(systemName: "bolt.fill")
-                        .foregroundColor(.yellow)
-                        .frame(width: 20)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("\(String(format: "%.2f", record.electricity)) kWh")
-                            .font(.subheadline)
+                            .font(.title3)
+                            .foregroundStyle(.secondary)
                             .fontWeight(.medium)
-                        Text(viewModel.formatDate(record.date))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .padding(.bottom, 6)
                     }
+                } else {
+                    Text("--.--")
+                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .foregroundStyle(.secondary)
+                }
 
-                    Spacer()
-                }
-                .padding(.vertical, 4)
-                .contextMenu {
-                    Button(role: .destructive) {
-                        viewModel.deleteRecord(record: record)
-                    } label: {
-                        Label("删除记录", systemImage: "trash")
-                    }
-                }
-                .swipeActions {
-                    Button(role: .destructive) {
-                        viewModel.deleteRecord(record: record)
-                    } label: {
-                        Label("删除记录", systemImage: "trash")
-                    }
+                if isLoading {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(.thinMaterial)
                 }
             }
         }
+        .padding(20)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+    }
+}
+
+struct QuickActionsGrid: View {
+    var dorm: Dorm
+    @ObservedObject var viewModel: DormElectricityViewModel
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ActionButton(
+                icon: viewModel.isQueryingElectricity ? "bolt.badge.clock" : "bolt.fill",
+                title: viewModel.isQueryingElectricity ? "查询中..." : "刷新电量",
+                titleColor: .white,
+                iconColor: .white,
+                backgroundColor: AnyShapeStyle(Color.blue.gradient)
+            ) {
+                viewModel.handleQueryElectricity(dorm)
+            }
+            .disabled(viewModel.isQueryingElectricity)
+
+            ActionButton(
+                icon: dorm.isFavorite ? "star.fill" : "star",
+                title: dorm.isFavorite ? "已收藏" : "收藏",
+                titleColor: .primary,
+                iconColor: dorm.isFavorite ? .yellow : .primary,
+                backgroundColor: AnyShapeStyle(Color(.secondarySystemGroupedBackground))
+            ) {
+                viewModel.toggleFavorite(dorm)
+            }
+            let scheduleTitle =
+                dorm.scheduleEnabled
+                ? String(format: "%02d:%02d时 提醒", dorm.scheduleHour ?? 0, dorm.scheduleMinute ?? 0)
+                : "定时提醒"
+
+            ActionButton(
+                icon: dorm.scheduleEnabled ? "bell.fill" : "bell",
+                title: scheduleTitle,
+                titleColor: .primary,
+                iconColor: dorm.scheduleEnabled ? .purple : .primary,
+                backgroundColor: AnyShapeStyle(Color(.secondarySystemGroupedBackground))
+            ) {
+                if dorm.scheduleEnabled {
+                    viewModel.removeSchedule(dorm)
+                } else {
+                    viewModel.handleShowTerms()
+                }
+            }
+            .disabled(viewModel.isScheduleLoading)
+        }
     }
 
-    private var emptyStateSection: some View {
-        Section {
-            VStack(spacing: 8) {
-                Image(systemName: "bolt.slash.fill")
-                    .font(.system(size: 40))
-                    .foregroundColor(.secondary)
-                    .padding(.bottom, 8)
+    private struct ActionButton<S: ShapeStyle>: View {
+        let icon: String
+        let title: String
+        let titleColor: Color
+        let iconColor: Color
+        let backgroundColor: S
+        let action: () -> Void
 
-                Text("暂无电量记录")
+        var body: some View {
+            Button(action: action) {
+                VStack(spacing: 6) {
+                    Group {
+                        Image(systemName: icon)
+                            .font(.title2)
+                            .foregroundStyle(iconColor)
+                    }
+                    .frame(height: 28)
+
+                    Text(title)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(titleColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 80)
+                .background(backgroundColor)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+        }
+    }
+}
+
+struct ElectricityTrendCard: View {
+    let records: [ElectricityRecord]
+
+    @State private var selectedRange: ChartTimeRange = .oneMonth
+    @State private var displayData: [ElectricityRecord] = []
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Label("电量趋势", systemImage: "chart.xyaxis.line")
                     .font(.headline)
 
-                Text("点击右上角按钮查询电量")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
+                Spacer()
+
+                Picker("时间范围", selection: $selectedRange) {
+                    ForEach(ChartTimeRange.allCases) { range in
+                        Text(range.rawValue).tag(range)
+                    }
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .tint(.primary)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 20)
+
+            if displayData.isEmpty {
+                ContentUnavailableView("该时段无数据", systemImage: "chart.bar.xaxis")
+                    .frame(height: 200)
+            } else {
+                let yMin = (displayData.map(\.electricity).min() ?? 0) - 2
+                let yMax = (displayData.map(\.electricity).max() ?? 0) + 2
+
+                Chart(displayData) { record in
+                    LineMark(
+                        x: .value("日期", record.date),
+                        y: .value("电量", record.electricity)
+                    )
+                    .foregroundStyle(.blue)
+                    .interpolationMethod(.catmullRom)
+                    .symbol {
+                        if displayData.count < 15 {
+                            Circle()
+                                .fill(.blue)
+                                .frame(width: 8)
+                        }
+                    }
+                }
+                .chartYScale(domain: max(0, yMin)...yMax)
+                .chartXAxis {
+                    AxisMarks(values: .automatic(desiredCount: 4)) { _ in
+                        AxisValueLabel(format: .dateTime.month().day())
+                    }
+                }
+                .frame(height: 220)
+                .transaction { transaction in
+                    transaction.animation = nil
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .onChange(of: selectedRange, initial: true) { updateDisplayData() }
+        .onChange(of: records) { updateDisplayData() }
+    }
+
+    private func updateDisplayData() {
+        let sorted = records.sorted(by: { $0.date < $1.date })
+        if let startDate = selectedRange.startDate() {
+            self.displayData = sorted.filter { $0.date >= startDate }
+        } else {
+            self.displayData = sorted
+        }
+    }
+}
+
+struct DormInfoCard: View {
+    let dorm: Dorm
+
+    var body: some View {
+        VStack(spacing: 0) {
+            infoRow(icon: "house.fill", color: .blue, title: "宿舍", value: dorm.room)
+            Divider().padding(.leading, 44)
+            infoRow(icon: "building.2.fill", color: .green, title: "楼栋", value: dorm.buildingName)
+            Divider().padding(.leading, 44)
+            infoRow(icon: "map.fill", color: .orange, title: "校区", value: dorm.campusName)
+        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func infoRow(icon: String, color: Color, title: String, value: String) -> some View {
+        HStack {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+                .frame(width: 24)
+            Text(title)
+            Spacer()
+            Text(value)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+    }
+}
+
+struct DormHistoryView: View {
+    @ObservedObject var viewModel: DormElectricityViewModel
+    var dorm: Dorm
+
+    @State private var sortedRecords: [ElectricityRecord] = []
+
+    var body: some View {
+        List {
+            if sortedRecords.isEmpty {
+                ContentUnavailableView("无历史记录", systemImage: "bolt.slash", description: Text("点击首页的刷新按钮获取最新电量"))
+            } else {
+                ForEach(sortedRecords) { record in
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("\(String(format: "%.2f", record.electricity)) kWh")
+                                .font(.headline)
+                                .monospacedDigit()
+                                .foregroundStyle(ColorHelper.electricityColor(electricity: record.electricity))
+
+                            Text(record.date.formatted(date: .numeric, time: .standard))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        Button(role: .destructive) {
+                            deleteRecord(record)
+                        } label: {
+                            Label("删除", systemImage: "trash")
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle("历史记录")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear { updateSortedRecords() }
+        .onChange(of: dorm.records) { updateSortedRecords() }
+    }
+
+    private func updateSortedRecords() {
+        self.sortedRecords = dorm.records?.sorted(by: { $0.date > $1.date }) ?? []
+    }
+
+    private func deleteRecord(_ record: ElectricityRecord) {
+        viewModel.deleteRecord(record: record)
+        if let index = sortedRecords.firstIndex(of: record) {
+            _ = withAnimation {
+                sortedRecords.remove(at: index)
+            }
         }
     }
 }
