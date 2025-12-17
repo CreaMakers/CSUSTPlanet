@@ -228,17 +228,17 @@ private struct HomeCourseCarousel: View {
                             }
                         }
                         .padding(.horizontal)
-                        .padding(.vertical, 20)
+                        .padding(.vertical, 10)
                     }
                 } else {
                     EmptyCourseCard()
                         .padding(.horizontal)
-                        .padding(.bottom, 20)
+                        .padding(.bottom, 10)
                 }
             } else {
                 EmptyCourseCard(text: "暂无课程数据")
                     .padding(.horizontal)
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 10)
             }
         }
     }
