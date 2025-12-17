@@ -1,18 +1,3 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
 default_platform(:ios)
 
 platform :ios do
@@ -33,6 +18,20 @@ platform :ios do
   lane :update_certs do |options|
     type = options[:type]
     UI.user_error!("type 参数必须是 'development' 或 'appstore'") unless ['development', 'appstore'].include?(type)
-    match(type: type, readonly: false)
+    match(type: type, force_for_new_devices: true, readonly: false)
+  end
+
+  desc "添加新设备并刷新开发证书"
+  lane :add_new_device do |options|
+    name = options[:name]
+    udid = options[:udid]
+    UI.user_error!("请提供设备名称: fastlane add_new_device name:'iPhone 15' udid:'xxx'") unless name
+    UI.user_error!("请提供设备UDID: fastlane add_new_device name:'iPhone 15' udid:'xxx'") unless udid
+    register_device(
+      name: name,
+      udid: udid
+    )
+    match(type: "development", force_for_new_devices: true, readonly: false)
+    UI.success("设备 #{name} 已添加，且开发证书已更新！")
   end
 end

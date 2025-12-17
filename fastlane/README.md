@@ -31,6 +31,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 生成/更新证书
 
+### ios add_new_device
+
+```sh
+[bundle exec] fastlane ios add_new_device
+```
+
+添加新设备并刷新开发证书
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
