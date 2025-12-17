@@ -16,36 +16,27 @@ class SharedModel {
     ])
 
     static let container: ModelContainer = {
-        #if WIDGET
-            let config = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false,
-                groupContainer: .identifier(Constants.appGroupID),
-            )
-            Logger.sharedModel.info("小组件正在使用共享组容器：\(String(describing: config.groupContainer))")
-        #else
-            let config = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false,
-                groupContainer: .identifier(Constants.appGroupID),
-                cloudKitDatabase: .private(Constants.iCloudID),
-            )
-            Logger.sharedModel.info("App 正在使用 iCloud 容器：\(String(describing: config.cloudKitDatabase))")
-        #endif
+        let config = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            groupContainer: .identifier(Constants.appGroupID),
+            cloudKitDatabase: .private(Constants.iCloudID)
+        )
+
+        Logger.sharedModel.info("正在使用 iCloud 容器：\(String(describing: config.cloudKitDatabase))")
 
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
+            Logger.sharedModel.error("ModelContainer 初始化失败: \(error)")
+            fatalError("ModelContainer 初始化失败: \(error)")
         }
     }()
 
     @MainActor
     static let mainContext: ModelContext = container.mainContext
 
-    static var context: ModelContext {
-        return ModelContext(container)
-    }
+    static var context: ModelContext { return ModelContext(container) }
 
     @MainActor
     static func clearAllData() throws {
