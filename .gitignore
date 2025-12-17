@@ -64,3 +64,4 @@ fastlane/test_output
 buildServer.json
 
 Configs/User.xcconfig
+.env
