@@ -64,10 +64,11 @@ struct OverviewView: View {
                         )
 
                         if let examData = viewModel.examScheduleData?.value {
-                            if examData.isEmpty {
+                            let pendingExams = examData.filter { Date() <= $0.examEndTime }
+                            if pendingExams.isEmpty {
                                 HomeEmptyStateView(icon: "calendar.badge.checkmark", text: "近期没有考试")
                             } else {
-                                HomeExamListView(exams: examData)
+                                HomeExamListView(exams: pendingExams)
                             }
                         } else {
                             HomeEmptyStateView(icon: "calendar.badge.exclamationmark", text: "暂无数据，请前往详情页加载")
@@ -514,24 +515,23 @@ private struct HomeExamListView: View {
         max(0, exams.count - 2)
     }
 
+    private func daysUntilExam(_ exam: EduHelper.Exam) -> Int {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        let examDay = calendar.startOfDay(for: exam.examStartTime)
+        let components = calendar.dateComponents([.day], from: startOfDay, to: examDay)
+        return components.day ?? 0
+    }
+
     var body: some View {
         VStack(spacing: 12) {
             ForEach(displayedExams, id: \.courseName) { exam in
                 HStack {
-                    VStack(alignment: .center, spacing: 2) {
-                        Image(systemName: "calendar")
-                            .font(.title3)
-                            .foregroundStyle(.red.opacity(0.8))
-                    }
-                    .frame(width: 40)
-
-                    Divider()
-                        .frame(height: 30)
-
                     VStack(alignment: .leading, spacing: 4) {
                         Text(exam.courseName)
                             .font(.subheadline)
                             .fontWeight(.semibold)
+                            .lineLimit(1)
 
                         HStack(spacing: 6) {
                             Text(exam.examTime)
@@ -542,6 +542,33 @@ private struct HomeExamListView: View {
                         }
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                    }
+
+                    Spacer()
+
+                    let daysLeft = daysUntilExam(exam)
+                    if daysLeft == 0 {
+                        Text("今天")
+                            .font(.caption.bold())
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.red, in: Capsule())
+                    } else if daysLeft == 1 {
+                        Text("明天")
+                            .font(.caption.bold())
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.orange, in: Capsule())
+                    } else {
+                        Text("还有 \(daysLeft) 天")
+                            .font(.caption.bold())
+                            .foregroundColor(.blue)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.blue.opacity(0.1), in: Capsule())
                     }
                 }
                 .padding(12)
