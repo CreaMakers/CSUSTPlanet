@@ -120,21 +120,21 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Extensions/Logger+Extension.swift",
+				Managers/MMKVManager.swift,
 				Models/Storage/CourseScheduleData.swift,
 				Models/Storage/Database/Dorm.swift,
 				Models/Storage/Database/ElectricityRecord.swift,
 				Models/Storage/GradeAnalysisData.swift,
 				Models/Storage/UrgentCourseData.swift,
-				Shared/Managers/MMKVManager.swift,
-				Shared/Utils/AppEnvironmentHelper.swift,
-				Shared/Utils/AssetUtils.swift,
-				Shared/Utils/ColorHelper.swift,
-				Shared/Utils/Constants.swift,
-				Shared/Utils/CookieHelper.swift,
-				Shared/Utils/CourseScheduleHelper.swift,
-				Shared/Utils/ImageActivityItemSource.swift,
-				Shared/Utils/KeychainHelper.swift,
-				Shared/Utils/SharedModel.swift,
+				Utils/AppEnvironmentHelper.swift,
+				Utils/AssetUtils.swift,
+				Utils/ColorHelper.swift,
+				Utils/Constants.swift,
+				Utils/CookieHelper.swift,
+				Utils/CourseScheduleHelper.swift,
+				Utils/ImageActivityItemSource.swift,
+				Utils/KeychainHelper.swift,
+				Utils/SharedModel.swift,
 			);
 			target = 00E89C5F2E2C88D800B43162 /* CSUSTPlanetWidgetExtension */;
 		};
