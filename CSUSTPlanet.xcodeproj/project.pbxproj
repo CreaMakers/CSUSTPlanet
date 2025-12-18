@@ -101,7 +101,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		006CA2AC2E2CFCC000340655 /* CSUSTPlanetWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CSUSTPlanetWidgetExtension.entitlements; sourceTree = "<group>"; };
 		007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CSUSTPlanet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00A7D9F42E8C60A500BA7927 /* MMKV.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = MMKV.xcodeproj; path = ThirdParty/MMKV/iOS/MMKV/MMKV.xcodeproj; sourceTree = "<group>"; };
 		00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CSUSTPlanetWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -221,7 +220,6 @@
 				00E89C662E2C88D800B43162 /* CSUSTPlanetWidget */,
 				00E89C612E2C88D800B43162 /* Frameworks */,
 				007CF85C2E1BD68900E319F2 /* Products */,
-				006CA2AC2E2CFCC000340655 /* CSUSTPlanetWidgetExtension.entitlements */,
 				00A7D9F42E8C60A500BA7927 /* MMKV.xcodeproj */,
 			);
 			sourceTree = "<group>";
@@ -667,7 +665,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = CSUSTPlanetWidgetExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CSUSTPlanetWidget/CSUSTPlanetWidgetExtension.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -701,7 +699,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = CSUSTPlanetWidgetExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CSUSTPlanetWidget/CSUSTPlanetWidgetExtension.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
