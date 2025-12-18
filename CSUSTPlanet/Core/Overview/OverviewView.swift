@@ -398,6 +398,27 @@ private struct HomeElectricityCard: View {
         dorms.first(where: { $0.isFavorite }) ?? dorms.first
     }
 
+    private var exhaustionInfo: String? {
+        guard let dorm = primaryDorm, let records = dorm.records, !records.isEmpty else { return nil }
+        guard let predictionDate = ElectricityHelper.predictExhaustionDate(from: records) else { return nil }
+
+        let now = Date()
+        let interval = predictionDate.timeIntervalSince(now)
+        guard interval > 0 else { return nil }
+
+        let days = Int(interval) / 86400
+        let hours = (Int(interval) % 86400) / 3600
+        let minutes = (Int(interval) % 3600) / 60
+
+        if days > 0 {
+            return "预计\(days)天后耗尽"
+        } else if hours > 0 {
+            return "预计\(hours)小时后耗尽"
+        } else {
+            return "预计\(minutes)分钟后耗尽"
+        }
+    }
+
     var body: some View {
         NavigationLink(destination: ElectricityQueryView()) {
             VStack(alignment: .leading, spacing: 8) {
@@ -405,27 +426,33 @@ private struct HomeElectricityCard: View {
                     Image(systemName: "bolt.fill")
                         .foregroundStyle(.yellow)
                     Spacer()
-                    Text("电量")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.secondary)
+                    if let dorm = primaryDorm {
+                        Text(dorm.room)
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
                 Spacer()
 
                 if let dorm = primaryDorm, let record = dorm.lastRecord {
-                    Text(String(format: "%.1f", record.electricity))
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                        .foregroundStyle(ColorHelper.electricityColor(electricity: record.electricity))
+                    HStack(alignment: .lastTextBaseline, spacing: 4) {
+                        Text(String(format: "%.1f", record.electricity))
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .foregroundStyle(ColorHelper.electricityColor(electricity: record.electricity))
 
-                    HStack {
                         Text("kWh")
-                        Spacer()
-                        Text(dorm.room)
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.secondary)
                     }
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.secondary)
+
+                    if let info = exhaustionInfo {
+                        Text(info)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 } else {
                     Text("未绑定")
                         .font(.title3)

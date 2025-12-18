@@ -43,7 +43,7 @@ struct DormDetailView: View {
         ScrollView {
             VStack(spacing: 20) {
                 ElectricityDashboardCard(
-                    record: dorm.lastRecord,
+                    records: dorm.records,
                     isLoading: viewModel.isQueryingElectricity
                 )
 
@@ -104,8 +104,33 @@ struct DormDetailView: View {
 }
 
 struct ElectricityDashboardCard: View {
-    let record: ElectricityRecord?
+    let records: [ElectricityRecord]?
     let isLoading: Bool
+
+    private var record: ElectricityRecord? {
+        records?.sorted(by: { $0.date > $1.date }).first
+    }
+
+    private var exhaustionInfo: String? {
+        guard let records = records, !records.isEmpty else { return nil }
+        guard let predictionDate = ElectricityHelper.predictExhaustionDate(from: records) else { return nil }
+
+        let now = Date()
+        let interval = predictionDate.timeIntervalSince(now)
+        guard interval > 0 else { return nil }
+
+        let days = Int(interval) / 86400
+        let hours = (Int(interval) % 86400) / 3600
+        let minutes = (Int(interval) % 3600) / 60
+
+        if days > 0 {
+            return "预计\(days)天后耗尽"
+        } else if hours > 0 {
+            return "预计\(hours)小时后耗尽"
+        } else {
+            return "预计\(minutes)分钟后耗尽"
+        }
+    }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -123,16 +148,24 @@ struct ElectricityDashboardCard: View {
 
             ZStack {
                 if let electricity = record?.electricity {
-                    HStack(alignment: .lastTextBaseline) {
-                        Text(String(format: "%.2f", electricity))
-                            .font(.system(size: 48, weight: .bold, design: .rounded))
-                            .foregroundStyle(ColorHelper.electricityColor(electricity: electricity))
+                    VStack {
+                        HStack(alignment: .lastTextBaseline) {
+                            Text(String(format: "%.2f", electricity))
+                                .font(.system(size: 48, weight: .bold, design: .rounded))
+                                .foregroundStyle(ColorHelper.electricityColor(electricity: electricity))
 
-                        Text("kWh")
-                            .font(.title3)
-                            .foregroundStyle(.secondary)
-                            .fontWeight(.medium)
-                            .padding(.bottom, 6)
+                            Text("kWh")
+                                .font(.title3)
+                                .foregroundStyle(.secondary)
+                                .fontWeight(.medium)
+                                .padding(.bottom, 6)
+                        }
+
+                        if let info = exhaustionInfo {
+                            Text(info)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 } else {
                     Text("--.--")
