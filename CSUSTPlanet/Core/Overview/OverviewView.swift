@@ -16,17 +16,17 @@ struct OverviewView: View {
         ScrollView {
             VStack(spacing: 24) {
                 // 头部欢迎语
-                HomeHeaderView(courseData: viewModel.courseScheduleData)
+                HomeHeaderView(greeting: viewModel.greeting, weekInfo: viewModel.weekInfo)
                     .padding(.horizontal)
                     .padding(.top, 10)
 
                 // 今日课程
-                HomeCourseCarousel(data: viewModel.courseScheduleData)
+                HomeCourseCarousel(viewModel: viewModel)
 
                 // 核心数据网格 (成绩 + 电量)
                 HStack(spacing: 16) {
-                    HomeGradeCard(data: viewModel.gradeAnalysisData)
-                    HomeElectricityCard(dorms: viewModel.electricityDorms)
+                    HomeGradeCard(analysisData: viewModel.currentGradeAnalysis)
+                    HomeElectricityCard(primaryDorm: viewModel.primaryDorm, exhaustionInfo: viewModel.electricityExhaustionInfo)
                 }
                 .padding(.horizontal)
 
@@ -43,14 +43,15 @@ struct OverviewView: View {
                             destination: UrgentCoursesView()
                         )
 
-                        if let urgentData = viewModel.urgentCourseData?.value {
-                            if urgentData.courses.isEmpty {
-                                HomeEmptyStateView(icon: "doc.text", text: "暂无待提交作业")
+                        let courses = viewModel.urgentCourses
+                        if courses.isEmpty {
+                            if viewModel.urgentCourseData?.value == nil {
+                                HomeEmptyStateView(icon: "doc.text", text: "暂无数据，请前往详情页加载")
                             } else {
-                                HomeUrgentListView(courses: urgentData.courses)
+                                HomeEmptyStateView(icon: "doc.text", text: "暂无待提交作业")
                             }
                         } else {
-                            HomeEmptyStateView(icon: "doc.text", text: "暂无数据，请前往详情页加载")
+                            HomeUrgentListView(viewModel: viewModel)
                         }
                     }
 
@@ -63,15 +64,15 @@ struct OverviewView: View {
                             destination: ExamScheduleView()
                         )
 
-                        if let examData = viewModel.examScheduleData?.value {
-                            let pendingExams = examData.filter { Date() <= $0.examEndTime }
-                            if pendingExams.isEmpty {
-                                HomeEmptyStateView(icon: "calendar.badge.checkmark", text: "近期没有考试")
+                        let pendingExams = viewModel.pendingExams
+                        if pendingExams.isEmpty {
+                            if viewModel.examScheduleData?.value == nil {
+                                HomeEmptyStateView(icon: "calendar.badge.exclamationmark", text: "暂无数据，请前往详情页加载")
                             } else {
-                                HomeExamListView(exams: pendingExams)
+                                HomeEmptyStateView(icon: "calendar.badge.checkmark", text: "近期没有考试")
                             }
                         } else {
-                            HomeEmptyStateView(icon: "calendar.badge.exclamationmark", text: "暂无数据，请前往详情页加载")
+                            HomeExamListView(viewModel: viewModel)
                         }
                     }
                 }
@@ -93,33 +94,8 @@ struct OverviewView: View {
 // MARK: - Subviews & Components
 
 private struct HomeHeaderView: View {
-    let courseData: Cached<CourseScheduleData>?
-
-    private var weekInfo: String? {
-        guard let data = courseData?.value else { return nil }
-
-        let semester = data.semester ?? "默认学期"
-
-        if let currentWeek = CourseScheduleHelper.getCurrentWeek(
-            semesterStartDate: data.semesterStartDate,
-            now: Date()
-        ) {
-            return "\(semester) 第\(currentWeek)周"
-        }
-
-        return semester
-    }
-
-    var greeting: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 6..<12: return "早上好"
-        case 12..<14: return "中午好"
-        case 14..<19: return "下午好"
-        case 19..<24: return "晚上好"
-        default: return "夜深了"
-        }
-    }
+    let greeting: String
+    let weekInfo: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -196,8 +172,7 @@ private struct HomeEmptyStateView: View {
 }
 
 private struct HomeCourseCarousel: View {
-    let data: Cached<CourseScheduleData>?
-    private var currentTime: Date { Date() }
+    @ObservedObject var viewModel: OverviewViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -209,21 +184,16 @@ private struct HomeCourseCarousel: View {
             )
             .padding(.horizontal)
 
-            if let schedule = data?.value {
-                let todayCourses = CourseScheduleHelper.getUnfinishedCourses(
-                    semesterStartDate: schedule.semesterStartDate,
-                    now: currentTime,
-                    courses: schedule.courses
-                )
-
-                if !todayCourses.isEmpty {
+            if let todaysFnishedCourses = viewModel.todayCourses {
+                if !todaysFnishedCourses.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            ForEach(Array(todayCourses.enumerated()), id: \.offset) { _, item in
+                            ForEach(Array(todaysFnishedCourses.enumerated()), id: \.offset) { _, item in
                                 CourseCard(
                                     course: item.course.course,
                                     session: item.course.session,
-                                    isCurrent: item.isCurrent
+                                    isCurrent: item.isCurrent,
+                                    viewModel: viewModel
                                 )
                             }
                         }
@@ -248,6 +218,7 @@ private struct CourseCard: View {
     let course: EduHelper.Course
     let session: EduHelper.ScheduleSession
     let isCurrent: Bool
+    @ObservedObject var viewModel: OverviewViewModel
 
     @State private var showDetail = false
 
@@ -285,7 +256,7 @@ private struct CourseCard: View {
             HStack {
                 Label(session.classroom ?? "未知地点", systemImage: "location.fill")
                 Spacer()
-                Text(formatCourseTime(session.startSection, session.endSection))
+                Text(viewModel.formatCourseTime(session.startSection, session.endSection))
             }
             .font(.caption)
             .fontWeight(.medium)
@@ -308,19 +279,6 @@ private struct CourseCard: View {
         .sheet(isPresented: $showDetail) {
             CourseScheduleDetailView(course: course, session: session, isPresented: $showDetail)
         }
-    }
-
-    func formatCourseTime(_ startSection: Int, _ endSection: Int) -> String {
-        let startIndex = startSection - 1
-        let endIndex = endSection - 1
-
-        guard startIndex >= 0 && startIndex < CourseScheduleHelper.sectionTimeString.count,
-            endIndex >= 0 && endIndex < CourseScheduleHelper.sectionTimeString.count
-        else {
-            return "时间未知"
-        }
-
-        return "\(CourseScheduleHelper.sectionTimeString[startIndex].0) - \(CourseScheduleHelper.sectionTimeString[endIndex].1)"
     }
 }
 
@@ -345,12 +303,7 @@ private struct EmptyCourseCard: View {
 }
 
 private struct HomeGradeCard: View {
-    let data: Cached<[EduHelper.CourseGrade]>?
-
-    var analysisData: GradeAnalysisData? {
-        guard let courseGrades = data?.value else { return nil }
-        return GradeAnalysisData.fromCourseGrades(courseGrades)
-    }
+    let analysisData: GradeAnalysisData?
 
     var body: some View {
         NavigationLink(destination: GradeAnalysisView()) {
@@ -393,31 +346,8 @@ private struct HomeGradeCard: View {
 }
 
 private struct HomeElectricityCard: View {
-    let dorms: [Dorm]
-    var primaryDorm: Dorm? {
-        dorms.first(where: { $0.isFavorite }) ?? dorms.first
-    }
-
-    private var exhaustionInfo: String? {
-        guard let dorm = primaryDorm, let records = dorm.records, !records.isEmpty else { return nil }
-        guard let predictionDate = ElectricityHelper.predictExhaustionDate(from: records) else { return nil }
-
-        let now = Date()
-        let interval = predictionDate.timeIntervalSince(now)
-        guard interval > 0 else { return nil }
-
-        let days = Int(interval) / 86400
-        let hours = (Int(interval) % 86400) / 3600
-        let minutes = (Int(interval) % 3600) / 60
-
-        if days > 0 {
-            return "预计\(days)天后耗尽"
-        } else if hours > 0 {
-            return "预计\(hours)小时后耗尽"
-        } else {
-            return "预计\(minutes)分钟后耗尽"
-        }
-    }
+    let primaryDorm: Dorm?
+    let exhaustionInfo: String?
 
     var body: some View {
         NavigationLink(destination: ElectricityQueryView()) {
@@ -474,19 +404,11 @@ private struct HomeElectricityCard: View {
 }
 
 private struct HomeUrgentListView: View {
-    let courses: [UrgentCourseData.Course]
-
-    var displayedCourses: [UrgentCourseData.Course] {
-        Array(courses.prefix(2))
-    }
-
-    var remainingCount: Int {
-        max(0, courses.count - 2)
-    }
+    @ObservedObject var viewModel: OverviewViewModel
 
     var body: some View {
         VStack(spacing: 12) {
-            ForEach(displayedCourses, id: \.name) { course in
+            ForEach(viewModel.displayedUrgentCourses, id: \.name) { course in
                 NavigationLink(destination: UrgentCoursesView()) {
                     HStack(spacing: 12) {
                         RoundedRectangle(cornerRadius: 2)
@@ -518,9 +440,9 @@ private struct HomeUrgentListView: View {
                 .buttonStyle(.plain)
             }
 
-            if remainingCount > 0 {
+            if viewModel.urgentCoursesRemainingCount > 0 {
                 NavigationLink(destination: UrgentCoursesView()) {
-                    Text("还有 \(remainingCount) 项作业待提交...")
+                    Text("还有 \(viewModel.urgentCoursesRemainingCount) 项作业待提交...")
                         .font(.caption)
                         .foregroundStyle(.blue)
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -532,27 +454,11 @@ private struct HomeUrgentListView: View {
 }
 
 private struct HomeExamListView: View {
-    let exams: [EduHelper.Exam]
-
-    var displayedExams: [EduHelper.Exam] {
-        Array(exams.prefix(2))
-    }
-
-    var remainingCount: Int {
-        max(0, exams.count - 2)
-    }
-
-    private func daysUntilExam(_ exam: EduHelper.Exam) -> Int {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: Date())
-        let examDay = calendar.startOfDay(for: exam.examStartTime)
-        let components = calendar.dateComponents([.day], from: startOfDay, to: examDay)
-        return components.day ?? 0
-    }
+    @ObservedObject var viewModel: OverviewViewModel
 
     var body: some View {
         VStack(spacing: 12) {
-            ForEach(displayedExams, id: \.courseName) { exam in
+            ForEach(viewModel.displayedExams, id: \.courseName) { exam in
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(exam.courseName)
@@ -574,7 +480,7 @@ private struct HomeExamListView: View {
 
                     Spacer()
 
-                    let daysLeft = daysUntilExam(exam)
+                    let daysLeft = viewModel.daysUntilExam(exam)
                     if daysLeft == 0 {
                         Text("今天")
                             .font(.caption.bold())
@@ -604,9 +510,9 @@ private struct HomeExamListView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
 
-            if remainingCount > 0 {
+            if viewModel.examsRemainingCount > 0 {
                 NavigationLink(destination: ExamScheduleView()) {
-                    Text("还有 \(remainingCount) 场考试安排...")
+                    Text("还有 \(viewModel.examsRemainingCount) 场考试安排...")
                         .font(.caption)
                         .foregroundStyle(.blue)
                         .frame(maxWidth: .infinity, alignment: .center)
