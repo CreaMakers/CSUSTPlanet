@@ -32,9 +32,8 @@ enum CalendarHelperError: Error, LocalizedError {
 
 // MARK: - CalendarHelper
 
-class CalendarHelper {
+enum CalendarHelper {
     private static let eventStore = EKEventStore()
-
 }
 
 // MARK: - Permission

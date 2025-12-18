@@ -7,9 +7,7 @@
 
 import Foundation
 
-final class ElectricityHelper {
-    private init() {}
-
+enum ElectricityHelper {
     static func predictExhaustionDate(from records: [ElectricityRecord]) -> Date? {
         // 至少需要两个点才能做线性拟合
         guard records.count >= 2 else { return nil }

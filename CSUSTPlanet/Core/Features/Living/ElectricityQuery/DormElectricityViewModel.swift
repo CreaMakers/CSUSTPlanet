@@ -15,7 +15,7 @@ import WidgetKit
 @MainActor
 class DormElectricityViewModel: ObservableObject {
     private let campusCardHelper = CampusCardHelper()
-    private let modelContext = SharedModel.mainContext
+    private let modelContext = SharedModelHelper.mainContext
 
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""

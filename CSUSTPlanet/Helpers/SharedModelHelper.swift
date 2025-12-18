@@ -9,7 +9,7 @@ import Foundation
 import OSLog
 import SwiftData
 
-class SharedModel {
+enum SharedModelHelper {
     static let schema = Schema([
         Dorm.self,
         ElectricityRecord.self,

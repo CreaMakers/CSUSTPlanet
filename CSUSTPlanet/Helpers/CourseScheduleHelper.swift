@@ -13,7 +13,8 @@ enum SemesterStatus {
     case inSemester
     case afterSemester
 }
-class CourseScheduleHelper {
+
+enum CourseScheduleHelper {
 
     // MARK: - Properties
 

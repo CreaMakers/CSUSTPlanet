@@ -7,12 +7,12 @@
 
 import Foundation
 
-class Constants {
-    static let appGroupID = AssetUtils.bundleInfo(forKey: "ConfigAppGroupID")
-    static let iCloudID = AssetUtils.bundleInfo(forKey: "ConfigCloudContainerID")
-    static let keychainGroup = AssetUtils.bundleInfo(forKey: "ConfigKeychainGroup")
-    static let appBundleID = AssetUtils.bundleInfo(forKey: "ConfigAppBundleID")
-    static let widgetBundleID = AssetUtils.bundleInfo(forKey: "ConfigWidgetBundleID")
+enum Constants {
+    static let appGroupID = AssetHelper.bundleInfo(forKey: "ConfigAppGroupID")
+    static let iCloudID = AssetHelper.bundleInfo(forKey: "ConfigCloudContainerID")
+    static let keychainGroup = AssetHelper.bundleInfo(forKey: "ConfigKeychainGroup")
+    static let appBundleID = AssetHelper.bundleInfo(forKey: "ConfigAppBundleID")
+    static let widgetBundleID = AssetHelper.bundleInfo(forKey: "ConfigWidgetBundleID")
 
     static let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
 
@@ -33,9 +33,9 @@ class Constants {
         }
     }
 
-    private static let apiHostProd = AssetUtils.bundleInfo(forKey: "ConfigApiHostProd")
-    private static let apiHostDev = AssetUtils.bundleInfo(forKey: "ConfigApiHostDev")
-    private static let apiHostLocal = AssetUtils.bundleInfo(forKey: "ConfigApiHostLocal")
+    private static let apiHostProd = AssetHelper.bundleInfo(forKey: "ConfigApiHostProd")
+    private static let apiHostDev = AssetHelper.bundleInfo(forKey: "ConfigApiHostDev")
+    private static let apiHostLocal = AssetHelper.bundleInfo(forKey: "ConfigApiHostLocal")
 
     static var backendHost: String {
         switch AppEnvironmentHelper.environment {

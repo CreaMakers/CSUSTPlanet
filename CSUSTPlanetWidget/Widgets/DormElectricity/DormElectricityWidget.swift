@@ -50,7 +50,7 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
             let newElectricity = try await campusCardHelper.getElectricity(building: building, room: room)
             Logger.dormElectricityWidget.info("DormElectricityProvider: 电量获取成功: \(newElectricity)")
 
-            let modelContext = SharedModel.context
+            let modelContext = SharedModelHelper.context
             let dormID = selectedDormEntity.id
 
             let descriptor = FetchDescriptor<Dorm>(predicate: #Predicate<Dorm> { $0.id == dormID })
@@ -219,7 +219,7 @@ struct DormElectricityWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: DormElectricityAppIntent.self, provider: DormElectricityProvider()) { entry in
             DormElectricityEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
-                .modelContainer(SharedModel.container)
+                .modelContainer(SharedModelHelper.container)
         }
         .configurationDisplayName("宿舍电量")
         .description("查询宿舍电量使用情况")

@@ -21,6 +21,6 @@ struct CSUSTPlanetApp: App {
                 .environmentObject(GlobalVars.shared)
                 .environmentObject(AuthManager.shared)
         }
-        .modelContainer(SharedModel.container)
+        .modelContainer(SharedModelHelper.container)
     }
 }

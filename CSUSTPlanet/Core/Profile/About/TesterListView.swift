@@ -20,7 +20,7 @@ struct TesterListView: View {
 
     var body: some View {
         Form {
-            if let descriptionMarkdown = AssetUtils.loadMarkdownFile(named: "TesterListDescription") {
+            if let descriptionMarkdown = AssetHelper.loadMarkdownFile(named: "TesterListDescription") {
                 Markdown(descriptionMarkdown)
             } else {
                 Text("无法加载内测成员列表说明")

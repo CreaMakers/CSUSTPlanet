@@ -15,7 +15,7 @@ import SwiftUI
 struct AboutView: View {
     var body: some View {
         Form {
-            if let aboutMarkdown = AssetUtils.loadMarkdownFile(named: "About") {
+            if let aboutMarkdown = AssetHelper.loadMarkdownFile(named: "About") {
                 Markdown(aboutMarkdown)
             } else {
                 Text("无法加载关于信息")
@@ -55,7 +55,7 @@ struct AboutView: View {
             #if DEBUG
                 Section("Debug") {
                     Button(action: {
-                        try? SharedModel.clearAllData()
+                        try? SharedModelHelper.clearAllData()
                     }) {
                         Label("清除所有SwiftData数据", systemImage: "trash")
                             .foregroundColor(.red)

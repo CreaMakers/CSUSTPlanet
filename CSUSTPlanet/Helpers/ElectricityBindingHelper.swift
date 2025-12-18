@@ -22,7 +22,7 @@ enum ElectricityBindingHelperError: Error, LocalizedError {
 }
 
 @MainActor
-class ElectricityBindingHelper {
+enum ElectricityBindingHelper {
     static func sync() async {
         Logger.electricityBindingHelper.debug("开始同步电量通知绑定")
         try? await syncThrows()
@@ -40,7 +40,7 @@ class ElectricityBindingHelper {
 
         if GlobalVars.shared.isElectricityTermAccepted {
             let descriptor = FetchDescriptor<Dorm>()
-            let dorms = try SharedModel.mainContext.fetch(descriptor)
+            let dorms = try SharedModelHelper.mainContext.fetch(descriptor)
 
             let bindings: [ElectricityBindingSyncDTO] = dorms.compactMap { dorm in
                 guard let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute else {

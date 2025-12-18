@@ -9,7 +9,7 @@ import CSUSTKit
 import Foundation
 import SwiftUI
 
-class ColorHelper {
+enum ColorHelper {
     static let gradeRanges = [
         (range: "90-100", min: 90, max: 100, point: 4.0),
         (range: "85-89", min: 85, max: 89, point: 3.7),

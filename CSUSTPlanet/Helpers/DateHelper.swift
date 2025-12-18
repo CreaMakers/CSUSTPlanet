@@ -7,7 +7,7 @@
 
 import Foundation
 
-class DateHelper {
+enum DateHelper {
     static func relativeTimeString(for date: Date) -> String {
         let now = Date()
         let seconds = Int(now.timeIntervalSince(date))

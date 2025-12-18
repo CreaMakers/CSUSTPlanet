@@ -11,7 +11,7 @@ import SwiftData
 
 struct DormQuery: EntityQuery {
     func suggestedEntities() async throws -> [DormEntity] {
-        let dorms = try SharedModel.context.fetch(FetchDescriptor<Dorm>())
+        let dorms = try SharedModelHelper.context.fetch(FetchDescriptor<Dorm>())
         return dorms.map { DormEntity(dorm: $0) }
     }
 
@@ -19,7 +19,7 @@ struct DormQuery: EntityQuery {
         let predicate = #Predicate<Dorm> { dorm in
             identifiers.contains(dorm.id)
         }
-        let dorms = try SharedModel.context.fetch(FetchDescriptor(predicate: predicate))
+        let dorms = try SharedModelHelper.context.fetch(FetchDescriptor(predicate: predicate))
         return dorms.map { DormEntity(dorm: $0) }
     }
 

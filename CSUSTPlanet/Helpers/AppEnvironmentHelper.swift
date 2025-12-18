@@ -13,7 +13,7 @@ enum AppEnvironment {
     case appStore
 }
 
-class AppEnvironmentHelper {
+enum AppEnvironmentHelper {
     static let environment: AppEnvironment = {
         #if DEBUG
             return .debug

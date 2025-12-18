@@ -18,7 +18,7 @@ class OverviewViewModel: ObservableObject {
     @Published var electricityDorms: [Dorm] = []
 
     func loadData() {
-        let context = SharedModel.mainContext
+        let context = SharedModelHelper.mainContext
 
         gradeAnalysisData = MMKVManager.shared.courseGradesCache
         examScheduleData = MMKVManager.shared.examSchedulesCache

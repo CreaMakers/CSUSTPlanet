@@ -7,7 +7,7 @@
 
 import Foundation
 
-class AssetUtils {
+enum AssetHelper {
     static func loadMarkdownFile(named filename: String) -> String? {
         guard let fileURL = Bundle.main.url(forResource: filename, withExtension: "md") else {
             return nil
