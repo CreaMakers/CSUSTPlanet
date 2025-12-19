@@ -11,7 +11,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthManager
-    @EnvironmentObject var globalVars: GlobalVars
+    @EnvironmentObject var GlobalManager: GlobalManager
     @EnvironmentObject var notificationHelper: NotificationHelper
 
     @State private var isLoginSheetPresented = false
@@ -20,14 +20,14 @@ struct ProfileView: View {
 
     var body: some View {
         let webVPNToggleBinding = Binding<Bool>(
-            get: { globalVars.isWebVPNModeEnabled },
+            get: { GlobalManager.isWebVPNModeEnabled },
             set: { newValue in
-                if newValue == true && !globalVars.isWebVPNModeEnabled {
+                if newValue == true && !GlobalManager.isWebVPNModeEnabled {
                     isWebVPNSheetPresented = true
-                } else if newValue == false && globalVars.isWebVPNModeEnabled {
+                } else if newValue == false && GlobalManager.isWebVPNModeEnabled {
                     isWebVPNDisableAlertPresented = true
                 } else {
-                    globalVars.isWebVPNModeEnabled = newValue
+                    GlobalManager.isWebVPNModeEnabled = newValue
                 }
             }
         )
@@ -147,7 +147,7 @@ struct ProfileView: View {
             }
 
             Section(header: Text("设置"), footer: Text("实时活动/灵动岛将会显示：上课前20分钟、上课中和下课后5分钟的课程状态")) {
-                Picker(selection: $globalVars.appearance) {
+                Picker(selection: $GlobalManager.appearance) {
                     Text("浅色模式").tag("light")
                     Text("深色模式").tag("dark")
                     Text("跟随系统").tag("system")
@@ -159,15 +159,15 @@ struct ProfileView: View {
                     ColoredLabel(title: "开启WebVPN模式（实验）", iconName: "globe", color: .orange)
                 }
 
-                Toggle(isOn: $globalVars.isNotificationEnabled) {
+                Toggle(isOn: $GlobalManager.isNotificationEnabled) {
                     ColoredLabel(title: "开启通知", iconName: "bell", color: .green)
                 }
-                .onChange(of: globalVars.isNotificationEnabled, { _, _ in NotificationHelper.shared.toggle() })
+                .onChange(of: GlobalManager.isNotificationEnabled, { _, _ in NotificationHelper.shared.toggle() })
 
-                Toggle(isOn: $globalVars.isLiveActivityEnabled) {
+                Toggle(isOn: $GlobalManager.isLiveActivityEnabled) {
                     ColoredLabel(title: "启用实时活动/灵动岛", iconName: "bolt.circle", color: .yellow)
                 }
-                .onChange(of: globalVars.isLiveActivityEnabled, { _, _ in ActivityManager.shared.autoUpdateActivity() })
+                .onChange(of: GlobalManager.isLiveActivityEnabled, { _, _ in ActivityManager.shared.autoUpdateActivity() })
             }
 
             Section(header: Text("帮助与支持")) {
@@ -199,7 +199,7 @@ struct ProfileView: View {
         .alert("关闭 WebVPN 模式", isPresented: $isWebVPNDisableAlertPresented) {
             Button("取消", role: .cancel) {}
             Button("关闭并重启", role: .destructive) {
-                globalVars.isWebVPNModeEnabled = false
+                GlobalManager.isWebVPNModeEnabled = false
                 exit(0)
             }
         } message: {
@@ -218,6 +218,6 @@ struct ProfileView: View {
         ProfileView()
     }
     .environmentObject(AuthManager.shared)
-    .environmentObject(GlobalVars.shared)
+    .environmentObject(GlobalManager.shared)
     .environmentObject(NotificationHelper.shared)
 }

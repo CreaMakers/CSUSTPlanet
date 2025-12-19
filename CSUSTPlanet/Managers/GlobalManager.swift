@@ -1,5 +1,5 @@
 //
-//  GlobalVars.swift
+//  GlobalManager.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/7/9.
@@ -15,8 +15,8 @@ enum TabItem: String {
 }
 
 @MainActor
-class GlobalVars: ObservableObject {
-    public static let shared = GlobalVars()
+class GlobalManager: ObservableObject {
+    public static let shared = GlobalManager()
 
     private init() {
         appearance = MMKVHelper.shared.appearance

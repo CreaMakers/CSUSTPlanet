@@ -18,7 +18,7 @@ struct CSUSTPlanetApp: App {
         WindowGroup {
             ContentView()
                 .installToast(position: .top)
-                .environmentObject(GlobalVars.shared)
+                .environmentObject(GlobalManager.shared)
                 .environmentObject(AuthManager.shared)
                 .environmentObject(NotificationHelper.shared)
         }

@@ -45,14 +45,14 @@ class NotificationHelper: ObservableObject {
             Logger.notificationHelper.debug("开始静默获取设备令牌")
             guard await hasAuthorization() else {
                 Logger.notificationHelper.debug("无通知权限，关闭通知开关")
-                GlobalVars.shared.isNotificationEnabled = false
+                GlobalManager.shared.isNotificationEnabled = false
                 return
             }
             do {
                 self.token = try await getToken()
             } catch NotificationHelperError.authorizationDenied {
                 Logger.notificationHelper.debug("无通知令牌权限，关闭通知开关")
-                GlobalVars.shared.isNotificationEnabled = false
+                GlobalManager.shared.isNotificationEnabled = false
                 return
             } catch {
                 Logger.notificationHelper.debug("其他原因无法获取到通知令牌，结束操作: \(error)")
@@ -69,9 +69,9 @@ class NotificationHelper: ObservableObject {
 
     func toggle() {
         Task {
-            if GlobalVars.shared.isNotificationEnabled {
+            if GlobalManager.shared.isNotificationEnabled {
                 guard await hasAuthorization() else {
-                    GlobalVars.shared.isNotificationEnabled = false
+                    GlobalManager.shared.isNotificationEnabled = false
                     self.errorDescription = "未开启系统通知权限，无法开启通知功能"
                     self.isShowingError = true
                     return

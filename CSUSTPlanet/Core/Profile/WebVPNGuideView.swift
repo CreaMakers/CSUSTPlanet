@@ -9,7 +9,7 @@ import SwiftUI
 
 struct WebVPNGuideView: View {
     @Binding var isPresented: Bool
-    @EnvironmentObject var globalVars: GlobalVars
+    @EnvironmentObject var GlobalManager: GlobalManager
 
     var body: some View {
         VStack(spacing: 16) {
@@ -33,7 +33,7 @@ struct WebVPNGuideView: View {
 
             VStack(spacing: 10) {
                 Button(action: {
-                    globalVars.isWebVPNModeEnabled = true
+                    GlobalManager.isWebVPNModeEnabled = true
                     exit(0)
                 }) {
                     Text("开启并重启应用")
@@ -66,5 +66,5 @@ struct WebVPNGuideView: View {
 
 #Preview {
     WebVPNGuideView(isPresented: .constant(true))
-        .environmentObject(GlobalVars.shared)
+        .environmentObject(GlobalManager.shared)
 }

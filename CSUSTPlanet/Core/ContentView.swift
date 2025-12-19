@@ -12,12 +12,12 @@ import Toasts
 struct ContentView: View {
     @ObserveInjection var inject
 
-    @EnvironmentObject var globalVars: GlobalVars
+    @EnvironmentObject var GlobalManager: GlobalManager
     @EnvironmentObject var authManager: AuthManager
     @Environment(\.presentToast) var presentToast
 
     var preferredColorScheme: ColorScheme? {
-        switch globalVars.appearance {
+        switch GlobalManager.appearance {
         case "light":
             return .light
         case "dark":
@@ -29,7 +29,7 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            TabView(selection: $globalVars.selectedTab) {
+            TabView(selection: $GlobalManager.selectedTab) {
                 OverviewView()
                     .tabItem {
                         Image(uiImage: UIImage(systemName: "rectangle.stack")!)
@@ -49,15 +49,15 @@ struct ContentView: View {
                     }
                     .tag(TabItem.profile)
             }
-            .navigationTitle(globalVars.selectedTab.rawValue)
+            .navigationTitle(GlobalManager.selectedTab.rawValue)
             .toolbarTitleDisplayMode(.inline)
-            .navigationDestination(isPresented: $globalVars.isFromElectricityWidget) {
+            .navigationDestination(isPresented: $GlobalManager.isFromElectricityWidget) {
                 ElectricityQueryView()
             }
-            .navigationDestination(isPresented: $globalVars.isFromCourseScheduleWidget) {
+            .navigationDestination(isPresented: $GlobalManager.isFromCourseScheduleWidget) {
                 CourseScheduleView()
             }
-            .navigationDestination(isPresented: $globalVars.isFromGradeAnalysisWidget) {
+            .navigationDestination(isPresented: $GlobalManager.isFromGradeAnalysisWidget) {
                 GradeAnalysisView()
             }
         }
@@ -96,7 +96,7 @@ struct ContentView: View {
         }
 
         .preferredColorScheme(preferredColorScheme)
-        .sheet(isPresented: globalVars.isUserAgreementShowing) {
+        .sheet(isPresented: GlobalManager.isUserAgreementShowing) {
             UserAgreementView().interactiveDismissDisabled(true)
         }
 
@@ -105,9 +105,9 @@ struct ContentView: View {
         .onOpenURL { url in
             guard url.scheme == "csustplanet", url.host == "widgets" else { return }
             switch url.pathComponents.dropFirst().first {
-            case "electricity": globalVars.isFromElectricityWidget = true
-            case "gradeAnalysis": globalVars.isFromGradeAnalysisWidget = true
-            case "courseSchedule": globalVars.isFromCourseScheduleWidget = true
+            case "electricity": GlobalManager.isFromElectricityWidget = true
+            case "gradeAnalysis": GlobalManager.isFromGradeAnalysisWidget = true
+            case "courseSchedule": GlobalManager.isFromCourseScheduleWidget = true
             default: break
             }
         }
@@ -117,6 +117,6 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(GlobalVars.shared)
+        .environmentObject(GlobalManager.shared)
         .environmentObject(AuthManager.shared)
 }

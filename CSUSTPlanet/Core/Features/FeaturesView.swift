@@ -12,7 +12,7 @@ struct FeaturesView: View {
     @ObserveInjection var inject
 
     @EnvironmentObject var authManager: AuthManager
-    @EnvironmentObject var globalVars: GlobalVars
+    @EnvironmentObject var GlobalManager: GlobalManager
 
     @Environment(\.horizontalSizeClass) var sizeClass
 
@@ -73,7 +73,7 @@ struct FeaturesView: View {
                         StatusBadge(text: "SSO登录中")
                     } else if !authManager.isSSOLoggedIn {
                         ActionBadge(text: "点击登录", icon: "person.crop.circle.badge.exclamationmark") {
-                            globalVars.selectedTab = .profile
+                            GlobalManager.selectedTab = .profile
                         }
                     } else if authManager.isEducationLoggingIn {
                         StatusBadge(text: "教务登录中")
@@ -101,7 +101,7 @@ struct FeaturesView: View {
                         StatusBadge(text: "SSO登录中")
                     } else if !authManager.isSSOLoggedIn {
                         ActionBadge(text: "点击登录", icon: "person.crop.circle.badge.exclamationmark") {
-                            globalVars.selectedTab = .profile
+                            GlobalManager.selectedTab = .profile
                         }
                     } else if authManager.isMoocLoggingIn {
                         StatusBadge(text: "课程中心登录中")
@@ -471,6 +471,6 @@ private struct StatusBadge: View {
     NavigationView {
         FeaturesView()
             .environmentObject(AuthManager.shared)
-            .environmentObject(GlobalVars.shared)
+            .environmentObject(GlobalManager.shared)
     }
 }

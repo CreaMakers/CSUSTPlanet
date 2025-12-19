@@ -60,7 +60,7 @@ struct SSOLoginView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button("网页登录") {
-                        if GlobalVars.shared.isWebVPNModeEnabled {
+                        if GlobalManager.shared.isWebVPNModeEnabled {
                             viewModel.isShowingWebVPNAlert = true
                         } else {
                             viewModel.isShowingBrowser = true

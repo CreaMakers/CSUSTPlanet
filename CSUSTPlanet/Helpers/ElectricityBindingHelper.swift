@@ -40,7 +40,7 @@ enum ElectricityBindingHelper {
 
         let bindings: [ElectricityBindingSyncDTO]
 
-        if GlobalVars.shared.isNotificationEnabled {
+        if GlobalManager.shared.isNotificationEnabled {
             Logger.electricityBindingHelper.debug("通知已启用，开始同步绑定")
             bindings = dorms.compactMap { dorm in
                 guard let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute else {

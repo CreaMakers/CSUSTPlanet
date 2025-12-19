@@ -44,7 +44,7 @@ class AuthManager: ObservableObject {
     var eduHelper: EduHelper?
     var moocHelper: MoocHelper?
 
-    private let mode: ConnectionMode = GlobalVars.shared.isWebVPNModeEnabled ? .webVpn : .direct
+    private let mode: ConnectionMode = GlobalManager.shared.isWebVPNModeEnabled ? .webVpn : .direct
     private let session: Session = CookieHelper.shared.session
 
     // MARK: - Initializer
