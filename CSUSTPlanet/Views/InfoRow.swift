@@ -56,7 +56,7 @@ struct InfoRow: View {
                 Button(action: {
                     UIPasteboard.general.string = "\(label): \(value)"
                 }) {
-                    Label("复制", systemImage: "doc.on.doc.fill")
+                    Label("复制全部", systemImage: "doc.on.doc.fill")
                 }
             }
         }

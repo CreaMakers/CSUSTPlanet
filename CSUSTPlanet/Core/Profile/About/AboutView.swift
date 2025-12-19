@@ -21,35 +21,10 @@ struct AboutView: View {
                 Text("无法加载关于信息")
             }
 
-            Section {
-                NavigationLink(destination: TesterListView()) {
-                    Label("测试人员名单", systemImage: "person.3.fill")
-                }
-            }
-
             Section("应用信息") {
-                HStack {
-                    Text("版本号")
-                    Spacer()
-                    Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "未知版本")
-                }
-                HStack {
-                    Text("构建号")
-                    Spacer()
-                    Text(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "未知构建")
-                }
-                HStack {
-                    Text("运行环境")
-                    Spacer()
-                    switch AppEnvironmentHelper.environment {
-                    case .debug:
-                        Text("Debug")
-                    case .appStore:
-                        Text("App Store")
-                    case .testFlight:
-                        Text("TestFlight")
-                    }
-                }
+                InfoRow(label: "版本号", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "未知版本")
+                InfoRow(label: "构建号", value: Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "未知构建")
+                InfoRow(label: "运行环境", value: AppEnvironmentHelper.environment.rawValue)
             }
 
             #if DEBUG

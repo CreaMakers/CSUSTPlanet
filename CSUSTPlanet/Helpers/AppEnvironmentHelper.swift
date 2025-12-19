@@ -7,10 +7,10 @@
 
 import Foundation
 
-enum AppEnvironment {
-    case debug
-    case testFlight
-    case appStore
+enum AppEnvironment: String {
+    case debug = "Debug"
+    case testFlight = "TestFlight"
+    case appStore = "AppStore"
 }
 
 enum AppEnvironmentHelper {
