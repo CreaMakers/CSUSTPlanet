@@ -15,7 +15,7 @@ import WidgetKit
 @MainActor
 class DormElectricityViewModel: ObservableObject {
     private let campusCardHelper = CampusCardHelper()
-    private let modelContext = SharedModelHelper.mainContext
+    private let modelContext = SharedModelUtil.mainContext
 
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""
@@ -44,7 +44,7 @@ class DormElectricityViewModel: ObservableObject {
 
     func getExhaustionInfo(from records: [ElectricityRecord]?) -> String? {
         guard let records = records, !records.isEmpty else { return nil }
-        guard let predictionDate = ElectricityHelper.predictExhaustionDate(from: records) else { return nil }
+        guard let predictionDate = ElectricityUtil.predictExhaustionDate(from: records) else { return nil }
 
         let now = Date()
         let interval = predictionDate.timeIntervalSince(now)
@@ -73,7 +73,7 @@ class DormElectricityViewModel: ObservableObject {
             do {
                 dorm.scheduleHour = nil
                 dorm.scheduleMinute = nil
-                try await ElectricityBindingHelper.syncThrows()
+                try await ElectricityBindingUtil.syncThrows()
                 try modelContext.save()
             } catch {
                 modelContext.rollback()
@@ -115,7 +115,7 @@ class DormElectricityViewModel: ObservableObject {
                 let scheduleEnabled = dorm.scheduleEnabled
                 modelContext.delete(dorm)
                 if scheduleEnabled {
-                    await ElectricityBindingHelper.sync()
+                    await ElectricityBindingUtil.sync()
                 }
                 try modelContext.save()
             } catch {
@@ -160,7 +160,7 @@ class DormElectricityViewModel: ObservableObject {
             do {
                 dorm.scheduleHour = scheduleHour
                 dorm.scheduleMinute = scheduleMinute
-                try await ElectricityBindingHelper.syncThrows()
+                try await ElectricityBindingUtil.syncThrows()
                 try modelContext.save()
             } catch {
                 modelContext.rollback()

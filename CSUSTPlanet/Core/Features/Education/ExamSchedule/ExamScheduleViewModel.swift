@@ -63,8 +63,8 @@ class ExamScheduleViewModel: ObservableObject {
     func addToCalendar(exam: EduHelper.Exam) {
         Task {
             do {
-                let calendar = try await CalendarHelper.getOrCreateEventCalendar(named: "长理星球 - 考试")
-                try await CalendarHelper.addEvent(
+                let calendar = try await CalendarUtil.getOrCreateEventCalendar(named: "长理星球 - 考试")
+                try await CalendarUtil.addEvent(
                     calendar: calendar,
                     title: "考试：\(exam.courseName)",
                     startDate: exam.examStartTime,
@@ -89,9 +89,9 @@ class ExamScheduleViewModel: ObservableObject {
         }
         Task {
             do {
-                let calendar = try await CalendarHelper.getOrCreateEventCalendar(named: "长理星球 - 考试")
+                let calendar = try await CalendarUtil.getOrCreateEventCalendar(named: "长理星球 - 考试")
                 for exam in exams {
-                    try await CalendarHelper.addEvent(
+                    try await CalendarUtil.addEvent(
                         calendar: calendar,
                         title: "考试：\(exam.courseName)",
                         startDate: exam.examStartTime,
@@ -140,7 +140,7 @@ class ExamScheduleViewModel: ObservableObject {
                 }
                 self.data = data
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.warningMessage = String(format: "教务系统未登录，\n已加载上次查询数据（%@）", DateHelper.relativeTimeString(for: data.cachedAt))
+                    self.warningMessage = String(format: "教务系统未登录，\n已加载上次查询数据（%@）", DateUtil.relativeTimeString(for: data.cachedAt))
                     self.isShowingWarning = true
                 }
             }

@@ -48,19 +48,19 @@ struct GradeAnalysisView: View {
                 statisticItem(
                     title: "平均成绩",
                     value: String(format: "%.2f", gradeAnalysisData.overallAverageGrade),
-                    color: ColorHelper.dynamicColor(grade: gradeAnalysisData.overallAverageGrade)
+                    color: ColorUtil.dynamicColor(grade: gradeAnalysisData.overallAverageGrade)
                 )
                 Spacer()
                 statisticItem(
                     title: "加权平均成绩",
                     value: String(format: "%.2f", gradeAnalysisData.weightedAverageGrade),
-                    color: ColorHelper.dynamicColor(grade: gradeAnalysisData.weightedAverageGrade)
+                    color: ColorUtil.dynamicColor(grade: gradeAnalysisData.weightedAverageGrade)
                 )
                 Spacer()
                 statisticItem(
                     title: "平均绩点",
                     value: String(format: "%.2f", gradeAnalysisData.overallGPA),
-                    color: ColorHelper.dynamicColor(point: gradeAnalysisData.overallGPA)
+                    color: ColorUtil.dynamicColor(point: gradeAnalysisData.overallGPA)
                 )
             }
         }
@@ -85,18 +85,18 @@ struct GradeAnalysisView: View {
                         x: .value("学期", item.semester),
                         y: .value("平均成绩", item.average)
                     )
-                    .foregroundStyle(ColorHelper.dynamicColor(grade: item.average))
+                    .foregroundStyle(ColorUtil.dynamicColor(grade: item.average))
                     .lineStyle(StrokeStyle(lineWidth: 3))
                     PointMark(
                         x: .value("学期", item.semester),
                         y: .value("平均成绩", item.average)
                     )
-                    .foregroundStyle(ColorHelper.dynamicColor(grade: item.average))
+                    .foregroundStyle(ColorUtil.dynamicColor(grade: item.average))
                     .annotation(position: .top) {
                         Text(String(format: "%.1f", item.average))
                             .font(.system(size: 10))
                             .padding(4)
-                            .background(ColorHelper.dynamicColor(grade: item.average).opacity(0.2))
+                            .background(ColorUtil.dynamicColor(grade: item.average).opacity(0.2))
                             .cornerRadius(4)
                     }
                 }
@@ -117,18 +117,18 @@ struct GradeAnalysisView: View {
                         x: .value("学期", item.semester),
                         y: .value("GPA", item.gpa)
                     )
-                    .foregroundStyle(ColorHelper.dynamicColor(point: item.gpa))
+                    .foregroundStyle(ColorUtil.dynamicColor(point: item.gpa))
                     .lineStyle(StrokeStyle(lineWidth: 3))
                     PointMark(
                         x: .value("学期", item.semester),
                         y: .value("GPA", item.gpa)
                     )
-                    .foregroundStyle(ColorHelper.dynamicColor(point: item.gpa))
+                    .foregroundStyle(ColorUtil.dynamicColor(point: item.gpa))
                     .annotation(position: .top) {
                         Text(String(format: "%.2f", item.gpa))
                             .font(.system(size: 10))
                             .padding(4)
-                            .background(ColorHelper.dynamicColor(point: item.gpa).opacity(0.2))
+                            .background(ColorUtil.dynamicColor(point: item.gpa).opacity(0.2))
                             .cornerRadius(4)
                     }
                 }
@@ -148,11 +148,11 @@ struct GradeAnalysisView: View {
                         x: .value("绩点", String(format: "%.1f", item.gradePoint)),
                         y: .value("课程数", item.count)
                     )
-                    .foregroundStyle(ColorHelper.dynamicColor(point: item.gradePoint))
+                    .foregroundStyle(ColorUtil.dynamicColor(point: item.gradePoint))
                     .annotation(position: .top) {
                         Text("\(item.count)")
                             .font(.system(size: 10).bold())
-                            .foregroundColor(ColorHelper.dynamicColor(point: item.gradePoint))
+                            .foregroundColor(ColorUtil.dynamicColor(point: item.gradePoint))
                             .padding(4)
                             .background(Color.orange.opacity(0.1))
                             .cornerRadius(4)

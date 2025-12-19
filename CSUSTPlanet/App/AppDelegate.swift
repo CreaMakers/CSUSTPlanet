@@ -23,7 +23,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         setupUI()
         setupCleaner()
 
-        ActivityManager.shared.setup()
+        ActivityHelper.shared.setup()
         NotificationManager.shared.setup()
 
         return true
@@ -122,7 +122,7 @@ extension AppDelegate {
     @objc
     private func appDidEnterBackground() {
         Logger.appDelegate.debug("App进入后台: appDidEnterBackground")
-        ActivityManager.shared.autoUpdateActivity()
+        ActivityHelper.shared.autoUpdateActivity()
 
         lastBackgroundDate = .now
     }
@@ -130,7 +130,7 @@ extension AppDelegate {
     @objc
     private func appWillEnterForeground() {
         Logger.appDelegate.debug("App回到前台: appWillEnterForeground")
-        ActivityManager.shared.autoUpdateActivity()
+        ActivityHelper.shared.autoUpdateActivity()
 
         if !isFirstAppear {
             checkAndRelogin()

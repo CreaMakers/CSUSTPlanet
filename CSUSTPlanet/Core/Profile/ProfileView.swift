@@ -167,7 +167,7 @@ struct ProfileView: View {
                 Toggle(isOn: $globalManager.isLiveActivityEnabled) {
                     ColoredLabel(title: "启用实时活动/灵动岛", iconName: "bolt.circle", color: .yellow)
                 }
-                .onChange(of: globalManager.isLiveActivityEnabled, { _, _ in ActivityManager.shared.autoUpdateActivity() })
+                .onChange(of: globalManager.isLiveActivityEnabled, { _, _ in ActivityHelper.shared.autoUpdateActivity() })
             }
 
             Section(header: Text("帮助与支持")) {

@@ -95,13 +95,13 @@ class CourseDetailViewModel: ObservableObject {
 
         Task {
             do {
-                let calendar = try await CalendarHelper.getOrCreateReminderCalendar(named: "长理星球 - 作业")
+                let calendar = try await CalendarUtil.getOrCreateReminderCalendar(named: "长理星球 - 作业")
                 for homework in homeworks {
                     guard homework.canSubmit else { continue }
                     let dueDate = homework.deadline
                     let alarmOffset = TimeInterval(-(alertHourOffset * 3600 + alertMinuteOffset * 60))
                     let dueDateWithAlarm = dueDate.addingTimeInterval(alarmOffset)
-                    try await CalendarHelper.addReminder(
+                    try await CalendarUtil.addReminder(
                         calendar: calendar,
                         title: homework.title,
                         dueDate: dueDateWithAlarm,

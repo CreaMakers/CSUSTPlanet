@@ -1,5 +1,5 @@
 //
-//  DateHelper.swift
+//  DateUtil.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/9/3.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum DateHelper {
+enum DateUtil {
     static func relativeTimeString(for date: Date) -> String {
         let now = Date()
         let seconds = Int(now.timeIntervalSince(date))

@@ -15,7 +15,7 @@ import SwiftUI
 struct AboutView: View {
     var body: some View {
         Form {
-            if let aboutMarkdown = AssetHelper.loadMarkdownFile(named: "About") {
+            if let aboutMarkdown = AssetUtil.loadMarkdownFile(named: "About") {
                 Markdown(aboutMarkdown)
             } else {
                 Text("无法加载关于信息")
@@ -24,13 +24,13 @@ struct AboutView: View {
             Section("应用信息") {
                 InfoRow(label: "版本号", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "未知版本")
                 InfoRow(label: "构建号", value: Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "未知构建")
-                InfoRow(label: "运行环境", value: AppEnvironmentHelper.environment.rawValue)
+                InfoRow(label: "运行环境", value: AppEnvironmentUtil.environment.rawValue)
             }
 
             #if DEBUG
                 Section("Debug") {
                     Button(action: {
-                        try? SharedModelHelper.clearAllData()
+                        try? SharedModelUtil.clearAllData()
                     }) {
                         Label("清除所有SwiftData数据", systemImage: "trash")
                             .foregroundColor(.red)

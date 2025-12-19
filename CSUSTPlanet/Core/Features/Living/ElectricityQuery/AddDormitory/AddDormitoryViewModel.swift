@@ -13,7 +13,7 @@ import SwiftUI
 @MainActor
 class AddDormitoryViewModel: ObservableObject {
     private let campusCardHelper = CampusCardHelper()
-    private let modelContext = SharedModelHelper.mainContext
+    private let modelContext = SharedModelUtil.mainContext
 
     @Published var isShowingError: Bool = false
     @Published var errorMessage: String = ""

@@ -157,7 +157,7 @@ class GradeQueryViewModel: ObservableObject {
                 }
                 self.data = data
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.warningMessage = String(format: "教务系统未登录，\n已加载上次查询数据（%@）", DateHelper.relativeTimeString(for: data.cachedAt))
+                    self.warningMessage = String(format: "教务系统未登录，\n已加载上次查询数据（%@）", DateUtil.relativeTimeString(for: data.cachedAt))
                     self.isShowingWarning = true
                 }
             }

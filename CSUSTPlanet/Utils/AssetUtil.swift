@@ -1,5 +1,5 @@
 //
-//  AssetUtils.swift
+//  AssetUtil.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/7/20.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AssetHelper {
+enum AssetUtil {
     static func loadMarkdownFile(named filename: String) -> String? {
         guard let fileURL = Bundle.main.url(forResource: filename, withExtension: "md") else {
             return nil

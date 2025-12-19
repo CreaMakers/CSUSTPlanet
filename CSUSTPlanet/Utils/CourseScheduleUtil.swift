@@ -1,5 +1,5 @@
 //
-//  CourseScheduleHelper.swift
+//  CourseScheduleUtil.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/10/17.
@@ -14,7 +14,7 @@ enum SemesterStatus {
     case afterSemester
 }
 
-enum CourseScheduleHelper {
+enum CourseScheduleUtil {
 
     // MARK: - Properties
 

@@ -1,5 +1,5 @@
 //
-//  ElectricityBindingHelper.swift
+//  ElectricityBindingUtil.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/10/31.
@@ -10,7 +10,7 @@ import Foundation
 import OSLog
 import SwiftData
 
-enum ElectricityBindingHelperError: Error, LocalizedError {
+enum ElectricityBindingUtilError: Error, LocalizedError {
     case syncFailed(reason: String)
 
     var errorDescription: String? {
@@ -22,26 +22,26 @@ enum ElectricityBindingHelperError: Error, LocalizedError {
 }
 
 @MainActor
-enum ElectricityBindingHelper {
+enum ElectricityBindingUtil {
     static func sync() async {
-        Logger.electricityBindingHelper.debug("开始同步电量通知绑定")
+        Logger.electricityBindingUtil.debug("开始同步电量通知绑定")
         try? await syncThrows()
     }
 
     static func syncThrows() async throws {
         let deviceToken = try await NotificationManager.shared.getToken().hexString
 
-        Logger.electricityBindingHelper.debug("获取到设备 token 和学号")
+        Logger.electricityBindingUtil.debug("获取到设备 token 和学号")
 
         var syncList: ElectricityBindingSyncListDTO
 
         let descriptor = FetchDescriptor<Dorm>()
-        let dorms = try SharedModelHelper.mainContext.fetch(descriptor)
+        let dorms = try SharedModelUtil.mainContext.fetch(descriptor)
 
         let bindings: [ElectricityBindingSyncDTO]
 
         if GlobalManager.shared.isNotificationEnabled {
-            Logger.electricityBindingHelper.debug("通知已启用，开始同步绑定")
+            Logger.electricityBindingUtil.debug("通知已启用，开始同步绑定")
             bindings = dorms.compactMap { dorm in
                 guard let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute else {
                     return nil
@@ -55,7 +55,7 @@ enum ElectricityBindingHelper {
                 )
             }
         } else {
-            Logger.electricityBindingHelper.debug("未启用通知，同步空列表")
+            Logger.electricityBindingUtil.debug("未启用通知，同步空列表")
             bindings = []
         }
         syncList = ElectricityBindingSyncListDTO(
@@ -70,16 +70,16 @@ enum ElectricityBindingHelper {
     private static func updateSyncList(_ syncList: ElectricityBindingSyncListDTO) async throws {
         let response = await AF.request("\(Constants.backendHost)/electricity-bindings/sync", method: .post, parameters: syncList, encoder: .json).serializingData().response
         guard let httpResponse = response.response else {
-            throw ElectricityBindingHelperError.syncFailed(reason: "无响应")
+            throw ElectricityBindingUtilError.syncFailed(reason: "无响应")
         }
         guard httpResponse.statusCode == 204 else {
             if let data: Data = response.data {
                 let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-                throw ElectricityBindingHelperError.syncFailed(reason: errorResponse.reason)
+                throw ElectricityBindingUtilError.syncFailed(reason: errorResponse.reason)
             } else {
-                throw ElectricityBindingHelperError.syncFailed(reason: "未知错误")
+                throw ElectricityBindingUtilError.syncFailed(reason: "未知错误")
             }
         }
-        Logger.electricityBindingHelper.debug("同步绑定成功")
+        Logger.electricityBindingUtil.debug("同步绑定成功")
     }
 }

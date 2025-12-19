@@ -1,5 +1,5 @@
 //
-//  ColorHelper.swift
+//  ColorUtil.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/7/22.
@@ -9,7 +9,7 @@ import CSUSTKit
 import Foundation
 import SwiftUI
 
-enum ColorHelper {
+enum ColorUtil {
     static let gradeRanges = [
         (range: "90-100", min: 90, max: 100, point: 4.0),
         (range: "85-89", min: 85, max: 89, point: 3.7),
@@ -146,7 +146,7 @@ enum ColorHelper {
         var colorIndex = 0
         for course in courses.sorted(by: { $0.courseName < $1.courseName }) {
             if courseColors[course.courseName] == nil {
-                courseColors[course.courseName] = ColorHelper.courseColors[colorIndex % ColorHelper.courseColors.count]
+                courseColors[course.courseName] = ColorUtil.courseColors[colorIndex % ColorUtil.courseColors.count]
                 colorIndex += 1
             }
         }

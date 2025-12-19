@@ -1,5 +1,5 @@
 //
-//  SharedModel.swift
+//  SharedModelUtil.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/7/21.
@@ -9,7 +9,7 @@ import Foundation
 import OSLog
 import SwiftData
 
-enum SharedModelHelper {
+enum SharedModelUtil {
     static let schema = Schema([
         Dorm.self,
         ElectricityRecord.self,

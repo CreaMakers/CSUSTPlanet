@@ -14,7 +14,7 @@ struct UserAgreementView: View {
     var body: some View {
         NavigationStack {
             Form {
-                if let userAgreementMarkdown = AssetHelper.loadMarkdownFile(named: "UserAgreement") {
+                if let userAgreementMarkdown = AssetUtil.loadMarkdownFile(named: "UserAgreement") {
                     Markdown(userAgreementMarkdown)
                         .markdownTextStyle(\.strong) {
                             ForegroundColor(.primary)

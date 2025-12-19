@@ -1,5 +1,5 @@
 //
-//  CalendarHelper.swift
+//  CalendarUtil.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/7/11.
@@ -10,7 +10,7 @@ import Foundation
 
 // MARK: - Error
 
-enum CalendarHelperError: Error, LocalizedError {
+enum CalendarUtilError: Error, LocalizedError {
     case eventPermissionDenied
     case reminderPermissionDenied
     case noAvailableSource
@@ -30,15 +30,15 @@ enum CalendarHelperError: Error, LocalizedError {
     }
 }
 
-// MARK: - CalendarHelper
+// MARK: - CalendarUtil
 
-enum CalendarHelper {
+enum CalendarUtil {
     private static let eventStore = EKEventStore()
 }
 
 // MARK: - Permission
 
-extension CalendarHelper {
+extension CalendarUtil {
     static func requestEventAccess() async throws -> Bool {
         return try await eventStore.requestFullAccessToEvents()
     }
@@ -50,9 +50,9 @@ extension CalendarHelper {
 
 // MARK: - Event
 
-extension CalendarHelper {
+extension CalendarUtil {
     static func getOrCreateEventCalendar(named title: String) async throws -> EKCalendar {
-        guard try await requestEventAccess() else { throw CalendarHelperError.eventPermissionDenied }
+        guard try await requestEventAccess() else { throw CalendarUtilError.eventPermissionDenied }
 
         if let existingCalendar = eventStore.calendars(for: .event).first(where: { $0.title == title }) {
             return existingCalendar
@@ -68,7 +68,7 @@ extension CalendarHelper {
         } else if let localSource = eventStore.sources.first(where: { $0.sourceType == .local }) {
             newCalendar.source = localSource
         } else {
-            throw CalendarHelperError.noAvailableSource
+            throw CalendarUtilError.noAvailableSource
         }
 
         try eventStore.saveCalendar(newCalendar, commit: true)
@@ -83,7 +83,7 @@ extension CalendarHelper {
         notes: String? = nil,
         location: String? = nil
     ) async throws {
-        guard try await requestEventAccess() else { throw CalendarHelperError.eventPermissionDenied }
+        guard try await requestEventAccess() else { throw CalendarUtilError.eventPermissionDenied }
         guard try await !eventExists(calendar: calendar, title: title, startDate: startDate, endDate: endDate) else { return }
 
         let event = EKEvent(eventStore: eventStore)
@@ -106,9 +106,9 @@ extension CalendarHelper {
 
 // MARK: - Reminder
 
-extension CalendarHelper {
+extension CalendarUtil {
     static func getOrCreateReminderCalendar(named title: String) async throws -> EKCalendar {
-        guard try await requestReminderAccess() else { throw CalendarHelperError.reminderPermissionDenied }
+        guard try await requestReminderAccess() else { throw CalendarUtilError.reminderPermissionDenied }
 
         if let existingCalendar = eventStore.calendars(for: .reminder).first(where: { $0.title == title }) {
             return existingCalendar
@@ -124,7 +124,7 @@ extension CalendarHelper {
         } else if let localSource = eventStore.sources.first(where: { $0.sourceType == .local }) {
             newCalendar.source = localSource
         } else {
-            throw CalendarHelperError.noAvailableSource
+            throw CalendarUtilError.noAvailableSource
         }
 
         try eventStore.saveCalendar(newCalendar, commit: true)
@@ -137,7 +137,7 @@ extension CalendarHelper {
         dueDate: Date?,
         notes: String? = nil
     ) async throws {
-        guard try await requestReminderAccess() else { throw CalendarHelperError.reminderPermissionDenied }
+        guard try await requestReminderAccess() else { throw CalendarUtilError.reminderPermissionDenied }
         guard try await !reminderExists(calendar: calendar, title: title, dueDate: dueDate) else { return }
 
         let reminder = EKReminder(eventStore: eventStore)
@@ -160,7 +160,7 @@ extension CalendarHelper {
                 if let reminders = fetchedReminders {
                     continuation.resume(returning: reminders)
                 } else {
-                    continuation.resume(throwing: CalendarHelperError.fetchRemindersFailed)
+                    continuation.resume(throwing: CalendarUtilError.fetchRemindersFailed)
                 }
             }
         }

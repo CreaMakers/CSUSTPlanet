@@ -131,7 +131,7 @@ struct PhysicsExperimentGradeView: View {
                     Text("\(grade.totalGrade)")
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundStyle(ColorHelper.dynamicColor(grade: Double(grade.totalGrade)))
+                        .foregroundStyle(ColorUtil.dynamicColor(grade: Double(grade.totalGrade)))
                 }
             }
             .padding(.top, 4)

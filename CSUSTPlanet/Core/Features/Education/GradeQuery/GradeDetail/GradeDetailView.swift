@@ -43,8 +43,8 @@ struct GradeDetailView: View {
 
     private var scoresSection: some View {
         HStack(alignment: .top, spacing: 16) {
-            scoreItem(value: "\(courseGrade.grade)", label: "总成绩", color: ColorHelper.dynamicColor(grade: Double(courseGrade.grade)))
-            scoreItem(value: String(format: "%.1f", courseGrade.gradePoint), label: "绩点", color: ColorHelper.dynamicColor(point: courseGrade.gradePoint))
+            scoreItem(value: "\(courseGrade.grade)", label: "总成绩", color: ColorUtil.dynamicColor(grade: Double(courseGrade.grade)))
+            scoreItem(value: String(format: "%.1f", courseGrade.gradePoint), label: "绩点", color: ColorUtil.dynamicColor(point: courseGrade.gradePoint))
             scoreItem(value: String(format: "%.1f", courseGrade.credit), label: "学分", color: .primary)
             scoreItem(value: "\(courseGrade.totalHours)", label: "学时", color: .primary)
         }

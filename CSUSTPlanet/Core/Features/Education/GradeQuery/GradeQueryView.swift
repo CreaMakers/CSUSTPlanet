@@ -38,9 +38,9 @@ struct GradeQueryView: View {
         VStack(alignment: .center) {
             if let analysis = viewModel.analysis {
                 HStack(spacing: 10) {
-                    statItem(title: "GPA", value: String(format: "%.2f", analysis.overallGPA), color: ColorHelper.dynamicColor(point: analysis.overallGPA))
-                    statItem(title: "平均成绩", value: String(format: "%.2f", analysis.overallAverageGrade), color: ColorHelper.dynamicColor(grade: analysis.overallAverageGrade))
-                    statItem(title: "加权平均成绩", value: String(format: "%.2f", analysis.weightedAverageGrade), color: ColorHelper.dynamicColor(grade: analysis.weightedAverageGrade))
+                    statItem(title: "GPA", value: String(format: "%.2f", analysis.overallGPA), color: ColorUtil.dynamicColor(point: analysis.overallGPA))
+                    statItem(title: "平均成绩", value: String(format: "%.2f", analysis.overallAverageGrade), color: ColorUtil.dynamicColor(grade: analysis.overallAverageGrade))
+                    statItem(title: "加权平均成绩", value: String(format: "%.2f", analysis.weightedAverageGrade), color: ColorUtil.dynamicColor(grade: analysis.weightedAverageGrade))
                     statItem(title: "已修总学分", value: String(format: "%.1f", analysis.totalCredits), color: .blue)
                     statItem(title: "课程总数", value: "\(analysis.totalCourses)", color: .purple)
                 }
@@ -182,7 +182,7 @@ struct GradeQueryView: View {
                         Text(String(format: "%.1f", courseGrade.gradePoint))
                             .font(.caption)
                             .fontWeight(.medium)
-                            .foregroundColor(ColorHelper.dynamicColor(point: courseGrade.gradePoint))
+                            .foregroundColor(ColorUtil.dynamicColor(point: courseGrade.gradePoint))
                     }
                 }
             }
@@ -192,7 +192,7 @@ struct GradeQueryView: View {
             Text("\(courseGrade.grade)分")
                 .font(.headline)
                 .fontWeight(.bold)
-                .foregroundColor(ColorHelper.dynamicColor(grade: Double(courseGrade.grade)))
+                .foregroundColor(ColorUtil.dynamicColor(grade: Double(courseGrade.grade)))
         }
         .padding(.vertical, 8)
     }

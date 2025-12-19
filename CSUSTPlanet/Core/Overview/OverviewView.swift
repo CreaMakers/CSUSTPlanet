@@ -321,7 +321,7 @@ private struct HomeGradeCard: View {
                 if let gradeData = analysisData {
                     Text(String(format: "%.2f", gradeData.overallGPA))
                         .font(.system(size: 32, weight: .bold, design: .rounded))
-                        .foregroundStyle(ColorHelper.dynamicColor(point: gradeData.overallGPA))
+                        .foregroundStyle(ColorUtil.dynamicColor(point: gradeData.overallGPA))
 
                     Text("平均分: \(String(format: "%.1f", gradeData.overallAverageGrade))")
                         .font(.caption)
@@ -370,7 +370,7 @@ private struct HomeElectricityCard: View {
                     HStack(alignment: .lastTextBaseline, spacing: 4) {
                         Text(String(format: "%.1f", record.electricity))
                             .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundStyle(ColorHelper.electricityColor(electricity: record.electricity))
+                            .foregroundStyle(ColorUtil.electricityColor(electricity: record.electricity))
 
                         Text("kWh")
                             .font(.caption)

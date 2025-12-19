@@ -18,7 +18,7 @@ class OverviewViewModel: ObservableObject {
     @Published var electricityDorms: [Dorm] = []
 
     func loadData() {
-        let context = SharedModelHelper.mainContext
+        let context = SharedModelUtil.mainContext
 
         gradeAnalysisData = MMKVHelper.shared.courseGradesCache
         examScheduleData = MMKVHelper.shared.examSchedulesCache
@@ -49,7 +49,7 @@ class OverviewViewModel: ObservableObject {
 
         let semester = data.semester ?? "默认学期"
 
-        if let currentWeek = CourseScheduleHelper.getCurrentWeek(
+        if let currentWeek = CourseScheduleUtil.getCurrentWeek(
             semesterStartDate: data.semesterStartDate,
             now: Date()
         ) {
@@ -61,7 +61,7 @@ class OverviewViewModel: ObservableObject {
 
     var todayCourses: [(course: CourseDisplayInfo, isCurrent: Bool)]? {
         guard let schedule = courseScheduleData?.value else { return nil }
-        return CourseScheduleHelper.getUnfinishedCourses(
+        return CourseScheduleUtil.getUnfinishedCourses(
             semesterStartDate: schedule.semesterStartDate,
             now: Date(),
             courses: schedule.courses
@@ -79,7 +79,7 @@ class OverviewViewModel: ObservableObject {
 
     var electricityExhaustionInfo: String? {
         guard let dorm = primaryDorm, let records = dorm.records, !records.isEmpty else { return nil }
-        guard let predictionDate = ElectricityHelper.predictExhaustionDate(from: records) else { return nil }
+        guard let predictionDate = ElectricityUtil.predictExhaustionDate(from: records) else { return nil }
 
         let now = Date()
         let interval = predictionDate.timeIntervalSince(now)
@@ -136,12 +136,12 @@ class OverviewViewModel: ObservableObject {
         let startIndex = startSection - 1
         let endIndex = endSection - 1
 
-        guard startIndex >= 0 && startIndex < CourseScheduleHelper.sectionTimeString.count,
-            endIndex >= 0 && endIndex < CourseScheduleHelper.sectionTimeString.count
+        guard startIndex >= 0 && startIndex < CourseScheduleUtil.sectionTimeString.count,
+            endIndex >= 0 && endIndex < CourseScheduleUtil.sectionTimeString.count
         else {
             return "时间未知"
         }
 
-        return "\(CourseScheduleHelper.sectionTimeString[startIndex].0) - \(CourseScheduleHelper.sectionTimeString[endIndex].1)"
+        return "\(CourseScheduleUtil.sectionTimeString[startIndex].0) - \(CourseScheduleUtil.sectionTimeString[endIndex].1)"
     }
 }

@@ -22,6 +22,6 @@ struct CSUSTPlanetApp: App {
                 .environmentObject(AuthManager.shared)
                 .environmentObject(NotificationManager.shared)
         }
-        .modelContainer(SharedModelHelper.container)
+        .modelContainer(SharedModelUtil.container)
     }
 }

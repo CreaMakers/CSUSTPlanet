@@ -64,7 +64,7 @@ class NotificationManager: ObservableObject {
     }
 
     func syncAll() {
-        Task { await ElectricityBindingHelper.sync() }
+        Task { await ElectricityBindingUtil.sync() }
     }
 
     func toggle() {

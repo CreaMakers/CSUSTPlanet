@@ -143,7 +143,7 @@ struct ElectricityDashboardCard: View {
                         HStack(alignment: .lastTextBaseline) {
                             Text(String(format: "%.2f", electricity))
                                 .font(.system(size: 48, weight: .bold, design: .rounded))
-                                .foregroundStyle(ColorHelper.electricityColor(electricity: electricity))
+                                .foregroundStyle(ColorUtil.electricityColor(electricity: electricity))
 
                             Text("kWh")
                                 .font(.title3)
@@ -380,7 +380,7 @@ struct DormHistoryView: View {
                             Text("\(String(format: "%.2f", record.electricity)) kWh")
                                 .font(.headline)
                                 .monospacedDigit()
-                                .foregroundStyle(ColorHelper.electricityColor(electricity: record.electricity))
+                                .foregroundStyle(ColorUtil.electricityColor(electricity: record.electricity))
 
                             Text(record.date.formatted(date: .numeric, time: .standard))
                                 .font(.caption)

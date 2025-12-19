@@ -50,7 +50,7 @@ struct DormElectricityProvider: AppIntentTimelineProvider {
             let newElectricity = try await campusCardHelper.getElectricity(building: building, room: room)
             Logger.dormElectricityWidget.info("DormElectricityProvider: 电量获取成功: \(newElectricity)")
 
-            let modelContext = SharedModelHelper.context
+            let modelContext = SharedModelUtil.context
             let dormID = selectedDormEntity.id
 
             let descriptor = FetchDescriptor<Dorm>(predicate: #Predicate<Dorm> { $0.id == dormID })
@@ -127,7 +127,7 @@ struct DormElectricityEntryView: View {
                                 VStack {
                                     Text(String(format: "%.2f", last.electricity))
                                         .font(.system(size: 16, weight: .bold, design: .rounded))
-                                        .foregroundColor(ColorHelper.electricityColor(electricity: last.electricity))
+                                        .foregroundColor(ColorUtil.electricityColor(electricity: last.electricity))
                                         + Text("度")
                                         .font(.system(size: 14))
                                         .foregroundColor(.secondary)
@@ -158,7 +158,7 @@ struct DormElectricityEntryView: View {
 
                             Text(String(format: "%.2f", last.electricity))
                                 .font(.system(size: 24, weight: .bold, design: .rounded))
-                                .foregroundColor(ColorHelper.electricityColor(electricity: last.electricity))
+                                .foregroundColor(ColorUtil.electricityColor(electricity: last.electricity))
                                 + Text("度")
                                 .font(.system(size: 14))
                                 .foregroundColor(.secondary)
@@ -219,7 +219,7 @@ struct DormElectricityWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: DormElectricityAppIntent.self, provider: DormElectricityProvider()) { entry in
             DormElectricityEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
-                .modelContainer(SharedModelHelper.container)
+                .modelContainer(SharedModelUtil.container)
         }
         .configurationDisplayName("宿舍电量")
         .description("查询宿舍电量使用情况")

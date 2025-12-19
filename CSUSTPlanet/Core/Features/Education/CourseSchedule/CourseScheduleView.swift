@@ -27,11 +27,11 @@ struct CourseScheduleView: View {
         VStack(spacing: 0) {
             topControlBar
             if let courseScheduleData = viewModel.data {
-                let weeklyCourses = CourseScheduleHelper.getWeeklyCourses(courseScheduleData.value.courses)
+                let weeklyCourses = CourseScheduleUtil.getWeeklyCourses(courseScheduleData.value.courses)
 
                 // 课表的每一周翻页
                 TabView(selection: $viewModel.currentWeek) {
-                    ForEach(1...CourseScheduleHelper.weekCount, id: \.self) { week in
+                    ForEach(1...CourseScheduleUtil.weekCount, id: \.self) { week in
                         tableView(for: week, semesterStartDate: courseScheduleData.value.semesterStartDate, weeklyCourses: weeklyCourses)
                             .tag(week)
                     }
@@ -95,7 +95,7 @@ struct CourseScheduleView: View {
     private var topControlBar: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("今日 \(CourseScheduleHelper.dateFormatter.string(from: viewModel.today))")
+                Text("今日 \(CourseScheduleUtil.dateFormatter.string(from: viewModel.today))")
                     .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
@@ -114,7 +114,7 @@ struct CourseScheduleView: View {
 
             HStack(spacing: 12) {
                 Menu {
-                    ForEach(1...CourseScheduleHelper.weekCount, id: \.self) { week in
+                    ForEach(1...CourseScheduleUtil.weekCount, id: \.self) { week in
                         Button("第 \(week) 周") {
                             withAnimation { viewModel.currentWeek = week }
                         }
@@ -173,13 +173,13 @@ struct CourseScheduleView: View {
 
     @ViewBuilder
     private func headerView(for week: Int, semesterStartDate: Date) -> some View {
-        let dates = CourseScheduleHelper.getDatesForWeek(semesterStartDate: semesterStartDate, week: week)
+        let dates = CourseScheduleUtil.getDatesForWeek(semesterStartDate: semesterStartDate, week: week)
 
         HStack(spacing: colSpacing) {
             // 左上角月份显示区
             VStack(alignment: .center, spacing: 0) {
                 if let firstDate = dates.first {
-                    Text(CourseScheduleHelper.monthFormatter.string(from: firstDate))
+                    Text(CourseScheduleUtil.monthFormatter.string(from: firstDate))
                         .font(.system(size: 14, weight: .bold))
                     Text("月")
                         .font(.system(size: 10))
@@ -190,7 +190,7 @@ struct CourseScheduleView: View {
 
             // "周日" 到 "周六"
             ForEach(Array(zip(EduHelper.DayOfWeek.allCases, dates)), id: \.0) { day, date in
-                let isToday = CourseScheduleHelper.isToday(date)
+                let isToday = CourseScheduleUtil.isToday(date)
                 VStack(spacing: 2) {
                     Text(day.stringValue)
                         .font(.system(size: 11))
@@ -201,7 +201,7 @@ struct CourseScheduleView: View {
                         Circle()
                             .fill(isToday ? Color.accentColor : Color.clear)
 
-                        Text(CourseScheduleHelper.dayFormatter.string(from: date))
+                        Text(CourseScheduleUtil.dayFormatter.string(from: date))
                             .font(.system(size: 14, weight: isToday ? .bold : .medium))
                             .foregroundColor(isToday ? .white : .primary)
                     }
@@ -230,8 +230,8 @@ struct CourseScheduleView: View {
                             .foregroundColor(.primary)
 
                         VStack(spacing: 0) {
-                            Text(CourseScheduleHelper.sectionTimeString[section - 1].0)
-                            Text(CourseScheduleHelper.sectionTimeString[section - 1].1)
+                            Text(CourseScheduleUtil.sectionTimeString[section - 1].0)
+                            Text(CourseScheduleUtil.sectionTimeString[section - 1].1)
                         }
                         .font(.system(size: 9))
                         .foregroundColor(.secondary)

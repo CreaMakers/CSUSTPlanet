@@ -8,11 +8,11 @@
 import Foundation
 
 enum Constants {
-    static let appGroupID = AssetHelper.bundleInfo(forKey: "ConfigAppGroupID")
-    static let iCloudID = AssetHelper.bundleInfo(forKey: "ConfigCloudContainerID")
-    static let keychainGroup = AssetHelper.bundleInfo(forKey: "ConfigKeychainGroup")
-    static let appBundleID = AssetHelper.bundleInfo(forKey: "ConfigAppBundleID")
-    static let widgetBundleID = AssetHelper.bundleInfo(forKey: "ConfigWidgetBundleID")
+    static let appGroupID = AssetUtil.bundleInfo(forKey: "ConfigAppGroupID")
+    static let iCloudID = AssetUtil.bundleInfo(forKey: "ConfigCloudContainerID")
+    static let keychainGroup = AssetUtil.bundleInfo(forKey: "ConfigKeychainGroup")
+    static let appBundleID = AssetUtil.bundleInfo(forKey: "ConfigAppBundleID")
+    static let widgetBundleID = AssetUtil.bundleInfo(forKey: "ConfigWidgetBundleID")
 
     static let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
 
@@ -26,19 +26,19 @@ enum Constants {
         return mmkvDir
     }()
     static var mmkvID: String {
-        switch AppEnvironmentHelper.environment {
+        switch AppEnvironmentUtil.environment {
         case .debug: return "debug"
         case .testFlight: return "testFlight"
         case .appStore: return "appStore"
         }
     }
 
-    private static let apiHostProd = AssetHelper.bundleInfo(forKey: "ConfigApiHostProd")
-    private static let apiHostDev = AssetHelper.bundleInfo(forKey: "ConfigApiHostDev")
-    private static let apiHostLocal = AssetHelper.bundleInfo(forKey: "ConfigApiHostLocal")
+    private static let apiHostProd = AssetUtil.bundleInfo(forKey: "ConfigApiHostProd")
+    private static let apiHostDev = AssetUtil.bundleInfo(forKey: "ConfigApiHostDev")
+    private static let apiHostLocal = AssetUtil.bundleInfo(forKey: "ConfigApiHostLocal")
 
     static var backendHost: String {
-        switch AppEnvironmentHelper.environment {
+        switch AppEnvironmentUtil.environment {
         case .appStore, .testFlight:
             return apiHostProd
         case .debug:

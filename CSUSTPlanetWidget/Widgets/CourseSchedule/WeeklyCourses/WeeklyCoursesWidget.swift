@@ -32,7 +32,7 @@ struct WeeklyCoursesProvider: AppIntentTimelineProvider {
             return Timeline(entries: [entry], policy: .after(nextUpdate))
         }
 
-        let semesterStatus = CourseScheduleHelper.getSemesterStatus(semesterStartDate: data.value.semesterStartDate, date: currentDate)
+        let semesterStatus = CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.value.semesterStartDate, date: currentDate)
 
         if semesterStatus == .beforeSemester || semesterStatus == .afterSemester {
             let entry = WeeklyCoursesEntry(date: currentDate, configuration: configuration, data: data.value)

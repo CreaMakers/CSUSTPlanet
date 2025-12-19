@@ -1,5 +1,5 @@
 //
-//  ActivityManager.swift
+//  ActivityHelper.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/10/15.
@@ -9,8 +9,8 @@ import ActivityKit
 import Foundation
 import OSLog
 
-class ActivityManager {
-    static let shared = ActivityManager()
+class ActivityHelper {
+    static let shared = ActivityHelper()
 
     var activity: Activity<CourseStatusWidgetAttributes>? = nil
 
@@ -20,7 +20,7 @@ class ActivityManager {
         guard activity == nil, let existingActivity = Activity<CourseStatusWidgetAttributes>.activities.first else { return }
         self.activity = existingActivity
 
-        Logger.activityManager.info("已恢复现有的实时活动")
+        Logger.activityHelper.info("已恢复现有的实时活动")
         Task {
             await autoUpdateActivity()
         }
@@ -29,7 +29,7 @@ class ActivityManager {
     @MainActor
     func autoUpdateActivity() {
         guard GlobalManager.shared.isLiveActivityEnabled else {
-            Logger.activityManager.info("实时活动已禁用。正在停止所有活跃活动")
+            Logger.activityHelper.info("实时活动已禁用。正在停止所有活跃活动")
             stopActivity()
             return
         }
@@ -40,7 +40,7 @@ class ActivityManager {
             return
         }
 
-        if let courseDisplayInfo = CourseScheduleHelper.getRelevantCourseForStatus(
+        if let courseDisplayInfo = CourseScheduleUtil.getRelevantCourseForStatus(
             semesterStartDate: data.value.semesterStartDate,
             now: currentDate,
             courses: data.value.courses
@@ -56,21 +56,21 @@ class ActivityManager {
 
             if let existingActivity = self.activity, existingActivity.activityState == .active {
                 if existingActivity.attributes == attributes {
-                    Logger.activityManager.info("实时活动状态正确。正在强制刷新 UI")
+                    Logger.activityHelper.info("实时活动状态正确。正在强制刷新 UI")
                     Task {
                         let content = ActivityContent(state: CourseStatusWidgetAttributes.ContentState(now: .now), staleDate: nil)
                         await existingActivity.update(content)
                     }
                 } else {
-                    Logger.activityManager.info("发现过期的活动。正在替换为新活动")
+                    Logger.activityHelper.info("发现过期的活动。正在替换为新活动")
                     try? startActivity(attributes)
                 }
             } else {
-                Logger.activityManager.info("未找到活跃活动。正在启动新活动")
+                Logger.activityHelper.info("未找到活跃活动。正在启动新活动")
                 try? startActivity(attributes)
             }
         } else {
-            Logger.activityManager.info("未找到相关课程。正在停止所有活跃活动")
+            Logger.activityHelper.info("未找到相关课程。正在停止所有活跃活动")
             stopActivity()
         }
     }
@@ -85,7 +85,7 @@ class ActivityManager {
             content: content
         )
         self.activity = newActivity
-        Logger.activityManager.info("已为课程启动实时活动：\(attributes.courseName)")
+        Logger.activityHelper.info("已为课程启动实时活动：\(attributes.courseName)")
     }
 
     private func stopActivity() {
@@ -95,7 +95,7 @@ class ActivityManager {
             await activityToStop.end(nil, dismissalPolicy: .immediate)
             if self.activity?.id == activityToStop.id {
                 self.activity = nil
-                Logger.activityManager.info("实时活动已停止")
+                Logger.activityHelper.info("实时活动已停止")
             }
         }
     }
@@ -104,11 +104,11 @@ class ActivityManager {
         let calendar = Calendar.current
         let startIndex = startSection - 1
         let endIndex = endSection - 1
-        guard startIndex >= 0, startIndex < CourseScheduleHelper.sectionTimeString.count,
-            endIndex >= 0, endIndex < CourseScheduleHelper.sectionTimeString.count
+        guard startIndex >= 0, startIndex < CourseScheduleUtil.sectionTimeString.count,
+            endIndex >= 0, endIndex < CourseScheduleUtil.sectionTimeString.count
         else { return nil }
-        let startTimeString = CourseScheduleHelper.sectionTimeString[startIndex].0
-        let endTimeString = CourseScheduleHelper.sectionTimeString[endIndex].1
+        let startTimeString = CourseScheduleUtil.sectionTimeString[startIndex].0
+        let endTimeString = CourseScheduleUtil.sectionTimeString[endIndex].1
         let startComponents = startTimeString.split(separator: ":").compactMap { Int($0) }
         guard startComponents.count == 2 else { return nil }
         let startHour = startComponents[0]

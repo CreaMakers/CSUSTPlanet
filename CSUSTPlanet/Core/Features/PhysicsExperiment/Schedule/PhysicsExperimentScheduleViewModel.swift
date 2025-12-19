@@ -40,7 +40,7 @@ class PhysicsExperimentScheduleViewModel: ObservableObject {
                     if let cachedData = MMKVHelper.shared.physicsExperimentScheduleCache {
                         self.data = cachedData
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            self.warningMessage = String(format: "未登录大物实验，\n已加载上次查询数据（%@）", DateHelper.relativeTimeString(for: cachedData.cachedAt))
+                            self.warningMessage = String(format: "未登录大物实验，\n已加载上次查询数据（%@）", DateUtil.relativeTimeString(for: cachedData.cachedAt))
                             self.isShowingWarning = true
                         }
                     } else {
@@ -51,7 +51,7 @@ class PhysicsExperimentScheduleViewModel: ObservableObject {
                     if let cachedData = MMKVHelper.shared.physicsExperimentScheduleCache {
                         self.data = cachedData
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            self.warningMessage = String(format: "错误：%@，\n已加载上次查询数据（%@）", error.localizedDescription, DateHelper.relativeTimeString(for: cachedData.cachedAt))
+                            self.warningMessage = String(format: "错误：%@，\n已加载上次查询数据（%@）", error.localizedDescription, DateUtil.relativeTimeString(for: cachedData.cachedAt))
                             self.isShowingWarning = true
                         }
                     } else {

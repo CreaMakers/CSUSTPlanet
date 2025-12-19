@@ -16,7 +16,7 @@ struct DormCardView: View {
 
     private var electricityColor: Color {
         guard let record = dorm.lastRecord else { return .primary }
-        return ColorHelper.electricityColor(electricity: record.electricity)
+        return ColorUtil.electricityColor(electricity: record.electricity)
     }
 
     var body: some View {
