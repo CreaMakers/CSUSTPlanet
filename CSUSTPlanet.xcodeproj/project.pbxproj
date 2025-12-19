@@ -128,7 +128,7 @@
 				Models/Storage/Database/Dorm.swift,
 				Models/Storage/Database/ElectricityRecord.swift,
 				Models/Storage/GradeAnalysisData.swift,
-				Models/Storage/UrgentCourseData.swift,
+				Models/Storage/UrgentCoursesData.swift,
 				Utils/AppEnvironmentUtil.swift,
 				Utils/AssetUtil.swift,
 				Utils/ColorUtil.swift,

@@ -14,7 +14,7 @@ import WidgetKit
 class UrgentCoursesViewModel: ObservableObject {
     @Published var errorMessage = ""
     @Published var warningMessage = ""
-    @Published var data: Cached<UrgentCourseData>? = nil
+    @Published var data: Cached<UrgentCoursesData>? = nil
 
     @Published var isLoading = false
     @Published var isShowingError = false
@@ -37,11 +37,11 @@ class UrgentCoursesViewModel: ObservableObject {
             if let moocHelper = AuthManager.shared.moocHelper {
                 do {
                     let urgentCourses = try await moocHelper.getCourseNamesWithPendingHomeworks()
-                    let data = Cached(cachedAt: .now, value: UrgentCourseData.fromCourses(urgentCourses))
+                    let data = Cached(cachedAt: .now, value: UrgentCoursesData.fromCourses(urgentCourses))
                     self.data = data
                     MMKVHelper.shared.urgentCoursesCache = data
                     MMKVHelper.shared.sync()
-                    WidgetCenter.shared.reloadTimelines(ofKind: "UrgentCourseWidget")
+                    WidgetCenter.shared.reloadTimelines(ofKind: "UrgentCoursesWidget")
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true

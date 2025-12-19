@@ -14,7 +14,7 @@ class OverviewViewModel: ObservableObject {
     @Published var gradeAnalysisData: Cached<[EduHelper.CourseGrade]>?
     @Published var examScheduleData: Cached<[EduHelper.Exam]>?
     @Published var courseScheduleData: Cached<CourseScheduleData>?
-    @Published var urgentCourseData: Cached<UrgentCourseData>?
+    @Published var urgentCoursesData: Cached<UrgentCoursesData>?
     @Published var electricityDorms: [Dorm] = []
 
     func loadData() {
@@ -23,7 +23,7 @@ class OverviewViewModel: ObservableObject {
         gradeAnalysisData = MMKVHelper.shared.courseGradesCache
         examScheduleData = MMKVHelper.shared.examSchedulesCache
         courseScheduleData = MMKVHelper.shared.courseScheduleCache
-        urgentCourseData = MMKVHelper.shared.urgentCoursesCache
+        urgentCoursesData = MMKVHelper.shared.urgentCoursesCache
 
         let dormDescriptor = FetchDescriptor<Dorm>()
         if let dorms = try? context.fetch(dormDescriptor) {
@@ -103,12 +103,12 @@ class OverviewViewModel: ObservableObject {
         return examData.filter { Date() <= $0.examEndTime }
     }
 
-    var urgentCourses: [UrgentCourseData.Course] {
-        guard let data = urgentCourseData?.value else { return [] }
+    var urgentCourses: [UrgentCoursesData.Course] {
+        guard let data = urgentCoursesData?.value else { return [] }
         return data.courses
     }
 
-    var displayedUrgentCourses: [UrgentCourseData.Course] {
+    var displayedUrgentCourses: [UrgentCoursesData.Course] {
         Array(urgentCourses.prefix(2))
     }
 

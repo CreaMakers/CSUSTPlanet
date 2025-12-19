@@ -1,5 +1,5 @@
 //
-//  UrgentCourceEntryView.swift
+//  UrgentCoursesEntryView.swift
 //  CSUSTPlanetWidgetExtension
 //
 //  Created by Zhe_Learn on 2025/10/13.
@@ -9,8 +9,8 @@ import Foundation
 import SwiftUI
 import WidgetKit
 
-struct UrgentCourseEntryView: View {
-    var entry: UrgentCourseProvider.Entry
+struct UrgentCoursesEntryView: View {
+    var entry: UrgentCoursesProvider.Entry
 
     let dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -67,13 +67,13 @@ struct UrgentCourseEntryView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .widgetURL(URL(string: "csustplanet://widget/urgentCourse"))
+        .widgetURL(URL(string: "csustplanet://widget/urgentCourses"))
     }
 }
 
 #Preview(as: .systemSmall) {
-    UrgentCourceWidget()
+    UrgentCoursesWidget()
 } timeline: {
-    let intent = UrgentCourseIntent()
-    mockUrgentCourseEntry(configuration: intent)
+    let intent = UrgentCoursesIntent()
+    mockUrgentCoursesEntry(configuration: intent)
 }

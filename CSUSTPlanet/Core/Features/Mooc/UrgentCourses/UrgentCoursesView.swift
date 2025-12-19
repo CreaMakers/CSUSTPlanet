@@ -15,7 +15,7 @@ struct UrgentCoursesView: View {
     // MARK: - Course Card
 
     @ViewBuilder
-    private func courseCard(course: UrgentCourseData.Course) -> some View {
+    private func courseCard(course: UrgentCoursesData.Course) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(course.name)
                 .font(.headline)

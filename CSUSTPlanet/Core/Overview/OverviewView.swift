@@ -45,7 +45,7 @@ struct OverviewView: View {
 
                         let courses = viewModel.urgentCourses
                         if courses.isEmpty {
-                            if viewModel.urgentCourseData?.value == nil {
+                            if viewModel.urgentCoursesData?.value == nil {
                                 HomeEmptyStateView(icon: "doc.text", text: "暂无数据，请前往详情页加载")
                             } else {
                                 HomeEmptyStateView(icon: "doc.text", text: "暂无待提交作业")
@@ -184,11 +184,11 @@ private struct HomeCourseCarousel: View {
             )
             .padding(.horizontal)
 
-            if let todaysFnishedCourses = viewModel.todayCourses {
-                if !todaysFnishedCourses.isEmpty {
+            if let todaysFinishedCourses = viewModel.todayCourses {
+                if !todaysFinishedCourses.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            ForEach(Array(todaysFnishedCourses.enumerated()), id: \.offset) { _, item in
+                            ForEach(Array(todaysFinishedCourses.enumerated()), id: \.offset) { _, item in
                                 CourseCard(
                                     course: item.course.course,
                                     session: item.course.session,

@@ -108,11 +108,6 @@ extension KeychainHelper {
         set { set(newValue, forKey: "SSOPassword") }
     }
 
-    var ssoCookies: Data? {
-        get { getData(forKey: "SSOCookies") }
-        set { set(newValue, forKey: "SSOCookies") }
-    }
-
     var cookies: Data? {
         get { getData(forKey: "Cookies") }
         set { set(newValue, forKey: "Cookies") }
