@@ -9,7 +9,7 @@ import MarkdownUI
 import SwiftUI
 
 struct UserAgreementView: View {
-    @EnvironmentObject var GlobalManager: GlobalManager
+    @EnvironmentObject var globalManager: GlobalManager
 
     var body: some View {
         NavigationStack {
@@ -26,13 +26,13 @@ struct UserAgreementView: View {
                 }
                 Section {
                     Button(action: {
-                        GlobalManager.isUserAgreementAccepted = true
+                        globalManager.isUserAgreementAccepted = true
                     }) {
                         Text("同意并继续使用")
                     }
                     .tint(.blue)
                     Button(action: {
-                        GlobalManager.isUserAgreementAccepted = false
+                        globalManager.isUserAgreementAccepted = false
                         exit(0)
                     }) {
                         Text("不同意并退出")
