@@ -6,3 +6,4 @@ extend-exclude = [
 
 [default.extend-words]
 udid = "udid"
+mappin = "mappin"
