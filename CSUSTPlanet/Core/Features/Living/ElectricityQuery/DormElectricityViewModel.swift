@@ -23,10 +23,13 @@ class DormElectricityViewModel: ObservableObject {
     @Published var isQueryingElectricity: Bool = false
 
     @Published var isConfirmationDialogPresented: Bool = false
+    @Published var isCancelScheduleAlertPresented: Bool = false
     @Published var isTermsPresented: Bool = false
     @Published var isShowNotificationSettings: Bool = false
 
     @Published var isScheduleLoading: Bool = false
+
+    @Published var sortedRecords: [ElectricityRecord] = []
 
     private let dateFormatter = {
         let dateFormatter = DateFormatter()
@@ -135,7 +138,14 @@ class DormElectricityViewModel: ObservableObject {
         }
     }
 
+    func updateSortedRecords(for dorm: Dorm) {
+        self.sortedRecords = dorm.records?.sorted(by: { $0.date > $1.date }) ?? []
+    }
+
     func deleteRecord(record: ElectricityRecord) {
+        if let index = sortedRecords.firstIndex(of: record) {
+            sortedRecords.remove(at: index)
+        }
         modelContext.delete(record)
         do {
             try modelContext.save()
@@ -143,10 +153,6 @@ class DormElectricityViewModel: ObservableObject {
             errorMessage = error.localizedDescription
             isShowingError = true
         }
-    }
-
-    func handleTermsAgree() {
-        isShowNotificationSettings = true
     }
 
     func handleNotificationSettings(_ dorm: Dorm, scheduleHour: Int, scheduleMinute: Int) {

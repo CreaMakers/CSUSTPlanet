@@ -134,12 +134,12 @@ struct DormCardView: View {
             .disabled(viewModel.isQueryingElectricity)
             Divider()
             Menu {
-                Button(action: viewModel.handleTermsAgree) {
+                Button(action: { viewModel.isShowNotificationSettings = true }) {
                     Label("设置定时查询", systemImage: "bell")
                         .tint(.blue)
                 }
                 .disabled(viewModel.isScheduleLoading || dorm.scheduleEnabled)
-                Button(action: { viewModel.removeSchedule(dorm) }) {
+                Button(action: { viewModel.isCancelScheduleAlertPresented = true }) {
                     Label("取消定时查询", systemImage: "bell.slash")
                         .tint(.red)
                 }
@@ -159,6 +159,12 @@ struct DormCardView: View {
         }
         .alert(isPresented: $viewModel.isShowingError) {
             Alert(title: Text("错误"), message: Text(viewModel.errorMessage), dismissButton: .default(Text("确定")))
+        }
+        .alert("取消定时查询", isPresented: $viewModel.isCancelScheduleAlertPresented) {
+            Button("取消", role: .cancel) {}
+            Button("确定", role: .destructive) { viewModel.removeSchedule(dorm) }
+        } message: {
+            Text("确定要取消定时查询吗？")
         }
         .sheet(isPresented: $viewModel.isShowNotificationSettings) {
             NotificationSettingsView(

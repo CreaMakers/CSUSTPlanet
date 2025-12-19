@@ -100,6 +100,12 @@ struct DormDetailView: View {
         } message: {
             Text("此操作将删除该宿舍所有的历史电量记录且无法恢复，确定要继续吗？")
         }
+        .alert("取消定时查询", isPresented: $viewModel.isCancelScheduleAlertPresented) {
+            Button("取消", role: .cancel) {}
+            Button("确定", role: .destructive) { viewModel.removeSchedule(dorm) }
+        } message: {
+            Text("确定要取消定时查询吗？")
+        }
         .enableInjection()
     }
 }
@@ -212,9 +218,9 @@ struct QuickActionsGrid: View {
                 backgroundColor: AnyShapeStyle(Color(.secondarySystemGroupedBackground))
             ) {
                 if dorm.scheduleEnabled {
-                    viewModel.removeSchedule(dorm)
+                    viewModel.isCancelScheduleAlertPresented = true
                 } else {
-                    viewModel.handleTermsAgree()
+                    viewModel.isShowNotificationSettings = true
                 }
             }
             .disabled(viewModel.isScheduleLoading)
@@ -363,14 +369,12 @@ struct DormHistoryView: View {
     @ObservedObject var viewModel: DormElectricityViewModel
     var dorm: Dorm
 
-    @State private var sortedRecords: [ElectricityRecord] = []
-
     var body: some View {
         List {
-            if sortedRecords.isEmpty {
+            if viewModel.sortedRecords.isEmpty {
                 ContentUnavailableView("无历史记录", systemImage: "bolt.slash", description: Text("点击首页的刷新按钮获取最新电量"))
             } else {
-                ForEach(sortedRecords) { record in
+                ForEach(viewModel.sortedRecords) { record in
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("\(String(format: "%.2f", record.electricity)) kWh")
@@ -386,7 +390,9 @@ struct DormHistoryView: View {
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         Button(role: .destructive) {
-                            deleteRecord(record)
+                            withAnimation {
+                                viewModel.deleteRecord(record: record)
+                            }
                         } label: {
                             Label("删除", systemImage: "trash")
                         }
@@ -396,20 +402,7 @@ struct DormHistoryView: View {
         }
         .navigationTitle("历史记录")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { updateSortedRecords() }
-        .onChange(of: dorm.records) { updateSortedRecords() }
-    }
-
-    private func updateSortedRecords() {
-        self.sortedRecords = dorm.records?.sorted(by: { $0.date > $1.date }) ?? []
-    }
-
-    private func deleteRecord(_ record: ElectricityRecord) {
-        viewModel.deleteRecord(record: record)
-        if let index = sortedRecords.firstIndex(of: record) {
-            _ = withAnimation {
-                sortedRecords.remove(at: index)
-            }
-        }
+        .onAppear { viewModel.updateSortedRecords(for: dorm) }
+        .onChange(of: dorm.records) { viewModel.updateSortedRecords(for: dorm) }
     }
 }
