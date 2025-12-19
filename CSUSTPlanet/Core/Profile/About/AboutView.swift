@@ -37,7 +37,7 @@ struct AboutView: View {
                     }
 
                     Button(action: {
-                        MMKVManager.shared.clearAll()
+                        MMKVHelper.shared.clearAll()
                     }) {
                         Label("清除所有MMKV数据", systemImage: "trash")
                             .foregroundColor(.red)

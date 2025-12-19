@@ -19,31 +19,31 @@ class GlobalVars: ObservableObject {
     public static let shared = GlobalVars()
 
     private init() {
-        appearance = MMKVManager.shared.appearance
-        isUserAgreementAccepted = MMKVManager.shared.isUserAgreementAccepted
-        isLiveActivityEnabled = MMKVManager.shared.isLiveActivityEnabled
-        isWebVPNModeEnabled = MMKVManager.shared.isWebVPNModeEnabled
-        isNotificationEnabled = MMKVManager.shared.isNotificationEnabled
+        appearance = MMKVHelper.shared.appearance
+        isUserAgreementAccepted = MMKVHelper.shared.isUserAgreementAccepted
+        isLiveActivityEnabled = MMKVHelper.shared.isLiveActivityEnabled
+        isWebVPNModeEnabled = MMKVHelper.shared.isWebVPNModeEnabled
+        isNotificationEnabled = MMKVHelper.shared.isNotificationEnabled
     }
 
     @Published var selectedTab: TabItem = .overview
     @Published var appearance: String {
-        didSet { MMKVManager.shared.appearance = appearance }
+        didSet { MMKVHelper.shared.appearance = appearance }
     }
     @Published var isUserAgreementAccepted: Bool {
-        didSet { MMKVManager.shared.isUserAgreementAccepted = isUserAgreementAccepted }
+        didSet { MMKVHelper.shared.isUserAgreementAccepted = isUserAgreementAccepted }
     }
     var isUserAgreementShowing: Binding<Bool> {
         Binding(get: { !self.isUserAgreementAccepted }, set: { self.isUserAgreementAccepted = !$0 })
     }
     @Published var isLiveActivityEnabled: Bool {
-        didSet { MMKVManager.shared.isLiveActivityEnabled = isLiveActivityEnabled }
+        didSet { MMKVHelper.shared.isLiveActivityEnabled = isLiveActivityEnabled }
     }
     @Published var isWebVPNModeEnabled: Bool {
-        didSet { MMKVManager.shared.isWebVPNModeEnabled = isWebVPNModeEnabled }
+        didSet { MMKVHelper.shared.isWebVPNModeEnabled = isWebVPNModeEnabled }
     }
     @Published var isNotificationEnabled: Bool {
-        didSet { MMKVManager.shared.isNotificationEnabled = isNotificationEnabled }
+        didSet { MMKVHelper.shared.isNotificationEnabled = isNotificationEnabled }
     }
 
     @Published var isFromElectricityWidget: Bool = false

@@ -68,7 +68,7 @@ class GradeQueryViewModel: ObservableObject {
     // MARK: - Methods
 
     init() {
-        guard let data = MMKVManager.shared.courseGradesCache else { return }
+        guard let data = MMKVHelper.shared.courseGradesCache else { return }
         self.data = data
         updateAnalysis()
     }
@@ -140,15 +140,15 @@ class GradeQueryViewModel: ObservableObject {
                     )
                     let data = Cached(cachedAt: .now, value: courseGrades)
                     self.data = data
-                    MMKVManager.shared.courseGradesCache = data
-                    MMKVManager.shared.sync()
+                    MMKVHelper.shared.courseGradesCache = data
+                    MMKVHelper.shared.sync()
                     WidgetCenter.shared.reloadTimelines(ofKind: "GradeAnalysisWidget")
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
                 }
             } else {
-                guard let data = MMKVManager.shared.courseGradesCache else {
+                guard let data = MMKVHelper.shared.courseGradesCache else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         self.warningMessage = "请先登录教务系统后再查询数据"
                         self.isShowingWarning = true

@@ -35,7 +35,7 @@ class ActivityManager {
         }
 
         let currentDate = Date()
-        guard let data = MMKVManager.shared.courseScheduleCache else {
+        guard let data = MMKVHelper.shared.courseScheduleCache else {
             stopActivity()
             return
         }

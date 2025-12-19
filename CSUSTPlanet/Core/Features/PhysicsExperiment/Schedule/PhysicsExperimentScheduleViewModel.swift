@@ -20,7 +20,7 @@ class PhysicsExperimentScheduleViewModel: ObservableObject {
     @Published var isLoaded = false
 
     init() {
-        guard let data = MMKVManager.shared.physicsExperimentScheduleCache else { return }
+        guard let data = MMKVHelper.shared.physicsExperimentScheduleCache else { return }
         self.data = data
     }
 
@@ -34,10 +34,10 @@ class PhysicsExperimentScheduleViewModel: ObservableObject {
                 let schedules = try await PhysicsExperimentManager.shared.getCourses()
                 let data = Cached(cachedAt: .now, value: schedules)
                 self.data = data
-                MMKVManager.shared.physicsExperimentScheduleCache = data
+                MMKVHelper.shared.physicsExperimentScheduleCache = data
             } catch {
                 if case PhysicsExperimentHelper.PhysicsExperimentError.notLoggedIn = error {
-                    if let cachedData = MMKVManager.shared.physicsExperimentScheduleCache {
+                    if let cachedData = MMKVHelper.shared.physicsExperimentScheduleCache {
                         self.data = cachedData
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             self.warningMessage = String(format: "未登录大物实验，\n已加载上次查询数据（%@）", DateHelper.relativeTimeString(for: cachedData.cachedAt))
@@ -48,7 +48,7 @@ class PhysicsExperimentScheduleViewModel: ObservableObject {
                         isShowingError = true
                     }
                 } else {
-                    if let cachedData = MMKVManager.shared.physicsExperimentScheduleCache {
+                    if let cachedData = MMKVHelper.shared.physicsExperimentScheduleCache {
                         self.data = cachedData
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             self.warningMessage = String(format: "错误：%@，\n已加载上次查询数据（%@）", error.localizedDescription, DateHelper.relativeTimeString(for: cachedData.cachedAt))

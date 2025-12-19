@@ -33,7 +33,7 @@ class ExamScheduleViewModel: ObservableObject {
     var isLoaded: Bool = false
 
     init() {
-        guard let data = MMKVManager.shared.examSchedulesCache else { return }
+        guard let data = MMKVHelper.shared.examSchedulesCache else { return }
         self.data = data
     }
 
@@ -125,13 +125,13 @@ class ExamScheduleViewModel: ObservableObject {
 
                     let data = Cached<[EduHelper.Exam]>(cachedAt: .now, value: sortedExams)
                     self.data = data
-                    MMKVManager.shared.examSchedulesCache = data
+                    MMKVHelper.shared.examSchedulesCache = data
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
                 }
             } else {
-                guard let data = MMKVManager.shared.examSchedulesCache else {
+                guard let data = MMKVHelper.shared.examSchedulesCache else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         self.warningMessage = "请先登录教务系统后再查询数据"
                         self.isShowingWarning = true

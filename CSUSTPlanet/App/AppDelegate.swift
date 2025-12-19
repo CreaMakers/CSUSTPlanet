@@ -32,10 +32,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     // MARK: - Setup Methods
 
     func setupStorage() {
-        MMKVManager.shared.setup()
-        if !MMKVManager.shared.hasLaunchedBefore {
+        MMKVHelper.shared.setup()
+        if !MMKVHelper.shared.hasLaunchedBefore {
             KeychainHelper.shared.deleteAll()
-            MMKVManager.shared.hasLaunchedBefore = true
+            MMKVHelper.shared.hasLaunchedBefore = true
         }
     }
 

@@ -1,5 +1,5 @@
 //
-//  MMKVManager.swift
+//  MMKVHelper.swift
 //  CSUSTPlanet
 //
 //  Created by Zachary Liu on 2025/10/1.
@@ -16,8 +16,8 @@ struct Cached<T: Codable>: Codable {
 
 // MARK: - Properties
 
-class MMKVManager: ObservableObject {
-    static let shared = MMKVManager()
+class MMKVHelper: ObservableObject {
+    static let shared = MMKVHelper()
 
     private init() {}
 
@@ -48,7 +48,7 @@ class MMKVManager: ObservableObject {
 
 // MARK: - Methods
 
-extension MMKVManager {
+extension MMKVHelper {
     func setup() {
         guard let mmkvDirectoryURL = Constants.mmkvDirectoryURL else {
             fatalError("Failed to get MMKV directory URL")
@@ -78,7 +78,7 @@ extension MMKVManager {
 
 // MARK: - Setters
 
-extension MMKVManager {
+extension MMKVHelper {
     func set(forKey key: String, _ value: String) {
         defaultMMKV?.set(value, forKey: key)
     }
@@ -112,7 +112,7 @@ extension MMKVManager {
 
 // MARK: - Getters
 
-extension MMKVManager {
+extension MMKVHelper {
     func string(forKey key: String) -> String? {
         defaultMMKV?.string(forKey: key)
     }
@@ -165,7 +165,7 @@ extension MMKVManager {
 
 // MARK: - GlobalVars
 
-extension MMKVManager {
+extension MMKVHelper {
     var appearance: String {
         get { string(forKey: "GlobalVars.appearance") ?? "system" }
         set { set(forKey: "GlobalVars.appearance", newValue) }
@@ -199,7 +199,7 @@ extension MMKVManager {
 
 // MARK: - Cached
 
-extension MMKVManager {
+extension MMKVHelper {
     var courseGradesCache: Cached<[EduHelper.CourseGrade]>? {
         get { object(forKey: "Cached.courseGradesCache", as: Cached<[EduHelper.CourseGrade]>.self) }
         set { set(forKey: "Cached.courseGradesCache", newValue) }

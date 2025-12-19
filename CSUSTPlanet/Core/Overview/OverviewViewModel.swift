@@ -20,10 +20,10 @@ class OverviewViewModel: ObservableObject {
     func loadData() {
         let context = SharedModelHelper.mainContext
 
-        gradeAnalysisData = MMKVManager.shared.courseGradesCache
-        examScheduleData = MMKVManager.shared.examSchedulesCache
-        courseScheduleData = MMKVManager.shared.courseScheduleCache
-        urgentCourseData = MMKVManager.shared.urgentCoursesCache
+        gradeAnalysisData = MMKVHelper.shared.courseGradesCache
+        examScheduleData = MMKVHelper.shared.examSchedulesCache
+        courseScheduleData = MMKVHelper.shared.courseScheduleCache
+        urgentCourseData = MMKVHelper.shared.urgentCoursesCache
 
         let dormDescriptor = FetchDescriptor<Dorm>()
         if let dorms = try? context.fetch(dormDescriptor) {

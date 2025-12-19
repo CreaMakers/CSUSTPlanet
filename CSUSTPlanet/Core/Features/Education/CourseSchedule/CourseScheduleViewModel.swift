@@ -48,7 +48,7 @@ class CourseScheduleViewModel: ObservableObject {
     var isLoaded = false
 
     init() {
-        guard let data = MMKVManager.shared.courseScheduleCache else { return }
+        guard let data = MMKVHelper.shared.courseScheduleCache else { return }
         self.data = data
         updateSchedules(data.value.semesterStartDate, data.value.courses)
     }
@@ -104,8 +104,8 @@ class CourseScheduleViewModel: ObservableObject {
                     let semesterStartDate = try await eduHelper.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
                     let data = Cached<CourseScheduleData>(cachedAt: .now, value: CourseScheduleData(semester: selectedSemester, semesterStartDate: semesterStartDate, courses: courses))
                     self.data = data
-                    MMKVManager.shared.courseScheduleCache = data
-                    MMKVManager.shared.sync()
+                    MMKVHelper.shared.courseScheduleCache = data
+                    MMKVHelper.shared.sync()
                     updateSchedules(semesterStartDate, courses)
                     WidgetCenter.shared.reloadTimelines(ofKind: "TodayCoursesWidget")
                     WidgetCenter.shared.reloadTimelines(ofKind: "WeeklyCoursesWidget")
@@ -114,7 +114,7 @@ class CourseScheduleViewModel: ObservableObject {
                     isShowingError = true
                 }
             } else {
-                guard let data = MMKVManager.shared.courseScheduleCache else {
+                guard let data = MMKVHelper.shared.courseScheduleCache else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         self.warningMessage = "请先登录教务系统后再查询数据"
                         self.isShowingWarning = true
