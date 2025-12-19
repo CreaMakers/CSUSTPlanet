@@ -24,7 +24,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         setupCleaner()
 
         ActivityManager.shared.setup()
-        NotificationHelper.shared.setup()
+        NotificationManager.shared.setup()
 
         return true
     }
@@ -100,11 +100,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 extension AppDelegate {
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        NotificationHelper.shared.handleNotificationRegistration(token: deviceToken, error: nil)
+        NotificationManager.shared.handleNotificationRegistration(token: deviceToken, error: nil)
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: any Error) {
-        NotificationHelper.shared.handleNotificationRegistration(token: nil, error: error)
+        NotificationManager.shared.handleNotificationRegistration(token: nil, error: error)
     }
 }
 

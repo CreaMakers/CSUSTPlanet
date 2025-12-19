@@ -15,7 +15,7 @@ extension Logger {
     static let appDelegate = Logger(subsystem: appSubsystem, category: "AppDelegate")
     static let authManager = Logger(subsystem: appSubsystem, category: "AuthManager")
     static let activityManager = Logger(subsystem: appSubsystem, category: "ActivityManager")
-    static let notificationHelper = Logger(subsystem: appSubsystem, category: "NotificationHelper")
+    static let notificationManager = Logger(subsystem: appSubsystem, category: "NotificationManager")
     static let sharedModel = Logger(subsystem: appSubsystem, category: "SharedModel")
     static let electricityBindingHelper = Logger(subsystem: appSubsystem, category: "ElectricityBindingHelper")
 

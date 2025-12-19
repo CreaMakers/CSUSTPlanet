@@ -1,5 +1,5 @@
 //
-//  NotificationHelper.swift
+//  NotificationManager.swift
 //  CSUSTPlanet
 //
 //  Created by Zhe_Learn on 2025/7/15.
@@ -10,7 +10,7 @@ import OSLog
 import UIKit
 import UserNotifications
 
-enum NotificationHelperError: Error, LocalizedError {
+enum NotificationManagerError: Error, LocalizedError {
     case deviceTokenTimeout
     case failedToRegister(Error?)
     case authorizationDenied
@@ -28,8 +28,8 @@ enum NotificationHelperError: Error, LocalizedError {
 }
 
 @MainActor
-class NotificationHelper: ObservableObject {
-    static let shared = NotificationHelper()
+class NotificationManager: ObservableObject {
+    static let shared = NotificationManager()
 
     var token: Data?
     private var tokenContinuation: CheckedContinuation<Data, Error>? = nil
@@ -42,23 +42,23 @@ class NotificationHelper: ObservableObject {
     func setup() {
         // 静默获取设备令牌
         Task {
-            Logger.notificationHelper.debug("开始静默获取设备令牌")
+            Logger.notificationManager.debug("开始静默获取设备令牌")
             guard await hasAuthorization() else {
-                Logger.notificationHelper.debug("无通知权限，关闭通知开关")
+                Logger.notificationManager.debug("无通知权限，关闭通知开关")
                 GlobalManager.shared.isNotificationEnabled = false
                 return
             }
             do {
                 self.token = try await getToken()
-            } catch NotificationHelperError.authorizationDenied {
-                Logger.notificationHelper.debug("无通知令牌权限，关闭通知开关")
+            } catch NotificationManagerError.authorizationDenied {
+                Logger.notificationManager.debug("无通知令牌权限，关闭通知开关")
                 GlobalManager.shared.isNotificationEnabled = false
                 return
             } catch {
-                Logger.notificationHelper.debug("其他原因无法获取到通知令牌，结束操作: \(error)")
+                Logger.notificationManager.debug("其他原因无法获取到通知令牌，结束操作: \(error)")
                 return
             }
-            Logger.notificationHelper.debug("静默获取设备令牌成功，开始同步")
+            Logger.notificationManager.debug("静默获取设备令牌成功，开始同步")
             syncAll()
         }
     }
@@ -86,10 +86,10 @@ class NotificationHelper: ObservableObject {
     func getToken() async throws -> Data {
         if let token = token { return token }
 
-        Logger.notificationHelper.debug("开始向系统请求设备令牌")
+        Logger.notificationManager.debug("开始向系统请求设备令牌")
         let options: UNAuthorizationOptions = [.alert, .badge, .sound]
         guard try await UNUserNotificationCenter.current().requestAuthorization(options: options) else {
-            throw NotificationHelperError.authorizationDenied
+            throw NotificationManagerError.authorizationDenied
         }
 
         DispatchQueue.main.async {
@@ -101,8 +101,8 @@ class NotificationHelper: ObservableObject {
             Task {
                 try await Task.sleep(nanoseconds: 10 * 1_000_000_000)  // 10 seconds timeout
                 if let continuation = self.tokenContinuation {
-                    Logger.notificationHelper.error("获取设备令牌超时")
-                    continuation.resume(throwing: NotificationHelperError.deviceTokenTimeout)
+                    Logger.notificationManager.error("获取设备令牌超时")
+                    continuation.resume(throwing: NotificationManagerError.deviceTokenTimeout)
                 }
             }
         }
@@ -116,11 +116,11 @@ class NotificationHelper: ObservableObject {
     func handleNotificationRegistration(token: Data?, error: Error?) {
         guard let tokenContinuation = tokenContinuation else { return }
         guard let token = token else {
-            Logger.notificationHelper.error("无法获取到通知令牌")
-            tokenContinuation.resume(throwing: NotificationHelperError.failedToRegister(error))
+            Logger.notificationManager.error("无法获取到通知令牌")
+            tokenContinuation.resume(throwing: NotificationManagerError.failedToRegister(error))
             return
         }
-        Logger.notificationHelper.debug("获取到通知令牌: \(token.hexString)")
+        Logger.notificationManager.debug("获取到通知令牌: \(token.hexString)")
         tokenContinuation.resume(returning: token)
         self.tokenContinuation = nil
         self.token = token

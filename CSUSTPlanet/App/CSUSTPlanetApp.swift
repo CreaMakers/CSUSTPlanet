@@ -20,7 +20,7 @@ struct CSUSTPlanetApp: App {
                 .installToast(position: .top)
                 .environmentObject(GlobalManager.shared)
                 .environmentObject(AuthManager.shared)
-                .environmentObject(NotificationHelper.shared)
+                .environmentObject(NotificationManager.shared)
         }
         .modelContainer(SharedModelHelper.container)
     }

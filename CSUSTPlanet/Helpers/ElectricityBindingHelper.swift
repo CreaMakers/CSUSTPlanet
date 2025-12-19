@@ -29,7 +29,7 @@ enum ElectricityBindingHelper {
     }
 
     static func syncThrows() async throws {
-        let deviceToken = try await NotificationHelper.shared.getToken().hexString
+        let deviceToken = try await NotificationManager.shared.getToken().hexString
 
         Logger.electricityBindingHelper.debug("获取到设备 token 和学号")
 
