@@ -94,7 +94,7 @@ struct DormCardView: View {
                     Spacer()
 
                     if let record = dorm.lastRecord {
-                        Text(viewModel.formatDate(record.date))
+                        Text(viewModel.getExhaustionInfo(from: dorm.records) ?? viewModel.formatDate(record.date))
                     }
                 }
                 .font(.caption)

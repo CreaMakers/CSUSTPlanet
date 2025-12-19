@@ -43,6 +43,7 @@ struct DormDetailView: View {
         ScrollView {
             VStack(spacing: 20) {
                 ElectricityDashboardCard(
+                    viewModel: viewModel,
                     records: dorm.records,
                     isLoading: viewModel.isQueryingElectricity
                 )
@@ -104,6 +105,7 @@ struct DormDetailView: View {
 }
 
 struct ElectricityDashboardCard: View {
+    @ObservedObject var viewModel: DormElectricityViewModel
     let records: [ElectricityRecord]?
     let isLoading: Bool
 
@@ -112,24 +114,7 @@ struct ElectricityDashboardCard: View {
     }
 
     private var exhaustionInfo: String? {
-        guard let records = records, !records.isEmpty else { return nil }
-        guard let predictionDate = ElectricityHelper.predictExhaustionDate(from: records) else { return nil }
-
-        let now = Date()
-        let interval = predictionDate.timeIntervalSince(now)
-        guard interval > 0 else { return nil }
-
-        let days = Int(interval) / 86400
-        let hours = (Int(interval) % 86400) / 3600
-        let minutes = (Int(interval) % 3600) / 60
-
-        if days > 0 {
-            return "预计\(days)天后耗尽"
-        } else if hours > 0 {
-            return "预计\(hours)小时后耗尽"
-        } else {
-            return "预计\(minutes)分钟后耗尽"
-        }
+        viewModel.getExhaustionInfo(from: records)
     }
 
     var body: some View {

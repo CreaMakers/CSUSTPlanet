@@ -90,11 +90,11 @@ class OverviewViewModel: ObservableObject {
         let minutes = (Int(interval) % 3600) / 60
 
         if days > 0 {
-            return "预计\(days)天后耗尽"
+            return "预计\(days)天后电量耗尽"
         } else if hours > 0 {
-            return "预计\(hours)小时后耗尽"
+            return "预计\(hours)小时后电量耗尽"
         } else {
-            return "预计\(minutes)分钟后耗尽"
+            return "预计\(minutes)分钟后电量耗尽"
         }
     }
 
