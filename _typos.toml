@@ -1,0 +1,8 @@
+[files]
+extend-exclude = [
+    "ThirdParty/",
+    "CSUSTPlanet.xcodeproj"
+]
+
+[default.extend-words]
+udid = "udid"
