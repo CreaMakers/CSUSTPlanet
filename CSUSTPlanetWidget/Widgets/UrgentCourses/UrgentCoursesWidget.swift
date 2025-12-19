@@ -58,7 +58,7 @@ struct UrgentCoursesProvider: AppIntentTimelineProvider {
         }
 
         if hasValidSession, let moocHelper = try? MoocHelper(session: await ssoHelper.loginToMooc()) {
-            if let urgentCourses = try? await moocHelper.getCourseNamesWithPendingHomeworks() {
+            if let urgentCourses = try? await moocHelper.getCourseNamesWithPendingAssignments() {
                 finalData = Cached<UrgentCoursesData>(cachedAt: .now, value: UrgentCoursesData.fromCourses(urgentCourses))
             }
         }

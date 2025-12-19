@@ -25,7 +25,7 @@ struct CourseDetailView: View {
     var body: some View {
         Form {
             courseInfoSection
-            homeworksSection
+            assignmentsSection
             testsSection
         }
         .toast(isPresenting: $viewModel.isShowingError) {
@@ -35,12 +35,12 @@ struct CourseDetailView: View {
             ReminderOffsetSettingsView(
                 isPresented: $viewModel.isShowingRemindersSettings,
                 onConfirm: { hourOffset, minuteOffset in
-                    viewModel.addHomeworksToReminders(hourOffset, minuteOffset)
+                    viewModel.addAssignmentsToReminders(hourOffset, minuteOffset)
                 }
             )
         }
         .task {
-            viewModel.loadHomeworks()
+            viewModel.loadAssignments()
             viewModel.loadTests()
         }
         .navigationTitle(viewModel.courseInfo.name)
@@ -48,10 +48,10 @@ struct CourseDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button(action: viewModel.loadHomeworks) {
+                    Button(action: viewModel.loadAssignments) {
                         Label("刷新作业列表", systemImage: "arrow.clockwise")
                     }
-                    .disabled(viewModel.isHomeworksLoading)
+                    .disabled(viewModel.isAssignmentsLoading)
 
                     Button(action: viewModel.loadTests) {
                         Label("刷新考试列表", systemImage: "arrow.clockwise")
@@ -88,18 +88,18 @@ struct CourseDetailView: View {
         }
     }
 
-    // MARK: - Homeworks Section
+    // MARK: - Assignments Section
 
-    private var homeworksSection: some View {
+    private var assignmentsSection: some View {
         Section(header: Text("作业列表")) {
-            if viewModel.isHomeworksLoading {
+            if viewModel.isAssignmentsLoading {
                 HStack {
                     Spacer()
                     ProgressView("加载作业中...")
                     Spacer()
                 }
                 .padding()
-            } else if viewModel.homeworks.isEmpty {
+            } else if viewModel.assignments.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "doc.text")
                         .font(.system(size: 30))
@@ -112,8 +112,8 @@ struct CourseDetailView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
             } else {
-                ForEach(viewModel.homeworks.indices, id: \.self) { index in
-                    homeworkCard(homework: viewModel.homeworks[index])
+                ForEach(viewModel.assignments.indices, id: \.self) { index in
+                    assignmentCard(assignment: viewModel.assignments[index])
                 }
             }
         }
@@ -150,23 +150,23 @@ struct CourseDetailView: View {
         }
     }
 
-    // MARK: - Homework Card
+    // MARK: - Assignment Card
 
-    private func homeworkCard(homework: MoocHelper.Homework) -> some View {
+    private func assignmentCard(assignment: MoocHelper.Assignment) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(homework.title)
+                Text(assignment.title)
                     .font(.headline)
                     .lineLimit(2)
 
                 Spacer()
 
                 // 提交状态标识
-                if homework.submitStatus {
+                if assignment.submitStatus {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.green)
                         .font(.caption)
-                } else if homework.canSubmit {
+                } else if assignment.canSubmit {
                     Image(systemName: "circle")
                         .foregroundColor(.orange)
                         .font(.caption)
@@ -182,7 +182,7 @@ struct CourseDetailView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
 
-                Text(homework.publisher)
+                Text(assignment.publisher)
                     .font(.caption)
                     .foregroundColor(.primary)
 
@@ -196,7 +196,7 @@ struct CourseDetailView: View {
 
                 Spacer()
 
-                Text(viewModel.dateFormatter.string(from: homework.startTime))
+                Text(viewModel.dateFormatter.string(from: assignment.startTime))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -208,9 +208,9 @@ struct CourseDetailView: View {
 
                 Spacer()
 
-                Text(viewModel.dateFormatter.string(from: homework.deadline))
+                Text(viewModel.dateFormatter.string(from: assignment.deadline))
                     .font(.caption)
-                    .foregroundColor(homework.submitStatus ? .secondary : .red)
+                    .foregroundColor(assignment.submitStatus ? .secondary : .red)
             }
         }
         .padding(.vertical, 4)

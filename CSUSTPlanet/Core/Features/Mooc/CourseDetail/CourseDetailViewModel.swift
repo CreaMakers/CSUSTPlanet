@@ -10,13 +10,13 @@ import Foundation
 
 @MainActor
 class CourseDetailViewModel: ObservableObject {
-    @Published var homeworks: [MoocHelper.Homework] = []
+    @Published var assignments: [MoocHelper.Assignment] = []
     @Published var tests: [MoocHelper.Test] = []
     @Published var errorMessage = ""
 
     @Published var isShowingSuccess = false
     @Published var isShowingError = false
-    @Published var isHomeworksLoading = false
+    @Published var isAssignmentsLoading = false
     @Published var isTestsLoading = false
 
     @Published var isShowingRemindersSettings = false
@@ -38,16 +38,16 @@ class CourseDetailViewModel: ObservableObject {
         self.isSimplified = true
     }
 
-    func loadHomeworks() {
-        isHomeworksLoading = true
+    func loadAssignments() {
+        isAssignmentsLoading = true
         Task {
             defer {
-                isHomeworksLoading = false
+                isAssignmentsLoading = false
             }
 
             if let moocHelper = AuthManager.shared.moocHelper {
                 do {
-                    homeworks = try await moocHelper.getCourseHomeworks(courseId: course.id)
+                    assignments = try await moocHelper.getCourseAssignments(courseId: course.id)
                 } catch {
                     errorMessage = error.localizedDescription
                     isShowingError = true
@@ -86,8 +86,8 @@ class CourseDetailViewModel: ObservableObject {
         return dateFormatter
     }()
 
-    func addHomeworksToReminders(_ alertHourOffset: Int, _ alertMinuteOffset: Int) {
-        guard !homeworks.isEmpty else {
+    func addAssignmentsToReminders(_ alertHourOffset: Int, _ alertMinuteOffset: Int) {
+        guard !assignments.isEmpty else {
             errorMessage = "当前没有可添加的作业"
             isShowingError = true
             return
@@ -96,16 +96,16 @@ class CourseDetailViewModel: ObservableObject {
         Task {
             do {
                 let calendar = try await CalendarUtil.getOrCreateReminderCalendar(named: "长理星球 - 作业")
-                for homework in homeworks {
-                    guard homework.canSubmit else { continue }
-                    let dueDate = homework.deadline
+                for assignment in assignments {
+                    guard assignment.canSubmit else { continue }
+                    let dueDate = assignment.deadline
                     let alarmOffset = TimeInterval(-(alertHourOffset * 3600 + alertMinuteOffset * 60))
                     let dueDateWithAlarm = dueDate.addingTimeInterval(alarmOffset)
                     try await CalendarUtil.addReminder(
                         calendar: calendar,
-                        title: homework.title,
+                        title: assignment.title,
                         dueDate: dueDateWithAlarm,
-                        notes: "截止提交时间：\(dateFormatter.string(from: homework.deadline))\n课程老师：\(homework.publisher)"
+                        notes: "截止提交时间：\(dateFormatter.string(from: assignment.deadline))\n课程老师：\(assignment.publisher)"
                     )
                 }
                 isShowingSuccess = true

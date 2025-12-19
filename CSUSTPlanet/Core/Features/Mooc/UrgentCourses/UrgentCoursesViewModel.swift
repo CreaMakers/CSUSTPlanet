@@ -36,7 +36,7 @@ class UrgentCoursesViewModel: ObservableObject {
 
             if let moocHelper = AuthManager.shared.moocHelper {
                 do {
-                    let urgentCourses = try await moocHelper.getCourseNamesWithPendingHomeworks()
+                    let urgentCourses = try await moocHelper.getCourseNamesWithPendingAssignments()
                     let data = Cached(cachedAt: .now, value: UrgentCoursesData.fromCourses(urgentCourses))
                     self.data = data
                     MMKVHelper.shared.urgentCoursesCache = data
