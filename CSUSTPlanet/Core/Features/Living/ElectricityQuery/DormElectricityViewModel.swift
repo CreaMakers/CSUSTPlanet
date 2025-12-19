@@ -145,21 +145,7 @@ class DormElectricityViewModel: ObservableObject {
         }
     }
 
-    func handleShowTerms() {
-        guard AuthManager.shared.isSSOLoggedIn else {
-            errorMessage = "请先登录"
-            isShowingError = true
-            return
-        }
-        if GlobalVars.shared.isElectricityTermAccepted {
-            handleTermsAgree()
-        } else {
-            isTermsPresented = true
-        }
-    }
-
     func handleTermsAgree() {
-        GlobalVars.shared.isElectricityTermAccepted = true
         isShowNotificationSettings = true
     }
 

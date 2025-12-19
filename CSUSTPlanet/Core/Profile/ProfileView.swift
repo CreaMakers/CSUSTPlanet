@@ -19,21 +19,6 @@ struct ProfileView: View {
     @State private var isWebVPNDisableAlertPresented = false
 
     var body: some View {
-        let electricityToggleBinding = Binding<Bool>(
-            get: { globalVars.isElectricityTermAccepted },
-            set: { newValue in
-                if newValue == true && !globalVars.isElectricityTermAccepted {
-                    // 如果用户尝试开启 Toggle (从 false -> true), 则显示 sheet
-                    isElectricityTermsSheetPresented = true
-                } else {
-                    // 否则 (尝试关闭 Toggle), 直接更新状态
-                    globalVars.isElectricityTermAccepted = newValue
-
-                    Task { await ElectricityBindingHelper.sync() }
-                }
-            }
-        )
-
         let webVPNToggleBinding = Binding<Bool>(
             get: { globalVars.isWebVPNModeEnabled },
             set: { newValue in
@@ -170,10 +155,6 @@ struct ProfileView: View {
                     ColoredLabel(title: "外观主题", iconName: "paintbrush", color: .purple)
                 }
 
-                Toggle(isOn: electricityToggleBinding) {
-                    ColoredLabel(title: "开启电量提醒通知", iconName: "lightbulb.circle", color: .indigo)
-                }
-
                 Toggle(isOn: webVPNToggleBinding) {
                     ColoredLabel(title: "开启WebVPN模式（实验）", iconName: "globe", color: .orange)
                 }
@@ -206,12 +187,6 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $isLoginSheetPresented) {
             SSOLoginView(isShowingLoginSheet: $isLoginSheetPresented)
-        }
-        .sheet(isPresented: $isElectricityTermsSheetPresented) {
-            ElectricityTermsView(isPresented: $isElectricityTermsSheetPresented) {
-                globalVars.isElectricityTermAccepted = true
-                Task { await ElectricityBindingHelper.sync() }
-            }
         }
         .sheet(isPresented: $isWebVPNSheetPresented) {
             WebVPNGuideView(isPresented: $isWebVPNSheetPresented)

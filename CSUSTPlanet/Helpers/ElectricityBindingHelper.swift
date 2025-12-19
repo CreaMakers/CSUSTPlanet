@@ -38,34 +38,26 @@ enum ElectricityBindingHelper {
 
         var syncList: ElectricityBindingSyncListDTO
 
-        if GlobalVars.shared.isElectricityTermAccepted {
-            let descriptor = FetchDescriptor<Dorm>()
-            let dorms = try SharedModelHelper.mainContext.fetch(descriptor)
+        let descriptor = FetchDescriptor<Dorm>()
+        let dorms = try SharedModelHelper.mainContext.fetch(descriptor)
 
-            let bindings: [ElectricityBindingSyncDTO] = dorms.compactMap { dorm in
-                guard let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute else {
-                    return nil
-                }
-                return ElectricityBindingSyncDTO(
-                    campus: dorm.campusName,
-                    building: dorm.buildingName,
-                    room: dorm.room,
-                    scheduleHour: scheduleHour,
-                    scheduleMinute: scheduleMinute
-                )
+        let bindings: [ElectricityBindingSyncDTO] = dorms.compactMap { dorm in
+            guard let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute else {
+                return nil
             }
-            syncList = ElectricityBindingSyncListDTO(
-                studentId: studentId,
-                deviceToken: deviceToken,
-                bindings: bindings
-            )
-        } else {
-            syncList = ElectricityBindingSyncListDTO(
-                studentId: studentId,
-                deviceToken: deviceToken,
-                bindings: []
+            return ElectricityBindingSyncDTO(
+                campus: dorm.campusName,
+                building: dorm.buildingName,
+                room: dorm.room,
+                scheduleHour: scheduleHour,
+                scheduleMinute: scheduleMinute
             )
         }
+        syncList = ElectricityBindingSyncListDTO(
+            studentId: studentId,
+            deviceToken: deviceToken,
+            bindings: bindings
+        )
 
         try await updateSyncList(syncList)
     }

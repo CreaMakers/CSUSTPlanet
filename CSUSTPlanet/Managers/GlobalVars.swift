@@ -22,7 +22,6 @@ class GlobalVars: ObservableObject {
         appearance = MMKVManager.shared.appearance
         isUserAgreementAccepted = MMKVManager.shared.isUserAgreementAccepted
         isLiveActivityEnabled = MMKVManager.shared.isLiveActivityEnabled
-        isElectricityTermAccepted = MMKVManager.shared.isElectricityTermAccepted
         isWebVPNModeEnabled = MMKVManager.shared.isWebVPNModeEnabled
     }
 
@@ -38,9 +37,6 @@ class GlobalVars: ObservableObject {
     }
     @Published var isLiveActivityEnabled: Bool {
         didSet { MMKVManager.shared.isLiveActivityEnabled = isLiveActivityEnabled }
-    }
-    @Published var isElectricityTermAccepted: Bool {
-        didSet { MMKVManager.shared.isElectricityTermAccepted = isElectricityTermAccepted }
     }
     @Published var isWebVPNModeEnabled: Bool {
         didSet { MMKVManager.shared.isWebVPNModeEnabled = isWebVPNModeEnabled }

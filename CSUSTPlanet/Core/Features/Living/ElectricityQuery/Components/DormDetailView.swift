@@ -214,7 +214,7 @@ struct QuickActionsGrid: View {
                 if dorm.scheduleEnabled {
                     viewModel.removeSchedule(dorm)
                 } else {
-                    viewModel.handleShowTerms()
+                    viewModel.handleTermsAgree()
                 }
             }
             .disabled(viewModel.isScheduleLoading)
