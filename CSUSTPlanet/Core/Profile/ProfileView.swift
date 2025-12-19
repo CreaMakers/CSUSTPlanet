@@ -12,9 +12,9 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var globalVars: GlobalVars
+    @EnvironmentObject var notificationHelper: NotificationHelper
 
     @State private var isLoginSheetPresented = false
-    @State private var isElectricityTermsSheetPresented = false
     @State private var isWebVPNSheetPresented = false
     @State private var isWebVPNDisableAlertPresented = false
 
@@ -159,6 +159,11 @@ struct ProfileView: View {
                     ColoredLabel(title: "开启WebVPN模式（实验）", iconName: "globe", color: .orange)
                 }
 
+                Toggle(isOn: $globalVars.isNotificationEnabled) {
+                    ColoredLabel(title: "开启通知", iconName: "bell", color: .green)
+                }
+                .onChange(of: globalVars.isNotificationEnabled, { _, _ in NotificationHelper.shared.toggle() })
+
                 Toggle(isOn: $globalVars.isLiveActivityEnabled) {
                     ColoredLabel(title: "启用实时活动/灵动岛", iconName: "bolt.circle", color: .yellow)
                 }
@@ -200,6 +205,11 @@ struct ProfileView: View {
         } message: {
             Text("关闭 WebVPN 模式需要重启应用才能生效。")
         }
+        .alert("错误", isPresented: $notificationHelper.isShowingError) {
+            Button("确定", role: .cancel) {}
+        } message: {
+            Text(notificationHelper.errorDescription)
+        }
     }
 }
 
@@ -209,4 +219,5 @@ struct ProfileView: View {
     }
     .environmentObject(AuthManager.shared)
     .environmentObject(GlobalVars.shared)
+    .environmentObject(NotificationHelper.shared)
 }

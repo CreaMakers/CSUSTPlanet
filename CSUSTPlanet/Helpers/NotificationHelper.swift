@@ -27,28 +27,66 @@ enum NotificationHelperError: Error, LocalizedError {
     }
 }
 
-class NotificationHelper {
+@MainActor
+class NotificationHelper: ObservableObject {
     static let shared = NotificationHelper()
 
     var token: Data?
-
     private var tokenContinuation: CheckedContinuation<Data, Error>? = nil
+
+    @Published var isShowingError: Bool = false
+    @Published var errorDescription: String = ""
 
     private init() {}
 
     func setup() {
         // 静默获取设备令牌
         Task {
-            guard await hasAuthorization() else { return }
-            guard let token = try? await getToken() else { return }
-            self.token = token
-            Logger.notificationHelper.debug("静默获取设备令牌成功: \(token.hexString)")
+            Logger.notificationHelper.debug("开始静默获取设备令牌")
+            guard await hasAuthorization() else {
+                Logger.notificationHelper.debug("无通知权限，关闭通知开关")
+                GlobalVars.shared.isNotificationEnabled = false
+                return
+            }
+            do {
+                self.token = try await getToken()
+            } catch NotificationHelperError.authorizationDenied {
+                Logger.notificationHelper.debug("无通知令牌权限，关闭通知开关")
+                GlobalVars.shared.isNotificationEnabled = false
+                return
+            } catch {
+                Logger.notificationHelper.debug("其他原因无法获取到通知令牌，结束操作: \(error)")
+                return
+            }
+            Logger.notificationHelper.debug("静默获取设备令牌成功，开始同步")
+            syncAll()
+        }
+    }
+
+    func syncAll() {
+        Task { await ElectricityBindingHelper.sync() }
+    }
+
+    func toggle() {
+        Task {
+            if GlobalVars.shared.isNotificationEnabled {
+                guard await hasAuthorization() else {
+                    GlobalVars.shared.isNotificationEnabled = false
+                    self.errorDescription = "未开启系统通知权限，无法开启通知功能"
+                    self.isShowingError = true
+                    return
+                }
+                syncAll()
+            } else {
+                syncAll()
+            }
         }
     }
 
     func getToken() async throws -> Data {
         if let token = token { return token }
 
+        Logger.notificationHelper.debug("开始向系统请求设备令牌")
         let options: UNAuthorizationOptions = [.alert, .badge, .sound]
         guard try await UNUserNotificationCenter.current().requestAuthorization(options: options) else {
             throw NotificationHelperError.authorizationDenied
@@ -63,6 +101,7 @@ class NotificationHelper {
             Task {
                 try await Task.sleep(nanoseconds: 10 * 1_000_000_000)  // 10 seconds timeout
                 if let continuation = self.tokenContinuation {
+                    Logger.notificationHelper.error("获取设备令牌超时")
                     continuation.resume(throwing: NotificationHelperError.deviceTokenTimeout)
                 }
             }
@@ -77,9 +116,11 @@ class NotificationHelper {
     func handleNotificationRegistration(token: Data?, error: Error?) {
         guard let tokenContinuation = tokenContinuation else { return }
         guard let token = token else {
+            Logger.notificationHelper.error("无法获取到通知令牌")
             tokenContinuation.resume(throwing: NotificationHelperError.failedToRegister(error))
             return
         }
+        Logger.notificationHelper.debug("获取到通知令牌: \(token.hexString)")
         tokenContinuation.resume(returning: token)
         self.tokenContinuation = nil
         self.token = token

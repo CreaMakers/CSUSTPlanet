@@ -176,11 +176,6 @@ extension MMKVManager {
         set { set(forKey: "GlobalVars.isUserAgreementAccepted", newValue) }
     }
 
-    var isElectricityTermAccepted: Bool {
-        get { bool(forKey: "GlobalVars.isElectricityTermAccepted") ?? false }
-        set { set(forKey: "GlobalVars.isElectricityTermAccepted", newValue) }
-    }
-
     var hasLaunchedBefore: Bool {
         get { bool(forKey: "GlobalVars.hasLaunchedBefore") ?? false }
         set { set(forKey: "GlobalVars.hasLaunchedBefore", newValue) }
@@ -190,9 +185,15 @@ extension MMKVManager {
         get { bool(forKey: "GlobalVars.isLiveActivityEnabled") ?? true }
         set { set(forKey: "GlobalVars.isLiveActivityEnabled", newValue) }
     }
+
     var isWebVPNModeEnabled: Bool {
         get { bool(forKey: "GlobalVars.isWebVPNModeEnabled") ?? false }
         set { set(forKey: "GlobalVars.isWebVPNModeEnabled", newValue) }
+    }
+
+    var isNotificationEnabled: Bool {
+        get { bool(forKey: "GlobalVars.isNotificationEnabled") ?? true }
+        set { set(forKey: "GlobalVars.isNotificationEnabled", newValue) }
     }
 }
 

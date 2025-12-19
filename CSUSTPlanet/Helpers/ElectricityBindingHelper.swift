@@ -30,9 +30,6 @@ enum ElectricityBindingHelper {
 
     static func syncThrows() async throws {
         let deviceToken = try await NotificationHelper.shared.getToken().hexString
-        guard let studentId = AuthManager.shared.ssoProfile?.userAccount else {
-            throw ElectricityBindingHelperError.syncFailed(reason: "未能获取学号，请先登录")
-        }
 
         Logger.electricityBindingHelper.debug("获取到设备 token 和学号")
 
@@ -41,20 +38,28 @@ enum ElectricityBindingHelper {
         let descriptor = FetchDescriptor<Dorm>()
         let dorms = try SharedModelHelper.mainContext.fetch(descriptor)
 
-        let bindings: [ElectricityBindingSyncDTO] = dorms.compactMap { dorm in
-            guard let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute else {
-                return nil
+        let bindings: [ElectricityBindingSyncDTO]
+
+        if GlobalVars.shared.isNotificationEnabled {
+            Logger.electricityBindingHelper.debug("通知已启用，开始同步绑定")
+            bindings = dorms.compactMap { dorm in
+                guard let scheduleHour = dorm.scheduleHour, let scheduleMinute = dorm.scheduleMinute else {
+                    return nil
+                }
+                return ElectricityBindingSyncDTO(
+                    campus: dorm.campusName,
+                    building: dorm.buildingName,
+                    room: dorm.room,
+                    scheduleHour: scheduleHour,
+                    scheduleMinute: scheduleMinute
+                )
             }
-            return ElectricityBindingSyncDTO(
-                campus: dorm.campusName,
-                building: dorm.buildingName,
-                room: dorm.room,
-                scheduleHour: scheduleHour,
-                scheduleMinute: scheduleMinute
-            )
+        } else {
+            Logger.electricityBindingHelper.debug("未启用通知，同步空列表")
+            bindings = []
         }
         syncList = ElectricityBindingSyncListDTO(
-            studentId: studentId,
+            studentId: AuthManager.shared.ssoProfile?.userAccount ?? "",
             deviceToken: deviceToken,
             bindings: bindings
         )
@@ -75,5 +80,6 @@ enum ElectricityBindingHelper {
                 throw ElectricityBindingHelperError.syncFailed(reason: "未知错误")
             }
         }
+        Logger.electricityBindingHelper.debug("同步绑定成功")
     }
 }
