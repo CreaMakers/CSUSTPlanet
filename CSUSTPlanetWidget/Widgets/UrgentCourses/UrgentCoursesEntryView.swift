@@ -67,7 +67,7 @@ struct UrgentCoursesEntryView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .widgetURL(URL(string: "csustplanet://widget/urgentCourses"))
+        .widgetURL(URL(string: "csustplanet://widgets/urgentCourses"))
     }
 }
 

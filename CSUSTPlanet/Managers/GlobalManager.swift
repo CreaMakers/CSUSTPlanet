@@ -49,4 +49,5 @@ class GlobalManager: ObservableObject {
     @Published var isFromElectricityWidget: Bool = false
     @Published var isFromGradeAnalysisWidget: Bool = false
     @Published var isFromCourseScheduleWidget: Bool = false
+    @Published var isFromUrgentCoursesWidget: Bool = false
 }

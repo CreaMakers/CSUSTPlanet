@@ -60,6 +60,9 @@ struct ContentView: View {
             .navigationDestination(isPresented: $globalManager.isFromGradeAnalysisWidget) {
                 GradeAnalysisView()
             }
+            .navigationDestination(isPresented: $globalManager.isFromUrgentCoursesWidget) {
+                UrgentCoursesView()
+            }
         }
 
         // MARK: 全局Toast状态
@@ -108,6 +111,7 @@ struct ContentView: View {
             case "electricity": globalManager.isFromElectricityWidget = true
             case "gradeAnalysis": globalManager.isFromGradeAnalysisWidget = true
             case "courseSchedule": globalManager.isFromCourseScheduleWidget = true
+            case "urgentCourses": globalManager.isFromUrgentCoursesWidget = true
             default: break
             }
         }
