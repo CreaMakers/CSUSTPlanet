@@ -573,7 +573,7 @@
 				CODE_SIGN_ENTITLEMENTS = CSUSTPlanet/CSUSTPlanet.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(CSUSTPLANET_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 7GPA4WLM3W;
 				EMIT_FRONTEND_COMMAND_LINES = "";
@@ -621,7 +621,7 @@
 				CODE_SIGN_ENTITLEMENTS = CSUSTPlanet/CSUSTPlanet.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(CSUSTPLANET_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 7GPA4WLM3W;
 				EMIT_FRONTEND_COMMAND_LINES = "";
@@ -668,7 +668,7 @@
 				CODE_SIGN_ENTITLEMENTS = CSUSTPlanetWidget/CSUSTPlanetWidgetExtension.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(CSUSTPLANET_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 7GPA4WLM3W;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -702,7 +702,7 @@
 				CODE_SIGN_ENTITLEMENTS = CSUSTPlanetWidget/CSUSTPlanetWidgetExtension.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(CSUSTPLANET_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 7GPA4WLM3W;
 				GENERATE_INFOPLIST_FILE = YES;
