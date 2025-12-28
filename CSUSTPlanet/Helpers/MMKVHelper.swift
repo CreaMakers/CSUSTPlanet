@@ -7,7 +7,14 @@
 
 import CSUSTKit
 import Foundation
-import MMKV
+
+#if canImport(MMKVCore)
+import MMKVCore
+#endif
+
+#if canImport(MMKVAppExtension)
+import MMKVAppExtension
+#endif
 
 struct Cached<T: Codable>: Codable {
     let cachedAt: Date

@@ -1,3 +1,25 @@
-PODFILE CHECKSUM: 9e4b70a41b2f44aabc6a19c677e9d3949138f332
+PODS:
+  - MMKV (2.2.4):
+    - MMKVCore (~> 2.2.4)
+  - MMKVAppExtension (2.2.4):
+    - MMKVCore (~> 2.2.4)
+  - MMKVCore (2.2.4)
+
+DEPENDENCIES:
+  - MMKV
+  - MMKVAppExtension
+
+SPEC REPOS:
+  trunk:
+    - MMKV
+    - MMKVAppExtension
+    - MMKVCore
+
+SPEC CHECKSUMS:
+  MMKV: 1a8e7dbce7f9cad02c52e1b1091d07bd843aefaf
+  MMKVAppExtension: ba53780107f4053039436f63638f1276e5ec1474
+  MMKVCore: f2dd4c9befea04277a55e84e7812f930537993df
+
+PODFILE CHECKSUM: 820a6d05553063ea1c0ad19103c450afc938b7f2
 
 COCOAPODS: 1.16.2
