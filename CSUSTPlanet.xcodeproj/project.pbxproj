@@ -24,6 +24,8 @@
 		00E89C632E2C88D800B43162 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C622E2C88D800B43162 /* WidgetKit.framework */; };
 		00E89C652E2C88D800B43162 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C642E2C88D800B43162 /* SwiftUI.framework */; };
 		00E89C722E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		7535F8BA5C72E438E1EBE96E /* Pods_CSUSTPlanet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C8368F37ED309CE6DD40690 /* Pods_CSUSTPlanet.framework */; };
+		B6B82A72E7941E563A35B1B6 /* Pods_CSUSTPlanetWidgetExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF6AA6E487E52C6551BEEA1B /* Pods_CSUSTPlanetWidgetExtension.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,6 +108,12 @@
 		00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CSUSTPlanetWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E89C622E2C88D800B43162 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		00E89C642E2C88D800B43162 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		4B82E39D79D391617D6C338D /* Pods-CSUSTPlanet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CSUSTPlanet.release.xcconfig"; path = "Target Support Files/Pods-CSUSTPlanet/Pods-CSUSTPlanet.release.xcconfig"; sourceTree = "<group>"; };
+		5C9B586999AFD253301703B3 /* Pods-CSUSTPlanet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CSUSTPlanet.debug.xcconfig"; path = "Target Support Files/Pods-CSUSTPlanet/Pods-CSUSTPlanet.debug.xcconfig"; sourceTree = "<group>"; };
+		93D26731C5F4E3650C2A7AE8 /* Pods-CSUSTPlanetWidgetExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CSUSTPlanetWidgetExtension.release.xcconfig"; path = "Target Support Files/Pods-CSUSTPlanetWidgetExtension/Pods-CSUSTPlanetWidgetExtension.release.xcconfig"; sourceTree = "<group>"; };
+		9C8368F37ED309CE6DD40690 /* Pods_CSUSTPlanet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CSUSTPlanet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD0351A8972E0E1212F97A22 /* Pods-CSUSTPlanetWidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CSUSTPlanetWidgetExtension.debug.xcconfig"; path = "Target Support Files/Pods-CSUSTPlanetWidgetExtension/Pods-CSUSTPlanetWidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		EF6AA6E487E52C6551BEEA1B /* Pods_CSUSTPlanetWidgetExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CSUSTPlanetWidgetExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -166,6 +174,8 @@
 		};
 		00BBB2AF2EEEE5C10047AEEF /* Configs */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Configs;
 			sourceTree = "<group>";
 		};
@@ -195,6 +205,7 @@
 				00A7DA042E8C60D800BA7927 /* MMKV.framework in Frameworks */,
 				004D050C2E8C3E1B0055B86B /* FLEX in Frameworks */,
 				004D050F2E8C419F0055B86B /* LookinServer in Frameworks */,
+				7535F8BA5C72E438E1EBE96E /* Pods_CSUSTPlanet.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,6 +217,7 @@
 				00E89C652E2C88D800B43162 /* SwiftUI.framework in Frameworks */,
 				00E89C632E2C88D800B43162 /* WidgetKit.framework in Frameworks */,
 				00BE890F2E94BD4600B772CD /* MMKVAppExtension.framework in Frameworks */,
+				B6B82A72E7941E563A35B1B6 /* Pods_CSUSTPlanetWidgetExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,6 +233,7 @@
 				00E89C612E2C88D800B43162 /* Frameworks */,
 				007CF85C2E1BD68900E319F2 /* Products */,
 				00A7D9F42E8C60A500BA7927 /* MMKV.xcodeproj */,
+				21FE4DE169A0ABB491FF6712 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -247,8 +260,22 @@
 			children = (
 				00E89C622E2C88D800B43162 /* WidgetKit.framework */,
 				00E89C642E2C88D800B43162 /* SwiftUI.framework */,
+				9C8368F37ED309CE6DD40690 /* Pods_CSUSTPlanet.framework */,
+				EF6AA6E487E52C6551BEEA1B /* Pods_CSUSTPlanetWidgetExtension.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		21FE4DE169A0ABB491FF6712 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				5C9B586999AFD253301703B3 /* Pods-CSUSTPlanet.debug.xcconfig */,
+				4B82E39D79D391617D6C338D /* Pods-CSUSTPlanet.release.xcconfig */,
+				BD0351A8972E0E1212F97A22 /* Pods-CSUSTPlanetWidgetExtension.debug.xcconfig */,
+				93D26731C5F4E3650C2A7AE8 /* Pods-CSUSTPlanetWidgetExtension.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -258,6 +285,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 007CF8662E1BD68A00E319F2 /* Build configuration list for PBXNativeTarget "CSUSTPlanet" */;
 			buildPhases = (
+				CE7761F7BDB554923E740AEA /* [CP] Check Pods Manifest.lock */,
 				007CF8572E1BD68900E319F2 /* Sources */,
 				007CF8582E1BD68900E319F2 /* Frameworks */,
 				007CF8592E1BD68900E319F2 /* Resources */,
@@ -295,6 +323,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E89C762E2C88D800B43162 /* Build configuration list for PBXNativeTarget "CSUSTPlanetWidgetExtension" */;
 			buildPhases = (
+				5228F2570E1FDDD5864F3A8C /* [CP] Check Pods Manifest.lock */,
 				00E89C5C2E2C88D800B43162 /* Sources */,
 				00E89C5D2E2C88D800B43162 /* Frameworks */,
 				00E89C5E2E2C88D800B43162 /* Resources */,
@@ -403,6 +432,53 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		5228F2570E1FDDD5864F3A8C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-CSUSTPlanetWidgetExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CE7761F7BDB554923E740AEA /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-CSUSTPlanet-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		007CF8572E1BD68900E319F2 /* Sources */ = {
@@ -567,6 +643,7 @@
 		};
 		007CF8672E1BD68A00E319F2 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5C9B586999AFD253301703B3 /* Pods-CSUSTPlanet.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -615,6 +692,7 @@
 		};
 		007CF8682E1BD68A00E319F2 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4B82E39D79D391617D6C338D /* Pods-CSUSTPlanet.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -662,6 +740,7 @@
 		};
 		00E89C742E2C88D800B43162 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD0351A8972E0E1212F97A22 /* Pods-CSUSTPlanetWidgetExtension.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -696,6 +775,7 @@
 		};
 		00E89C752E2C88D800B43162 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 93D26731C5F4E3650C2A7AE8 /* Pods-CSUSTPlanetWidgetExtension.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
