@@ -1,5 +1,5 @@
 {
-  "originHash" : "80eb06b25f7c9da51ee56593a5595e5ee5060f72298923a3c5efd65f7d328968",
+  "originHash" : "f02ba680048f589da5fe53027dace4681f30d4791e061253740e440d27fdc9e6",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "7be73f6c2b5cd90e40798b06ebd5da8f9f79cf88",
         "version" : "5.11.0"
-      }
-    },
-    {
-      "identity" : "alerttoast",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/elai950/AlertToast.git",
-      "state" : {
-        "revision" : "b39252eacd159904afd7d718bba0afabb87f2f2f",
-        "version" : "1.3.9"
       }
     },
     {
@@ -35,33 +26,6 @@
       "state" : {
         "revision" : "d1d65e32e5db397a9f399007a88aab69d4696ba5",
         "version" : "1.4.2"
-      }
-    },
-    {
-      "identity" : "flex",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/FLEXTool/FLEX.git",
-      "state" : {
-        "revision" : "e0acf59d06d498041f65bbea1e5914b6e4b39733",
-        "version" : "5.22.10"
-      }
-    },
-    {
-      "identity" : "inject",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/krzysztofzablocki/Inject.git",
-      "state" : {
-        "revision" : "728c56639ecb3df441d51d5bc6747329afabcfc9",
-        "version" : "1.5.2"
-      }
-    },
-    {
-      "identity" : "kingfisher",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/onevcat/Kingfisher.git",
-      "state" : {
-        "revision" : "d30a5fad881137e2267f96a8e3fc35c58999bb94",
-        "version" : "8.6.2"
       }
     },
     {

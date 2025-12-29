@@ -6,7 +6,7 @@
 //
 
 import CSUSTKit
-import Inject
+import InjectHotReload
 import SwiftUI
 
 struct CourseCardView: View {

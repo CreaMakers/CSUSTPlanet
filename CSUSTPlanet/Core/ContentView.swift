@@ -5,7 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/7.
 //
 
-import Inject
+import InjectHotReload
 import SwiftUI
 import Toasts
 

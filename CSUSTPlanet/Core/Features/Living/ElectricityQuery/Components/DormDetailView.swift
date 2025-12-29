@@ -7,7 +7,7 @@
 
 import Alamofire
 import Charts
-import Inject
+import InjectHotReload
 import SwiftData
 import SwiftUI
 

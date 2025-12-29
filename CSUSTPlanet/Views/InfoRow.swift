@@ -5,7 +5,7 @@
 //  Created by Zhe_Learn on 2025/10/29.
 //
 
-import Inject
+import InjectHotReload
 import SwiftUI
 
 struct InfoRow: View {

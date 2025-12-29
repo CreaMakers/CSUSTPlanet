@@ -5,7 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/8.
 //
 
-import Inject
+import InjectHotReload
 import SwiftUI
 
 struct FeaturesView: View {

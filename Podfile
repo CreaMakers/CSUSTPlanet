@@ -5,6 +5,10 @@ target 'CSUSTPlanet' do
 
   # Pods for CSUSTPlanet
   pod 'MMKV'
+  pod 'FLEX', :configurations => ['Debug']
+  pod 'AlertToast'
+  pod 'InjectHotReload'
+  pod 'Kingfisher', '~> 8.0'
 end
 
 target 'CSUSTPlanetWidgetExtension' do

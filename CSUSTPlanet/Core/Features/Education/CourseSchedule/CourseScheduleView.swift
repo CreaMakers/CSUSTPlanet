@@ -7,7 +7,7 @@
 
 import AlertToast
 import CSUSTKit
-import Inject
+import InjectHotReload
 import SwiftUI
 
 // MARK: - CourseScheduleView
