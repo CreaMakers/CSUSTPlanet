@@ -9,6 +9,7 @@ target 'CSUSTPlanet' do
   pod 'AlertToast'
   pod 'InjectHotReload'
   pod 'Kingfisher', '~> 8.0'
+  pod 'CSUSTKit'
 end
 
 target 'CSUSTPlanetWidgetExtension' do
@@ -16,4 +17,5 @@ target 'CSUSTPlanetWidgetExtension' do
 
   # Pods for CSUSTPlanetWidgetExtension
   pod 'MMKVAppExtension'
+  pod 'CSUSTKit'
 end
