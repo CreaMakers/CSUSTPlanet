@@ -18,6 +18,7 @@ extension Logger {
     static let notificationManager = Logger(subsystem: appSubsystem, category: "NotificationManager")
     static let sharedModel = Logger(subsystem: appSubsystem, category: "SharedModel")
     static let electricityBindingUtil = Logger(subsystem: appSubsystem, category: "ElectricityBindingUtil")
+    static let trackHelper = Logger(subsystem: appSubsystem, category: "TrackHelper")
 
     static let dormElectricityWidget = Logger(subsystem: widgetSubsystem, category: "DormElectricityWidget")
     static let gradeAnalysisWidget = Logger(subsystem: widgetSubsystem, category: "GradeAnalysisWidget")

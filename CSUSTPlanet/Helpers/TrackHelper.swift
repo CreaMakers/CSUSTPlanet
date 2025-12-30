@@ -6,6 +6,7 @@
 //
 
 import MatomoTracker
+import OSLog
 
 final class TrackHelper {
     static let shared = TrackHelper()
@@ -22,10 +23,13 @@ final class TrackHelper {
         #if DEBUG
             tracker.logger = DefaultLogger(minLevel: .debug)
         #endif
+
+        Logger.trackHelper.debug("初始化 MatomoTracker")
     }
 
-    func views(_ names: [String]) {
-        tracker.track(view: names)
+    func views(path: [String]) {
+        tracker.track(view: path)
+        Logger.trackHelper.debug("跟踪页面: \(path.joined(separator: "/"))")
     }
 
     func event(category: String, action: String, name: String? = nil, value: NSNumber? = nil, path: [String]? = nil) {
@@ -37,13 +41,16 @@ final class TrackHelper {
             number: value,
             url: virtualURL
         )
+        Logger.trackHelper.debug("跟踪事件: \(category) - \(action) - \(name ?? "nil") - \(String(describing: value)) - \(String(describing: virtualURL))")
     }
 
     func flush() {
         tracker.dispatch()
+        Logger.trackHelper.debug("刷新 MatomoTracker")
     }
 
     func updateUserID(_ id: String?) {
         tracker.userId = id
+        Logger.trackHelper.debug("更新用户ID: \(id ?? "nil")")
     }
 }
