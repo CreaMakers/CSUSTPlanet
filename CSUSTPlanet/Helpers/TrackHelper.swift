@@ -63,4 +63,9 @@ final class TrackHelper {
         tracker.userId = finalID
         Logger.trackHelper.debug("用户ID已脱敏并更新")
     }
+
+    func updateIsOptedOut(_ isOptedOut: Bool) {
+        tracker.isOptedOut = isOptedOut
+        Logger.trackHelper.debug("更新用户是否拒绝跟踪: \(isOptedOut)")
+    }
 }
