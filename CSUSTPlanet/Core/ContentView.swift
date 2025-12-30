@@ -56,15 +56,19 @@ struct ContentView: View {
             .toolbarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $globalManager.isFromElectricityWidget) {
                 ElectricityQueryView()
+                    .track(["Widget", "ElectricityQuery"])
             }
             .navigationDestination(isPresented: $globalManager.isFromCourseScheduleWidget) {
                 CourseScheduleView()
+                    .track(["Widget", "CourseSchedule"])
             }
             .navigationDestination(isPresented: $globalManager.isFromGradeAnalysisWidget) {
                 GradeAnalysisView()
+                    .track(["Widget", "GradeAnalysis"])
             }
             .navigationDestination(isPresented: $globalManager.isFromUrgentCoursesWidget) {
                 UrgentCoursesView()
+                    .track(["Widget", "UrgentCourses"])
             }
         }
 
