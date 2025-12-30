@@ -13,8 +13,6 @@ enum Constants {
     static let keychainGroup = AssetUtil.bundleInfo(forKey: "ConfigKeychainGroup")
     static let appBundleID = AssetUtil.bundleInfo(forKey: "ConfigAppBundleID")
     static let widgetBundleID = AssetUtil.bundleInfo(forKey: "ConfigWidgetBundleID")
-    static let matomoURL = AssetUtil.bundleInfo(forKey: "ConfigMatomoURL")
-    static let matomoSiteID = AssetUtil.bundleInfo(forKey: "ConfigMatomoSiteID")
 
     static let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
 
@@ -44,6 +42,19 @@ enum Constants {
             return apiHostProd
         case .debug:
             return apiHostDev
+        }
+    }
+
+    static let matomoURL = AssetUtil.bundleInfo(forKey: "ConfigMatomoURL")
+    private static let matomoSiteIDDev = AssetUtil.bundleInfo(forKey: "ConfigMatomoSiteIDDev")
+    private static let matomoSiteIDProd = AssetUtil.bundleInfo(forKey: "ConfigMatomoSiteIDProd")
+
+    static var matomoSiteID: String {
+        switch AppEnvironmentUtil.environment {
+        case .appStore, .testFlight:
+            return matomoSiteIDProd
+        case .debug:
+            return matomoSiteIDDev
         }
     }
 }

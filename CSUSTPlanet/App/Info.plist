@@ -18,8 +18,10 @@
 	<string>$(CSUSTPLANET_WIDGET_BUNDLE_ID)</string>
 	<key>ConfigMatomoURL</key>
 	<string>$(CSUSTPLANET_MATOMO_URL)</string>
-	<key>ConfigMatomoSiteID</key>
-	<string>$(CSUSTPLANET_MATOMO_SITE_ID)</string>
+	<key>ConfigMatomoSiteIDDev</key>
+	<string>$(CSUSTPLANET_MATOMO_SITE_ID_DEV)</string>
+	<key>ConfigMatomoSiteIDProd</key>
+	<string>$(CSUSTPLANET_MATOMO_SITE_ID_PROD)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

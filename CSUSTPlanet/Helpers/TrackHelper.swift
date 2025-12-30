@@ -23,4 +23,22 @@ final class TrackHelper {
             tracker.logger = DefaultLogger(minLevel: .debug)
         #endif
     }
+
+    func views(_ names: [String]) {
+        tracker.track(view: names)
+    }
+
+    func event(category: String, action: String, name: String? = nil, value: Float? = nil) {
+        tracker.track(
+            eventWithCategory: category,
+            action: action,
+            name: name,
+            number: value != nil ? NSNumber(value: value!) : nil,
+            url: nil
+        )
+    }
+
+    func flush() {
+        tracker.dispatch()
+    }
 }

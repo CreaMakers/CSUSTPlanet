@@ -20,4 +20,5 @@ CSUSTPLANET_API_HOST_DEV = https:/$()/api-dev.example.com
 
 // 你的 Matomo 信息
 CSUSTPLANET_MATOMO_URL = https:/$()/matomo.example.com/matomo.php
-CSUSTPLANET_MATOMO_SITE_ID = 1
+CSUSTPLANET_MATOMO_SITE_ID_DEV = 1
+CSUSTPLANET_MATOMO_SITE_ID_PROD = 2
