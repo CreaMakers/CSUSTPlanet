@@ -37,6 +37,7 @@ struct ProfileView: View {
                 if let ssoProfile = authManager.ssoProfile {
                     NavigationLink {
                         ProfileDetailView(authManager: authManager)
+                            .track(["App", "Profile", "ProfileDetail"])
                     } label: {
                         HStack {
                             let avatarUrl = URL(string: ssoProfile.avatar)
@@ -173,18 +174,21 @@ struct ProfileView: View {
             Section(header: Text("帮助与支持")) {
                 NavigationLink {
                     AboutView()
+                        .track(["App", "Profile", "About"])
                 } label: {
                     ColoredLabel(title: "关于", iconName: "info.circle", color: .teal)
                 }
 
                 NavigationLink {
                     FeedbackView()
+                        .track(["App", "Profile", "Feedback"])
                 } label: {
                     ColoredLabel(title: "意见反馈", iconName: "bubble.left.and.bubble.right", color: .green)
                 }
 
                 NavigationLink {
                     UserAgreementView()
+                        .track(["App", "Profile", "UserAgreement"])
                 } label: {
                     ColoredLabel(title: "用户协议", iconName: "doc.text", color: .indigo)
                 }
