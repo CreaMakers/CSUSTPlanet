@@ -234,78 +234,49 @@ private struct HeroCard<Destination: View>: View {
     let gradient: Color
 
     var body: some View {
-        Group {
-            if #available(iOS 26.0, *) {
-                standardLink
-            } else if #available(iOS 18.0, *) {
-                zoomLink
-            } else {
-                standardLink
-            }
-        }
-    }
-
-    // MARK: - Subviews
-
-    private var cardContent: some View {
-        ZStack(alignment: .bottomLeading) {
-            // Background
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [gradient.opacity(0.85), gradient],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-
-            // Decor Icon
-            Image(systemName: icon)
-                .font(.system(size: 60))
-                .foregroundColor(.white.opacity(0.15))
-                .offset(x: 10, y: 10)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-
-            // Content
-            VStack(alignment: .leading, spacing: 4) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .padding(.bottom, 8)
-
-                Text(title)
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-
-                Text(subtitle)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.white.opacity(0.8))
-                    .lineLimit(1)
-            }
-            .padding(16)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .shadow(color: gradient.opacity(0.3), radius: 8, x: 0, y: 4)
-        .frame(height: 120)
-    }
-
-    private var standardLink: some View {
         NavigationLink(destination: destination) {
-            cardContent
-        }
-    }
+            ZStack(alignment: .bottomLeading) {
+                // Background
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [gradient.opacity(0.85), gradient],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
 
-    @available(iOS 18.0, *)
-    private var zoomLink: some View {
-        NavigationLink {
-            destination
-                .navigationTransition(.zoom(sourceID: title, in: namespace))
-        } label: {
-            cardContent
-                .matchedTransitionSource(id: title, in: namespace)
+                // Decor Icon
+                Image(systemName: icon)
+                    .font(.system(size: 60))
+                    .foregroundColor(.white.opacity(0.15))
+                    .offset(x: 10, y: 10)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+
+                // Content
+                VStack(alignment: .leading, spacing: 4) {
+                    Image(systemName: icon)
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .padding(.bottom, 8)
+
+                    Text(title)
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+
+                    Text(subtitle)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white.opacity(0.8))
+                        .lineLimit(1)
+                }
+                .padding(16)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .shadow(color: gradient.opacity(0.3), radius: 8, x: 0, y: 4)
+            .frame(height: 120)
         }
     }
 }
