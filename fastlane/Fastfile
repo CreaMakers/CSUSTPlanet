@@ -66,34 +66,31 @@ platform :ios do
   lane :beta do
     ENV["DELIVER_ALTOOL_ADDITIONAL_UPLOAD_PARAMETERS"] = "--use-old-altool"
     api_key = load_api_key
-    begin
-      current_build = latest_testflight_build_number(api_key: api_key).to_i
-    rescue => e
-      UI.user_error!("无法获取线上构建号，终止 lane: #{e}")
-    end
-    new_build_number = current_build + 1
-    UI.message("准备将构建号更新为: #{new_build_number}")
-    config_path = "../Configs/Shared.xcconfig" 
-    if File.exist?(config_path)
-      content = File.read(config_path)
-      # 提取当前版本号
-      version_match = content.match(/CSUSTPLANET_VERSION\s*=\s*([\d\.]+)/)
-      current_version = version_match ? version_match[1] : "unknown"
-      # 更新构建号
-      new_content = content.gsub(/(CSUSTPLANET_BUILD_NUMBER\s*=\s*)\d+/, "\\1#{new_build_number}")
-      File.open(config_path, "w") { |file| file.puts new_content }
-      UI.success("已成功将 #{config_path} 中的构建号改为 #{new_build_number}")
-    else
-      UI.user_error!("找不到 xcconfig 文件，路径是否正确？当前尝试路径: #{config_path}")
-    end
-    # 动态构造输出目录和文件名
+    cocoapods(repo_update: true)
+    config_path = "../Configs/Shared.xcconfig"
+    UI.user_error!("找不到 xcconfig 文件，路径: #{config_path}") unless File.exist?(config_path)
+    config_content = File.read(config_path)
+    version_match = config_content.match(/CSUSTPLANET_VERSION\s*=\s*([\d\.]+)/)
+    current_version = version_match ? version_match[1] : nil
+    UI.user_error!("无法在 xcconfig 中找到 CSUSTPLANET_VERSION") if current_version.nil?
+    UI.message("正在查询版本 #{current_version} 的云端构建状态...")
+    latest_build = latest_testflight_build_number(
+      api_key: api_key,
+      version: current_version,
+      initial_build_number: 0
+    )
+    new_build_number = latest_build + 1
+    UI.success("准备构建版本: #{current_version} (Build: #{new_build_number})")
+    updated_content = config_content.gsub(/(CSUSTPLANET_BUILD_NUMBER\s*=\s*)\d+/, "\\1#{new_build_number}")
+    File.open(config_path, "w") { |file| file.puts updated_content }
+    UI.message("已同步本地构建号为: #{new_build_number}")
     output_dir = "./fastlane/builds/#{current_version}/build_#{new_build_number}"
     output_name = "CSUSTPlanet_#{current_version}_b#{new_build_number}.ipa"
     match(api_key: api_key, type: "appstore", readonly: true)
     # 执行构建
     build_app(
       scheme: "CSUSTPlanet",
-      project: "CSUSTPlanet.xcodeproj",
+      workspace: "CSUSTPlanet.xcworkspace",
       export_method: "app-store",
       include_bitcode: false,
       clean: true,
