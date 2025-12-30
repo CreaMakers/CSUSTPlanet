@@ -13,6 +13,8 @@ enum Constants {
     static let keychainGroup = AssetUtil.bundleInfo(forKey: "ConfigKeychainGroup")
     static let appBundleID = AssetUtil.bundleInfo(forKey: "ConfigAppBundleID")
     static let widgetBundleID = AssetUtil.bundleInfo(forKey: "ConfigWidgetBundleID")
+    static let matomoURL = AssetUtil.bundleInfo(forKey: "ConfigMatomoURL")
+    static let matomoSiteID = AssetUtil.bundleInfo(forKey: "ConfigMatomoSiteID")
 
     static let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
 

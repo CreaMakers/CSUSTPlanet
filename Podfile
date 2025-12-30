@@ -10,6 +10,7 @@ target 'CSUSTPlanet' do
   pod 'InjectHotReload'
   pod 'Kingfisher', '~> 8.0'
   pod 'CSUSTKit'
+  pod 'MatomoTracker', '~> 7.8'
 end
 
 target 'CSUSTPlanetWidgetExtension' do

@@ -25,6 +25,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         ActivityHelper.shared.setup()
         NotificationManager.shared.setup()
+        TrackHelper.shared.setup()
 
         return true
     }
