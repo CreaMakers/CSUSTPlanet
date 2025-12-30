@@ -64,7 +64,10 @@ class AuthManager: ObservableObject {
         try await ssoHelper.login(username: username, password: password)
         KeychainHelper.shared.ssoUsername = username
         KeychainHelper.shared.ssoPassword = password
-        ssoProfile = try await ssoHelper.getLoginUser()
+        let profile = try await ssoHelper.getLoginUser()
+        ssoProfile = profile
+        MMKVHelper.shared.userId = profile.userAccount
+        TrackHelper.shared.updateUserID(profile.userAccount)
         CookieHelper.shared.save()
         ssoInfo = "统一身份认证登录成功"
         isShowingSSOInfo = true
@@ -80,6 +83,8 @@ class AuthManager: ObservableObject {
             CookieHelper.shared.save()
             KeychainHelper.shared.ssoUsername = nil
             KeychainHelper.shared.ssoPassword = nil
+            MMKVHelper.shared.userId = nil
+            TrackHelper.shared.updateUserID(nil)
             ssoProfile = nil
             eduHelper = nil
             moocHelper = nil
@@ -99,7 +104,10 @@ class AuthManager: ObservableObject {
         isSSOLoggingIn = true
         defer { isSSOLoggingIn = false }
         try await ssoHelper.dynamicLogin(username: username, dynamicCode: dynamicCode, captcha: captcha)
-        ssoProfile = try await ssoHelper.getLoginUser()
+        let profile = try await ssoHelper.getLoginUser()
+        ssoProfile = profile
+        MMKVHelper.shared.userId = profile.userAccount
+        TrackHelper.shared.updateUserID(profile.userAccount)
         CookieHelper.shared.save()
         ssoInfo = "统一身份认证登录成功"
         isShowingSSOInfo = true
@@ -113,6 +121,8 @@ class AuthManager: ObservableObject {
             if let ssoProfile = try? await ssoHelper.getLoginUser() {
                 Logger.authManager.debug("ssoRelogin: 统一身份认证已登录，无需再登录")
                 self.ssoProfile = ssoProfile
+                MMKVHelper.shared.userId = ssoProfile.userAccount
+                TrackHelper.shared.updateUserID(ssoProfile.userAccount)
                 ssoInfo = "统一身份认证已登录"
                 isShowingSSOInfo = true
                 allLogin()
@@ -132,6 +142,8 @@ class AuthManager: ObservableObject {
             if let ssoProfile = try? await ssoHelper.getLoginUser() {
                 Logger.authManager.debug("ssoRelogin: 验证统一身份认证登录成功")
                 self.ssoProfile = ssoProfile
+                MMKVHelper.shared.userId = ssoProfile.userAccount
+                TrackHelper.shared.updateUserID(ssoProfile.userAccount)
                 CookieHelper.shared.save()
                 ssoInfo = "统一身份认证登录成功"
                 isShowingSSOInfo = true

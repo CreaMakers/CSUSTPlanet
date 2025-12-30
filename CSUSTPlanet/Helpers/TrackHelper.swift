@@ -26,6 +26,8 @@ final class TrackHelper {
         #endif
 
         Logger.trackHelper.debug("初始化 MatomoTracker")
+
+        updateUserID(MMKVHelper.shared.userId)
     }
 
     func views(path: [String]) {
@@ -53,15 +55,16 @@ final class TrackHelper {
     func updateUserID(_ id: String?) {
         guard let rawID = id, !rawID.isEmpty else {
             tracker.userId = nil
+            Logger.trackHelper.debug("用户ID已清空")
             return
         }
 
         let inputData = Data((rawID + Constants.matomoUserIDSalt).utf8)
         let hashed = SHA256.hash(data: inputData)
-        let finalID = hashed.compactMap { String(format: "%02x", $0) }.joined()
+        let finalID = hashed.prefix(16).map { String(format: "%02x", $0) }.joined()
 
         tracker.userId = finalID
-        Logger.trackHelper.debug("用户ID已脱敏并更新")
+        Logger.trackHelper.debug("用户ID已脱敏并更新: \(finalID)")
     }
 
     func updateIsOptedOut(_ isOptedOut: Bool) {

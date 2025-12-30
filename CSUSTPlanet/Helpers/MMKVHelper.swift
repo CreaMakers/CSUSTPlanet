@@ -9,11 +9,11 @@ import CSUSTKit
 import Foundation
 
 #if canImport(MMKVCore)
-import MMKVCore
+    import MMKVCore
 #endif
 
 #if canImport(MMKVAppExtension)
-import MMKVAppExtension
+    import MMKVAppExtension
 #endif
 
 struct Cached<T: Codable>: Codable {
@@ -80,6 +80,10 @@ extension MMKVHelper {
 
     func sync() {
         defaultMMKV?.sync()
+    }
+
+    func removeValue(forKey key: String) {
+        defaultMMKV?.removeValue(forKey: key)
     }
 }
 
@@ -201,6 +205,17 @@ extension MMKVHelper {
     var isNotificationEnabled: Bool {
         get { bool(forKey: "GlobalVars.isNotificationEnabled") ?? true }
         set { set(forKey: "GlobalVars.isNotificationEnabled", newValue) }
+    }
+
+    var userId: String? {
+        get { string(forKey: "GlobalVars.userId") }
+        set {
+            if let value = newValue {
+                set(forKey: "GlobalVars.userId", value)
+            } else {
+                removeValue(forKey: "GlobalVars.userId")
+            }
+        }
     }
 }
 

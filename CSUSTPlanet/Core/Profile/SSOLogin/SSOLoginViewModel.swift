@@ -136,6 +136,8 @@ class SSOLoginViewModel: ObservableObject {
             do {
                 let ssoProfile = try await AuthManager.shared.ssoHelper.getLoginUser()
                 AuthManager.shared.ssoProfile = ssoProfile
+                MMKVHelper.shared.userId = ssoProfile.userAccount
+                TrackHelper.shared.updateUserID(ssoProfile.userAccount)
                 CookieHelper.shared.save()
                 AuthManager.shared.ssoInfo = "统一身份认证登录成功"
                 AuthManager.shared.isShowingSSOInfo = true
