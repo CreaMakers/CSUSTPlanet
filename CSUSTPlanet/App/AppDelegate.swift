@@ -125,6 +125,8 @@ extension AppDelegate {
         Logger.appDelegate.debug("App进入后台: appDidEnterBackground")
         ActivityHelper.shared.autoUpdateActivity()
 
+        TrackHelper.shared.event(category: "Lifecycle", action: "Background")
+
         lastBackgroundDate = .now
     }
 
@@ -135,10 +137,12 @@ extension AppDelegate {
 
         if !isFirstAppear {
             checkAndRelogin()
+            TrackHelper.shared.event(category: "Lifecycle", action: "Foreground")
         }
 
         if isFirstAppear {
             isFirstAppear = false
+            TrackHelper.shared.event(category: "Lifecycle", action: "Launch")
         }
     }
 

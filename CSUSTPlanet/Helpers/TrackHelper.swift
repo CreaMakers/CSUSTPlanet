@@ -28,17 +28,22 @@ final class TrackHelper {
         tracker.track(view: names)
     }
 
-    func event(category: String, action: String, name: String? = nil, value: Float? = nil) {
+    func event(category: String, action: String, name: String? = nil, value: NSNumber? = nil, path: [String]? = nil) {
+        let virtualURL = path.flatMap { URL(string: "http://\(Constants.appBundleID.lowercased())/" + $0.joined(separator: "/")) }
         tracker.track(
             eventWithCategory: category,
             action: action,
             name: name,
-            number: value != nil ? NSNumber(value: value!) : nil,
-            url: nil
+            number: value,
+            url: virtualURL
         )
     }
 
     func flush() {
         tracker.dispatch()
+    }
+
+    func updateUserID(_ id: String?) {
+        tracker.userId = id
     }
 }
