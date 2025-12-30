@@ -12,8 +12,6 @@
 	<string>$(CSUSTPLANET_API_HOST_PROD)</string>
 	<key>ConfigApiHostDev</key>
 	<string>$(CSUSTPLANET_API_HOST_DEV)</string>
-	<key>ConfigApiHostLocal</key>
-	<string>$(CSUSTPLANET_API_HOST_LOCAL)</string>
 	<key>ConfigAppBundleID</key>
 	<string>$(CSUSTPLANET_APP_BUNDLE_ID)</string>
 	<key>ConfigWidgetBundleID</key>

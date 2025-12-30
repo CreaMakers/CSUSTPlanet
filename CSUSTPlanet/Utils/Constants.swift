@@ -37,18 +37,13 @@ enum Constants {
 
     private static let apiHostProd = AssetUtil.bundleInfo(forKey: "ConfigApiHostProd")
     private static let apiHostDev = AssetUtil.bundleInfo(forKey: "ConfigApiHostDev")
-    private static let apiHostLocal = AssetUtil.bundleInfo(forKey: "ConfigApiHostLocal")
 
     static var backendHost: String {
         switch AppEnvironmentUtil.environment {
         case .appStore, .testFlight:
             return apiHostProd
         case .debug:
-            #if targetEnvironment(simulator)
-                return apiHostLocal
-            #else
-                return apiHostDev
-            #endif
+            return apiHostDev
         }
     }
 }
