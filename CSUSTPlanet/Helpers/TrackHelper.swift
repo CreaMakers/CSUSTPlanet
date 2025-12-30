@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/12/30.
 //
 
+import CryptoKit
 import MatomoTracker
 import OSLog
 
@@ -50,7 +51,16 @@ final class TrackHelper {
     }
 
     func updateUserID(_ id: String?) {
-        tracker.userId = id
-        Logger.trackHelper.debug("更新用户ID: \(id ?? "nil")")
+        guard let rawID = id, !rawID.isEmpty else {
+            tracker.userId = nil
+            return
+        }
+
+        let inputData = Data((rawID + Constants.matomoUserIDSalt).utf8)
+        let hashed = SHA256.hash(data: inputData)
+        let finalID = hashed.compactMap { String(format: "%02x", $0) }.joined()
+
+        tracker.userId = finalID
+        Logger.trackHelper.debug("用户ID已脱敏并更新")
     }
 }

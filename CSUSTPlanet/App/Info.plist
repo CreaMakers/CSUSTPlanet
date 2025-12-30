@@ -22,6 +22,8 @@
 	<string>$(CSUSTPLANET_MATOMO_SITE_ID_DEV)</string>
 	<key>ConfigMatomoSiteIDProd</key>
 	<string>$(CSUSTPLANET_MATOMO_SITE_ID_PROD)</string>
+	<key>ConfigMatomoUserIDSalt</key>
+	<string>$(CSUSTPLANET_MATOMO_USER_ID_SALT)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

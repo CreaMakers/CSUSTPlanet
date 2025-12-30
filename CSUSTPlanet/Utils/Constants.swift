@@ -48,6 +48,7 @@ enum Constants {
     static let matomoURL = AssetUtil.bundleInfo(forKey: "ConfigMatomoURL")
     private static let matomoSiteIDDev = AssetUtil.bundleInfo(forKey: "ConfigMatomoSiteIDDev")
     private static let matomoSiteIDProd = AssetUtil.bundleInfo(forKey: "ConfigMatomoSiteIDProd")
+    static let matomoUserIDSalt = AssetUtil.bundleInfo(forKey: "ConfigMatomoUserIDSalt")
 
     static var matomoSiteID: String {
         switch AppEnvironmentUtil.environment {
