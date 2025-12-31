@@ -61,6 +61,7 @@ struct AboutView: View {
         }
         .background(Color(.systemBackground))
         .navigationTitle("关于")
+        .trackView("About")
     }
 }
 

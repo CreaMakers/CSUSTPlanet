@@ -18,6 +18,7 @@ struct FeedbackView: View {
             }
         }
         .navigationTitle("意见反馈")
+        .trackView("Feedback")
     }
 }
 

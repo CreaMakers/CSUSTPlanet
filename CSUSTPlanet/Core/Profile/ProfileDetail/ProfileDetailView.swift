@@ -95,6 +95,7 @@ struct ProfileDetailView: View {
             viewModel.loadEduProfile()
             viewModel.loadMoocProfile()
         }
+        .trackView("ProfileDetail")
     }
 
     struct LoadingView: View {

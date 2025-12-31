@@ -35,9 +35,7 @@ struct ProfileView: View {
         Form {
             Section(header: Text("账号管理")) {
                 if let ssoProfile = authManager.ssoProfile {
-                    NavigationLink {
-                        ProfileDetailView(authManager: authManager)
-                    } label: {
+                    TrackLink(destination: ProfileDetailView(authManager: authManager)) {
                         HStack {
                             let avatarUrl = URL(string: ssoProfile.avatar)
                             let resource = avatarUrl.map { url in
@@ -171,21 +169,15 @@ struct ProfileView: View {
             }
 
             Section(header: Text("帮助与支持")) {
-                NavigationLink {
-                    AboutView()
-                } label: {
+                TrackLink(destination: AboutView()) {
                     ColoredLabel(title: "关于", iconName: "info.circle", color: .teal)
                 }
 
-                NavigationLink {
-                    FeedbackView()
-                } label: {
+                TrackLink(destination: FeedbackView()) {
                     ColoredLabel(title: "意见反馈", iconName: "bubble.left.and.bubble.right", color: .green)
                 }
 
-                NavigationLink {
-                    UserAgreementView()
-                } label: {
+                TrackLink(destination: UserAgreementView()) {
                     ColoredLabel(title: "用户协议", iconName: "doc.text", color: .indigo)
                 }
             }

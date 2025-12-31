@@ -43,6 +43,7 @@ struct UserAgreementView: View {
             .background(Color(.systemBackground))
             .navigationTitle("用户协议")
         }
+        .trackView("UserAgreement")
     }
 }
 
