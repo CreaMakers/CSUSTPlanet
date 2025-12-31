@@ -25,7 +25,7 @@ struct DormCardView: View {
                 .fill(Color(uiColor: .secondarySystemGroupedBackground))
                 .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
 
-            NavigationLink(destination: DormDetailView(viewModel: viewModel, dorm: dorm)) {
+            TrackLink(destination: DormDetailView(viewModel: viewModel, dorm: dorm)) {
                 EmptyView()
             }
             .opacity(0)

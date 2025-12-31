@@ -50,5 +50,6 @@ struct ElectricityQueryView: View {
             AddDormitoryView(isShowingAddDormSheet: $isShowingAddDormSheet)
         }
         .enableInjection()
+        .trackView("ElectricityQuery")
     }
 }

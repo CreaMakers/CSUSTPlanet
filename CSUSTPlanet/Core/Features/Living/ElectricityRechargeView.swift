@@ -15,6 +15,7 @@ struct ElectricityRechargeView: View {
         )
         .toolbarTitleDisplayMode(.inline)
         .navigationTitle("电费充值")
+        .trackView("ElectricityRecharge")
     }
 }
 

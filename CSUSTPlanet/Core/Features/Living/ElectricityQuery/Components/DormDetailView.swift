@@ -59,7 +59,7 @@ struct DormDetailView: View {
 
                 DormInfoCard(dorm: dorm)
 
-                NavigationLink(destination: DormHistoryView(viewModel: viewModel, dorm: dorm)) {
+                TrackLink(destination: DormHistoryView(viewModel: viewModel, dorm: dorm)) {
                     HStack {
                         Label("查看所有历史记录", systemImage: "list.bullet.clipboard")
                             .foregroundStyle(.primary)
@@ -107,6 +107,7 @@ struct DormDetailView: View {
             Text("确定要取消定时查询吗？")
         }
         .enableInjection()
+        .trackView("DormDetail")
     }
 }
 
@@ -404,5 +405,6 @@ struct DormHistoryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { viewModel.updateSortedRecords(for: dorm) }
         .onChange(of: dorm.records) { viewModel.updateSortedRecords(for: dorm) }
+        .trackView("DormHistory")
     }
 }

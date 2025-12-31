@@ -12,7 +12,7 @@ struct SchoolCalendarListView: View {
 
     var body: some View {
         List(viewModel.schoolCalendars) { calendar in
-            NavigationLink(destination: SchoolCalendarView(semester: calendar.semester)) {
+            TrackLink(destination: SchoolCalendarView(semester: calendar.semester)) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(calendar.title)
                         .font(.headline)
@@ -42,6 +42,7 @@ struct SchoolCalendarListView: View {
             viewModel.loadSchoolCalendars()
         }
         .navigationTitle("校历列表")
+        .trackView("SchoolCalendarList")
     }
 }
 

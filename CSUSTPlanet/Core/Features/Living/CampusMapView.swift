@@ -49,6 +49,7 @@ struct CampusMapView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $isOnlineMapShown) {
             SafariView(url: url)
+                .trackView("CampusMapOnline")
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -59,6 +60,7 @@ struct CampusMapView: View {
                 }
             }
         }
+        .trackView("CampusMap")
     }
 }
 

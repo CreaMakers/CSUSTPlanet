@@ -148,5 +148,6 @@ struct AddDormitoryView: View {
                 Text(viewModel.errorMessage)
             }
         }
+        .trackView("AddDormitory")
     }
 }

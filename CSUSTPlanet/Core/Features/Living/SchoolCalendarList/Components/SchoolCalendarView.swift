@@ -18,6 +18,7 @@ struct SchoolCalendarView: View {
         WebView(url: url)
             .navigationTitle("\(semester) 学期校历")
             .navigationBarTitleDisplayMode(.inline)
+            .trackView("SchoolCalendar")
     }
 }
 

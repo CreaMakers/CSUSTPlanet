@@ -97,6 +97,7 @@ struct NotificationSettingsView: View {
                 }
             }
         }
+        .trackView("NotificationSettings")
     }
 }
 

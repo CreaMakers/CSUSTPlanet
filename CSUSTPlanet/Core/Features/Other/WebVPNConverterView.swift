@@ -194,8 +194,10 @@ struct WebVPNConverterView: View {
         .sheet(isPresented: $isShowingSafari) {
             if let url = URL(string: resultUrl) {
                 SafariView(url: url)
+                    .trackView("WebVPNConverterSafari")
             }
         }
+        .trackView("WebVPNConverter")
     }
 
     // MARK: - Private Methods
