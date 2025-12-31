@@ -69,6 +69,7 @@ struct PhysicsExperimentScheduleView: View {
             viewModel.isLoaded = true
             viewModel.loadSchedules()
         }
+        .trackView("PhysicsExperimentSchedule")
     }
 
     private var emptyStateView: some View {

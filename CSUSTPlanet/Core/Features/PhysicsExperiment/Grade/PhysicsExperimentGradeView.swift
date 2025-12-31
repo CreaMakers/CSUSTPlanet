@@ -63,6 +63,7 @@ struct PhysicsExperimentGradeView: View {
                 }
             }
         }
+        .trackView("PhysicsExperimentGrade")
     }
 
     // MARK: - Form Sections

@@ -126,6 +126,7 @@ struct PhysicsExperimentLoginView: View {
                 Text(viewModel.errorMessage)
             }
         }
+        .trackView("PhysicsExperimentLogin")
     }
 }
 
