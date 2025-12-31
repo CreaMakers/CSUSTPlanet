@@ -26,6 +26,7 @@ class GlobalManager: ObservableObject {
         isNotificationEnabled = MMKVHelper.shared.isNotificationEnabled
 
         TrackHelper.shared.updateIsOptedOut(!isUserAgreementAccepted)
+        TrackHelper.shared.event(category: "LiveActivity", action: "Status", name: isLiveActivityEnabled ? "Enabled" : "Disabled")
     }
 
     @Published var selectedTab: TabItem = .overview
@@ -42,7 +43,10 @@ class GlobalManager: ObservableObject {
         Binding(get: { !self.isUserAgreementAccepted }, set: { self.isUserAgreementAccepted = !$0 })
     }
     @Published var isLiveActivityEnabled: Bool {
-        didSet { MMKVHelper.shared.isLiveActivityEnabled = isLiveActivityEnabled }
+        didSet {
+            MMKVHelper.shared.isLiveActivityEnabled = isLiveActivityEnabled
+            TrackHelper.shared.event(category: "LiveActivity", action: "Status", name: isLiveActivityEnabled ? "Enabled" : "Disabled")
+        }
     }
     @Published var isWebVPNModeEnabled: Bool {
         didSet { MMKVHelper.shared.isWebVPNModeEnabled = isWebVPNModeEnabled }

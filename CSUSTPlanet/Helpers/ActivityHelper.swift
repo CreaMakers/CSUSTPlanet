@@ -60,6 +60,7 @@ class ActivityHelper {
                     Task {
                         let content = ActivityContent(state: CourseStatusWidgetAttributes.ContentState(now: .now), staleDate: nil)
                         await existingActivity.update(content)
+                        TrackHelper.shared.event(category: "LiveActivity", action: "Update")
                     }
                 } else {
                     Logger.activityHelper.info("发现过期的活动。正在替换为新活动")
@@ -80,12 +81,19 @@ class ActivityHelper {
 
         let content = ActivityContent(state: CourseStatusWidgetAttributes.ContentState(now: .now), staleDate: nil)
 
-        let newActivity = try Activity.request(
-            attributes: attributes,
-            content: content
-        )
-        self.activity = newActivity
-        Logger.activityHelper.info("已为课程启动实时活动：\(attributes.courseName)")
+        do {
+            let newActivity = try Activity.request(
+                attributes: attributes,
+                content: content
+            )
+            self.activity = newActivity
+            Logger.activityHelper.info("已为课程启动实时活动：\(attributes.courseName)")
+            TrackHelper.shared.event(category: "LiveActivity", action: "Start", value: 1)
+        } catch {
+            Logger.activityHelper.error("启动实时活动失败: \(error.localizedDescription)")
+            TrackHelper.shared.event(category: "LiveActivity", action: "Start", value: 0)
+            throw error
+        }
     }
 
     private func stopActivity() {
@@ -96,6 +104,7 @@ class ActivityHelper {
             if self.activity?.id == activityToStop.id {
                 self.activity = nil
                 Logger.activityHelper.info("实时活动已停止")
+                TrackHelper.shared.event(category: "LiveActivity", action: "Stop")
             }
         }
     }
