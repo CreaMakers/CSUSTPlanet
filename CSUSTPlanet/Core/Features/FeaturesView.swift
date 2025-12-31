@@ -122,8 +122,7 @@ struct FeaturesView: View {
 
     private var campusToolsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("校园工具")
-                .font(.title3.bold())
+            sectionHeader(title: "校园工具", icon: "wrench.and.screwdriver.fill", color: .orange)
                 .padding(.horizontal, horizontalPadding)
 
             if sizeClass == .regular {
