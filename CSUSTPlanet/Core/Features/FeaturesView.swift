@@ -114,7 +114,7 @@ struct FeaturesView: View {
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), spacing: spacing)], spacing: spacing) {
                 MediumCard(destination: CoursesView(), title: "所有课程", icon: "books.vertical.fill", color: .indigo)
-                MediumCard(destination: UrgentCoursesView(), title: "待办作业", icon: "list.bullet.clipboard", color: .red)
+                MediumCard(destination: UrgentCoursesView(), title: "待提交作业", icon: "list.bullet.clipboard", color: .red)
             }
         }
         .padding(.horizontal, horizontalPadding)
