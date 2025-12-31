@@ -62,6 +62,7 @@ class AuthManager: ObservableObject {
         isSSOLoggingIn = true
         defer { isSSOLoggingIn = false }
         try await ssoHelper.login(username: username, password: password)
+        TrackHelper.shared.event(category: "Auth", action: "Login", name: "Account", value: 1)
         KeychainHelper.shared.ssoUsername = username
         KeychainHelper.shared.ssoPassword = password
         let profile = try await ssoHelper.getLoginUser()
@@ -78,6 +79,7 @@ class AuthManager: ObservableObject {
         guard isSSOLoggedIn else { return }
         Task {
             isSSOLoggingOut = true
+            TrackHelper.shared.event(category: "Auth", action: "Logout")
             defer { isSSOLoggingOut = false }
             try? await ssoHelper.logout()
             CookieHelper.shared.save()
@@ -104,6 +106,7 @@ class AuthManager: ObservableObject {
         isSSOLoggingIn = true
         defer { isSSOLoggingIn = false }
         try await ssoHelper.dynamicLogin(username: username, dynamicCode: dynamicCode, captcha: captcha)
+        TrackHelper.shared.event(category: "Auth", action: "Login", name: "Dynamic", value: 1)
         let profile = try await ssoHelper.getLoginUser()
         ssoProfile = profile
         MMKVHelper.shared.userId = profile.userAccount
@@ -136,11 +139,13 @@ class AuthManager: ObservableObject {
                 try await ssoHelper.login(username: username, password: password)
             } catch {
                 Logger.authManager.error("ssoRelogin: 统一身份认证登录失败, \(error)")
+                TrackHelper.shared.event(category: "Auth", action: "Relogin", value: 0)
                 isShowingSSOError = true
                 return
             }
             if let ssoProfile = try? await ssoHelper.getLoginUser() {
                 Logger.authManager.debug("ssoRelogin: 验证统一身份认证登录成功")
+                TrackHelper.shared.event(category: "Auth", action: "Relogin", value: 1)
                 self.ssoProfile = ssoProfile
                 MMKVHelper.shared.userId = ssoProfile.userAccount
                 TrackHelper.shared.updateUserID(ssoProfile.userAccount)
@@ -175,6 +180,7 @@ class AuthManager: ObservableObject {
                 _ = try await ssoHelper.loginToEducation()
             } catch {
                 Logger.authManager.error("educationLogin: 教务登录失败, \(error)")
+                TrackHelper.shared.event(category: "Auth", action: "Sublogin", name: "Education", value: 0)
                 isShowingEducationError = true
                 return
             }
@@ -182,6 +188,7 @@ class AuthManager: ObservableObject {
             if await eduHelper.isLoggedIn() {
                 // 教务登录成功
                 Logger.authManager.debug("educationLogin: 验证教务登录成功")
+                TrackHelper.shared.event(category: "Auth", action: "Sublogin", name: "Education", value: 1)
                 self.eduHelper = eduHelper
                 CookieHelper.shared.save()
                 educationInfo = "教务系统登录成功"
@@ -212,6 +219,7 @@ class AuthManager: ObservableObject {
                 _ = try await ssoHelper.loginToMooc()
             } catch {
                 Logger.authManager.error("moocLogin: 网络课程平台登录失败, \(error)")
+                TrackHelper.shared.event(category: "Auth", action: "Sublogin", name: "Mooc", value: 0)
                 isShowingMoocError = true
                 return
             }
@@ -219,6 +227,7 @@ class AuthManager: ObservableObject {
             if await moocHelper.isLoggedIn() {
                 // 网络课程平台登录成功
                 Logger.authManager.debug("moocLogin: 验证网络课程平台登录成功")
+                TrackHelper.shared.event(category: "Auth", action: "Sublogin", name: "Mooc", value: 1)
                 self.moocHelper = moocHelper
                 CookieHelper.shared.save()
                 moocInfo = "网络课程平台登录成功"
