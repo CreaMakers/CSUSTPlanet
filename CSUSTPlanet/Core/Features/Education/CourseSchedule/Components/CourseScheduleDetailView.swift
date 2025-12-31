@@ -42,6 +42,7 @@ struct CourseScheduleDetailView: View {
                 }
             }
         }
+        .trackView("CourseScheduleDetail")
     }
 
     private func formatWeeks(_ weeks: [Int]) -> String {

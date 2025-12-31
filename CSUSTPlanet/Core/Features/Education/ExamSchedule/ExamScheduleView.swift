@@ -64,6 +64,7 @@ struct ExamScheduleView: View {
                 }
             }
         }
+        .trackView("ExamScheduleFilter")
     }
 
     // MARK: - Empty State Section
@@ -302,5 +303,6 @@ struct ExamScheduleView: View {
         }
         .navigationTitle("考试安排")
         .toolbarTitleDisplayMode(.inline)
+        .trackView("ExamSchedule")
     }
 }

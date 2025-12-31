@@ -266,5 +266,6 @@ struct GradeAnalysisView: View {
                 }
             }
         }
+        .trackView("GradeAnalysis")
     }
 }

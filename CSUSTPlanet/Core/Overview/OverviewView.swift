@@ -88,6 +88,7 @@ struct OverviewView: View {
         .onAppear {
             viewModel.loadData()
         }
+        .trackView("Overview")
     }
 }
 
@@ -128,7 +129,7 @@ private struct HomeSectionHeader<Destination: View>: View {
     let destination: Destination
 
     var body: some View {
-        NavigationLink(destination: destination) {
+        TrackLink(destination: destination) {
             HStack {
                 Text(title)
                     .font(.title3)
@@ -306,7 +307,7 @@ private struct HomeGradeCard: View {
     let analysisData: GradeAnalysisData?
 
     var body: some View {
-        NavigationLink(destination: GradeAnalysisView()) {
+        TrackLink(destination: GradeAnalysisView()) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Image(systemName: "chart.bar.fill")
@@ -350,7 +351,7 @@ private struct HomeElectricityCard: View {
     let exhaustionInfo: String?
 
     var body: some View {
-        NavigationLink(destination: ElectricityQueryView()) {
+        TrackLink(destination: ElectricityQueryView()) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Image(systemName: "bolt.fill")
@@ -409,7 +410,7 @@ private struct HomeUrgentListView: View {
     var body: some View {
         VStack(spacing: 12) {
             ForEach(viewModel.displayedUrgentCourses, id: \.name) { course in
-                NavigationLink(destination: UrgentCoursesView()) {
+                TrackLink(destination: UrgentCoursesView()) {
                     HStack(spacing: 12) {
                         RoundedRectangle(cornerRadius: 2)
                             .fill(Color.orange)
@@ -441,7 +442,7 @@ private struct HomeUrgentListView: View {
             }
 
             if viewModel.urgentCoursesRemainingCount > 0 {
-                NavigationLink(destination: UrgentCoursesView()) {
+                TrackLink(destination: UrgentCoursesView()) {
                     Text("还有 \(viewModel.urgentCoursesRemainingCount) 项作业待提交...")
                         .font(.caption)
                         .foregroundStyle(.blue)
@@ -511,7 +512,7 @@ private struct HomeExamListView: View {
             }
 
             if viewModel.examsRemainingCount > 0 {
-                NavigationLink(destination: ExamScheduleView()) {
+                TrackLink(destination: ExamScheduleView()) {
                     Text("还有 \(viewModel.examsRemainingCount) 场考试安排...")
                         .font(.caption)
                         .foregroundStyle(.blue)

@@ -210,6 +210,7 @@ struct ProfileView: View {
         } message: {
             Text(notificationManager.errorDescription)
         }
+        .trackView("Profile")
     }
 }
 

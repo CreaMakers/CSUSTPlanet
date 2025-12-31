@@ -49,19 +49,24 @@ struct ContentView: View {
                     }
                     .tag(TabItem.profile)
             }
+            .trackRoot("App")
             .navigationTitle(globalManager.selectedTab.rawValue)
             .toolbarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $globalManager.isFromElectricityWidget) {
                 ElectricityQueryView()
+                    .trackRoot("Widget")
             }
             .navigationDestination(isPresented: $globalManager.isFromCourseScheduleWidget) {
                 CourseScheduleView()
+                    .trackRoot("Widget")
             }
             .navigationDestination(isPresented: $globalManager.isFromGradeAnalysisWidget) {
                 GradeAnalysisView()
+                    .trackRoot("Widget")
             }
             .navigationDestination(isPresented: $globalManager.isFromUrgentCoursesWidget) {
                 UrgentCoursesView()
+                    .trackRoot("Widget")
             }
         }
 

@@ -118,6 +118,7 @@ struct GradeQueryView: View {
                 }
             }
         }
+        .trackView("GradeQueryFilter")
     }
 
     // MARK: - Empty State Section
@@ -199,7 +200,7 @@ struct GradeQueryView: View {
 
     @ViewBuilder
     private func gradeCard(courseGrade: EduHelper.CourseGrade) -> some View {
-        NavigationLink(destination: GradeDetailView(courseGrade: courseGrade)) {
+        TrackLink(destination: GradeDetailView(courseGrade: courseGrade)) {
             gradeCardContent(courseGrade: courseGrade)
         }
     }
@@ -246,6 +247,7 @@ struct GradeQueryView: View {
         .navigationTitle("成绩查询")
         .navigationBarTitleDisplayMode(.inline)
         .environment(\.editMode, .constant(viewModel.isSelectionMode ? .active : .inactive))
+        .trackView("GradeQuery")
     }
 
     // MARK: - Main Toolbar

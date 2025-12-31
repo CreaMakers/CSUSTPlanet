@@ -61,6 +61,7 @@ struct FeaturesView: View {
                 .environmentObject(physicsExperimentManager)
         }
         .enableInjection()
+        .trackView("Features")
     }
 
     // MARK: - Extracted Subviews (各个板块)
@@ -234,7 +235,7 @@ private struct HeroCard<Destination: View>: View {
     let gradient: Color
 
     var body: some View {
-        NavigationLink(destination: destination) {
+        TrackLink(destination: destination) {
             ZStack(alignment: .bottomLeading) {
                 // Background
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
@@ -288,7 +289,7 @@ private struct MediumCard<Destination: View>: View {
     let color: Color
 
     var body: some View {
-        NavigationLink(destination: destination) {
+        TrackLink(destination: destination) {
             HStack {
                 Image(systemName: icon)
                     .font(.title3)
@@ -322,7 +323,7 @@ private struct ServiceSquare<Destination: View>: View {
     let color: Color
 
     var body: some View {
-        NavigationLink(destination: destination) {
+        TrackLink(destination: destination) {
             VStack(alignment: .center, spacing: 10) {
                 Image(systemName: icon)
                     .font(.title2)
@@ -367,7 +368,7 @@ private struct ToolRow<Destination: View, Accessory: View>: View {
     }
 
     var body: some View {
-        NavigationLink(destination: destination) {
+        TrackLink(destination: destination) {
             HStack(spacing: 16) {
                 Image(systemName: icon)
                     .font(.body)

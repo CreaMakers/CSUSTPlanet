@@ -167,5 +167,6 @@ struct GradeDetailView: View {
                 }
             }
         }
+        .trackView("GradeDetail")
     }
 }

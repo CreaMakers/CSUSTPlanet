@@ -72,6 +72,7 @@ struct CourseScheduleView: View {
                 .environmentObject(viewModel)
         }
         .enableInjection()
+        .trackView("CourseSchedule")
     }
 
     // MARK: - 空状态视图
