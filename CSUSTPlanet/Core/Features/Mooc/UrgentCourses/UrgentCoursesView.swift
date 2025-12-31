@@ -53,7 +53,7 @@ struct UrgentCoursesView: View {
             if let data = viewModel.data, !data.value.courses.isEmpty {
                 List {
                     ForEach(data.value.courses, id: \.id) { course in
-                        NavigationLink(destination: CourseDetailView(id: course.id, name: course.name)) {
+                        TrackLink(destination: CourseDetailView(id: course.id, name: course.name)) {
                             courseCard(course: course)
                         }
                     }
@@ -91,6 +91,7 @@ struct UrgentCoursesView: View {
         }
         .navigationTitle("待提交作业")
         .toolbarTitleDisplayMode(.inline)
+        .trackView("UrgentCourses")
     }
 }
 

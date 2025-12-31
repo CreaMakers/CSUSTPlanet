@@ -43,6 +43,7 @@ struct CoursesView: View {
                 .disabled(viewModel.isLoading)
             }
         }
+        .trackView("Courses")
     }
 
     // MARK: - Form Sections
@@ -71,7 +72,7 @@ struct CoursesView: View {
     private var courseListSection: some View {
         Section {
             ForEach(viewModel.filteredCourses, id: \.self) { course in
-                NavigationLink(destination: CourseDetailView(course: course)) {
+                TrackLink(destination: CourseDetailView(course: course)) {
                     courseCard(course: course)
                 }
             }

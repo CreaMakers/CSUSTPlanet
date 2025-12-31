@@ -71,6 +71,7 @@ struct CourseDetailView: View {
         .toast(isPresenting: $viewModel.isShowingSuccess) {
             AlertToast(type: .complete(.green), title: "添加到提醒事项成功")
         }
+        .trackView("CourseDetail")
     }
 
     // MARK: - Form Sections
