@@ -40,7 +40,7 @@ struct OverviewView: View {
                             title: "待提交作业",
                             icon: "doc.text.fill",
                             color: .red,
-                            destination: UrgentCoursesView().track(["App", "Overview", "UrgentCourses"])
+                            destination: UrgentCoursesView()
                         )
 
                         let courses = viewModel.urgentCourses
@@ -61,7 +61,7 @@ struct OverviewView: View {
                             title: "考试安排",
                             icon: "calendar.badge.clock",
                             color: .orange,
-                            destination: ExamScheduleView().track(["App", "Overview", "ExamSchedule"])
+                            destination: ExamScheduleView()
                         )
 
                         let pendingExams = viewModel.pendingExams
@@ -180,7 +180,7 @@ private struct HomeCourseCarousel: View {
                 title: "今日课程",
                 icon: "book.fill",
                 color: .purple,
-                destination: CourseScheduleView().track(["App", "Overview", "CourseSchedule"])
+                destination: CourseScheduleView()
             )
             .padding(.horizontal)
 
@@ -306,7 +306,7 @@ private struct HomeGradeCard: View {
     let analysisData: GradeAnalysisData?
 
     var body: some View {
-        NavigationLink(destination: GradeAnalysisView().track(["App", "Overview", "GradeAnalysis"])) {
+        NavigationLink(destination: GradeAnalysisView()) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Image(systemName: "chart.bar.fill")
@@ -350,7 +350,7 @@ private struct HomeElectricityCard: View {
     let exhaustionInfo: String?
 
     var body: some View {
-        NavigationLink(destination: ElectricityQueryView().track(["App", "Overview", "ElectricityQuery"])) {
+        NavigationLink(destination: ElectricityQueryView()) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Image(systemName: "bolt.fill")
@@ -409,7 +409,7 @@ private struct HomeUrgentListView: View {
     var body: some View {
         VStack(spacing: 12) {
             ForEach(viewModel.displayedUrgentCourses, id: \.name) { course in
-                NavigationLink(destination: UrgentCoursesView().track(["App", "Overview", "UrgentCourses"])) {
+                NavigationLink(destination: UrgentCoursesView()) {
                     HStack(spacing: 12) {
                         RoundedRectangle(cornerRadius: 2)
                             .fill(Color.orange)
@@ -441,7 +441,7 @@ private struct HomeUrgentListView: View {
             }
 
             if viewModel.urgentCoursesRemainingCount > 0 {
-                NavigationLink(destination: UrgentCoursesView().track(["App", "Overview", "UrgentCourses"])) {
+                NavigationLink(destination: UrgentCoursesView()) {
                     Text("还有 \(viewModel.urgentCoursesRemainingCount) 项作业待提交...")
                         .font(.caption)
                         .foregroundStyle(.blue)
@@ -511,7 +511,7 @@ private struct HomeExamListView: View {
             }
 
             if viewModel.examsRemainingCount > 0 {
-                NavigationLink(destination: ExamScheduleView().track(["App", "Overview", "ExamSchedule"])) {
+                NavigationLink(destination: ExamScheduleView()) {
                     Text("还有 \(viewModel.examsRemainingCount) 场考试安排...")
                         .font(.caption)
                         .foregroundStyle(.blue)

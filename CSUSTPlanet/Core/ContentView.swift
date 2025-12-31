@@ -36,39 +36,32 @@ struct ContentView: View {
                         Text(TabItem.overview.rawValue)
                     }
                     .tag(TabItem.overview)
-                    .track(["App", "Overview"])
                 FeaturesView()
                     .tabItem {
                         Image(uiImage: UIImage(systemName: "square.grid.2x2")!)
                         Text(TabItem.features.rawValue)
                     }
                     .tag(TabItem.features)
-                    .track(["App", "Features"])
                 ProfileView()
                     .tabItem {
                         Image(uiImage: UIImage(systemName: "person")!)
                         Text(TabItem.profile.rawValue)
                     }
                     .tag(TabItem.profile)
-                    .track(["App", "Profile"])
             }
             .navigationTitle(globalManager.selectedTab.rawValue)
             .toolbarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $globalManager.isFromElectricityWidget) {
                 ElectricityQueryView()
-                    .track(["Widget", "ElectricityQuery"])
             }
             .navigationDestination(isPresented: $globalManager.isFromCourseScheduleWidget) {
                 CourseScheduleView()
-                    .track(["Widget", "CourseSchedule"])
             }
             .navigationDestination(isPresented: $globalManager.isFromGradeAnalysisWidget) {
                 GradeAnalysisView()
-                    .track(["Widget", "GradeAnalysis"])
             }
             .navigationDestination(isPresented: $globalManager.isFromUrgentCoursesWidget) {
                 UrgentCoursesView()
-                    .track(["Widget", "UrgentCourses"])
             }
         }
 

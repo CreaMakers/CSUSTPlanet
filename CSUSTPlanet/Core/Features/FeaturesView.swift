@@ -84,10 +84,10 @@ struct FeaturesView: View {
             }
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: spacing)], spacing: spacing) {
-                HeroCard(destination: CourseScheduleView().track(["App", "Features", "CourseSchedule"]), title: "我的课表", subtitle: "每周课程", icon: "calendar", gradient: .purple)
-                HeroCard(destination: GradeQueryView().track(["App", "Features", "GradeQuery"]), title: "成绩查询", subtitle: "GPA / 成绩详细", icon: "doc.text.magnifyingglass", gradient: .blue)
-                HeroCard(destination: ExamScheduleView().track(["App", "Features", "ExamSchedule"]), title: "考试安排", subtitle: "考场 / 时间", icon: "pencil.and.outline", gradient: .orange)
-                HeroCard(destination: GradeAnalysisView().track(["App", "Features", "GradeAnalysis"]), title: "成绩分析", subtitle: "可视化图表", icon: "chart.bar.xaxis", gradient: .green)
+                HeroCard(destination: CourseScheduleView(), title: "我的课表", subtitle: "每周课程", icon: "calendar", gradient: .purple)
+                HeroCard(destination: GradeQueryView(), title: "成绩查询", subtitle: "GPA / 成绩详细", icon: "doc.text.magnifyingglass", gradient: .blue)
+                HeroCard(destination: ExamScheduleView(), title: "考试安排", subtitle: "考场 / 时间", icon: "pencil.and.outline", gradient: .orange)
+                HeroCard(destination: GradeAnalysisView(), title: "成绩分析", subtitle: "可视化图表", icon: "chart.bar.xaxis", gradient: .green)
             }
         }
         .padding(.horizontal, horizontalPadding)
@@ -112,8 +112,8 @@ struct FeaturesView: View {
             }
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), spacing: spacing)], spacing: spacing) {
-                MediumCard(destination: CoursesView().track(["App", "Features", "Courses"]), title: "所有课程", icon: "books.vertical.fill", color: .indigo)
-                MediumCard(destination: UrgentCoursesView().track(["App", "Features", "UrgentCourses"]), title: "待办作业", icon: "list.bullet.clipboard", color: .red)
+                MediumCard(destination: CoursesView(), title: "所有课程", icon: "books.vertical.fill", color: .indigo)
+                MediumCard(destination: UrgentCoursesView(), title: "待办作业", icon: "list.bullet.clipboard", color: .red)
             }
         }
         .padding(.horizontal, horizontalPadding)
@@ -144,11 +144,11 @@ struct FeaturesView: View {
 
     @ViewBuilder
     private var toolItems: some View {
-        ServiceSquare(destination: ElectricityQueryView().track(["App", "Features", "ElectricityQuery"]), title: "电量查询", icon: "bolt.fill", color: .yellow)
-        ServiceSquare(destination: ElectricityRechargeView().track(["App", "Features", "ElectricityRecharge"]), title: "电费充值", icon: "creditcard.fill", color: .cyan)
-        ServiceSquare(destination: CampusMapView().track(["App", "Features", "CampusMap"]), title: "校园地图", icon: "map.fill", color: .mint)
-        ServiceSquare(destination: SchoolCalendarListView().track(["App", "Features", "SchoolCalendarList"]), title: "校历", icon: "calendar.badge.clock", color: .pink)
-        ServiceSquare(destination: WebVPNConverterView().track(["App", "Features", "WebVPNConverter"]), title: "WebVPN", icon: "lock.shield", color: .gray)
+        ServiceSquare(destination: ElectricityQueryView(), title: "电量查询", icon: "bolt.fill", color: .yellow)
+        ServiceSquare(destination: ElectricityRechargeView(), title: "电费充值", icon: "creditcard.fill", color: .cyan)
+        ServiceSquare(destination: CampusMapView(), title: "校园地图", icon: "map.fill", color: .mint)
+        ServiceSquare(destination: SchoolCalendarListView(), title: "校历", icon: "calendar.badge.clock", color: .pink)
+        ServiceSquare(destination: WebVPNConverterView(), title: "WebVPN", icon: "lock.shield", color: .gray)
     }
 
     private var physicsSection: some View {
@@ -169,13 +169,13 @@ struct FeaturesView: View {
 
             VStack(spacing: 0) {
                 ToolRow(
-                    destination: PhysicsExperimentScheduleView().track(["App", "Features", "PhysicsExperimentSchedule"]).environmentObject(physicsExperimentManager),
+                    destination: PhysicsExperimentScheduleView().environmentObject(physicsExperimentManager),
                     title: "物理实验安排", icon: "calendar", color: .purple)
 
                 Divider().padding(.leading, 56)
 
                 ToolRow(
-                    destination: PhysicsExperimentGradeView().track(["App", "Features", "PhysicsExperimentGrade"]).environmentObject(physicsExperimentManager),
+                    destination: PhysicsExperimentGradeView().environmentObject(physicsExperimentManager),
                     title: "物理实验成绩", icon: "doc.text", color: .purple
                 )
             }
@@ -190,11 +190,11 @@ struct FeaturesView: View {
             sectionHeader(title: "考试查询", icon: "magnifyingglass.circle", color: .indigo)
 
             VStack(spacing: 0) {
-                ToolRow(destination: CETView().track(["App", "Features", "CET"]), title: "四六级查询", icon: "character.book.closed", color: .indigo)
+                ToolRow(destination: CETView(), title: "四六级查询", icon: "character.book.closed", color: .indigo)
 
                 Divider().padding(.leading, 56)
 
-                ToolRow(destination: MandarinView().track(["App", "Features", "Mandarin"]), title: "普通话查询", icon: "mic.circle.fill", color: .indigo)
+                ToolRow(destination: MandarinView(), title: "普通话查询", icon: "mic.circle.fill", color: .indigo)
             }
             .background(Color(uiColor: .secondarySystemGroupedBackground))
             .cornerRadius(16)
