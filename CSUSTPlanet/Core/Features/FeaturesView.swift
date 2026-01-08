@@ -145,9 +145,10 @@ struct FeaturesView: View {
     @ViewBuilder
     private var toolItems: some View {
         ServiceSquare(destination: ElectricityQueryView(), title: "电量查询", icon: "bolt.fill", color: .yellow)
-        ServiceSquare(destination: ElectricityRechargeView(), title: "电费充值", icon: "creditcard.fill", color: .cyan)
+        ServiceSquare(destination: AvailableClassroomView(), title: "空教室查询", icon: "building.2.fill", color: .blue)
         ServiceSquare(destination: CampusMapView(), title: "校园地图", icon: "map.fill", color: .mint)
         ServiceSquare(destination: SchoolCalendarListView(), title: "校历", icon: "calendar.badge.clock", color: .pink)
+        ServiceSquare(destination: ElectricityRechargeView(), title: "电费充值", icon: "creditcard.fill", color: .cyan)
         ServiceSquare(destination: WebVPNConverterView(), title: "WebVPN", icon: "lock.shield", color: .gray)
     }
 
