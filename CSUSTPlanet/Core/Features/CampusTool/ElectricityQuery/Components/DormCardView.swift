@@ -110,14 +110,10 @@ struct DormCardView: View {
             .tint(.yellow)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(
-                role: .destructive,
-                action: {
-                    viewModel.isConfirmationDialogPresented = true
-                }
-            ) {
+            Button(action: { viewModel.isConfirmationDialogPresented = true }) {
                 Label("删除", systemImage: "trash")
             }
+            .tint(.red)
         }
         .contextMenu {
             Button(action: { viewModel.isConfirmationDialogPresented = true }) {
