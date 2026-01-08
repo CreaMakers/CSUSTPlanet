@@ -39,9 +39,8 @@ struct UrgentCoursesEntryView: View {
                     }
                     Divider()
                     if data.courses.isEmpty {
+                        Spacer()
                         Text("无待提交作业")
-                            .font(.system(size: 20))
-                            .foregroundColor(.secondary)
                         Spacer()
                     } else {
                         VStack(alignment: .leading, spacing: 4) {
