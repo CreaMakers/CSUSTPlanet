@@ -19,11 +19,17 @@ final class TrackHelper {
     }
 
     func setup() {
-        tracker.dispatchInterval = 60
-
         #if DEBUG
             tracker.logger = DefaultLogger(minLevel: .debug)
         #endif
+
+        if let index = Int(Constants.matomoDimensionIDAppFullVersion),
+            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+            let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
+        {
+            tracker.setDimension("\(version) (\(buildNumber))", forIndex: index)
+        }
+        tracker.dispatchInterval = 60
 
         Logger.trackHelper.debug("初始化 MatomoTracker")
 
