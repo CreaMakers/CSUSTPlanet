@@ -32,6 +32,13 @@ struct CampusMapView: View {
                     }
                     .tag(building)
                 }
+                UserAnnotation()
+            }
+            .mapControls {
+                MapUserLocationButton()
+                MapCompass()
+                MapScaleView()
+                MapPitchToggle()
             }
             .frame(height: 320)
 

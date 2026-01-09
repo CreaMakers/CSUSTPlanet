@@ -6,6 +6,7 @@
 //
 
 import CSUSTKit
+import CoreLocation
 import MapKit
 import SwiftUI
 
@@ -87,9 +88,15 @@ final class CampusMapViewModel: ObservableObject {
     }
 
     private var buildingPolygons: [String: [CLLocationCoordinate2D]] = [:]
+    private let locationManager = CLLocationManager()
 
     init() {
         loadBuildings()
+        requestLocationPermission()
+    }
+
+    func requestLocationPermission() {
+        locationManager.requestWhenInUseAuthorization()
     }
 
     func loadBuildings() {
