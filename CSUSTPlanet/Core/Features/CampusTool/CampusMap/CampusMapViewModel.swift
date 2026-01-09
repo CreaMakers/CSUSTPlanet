@@ -2,34 +2,12 @@
 //  CampusMapViewModel.swift
 //  CSUSTPlanet
 //
-//  Created by Zhe_Learn on 2026/01/09.
+//  Created by Zhe_Learn on 2026/1/9.
 //
 
 import CSUSTKit
 import MapKit
 import SwiftUI
-
-enum BuildingCategory: String, CaseIterable, Identifiable {
-    case all = "all"
-    case teachingBuilding = "teaching-building"
-    case library = "library"
-    case dormitory = "dormitory"
-    case canteen = "canteen"
-    case other = "other"
-
-    var id: String { rawValue }
-
-    var displayName: String {
-        switch self {
-        case .all: return "全部"
-        case .teachingBuilding: return "教学楼"
-        case .library: return "图书馆"
-        case .dormitory: return "宿舍"
-        case .canteen: return "食堂"
-        case .other: return "其他"
-        }
-    }
-}
 
 // GeoJSON Data Models
 struct GeoJSON: Decodable {
@@ -37,62 +15,68 @@ struct GeoJSON: Decodable {
     let features: [Feature]
 }
 
-struct Feature: Decodable, Identifiable {
+struct Feature: Decodable, Identifiable, Equatable, Hashable {
     let type: String
     let properties: FeatureProperties
     let geometry: FeatureGeometry
 
-    var id: String { properties.name }
-
-    static func == (lhs: Feature, rhs: Feature) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
+    var id: String { properties.name + properties.campus }
 }
 
-extension Feature: Equatable, Hashable {}
-
-struct FeatureProperties: Decodable {
+struct FeatureProperties: Decodable, Hashable {
     let name: String
     let category: String
+    let campus: String
 }
 
-struct FeatureGeometry: Decodable {
+struct FeatureGeometry: Decodable, Hashable {
     let type: String
     let coordinates: [[[Double]]]
 }
 
 @MainActor
 final class CampusMapViewModel: ObservableObject {
-    @Published var selectedCampus: CampusCardHelper.Campus = .jinpenling
+    @Published var selectedCampus: CampusCardHelper.Campus = .jinpenling {
+        didSet {
+            selectedCategory = nil
+            selectedBuilding = nil
+            centerMapOnCampus()
+        }
+    }
     @Published var isOnlineMapShown: Bool = false
     @Published var allBuildings: [Feature] = []
-    @Published var selectedCategory: BuildingCategory = .all
+    @Published var selectedCategory: String? = nil
     @Published var selectedBuilding: Feature? {
         didSet {
             if let building = selectedBuilding {
                 let center = getCenter(for: building)
                 withAnimation {
-                    mapPosition = .region(MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)))
+                    mapPosition = .region(MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.013, longitudeDelta: 0.013)))
                 }
             }
         }
     }
     @Published var mapPosition: MapCameraPosition = .region(MKCoordinateRegion(center: CampusMapViewModel.defaultLocation, span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)))
 
-    static let defaultLocation = CLLocationCoordinate2D(latitude: 28.160, longitude: 112.972)  // Adjusted slightly to center clearer
+    static let defaultLocation = CLLocationCoordinate2D(latitude: 28.160, longitude: 112.972)
 
-    var filteredBuildings: [Feature] {
-        if selectedCategory == .all {
-            return allBuildings
-        }
-        return allBuildings.filter { $0.properties.category == selectedCategory.rawValue }
+    var availableCategories: [String?] {
+        let buildings = allBuildings.filter { $0.properties.campus == selectedCampus.rawValue }
+        let existingCategories = Set(buildings.map { $0.properties.category })
+        var categories: [String?] = Array(existingCategories).sorted().map { Optional($0) }
+        categories.insert(nil, at: 0)
+        return categories
     }
 
-    // Helper to cache polygon coordinates
+    var filteredBuildings: [Feature] {
+        let campusBuildings = allBuildings.filter { $0.properties.campus == selectedCampus.rawValue }
+
+        guard let category = selectedCategory else {
+            return campusBuildings
+        }
+        return campusBuildings.filter { $0.properties.category == category }
+    }
+
     private var buildingPolygons: [String: [CLLocationCoordinate2D]] = [:]
 
     init() {
@@ -100,7 +84,7 @@ final class CampusMapViewModel: ObservableObject {
     }
 
     func loadBuildings() {
-        guard let url = Bundle.main.url(forResource: "map", withExtension: "geojson") ?? Bundle.main.url(forResource: "map", withExtension: "json") else {
+        guard let url = Bundle.main.url(forResource: "map", withExtension: "geojson") else {
             print("Failed to find map.geojson")
             return
         }
@@ -108,9 +92,18 @@ final class CampusMapViewModel: ObservableObject {
         do {
             let data = try Data(contentsOf: url)
             let geoJSON = try JSONDecoder().decode(GeoJSON.self, from: data)
-            self.allBuildings = geoJSON.features
+            self.allBuildings = geoJSON.features.sorted {
+                $0.properties.name.localizedStandardCompare($1.properties.name) == .orderedAscending
+            }
+            centerMapOnCampus()
         } catch {
             print("Failed to decode buildings: \(error)")
+        }
+    }
+
+    func centerMapOnCampus() {
+        withAnimation {
+            mapPosition = .region(MKCoordinateRegion(center: selectedCampus.center, span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015)))
         }
     }
 
@@ -142,46 +135,41 @@ final class CampusMapViewModel: ObservableObject {
             selectedBuilding = building
         }
     }
+
+    func color(for category: String) -> Color {
+        switch category {
+        case "教学楼": return .orange
+        case "图书馆": return .blue
+        case "体育": return .cyan
+        case "食堂": return .red
+        case "宿舍", "东苑宿舍", "南苑宿舍", "西苑宿舍": return .green
+        case "行政办公": return .purple
+        case "生活休闲": return .pink
+        default: return .gray
+        }
+    }
+
+    func icon(for category: String) -> String {
+        switch category {
+        case "教学楼": return "building.columns.fill"
+        case "图书馆": return "books.vertical.fill"
+        case "体育": return "sportscourt.fill"
+        case "食堂": return "fork.knife"
+        case "宿舍", "东苑宿舍", "南苑宿舍", "西苑宿舍": return "bed.double.fill"
+        case "行政办公": return "briefcase.fill"
+        case "生活休闲": return "cup.and.saucer.fill"
+        default: return "building.2.fill"
+        }
+    }
 }
 
-struct CoordinateConverter {
-    static let a = 6378245.0
-    static let ee = 0.00669342162296594323
-
-    static func wgs84ToGcj02(lat: Double, lon: Double) -> CLLocationCoordinate2D {
-        if outOfChina(lat: lat, lon: lon) {
-            return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+extension CampusCardHelper.Campus {
+    var center: CLLocationCoordinate2D {
+        switch self {
+        case .jinpenling:
+            return CLLocationCoordinate2D(latitude: 28.154679492037516, longitude: 112.97786900346351)
+        case .yuntang:
+            return CLLocationCoordinate2D(latitude: 28.06667705205599, longitude: 113.00821135314567)
         }
-        var dLat = transformLat(x: lon - 105.0, y: lat - 35.0)
-        var dLon = transformLon(x: lon - 105.0, y: lat - 35.0)
-        let radLat = lat / 180.0 * .pi
-        var magic = sin(radLat)
-        magic = 1 - ee * magic * magic
-        let sqrtMagic = sqrt(magic)
-        dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * .pi)
-        dLon = (dLon * 180.0) / (a / sqrtMagic * cos(radLat) * .pi)
-        return CLLocationCoordinate2D(latitude: lat + dLat, longitude: lon + dLon)
-    }
-
-    static func transformLat(x: Double, y: Double) -> Double {
-        var ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * sqrt(abs(x))
-        ret += (20.0 * sin(6.0 * x * .pi) + 20.0 * sin(2.0 * x * .pi)) * 2.0 / 3.0
-        ret += (20.0 * sin(y * .pi) + 40.0 * sin(y / 3.0 * .pi)) * 2.0 / 3.0
-        ret += (160.0 * sin(y / 12.0 * .pi) + 320 * sin(y * .pi / 30.0)) * 2.0 / 3.0
-        return ret
-    }
-
-    static func transformLon(x: Double, y: Double) -> Double {
-        var ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * sqrt(abs(x))
-        ret += (20.0 * sin(6.0 * x * .pi) + 20.0 * sin(2.0 * x * .pi)) * 2.0 / 3.0
-        ret += (20.0 * sin(x * .pi) + 40.0 * sin(x / 3.0 * .pi)) * 2.0 / 3.0
-        ret += (150.0 * sin(x / 12.0 * .pi) + 300.0 * sin(x / 30.0 * .pi)) * 2.0 / 3.0
-        return ret
-    }
-
-    static func outOfChina(lat: Double, lon: Double) -> Bool {
-        if lon < 72.004 || lon > 137.8347 { return true }
-        if lat < 0.8293 || lat > 55.8271 { return true }
-        return false
     }
 }
