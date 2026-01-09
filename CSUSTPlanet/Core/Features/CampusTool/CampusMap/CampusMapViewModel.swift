@@ -144,6 +144,14 @@ final class CampusMapViewModel: ObservableObject {
         return CLLocationCoordinate2D(latitude: totalLat / Double(coords.count), longitude: totalLon / Double(coords.count))
     }
 
+    func openNavigation(for building: Feature) {
+        let coordinate = getCenter(for: building)
+        let placemark = MKPlacemark(coordinate: coordinate)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = building.properties.name
+        mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
+    }
+
     func selectBuilding(_ building: Feature) {
         if selectedBuilding == building {
             selectedBuilding = nil

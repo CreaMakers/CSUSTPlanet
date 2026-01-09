@@ -69,38 +69,50 @@ struct CampusMapView: View {
                 } else {
                     LazyVStack(spacing: 8) {
                         ForEach(viewModel.filteredBuildings) { building in
-                            Button(action: { viewModel.selectBuilding(building) }) {
-                                HStack(spacing: 12) {
-                                    // Icon
-                                    ZStack {
-                                        Circle()
-                                            .fill(viewModel.color(for: building.properties.category).opacity(0.1))
-                                            .frame(width: 40, height: 40)
-                                        Image(systemName: viewModel.icon(for: building.properties.category))
-                                            .font(.title2)
-                                            .foregroundColor(viewModel.color(for: building.properties.category))
+                            HStack(spacing: 0) {
+                                Button(action: { viewModel.selectBuilding(building) }) {
+                                    HStack(spacing: 12) {
+                                        // Icon
+                                        ZStack {
+                                            Circle()
+                                                .fill(viewModel.color(for: building.properties.category).opacity(0.1))
+                                                .frame(width: 40, height: 40)
+                                            Image(systemName: viewModel.icon(for: building.properties.category))
+                                                .font(.title2)
+                                                .foregroundColor(viewModel.color(for: building.properties.category))
+                                        }
+
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(building.properties.name)
+                                                .font(.headline)
+                                                .foregroundColor(.primary)
+
+                                            Text(building.properties.category)
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                        }
+
+                                        Spacer()
                                     }
-
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(building.properties.name)
-                                            .font(.headline)
-                                            .foregroundColor(.primary)
-
-                                        Text(building.properties.category)
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-
-                                    Spacer()
+                                    .contentShape(Rectangle())
                                 }
-                                .padding(12)
-                                .background(Color(.secondarySystemBackground))
-                                .cornerRadius(12)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(viewModel.selectedBuilding == building ? Color.accentColor : Color.clear, lineWidth: 2)
-                                )
+                                .buttonStyle(PlainButtonStyle())
+
+                                Button(action: { viewModel.openNavigation(for: building) }) {
+                                    Image(systemName: "arrow.triangle.turn.up.right.circle.fill")
+                                        .font(.largeTitle)
+                                        .symbolRenderingMode(.hierarchical)
+                                        .foregroundColor(.accentColor)
+                                        .frame(width: 50, height: 50)
+                                }
                             }
+                            .padding(12)
+                            .background(Color(.secondarySystemBackground))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(viewModel.selectedBuilding == building ? Color.accentColor : Color.clear, lineWidth: 2)
+                            )
                             .padding(.horizontal)
                         }
                     }
