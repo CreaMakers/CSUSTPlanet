@@ -5,8 +5,8 @@
       "type": "Feature",
       "properties": {
         "name": "10号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -25,8 +25,8 @@
       "type": "Feature",
       "properties": {
         "name": "11号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -47,8 +47,8 @@
       "type": "Feature",
       "properties": {
         "name": "12号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -67,8 +67,8 @@
       "type": "Feature",
       "properties": {
         "name": "13号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -88,8 +88,8 @@
       "type": "Feature",
       "properties": {
         "name": "14号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -112,8 +112,8 @@
       "type": "Feature",
       "properties": {
         "name": "15号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -138,8 +138,8 @@
       "type": "Feature",
       "properties": {
         "name": "16号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -160,8 +160,8 @@
       "type": "Feature",
       "properties": {
         "name": "1号教学楼（电苑楼）",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -188,8 +188,8 @@
       "type": "Feature",
       "properties": {
         "name": "2号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -208,8 +208,8 @@
       "type": "Feature",
       "properties": {
         "name": "3号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -232,8 +232,8 @@
       "type": "Feature",
       "properties": {
         "name": "4号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -252,8 +252,8 @@
       "type": "Feature",
       "properties": {
         "name": "5号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -272,8 +272,8 @@
       "type": "Feature",
       "properties": {
         "name": "6号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -298,8 +298,8 @@
       "type": "Feature",
       "properties": {
         "name": "7号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -318,8 +318,8 @@
       "type": "Feature",
       "properties": {
         "name": "8号教学楼（经管大楼）",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -338,8 +338,8 @@
       "type": "Feature",
       "properties": {
         "name": "9号教学楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -364,8 +364,8 @@
       "type": "Feature",
       "properties": {
         "name": "东游泳馆",
-        "category": "sports",
-        "campus": "jinpenling"
+        "category": "体育",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -385,8 +385,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑一食堂",
-        "category": "canteen",
-        "campus": "jinpenling"
+        "category": "食堂",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -406,8 +406,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑学生宿舍11栋",
-        "category": "dormitory-east",
-        "campus": "jinpenling"
+        "category": "东苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -426,8 +426,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑学生宿舍14栋",
-        "category": "dormitory-east",
-        "campus": "jinpenling"
+        "category": "东苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -454,8 +454,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑学生宿舍15栋",
-        "category": "dormitory-east",
-        "campus": "jinpenling"
+        "category": "东苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -474,8 +474,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑学生宿舍1栋",
-        "category": "dormitory-east",
-        "campus": "jinpenling"
+        "category": "东苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -494,8 +494,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑学生宿舍2栋",
-        "category": "dormitory-east",
-        "campus": "jinpenling"
+        "category": "东苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -514,8 +514,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑学生宿舍3栋",
-        "category": "dormitory-east",
-        "campus": "jinpenling"
+        "category": "东苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -534,8 +534,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑学生宿舍4栋",
-        "category": "dormitory-east",
-        "campus": "jinpenling"
+        "category": "东苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -556,8 +556,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑学生宿舍5栋",
-        "category": "dormitory-east",
-        "campus": "jinpenling"
+        "category": "东苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -584,8 +584,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑学生宿舍6栋",
-        "category": "dormitory-east",
-        "campus": "jinpenling"
+        "category": "东苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -604,8 +604,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑学生宿舍8栋",
-        "category": "dormitory-east",
-        "campus": "jinpenling"
+        "category": "东苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -637,8 +637,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑学生宿舍9栋",
-        "category": "dormitory-east",
-        "campus": "jinpenling"
+        "category": "东苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -657,8 +657,8 @@
       "type": "Feature",
       "properties": {
         "name": "东苑食堂",
-        "category": "canteen",
-        "campus": "jinpenling"
+        "category": "食堂",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -682,8 +682,8 @@
       "type": "Feature",
       "properties": {
         "name": "体育馆",
-        "category": "sports",
-        "campus": "jinpenling"
+        "category": "体育",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -714,8 +714,8 @@
       "type": "Feature",
       "properties": {
         "name": "保卫部",
-        "category": "admin-service",
-        "campus": "jinpenling"
+        "category": "行政办公",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -737,8 +737,8 @@
       "type": "Feature",
       "properties": {
         "name": "南苑学生宿舍1栋",
-        "category": "dormitory-south",
-        "campus": "jinpenling"
+        "category": "南苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -779,8 +779,8 @@
       "type": "Feature",
       "properties": {
         "name": "南苑学生宿舍2栋",
-        "category": "dormitory-south",
-        "campus": "jinpenling"
+        "category": "南苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -809,8 +809,8 @@
       "type": "Feature",
       "properties": {
         "name": "南苑学生宿舍3栋",
-        "category": "dormitory-south",
-        "campus": "jinpenling"
+        "category": "南苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -837,8 +837,8 @@
       "type": "Feature",
       "properties": {
         "name": "南苑学生宿舍4栋",
-        "category": "dormitory-south",
-        "campus": "jinpenling"
+        "category": "南苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -859,8 +859,8 @@
       "type": "Feature",
       "properties": {
         "name": "南苑学生宿舍5栋",
-        "category": "dormitory-south",
-        "campus": "jinpenling"
+        "category": "南苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -879,8 +879,8 @@
       "type": "Feature",
       "properties": {
         "name": "南苑学生宿舍8栋",
-        "category": "dormitory-south",
-        "campus": "jinpenling"
+        "category": "南苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -907,8 +907,8 @@
       "type": "Feature",
       "properties": {
         "name": "南苑学生宿舍8栋",
-        "category": "dormitory-south",
-        "campus": "jinpenling"
+        "category": "南苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -932,8 +932,8 @@
       "type": "Feature",
       "properties": {
         "name": "南苑食堂",
-        "category": "canteen",
-        "campus": "jinpenling"
+        "category": "食堂",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -954,8 +954,8 @@
       "type": "Feature",
       "properties": {
         "name": "印刷厂",
-        "category": "leisure-life",
-        "campus": "jinpenling"
+        "category": "生活休闲",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -975,8 +975,8 @@
       "type": "Feature",
       "properties": {
         "name": "图书馆A馆",
-        "category": "library",
-        "campus": "jinpenling"
+        "category": "图书馆",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1003,8 +1003,8 @@
       "type": "Feature",
       "properties": {
         "name": "图书馆B馆",
-        "category": "library",
-        "campus": "jinpenling"
+        "category": "图书馆",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1023,8 +1023,8 @@
       "type": "Feature",
       "properties": {
         "name": "外教楼",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1046,8 +1046,8 @@
       "type": "Feature",
       "properties": {
         "name": "学生公寓管理服务中心",
-        "category": "admin-service",
-        "campus": "jinpenling"
+        "category": "行政办公",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1066,8 +1066,8 @@
       "type": "Feature",
       "properties": {
         "name": "排球场",
-        "category": "sports",
-        "campus": "jinpenling"
+        "category": "体育",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1086,8 +1086,8 @@
       "type": "Feature",
       "properties": {
         "name": "教职工活动中心",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1119,8 +1119,8 @@
       "type": "Feature",
       "properties": {
         "name": "校医院",
-        "category": "admin-service",
-        "campus": "jinpenling"
+        "category": "行政办公",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1141,8 +1141,8 @@
       "type": "Feature",
       "properties": {
         "name": "校友之家",
-        "category": "leisure-life",
-        "campus": "jinpenling"
+        "category": "生活休闲",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1161,8 +1161,8 @@
       "type": "Feature",
       "properties": {
         "name": "档案馆",
-        "category": "admin-service",
-        "campus": "jinpenling"
+        "category": "行政办公",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1181,8 +1181,8 @@
       "type": "Feature",
       "properties": {
         "name": "港航中心",
-        "category": "teaching",
-        "campus": "jinpenling"
+        "category": "教学楼",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1202,8 +1202,8 @@
       "type": "Feature",
       "properties": {
         "name": "田径运动场",
-        "category": "sports",
-        "campus": "jinpenling"
+        "category": "体育",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1229,8 +1229,8 @@
       "type": "Feature",
       "properties": {
         "name": "西网球场",
-        "category": "sports",
-        "campus": "jinpenling"
+        "category": "体育",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1249,8 +1249,8 @@
       "type": "Feature",
       "properties": {
         "name": "东网球场",
-        "category": "sports",
-        "campus": "jinpenling"
+        "category": "体育",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1270,8 +1270,8 @@
       "type": "Feature",
       "properties": {
         "name": "西游泳馆",
-        "category": "sports",
-        "campus": "jinpenling"
+        "category": "体育",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1291,8 +1291,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑学生宿舍10栋",
-        "category": "dormitory-west",
-        "campus": "jinpenling"
+        "category": "西苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1315,8 +1315,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑学生宿舍11栋",
-        "category": "dormitory-west",
-        "campus": "jinpenling"
+        "category": "西苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1339,8 +1339,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑学生宿舍1栋",
-        "category": "dormitory-west",
-        "campus": "jinpenling"
+        "category": "西苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1359,8 +1359,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑学生宿舍2栋",
-        "category": "dormitory-west",
-        "campus": "jinpenling"
+        "category": "西苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1379,8 +1379,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑学生宿舍3栋",
-        "category": "dormitory-west",
-        "campus": "jinpenling"
+        "category": "西苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1403,8 +1403,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑学生宿舍4栋",
-        "category": "dormitory-west",
-        "campus": "jinpenling"
+        "category": "西苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1431,8 +1431,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑学生宿舍5栋",
-        "category": "dormitory-west",
-        "campus": "jinpenling"
+        "category": "西苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1459,8 +1459,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑学生宿舍6栋",
-        "category": "dormitory-west",
-        "campus": "jinpenling"
+        "category": "西苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1481,8 +1481,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑学生宿舍7栋",
-        "category": "dormitory-west",
-        "campus": "jinpenling"
+        "category": "西苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1512,8 +1512,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑学生宿舍8栋",
-        "category": "dormitory-west",
-        "campus": "jinpenling"
+        "category": "西苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1543,8 +1543,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑学生宿舍9栋",
-        "category": "dormitory-west",
-        "campus": "jinpenling"
+        "category": "西苑宿舍",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1572,8 +1572,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑超市",
-        "category": "leisure-life",
-        "campus": "jinpenling"
+        "category": "生活休闲",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1593,8 +1593,8 @@
       "type": "Feature",
       "properties": {
         "name": "西苑食堂",
-        "category": "canteen",
-        "campus": "jinpenling"
+        "category": "食堂",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1617,8 +1617,8 @@
       "type": "Feature",
       "properties": {
         "name": "长沙理工大学幼儿园",
-        "category": "leisure-life",
-        "campus": "jinpenling"
+        "category": "生活休闲",
+        "campus": "金盆岭"
       },
       "geometry": {
         "coordinates": [
@@ -1644,8 +1644,8 @@
       "type": "Feature",
       "properties": {
         "name": "一办公楼",
-        "campus": "yuntang",
-        "category": "admin-service"
+        "campus": "云塘",
+        "category": "行政办公"
       },
       "geometry": {
         "coordinates": [
@@ -1667,8 +1667,8 @@
       "type": "Feature",
       "properties": {
         "name": "三全育人教育基地",
-        "campus": "yuntang",
-        "category": "leisure-life"
+        "campus": "云塘",
+        "category": "生活休闲"
       },
       "geometry": {
         "coordinates": [
@@ -1688,8 +1688,8 @@
       "type": "Feature",
       "properties": {
         "name": "二办公楼",
-        "campus": "yuntang",
-        "category": "admin-service"
+        "campus": "云塘",
+        "category": "行政办公"
       },
       "geometry": {
         "coordinates": [
@@ -1709,8 +1709,8 @@
       "type": "Feature",
       "properties": {
         "name": "体育馆",
-        "campus": "yuntang",
-        "category": "sports"
+        "campus": "云塘",
+        "category": "体育"
       },
       "geometry": {
         "coordinates": [
@@ -1729,8 +1729,8 @@
       "type": "Feature",
       "properties": {
         "name": "国际学术交流中心",
-        "campus": "yuntang",
-        "category": "leisure-life"
+        "campus": "云塘",
+        "category": "生活休闲"
       },
       "geometry": {
         "coordinates": [
@@ -1795,8 +1795,8 @@
       "type": "Feature",
       "properties": {
         "name": "国际学术交流中心大会堂",
-        "campus": "yuntang",
-        "category": "leisure-life"
+        "campus": "云塘",
+        "category": "生活休闲"
       },
       "geometry": {
         "coordinates": [
@@ -1827,8 +1827,8 @@
       "type": "Feature",
       "properties": {
         "name": "图书馆",
-        "campus": "yuntang",
-        "category": "library"
+        "campus": "云塘",
+        "category": "图书馆"
       },
       "geometry": {
         "coordinates": [
@@ -1849,8 +1849,8 @@
       "type": "Feature",
       "properties": {
         "name": "大会堂",
-        "campus": "yuntang",
-        "category": "leisure-life"
+        "campus": "云塘",
+        "category": "生活休闲"
       },
       "geometry": {
         "coordinates": [
@@ -1871,8 +1871,8 @@
       "type": "Feature",
       "properties": {
         "name": "学生公寓16栋",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -1891,8 +1891,8 @@
       "type": "Feature",
       "properties": {
         "name": "学生公寓17栋",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -1911,8 +1911,8 @@
       "type": "Feature",
       "properties": {
         "name": "学生活动中心",
-        "campus": "yuntang",
-        "category": "leisure-life"
+        "campus": "云塘",
+        "category": "生活休闲"
       },
       "geometry": {
         "coordinates": [
@@ -1931,8 +1931,8 @@
       "type": "Feature",
       "properties": {
         "name": "工科一号楼",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -1951,8 +1951,8 @@
       "type": "Feature",
       "properties": {
         "name": "工科三号楼",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -1971,8 +1971,8 @@
       "type": "Feature",
       "properties": {
         "name": "工科二号楼",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2000,8 +2000,8 @@
       "type": "Feature",
       "properties": {
         "name": "年轮广场",
-        "campus": "yuntang",
-        "category": "leisure-life"
+        "campus": "云塘",
+        "category": "生活休闲"
       },
       "geometry": {
         "coordinates": [
@@ -2020,8 +2020,8 @@
       "type": "Feature",
       "properties": {
         "name": "建筑艺术楼",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2041,8 +2041,8 @@
       "type": "Feature",
       "properties": {
         "name": "弘毅轩一",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2061,8 +2061,8 @@
       "type": "Feature",
       "properties": {
         "name": "弘毅轩三",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2081,8 +2081,8 @@
       "type": "Feature",
       "properties": {
         "name": "弘毅轩二",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2101,8 +2101,8 @@
       "type": "Feature",
       "properties": {
         "name": "弘毅轩四",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2121,8 +2121,8 @@
       "type": "Feature",
       "properties": {
         "name": "敏行轩一",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2142,8 +2142,8 @@
       "type": "Feature",
       "properties": {
         "name": "敏行轩三",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2162,8 +2162,8 @@
       "type": "Feature",
       "properties": {
         "name": "敏行轩二",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2183,8 +2183,8 @@
       "type": "Feature",
       "properties": {
         "name": "文科楼",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2251,8 +2251,8 @@
       "type": "Feature",
       "properties": {
         "name": "新能源大楼1",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2274,8 +2274,8 @@
       "type": "Feature",
       "properties": {
         "name": "新能源大楼2",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2295,8 +2295,8 @@
       "type": "Feature",
       "properties": {
         "name": "新能源大楼3",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2316,8 +2316,8 @@
       "type": "Feature",
       "properties": {
         "name": "新能源大楼4",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2337,8 +2337,8 @@
       "type": "Feature",
       "properties": {
         "name": "智慧物流中心",
-        "campus": "yuntang",
-        "category": "leisure-life"
+        "campus": "云塘",
+        "category": "生活休闲"
       },
       "geometry": {
         "coordinates": [
@@ -2358,8 +2358,8 @@
       "type": "Feature",
       "properties": {
         "name": "机械工程训练中心",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2378,8 +2378,8 @@
       "type": "Feature",
       "properties": {
         "name": "校医院",
-        "campus": "yuntang",
-        "category": "leisure-life"
+        "campus": "云塘",
+        "category": "生活休闲"
       },
       "geometry": {
         "coordinates": [
@@ -2398,8 +2398,8 @@
       "type": "Feature",
       "properties": {
         "name": "模型广场",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2418,8 +2418,8 @@
       "type": "Feature",
       "properties": {
         "name": "水利实验中心",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2442,8 +2442,8 @@
       "type": "Feature",
       "properties": {
         "name": "汀香园",
-        "campus": "yuntang",
-        "category": "canteen"
+        "campus": "云塘",
+        "category": "食堂"
       },
       "geometry": {
         "coordinates": [
@@ -2462,8 +2462,8 @@
       "type": "Feature",
       "properties": {
         "name": "游泳馆",
-        "campus": "yuntang",
-        "category": "sports"
+        "campus": "云塘",
+        "category": "体育"
       },
       "geometry": {
         "coordinates": [
@@ -2482,8 +2482,8 @@
       "type": "Feature",
       "properties": {
         "name": "理科楼",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2502,8 +2502,8 @@
       "type": "Feature",
       "properties": {
         "name": "甘怡园",
-        "campus": "yuntang",
-        "category": "canteen"
+        "campus": "云塘",
+        "category": "食堂"
       },
       "geometry": {
         "coordinates": [
@@ -2537,8 +2537,8 @@
       "type": "Feature",
       "properties": {
         "name": "田径场",
-        "campus": "yuntang",
-        "category": "sports"
+        "campus": "云塘",
+        "category": "体育"
       },
       "geometry": {
         "coordinates": [
@@ -2561,8 +2561,8 @@
       "type": "Feature",
       "properties": {
         "name": "留学生公寓",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2581,8 +2581,8 @@
       "type": "Feature",
       "properties": {
         "name": "南篮球场",
-        "campus": "yuntang",
-        "category": "sports"
+        "campus": "云塘",
+        "category": "体育"
       },
       "geometry": {
         "coordinates": [
@@ -2601,8 +2601,8 @@
       "type": "Feature",
       "properties": {
         "name": "北篮球场",
-        "campus": "yuntang",
-        "category": "sports"
+        "campus": "云塘",
+        "category": "体育"
       },
       "geometry": {
         "coordinates": [
@@ -2624,8 +2624,8 @@
       "type": "Feature",
       "properties": {
         "name": "综合实验楼",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2645,8 +2645,8 @@
       "type": "Feature",
       "properties": {
         "name": "综合教学楼",
-        "campus": "yuntang",
-        "category": "teaching"
+        "campus": "云塘",
+        "category": "教学楼"
       },
       "geometry": {
         "coordinates": [
@@ -2686,8 +2686,8 @@
       "type": "Feature",
       "properties": {
         "name": "至诚轩一",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2706,8 +2706,8 @@
       "type": "Feature",
       "properties": {
         "name": "至诚轩三",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2726,8 +2726,8 @@
       "type": "Feature",
       "properties": {
         "name": "至诚轩二",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2746,8 +2746,8 @@
       "type": "Feature",
       "properties": {
         "name": "至诚轩五",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2766,8 +2766,8 @@
       "type": "Feature",
       "properties": {
         "name": "至诚轩四",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2786,8 +2786,8 @@
       "type": "Feature",
       "properties": {
         "name": "行健轩一",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2806,8 +2806,8 @@
       "type": "Feature",
       "properties": {
         "name": "行健轩三",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2826,8 +2826,8 @@
       "type": "Feature",
       "properties": {
         "name": "行健轩二",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2846,8 +2846,8 @@
       "type": "Feature",
       "properties": {
         "name": "行健轩五",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2866,8 +2866,8 @@
       "type": "Feature",
       "properties": {
         "name": "行健轩六",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2886,8 +2886,8 @@
       "type": "Feature",
       "properties": {
         "name": "行健轩四",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
@@ -2906,8 +2906,8 @@
       "type": "Feature",
       "properties": {
         "name": "青年公寓2",
-        "campus": "yuntang",
-        "category": "dormitory"
+        "campus": "云塘",
+        "category": "宿舍"
       },
       "geometry": {
         "coordinates": [
