@@ -9,58 +9,138 @@ import CSUSTKit
 import MapKit
 import SwiftUI
 
+enum BuildingCategory: String, CaseIterable, Identifiable {
+    case all = "all"
+    case teachingBuilding = "teaching-building"
+    case library = "library"
+    case dormitory = "dormitory"
+    case canteen = "canteen"
+    case other = "other"
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .all: return "全部"
+        case .teachingBuilding: return "教学楼"
+        case .library: return "图书馆"
+        case .dormitory: return "宿舍"
+        case .canteen: return "食堂"
+        case .other: return "其他"
+        }
+    }
+}
+
+// GeoJSON Data Models
+struct GeoJSON: Decodable {
+    let type: String
+    let features: [Feature]
+}
+
+struct Feature: Decodable, Identifiable {
+    let type: String
+    let properties: FeatureProperties
+    let geometry: FeatureGeometry
+
+    var id: String { properties.name }
+
+    static func == (lhs: Feature, rhs: Feature) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
+extension Feature: Equatable, Hashable {}
+
+struct FeatureProperties: Decodable {
+    let name: String
+    let category: String
+}
+
+struct FeatureGeometry: Decodable {
+    let type: String
+    let coordinates: [[[Double]]]
+}
+
 @MainActor
 final class CampusMapViewModel: ObservableObject {
     @Published var selectedCampus: CampusCardHelper.Campus = .jinpenling
     @Published var isOnlineMapShown: Bool = false
-    @Published var buildings: [Building] = []
-
-    static let defaultLocation = CLLocationCoordinate2D(latitude: 28.158, longitude: 112.972)
-
-    var mapImageName: String {
-        switch selectedCampus {
-        case .yuntang: return "YuntangMap"
-        case .jinpenling: return "JinpenlingMap"
+    @Published var allBuildings: [Feature] = []
+    @Published var selectedCategory: BuildingCategory = .all
+    @Published var selectedBuilding: Feature? {
+        didSet {
+            if let building = selectedBuilding {
+                let center = getCenter(for: building)
+                withAnimation {
+                    mapPosition = .region(MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)))
+                }
+            }
         }
     }
+    @Published var mapPosition: MapCameraPosition = .region(MKCoordinateRegion(center: CampusMapViewModel.defaultLocation, span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)))
+
+    static let defaultLocation = CLLocationCoordinate2D(latitude: 28.160, longitude: 112.972)  // Adjusted slightly to center clearer
+
+    var filteredBuildings: [Feature] {
+        if selectedCategory == .all {
+            return allBuildings
+        }
+        return allBuildings.filter { $0.properties.category == selectedCategory.rawValue }
+    }
+
+    // Helper to cache polygon coordinates
+    private var buildingPolygons: [String: [CLLocationCoordinate2D]] = [:]
 
     init() {
         loadBuildings()
     }
 
     func loadBuildings() {
-        guard let url = Bundle.main.url(forResource: "map", withExtension: "json") else {
-            print("Failed to find map.json")
+        guard let url = Bundle.main.url(forResource: "map", withExtension: "geojson") ?? Bundle.main.url(forResource: "map", withExtension: "json") else {
+            print("Failed to find map.geojson")
             return
         }
 
         do {
             let data = try Data(contentsOf: url)
-            self.buildings = try JSONDecoder().decode([Building].self, from: data)
+            let geoJSON = try JSONDecoder().decode(GeoJSON.self, from: data)
+            self.allBuildings = geoJSON.features
         } catch {
             print("Failed to decode buildings: \(error)")
         }
     }
-}
 
-struct Building: Identifiable, Decodable {
-    var id: String { name }
-    let name: String
-    let coordinates: [[[Double]]]
+    func getPolygonCoordinates(for building: Feature) -> [CLLocationCoordinate2D] {
+        if let cached = buildingPolygons[building.id] {
+            return cached
+        }
 
-    var polygonCoordinates: [CLLocationCoordinate2D] {
-        guard let firstRing = coordinates.first else { return [] }
-        return firstRing.map { coord in
+        guard let firstRing = building.geometry.coordinates.first else { return [] }
+        let coords = firstRing.map { coord in
             CoordinateConverter.wgs84ToGcj02(lat: coord[1], lon: coord[0])
         }
+        buildingPolygons[building.id] = coords
+        return coords
     }
 
-    var center: CLLocationCoordinate2D {
-        let coords = polygonCoordinates
+    func getCenter(for building: Feature) -> CLLocationCoordinate2D {
+        let coords = getPolygonCoordinates(for: building)
         guard !coords.isEmpty else { return .init() }
         let totalLat = coords.reduce(0) { $0 + $1.latitude }
         let totalLon = coords.reduce(0) { $0 + $1.longitude }
         return CLLocationCoordinate2D(latitude: totalLat / Double(coords.count), longitude: totalLon / Double(coords.count))
+    }
+
+    func selectBuilding(_ building: Feature) {
+        if selectedBuilding == building {
+            selectedBuilding = nil
+        } else {
+            selectedBuilding = building
+        }
     }
 }
 
