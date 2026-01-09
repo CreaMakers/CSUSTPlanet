@@ -46,12 +46,13 @@ final class CampusMapViewModel: ObservableObject {
     @Published var isOnlineMapShown: Bool = false
     @Published var allBuildings: [Feature] = []
     @Published var selectedCategory: String? = nil
+    @Published var searchText: String = ""
     @Published var selectedBuilding: Feature? {
         didSet {
             if let building = selectedBuilding {
                 let center = getCenter(for: building)
                 withAnimation {
-                    mapPosition = .region(MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.013, longitudeDelta: 0.013)))
+                    mapPosition = .region(MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)))
                 }
             }
         }
@@ -71,10 +72,18 @@ final class CampusMapViewModel: ObservableObject {
     var filteredBuildings: [Feature] {
         let campusBuildings = allBuildings.filter { $0.properties.campus == selectedCampus.rawValue }
 
-        guard let category = selectedCategory else {
-            return campusBuildings
+        let categoryFiltered: [Feature]
+        if let category = selectedCategory {
+            categoryFiltered = campusBuildings.filter { $0.properties.category == category }
+        } else {
+            categoryFiltered = campusBuildings
         }
-        return campusBuildings.filter { $0.properties.category == category }
+
+        if searchText.isEmpty {
+            return categoryFiltered
+        } else {
+            return categoryFiltered.filter { $0.properties.name.localizedStandardContains(searchText) }
+        }
     }
 
     private var buildingPolygons: [String: [CLLocationCoordinate2D]] = [:]

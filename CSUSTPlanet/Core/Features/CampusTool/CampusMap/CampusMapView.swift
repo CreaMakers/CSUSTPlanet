@@ -33,7 +33,7 @@ struct CampusMapView: View {
                     .tag(building)
                 }
             }
-            .frame(height: 350)
+            .frame(height: 320)
 
             // Category Selector
             ScrollView(.horizontal, showsIndicators: false) {
@@ -56,48 +56,54 @@ struct CampusMapView: View {
 
             // Building List
             ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(viewModel.filteredBuildings) { building in
-                        Button(action: { viewModel.selectBuilding(building) }) {
-                            HStack(spacing: 16) {
-                                // Icon
-                                ZStack {
-                                    Circle()
-                                        .fill(viewModel.color(for: building.properties.category).opacity(0.1))
-                                        .frame(width: 48, height: 48)
-                                    Image(systemName: viewModel.icon(for: building.properties.category))
-                                        .font(.title2)
-                                        .foregroundColor(viewModel.color(for: building.properties.category))
+                if viewModel.filteredBuildings.isEmpty && !viewModel.searchText.isEmpty {
+                    ContentUnavailableView.search(text: viewModel.searchText)
+                        .padding(.top, 40)
+                } else {
+                    LazyVStack(spacing: 8) {
+                        ForEach(viewModel.filteredBuildings) { building in
+                            Button(action: { viewModel.selectBuilding(building) }) {
+                                HStack(spacing: 12) {
+                                    // Icon
+                                    ZStack {
+                                        Circle()
+                                            .fill(viewModel.color(for: building.properties.category).opacity(0.1))
+                                            .frame(width: 40, height: 40)
+                                        Image(systemName: viewModel.icon(for: building.properties.category))
+                                            .font(.title2)
+                                            .foregroundColor(viewModel.color(for: building.properties.category))
+                                    }
+
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(building.properties.name)
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+
+                                        Text(building.properties.category)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+
+                                    Spacer()
                                 }
-
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(building.properties.name)
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-
-                                    Text(building.properties.category)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-
-                                Spacer()
+                                .padding(12)
+                                .background(Color(.secondarySystemBackground))
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(viewModel.selectedBuilding == building ? Color.accentColor : Color.clear, lineWidth: 2)
+                                )
                             }
-                            .padding()
-                            .background(Color(.secondarySystemBackground))
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(viewModel.selectedBuilding == building ? Color.accentColor : Color.clear, lineWidth: 2)
-                            )
+                            .padding(.horizontal)
                         }
-                        .padding(.horizontal)
                     }
+                    .padding(.vertical)
                 }
-                .padding(.vertical)
             }
         }
         .navigationTitle("校园地图")
         .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $viewModel.searchText, prompt: "搜索地址")
         .sheet(isPresented: $viewModel.isOnlineMapShown) {
             SafariView(url: url).trackView("CampusMapOnline")
         }

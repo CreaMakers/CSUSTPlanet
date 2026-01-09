@@ -878,7 +878,7 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "南苑学生宿舍8栋",
+        "name": "南苑学生宿舍7栋",
         "category": "南苑宿舍",
         "campus": "金盆岭"
       },
@@ -1639,7 +1639,6 @@
         "type": "Polygon"
       }
     },
-
     {
       "type": "Feature",
       "properties": {
