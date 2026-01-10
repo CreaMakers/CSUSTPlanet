@@ -307,7 +307,7 @@ private struct HomeGradeCard: View {
     let analysisData: GradeAnalysisData?
 
     var body: some View {
-        TrackLink(destination: GradeAnalysisView()) {
+        TrackLink(destination: GradeQueryView()) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Image(systemName: "chart.bar.fill")
