@@ -13,8 +13,6 @@ struct ExamScheduleView: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel = ExamScheduleViewModel()
 
-    @State private var now = Date()
-
     // MARK: - Filter View
 
     @ViewBuilder
@@ -67,48 +65,12 @@ struct ExamScheduleView: View {
         .trackView("ExamScheduleFilter")
     }
 
-    // MARK: - Empty State Section
-
-    @ViewBuilder
-    private var emptyStateSection: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "calendar.badge.exclamationmark")
-                .font(.system(size: 40))
-                .foregroundColor(.secondary)
-                .padding(.bottom, 8)
-
-            Text("暂无考试安排")
-                .font(.headline)
-
-            Text("当前筛选条件下没有找到考试安排")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.vertical, 20)
-    }
-
-    // MARK: - Logic Helpers
-
-    private func isExamFinished(_ exam: EduHelper.Exam) -> Bool {
-        return now > exam.examEndTime
-    }
-
-    private func daysUntilExam(_ exam: EduHelper.Exam) -> Int {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: now)
-        let examDay = calendar.startOfDay(for: exam.examStartTime)
-        let components = calendar.dateComponents([.day], from: startOfDay, to: examDay)
-        return components.day ?? 0
-    }
-
     // MARK: - Exam Card
 
     @ViewBuilder
     private func examCard(exam: EduHelper.Exam) -> some View {
-        let finished = isExamFinished(exam)
-        let daysLeft = daysUntilExam(exam)
+        let finished = viewModel.isExamFinished(exam)
+        let daysLeft = viewModel.daysUntilExam(exam)
 
         VStack(alignment: .leading, spacing: 0) {
             // Header
@@ -235,25 +197,37 @@ struct ExamScheduleView: View {
 
             VStack(spacing: 0) {
                 if let data = viewModel.data, !data.value.isEmpty {
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                            ForEach(data.value, id: \.courseID) { exam in
-                                examCard(exam: exam)
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            LazyVStack(spacing: 16) {
+                                ForEach(data.value, id: \.courseID) { exam in
+                                    examCard(exam: exam).id(exam.courseID)
+                                }
                             }
+                            .padding(.horizontal)
+                            .padding(.vertical)
                         }
-                        .padding(.horizontal)
-                        .padding(.vertical)
-                    }
-                    .refreshable {
-                        viewModel.loadExams()
+                        .refreshable {
+                            viewModel.loadExams()
+                        }
+                        .onChange(of: viewModel.scrollToID) { _, id in
+                            viewModel.handleScrollOnChange(proxy: proxy, newID: id)
+                        }
+                        .onAppear {
+                            viewModel.handleScrollOnAppear(proxy: proxy)
+                        }
                     }
                 } else {
-                    emptyStateSection
+                    ContentUnavailableView(
+                        "暂无考试安排",
+                        systemImage: "calendar.badge.exclamationmark",
+                        description: Text("当前筛选条件下没有找到考试安排")
+                    )
                 }
             }
         }
         .onAppear {
-            now = Date()
+            viewModel.refreshNow()
         }
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)

@@ -29,12 +29,31 @@ class ExamScheduleViewModel: ObservableObject {
 
     @Published var selectedSemesters: String? = nil
     @Published var selectedSemesterType: EduHelper.SemesterType? = nil
+    @Published var scrollToID: String? = nil
+    @Published var now = Date()
 
     var isLoaded: Bool = false
 
     init() {
         guard let data = MMKVHelper.shared.examSchedulesCache else { return }
         self.data = data
+        updateScrollTarget(exams: data.value)
+    }
+
+    func refreshNow() {
+        now = Date()
+    }
+
+    func isExamFinished(_ exam: EduHelper.Exam) -> Bool {
+        return now > exam.examEndTime
+    }
+
+    func daysUntilExam(_ exam: EduHelper.Exam) -> Int {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: now)
+        let examDay = calendar.startOfDay(for: exam.examStartTime)
+        let components = calendar.dateComponents([.day], from: startOfDay, to: examDay)
+        return components.day ?? 0
     }
 
     func task() {
@@ -56,6 +75,24 @@ class ExamScheduleViewModel: ObservableObject {
             } catch {
                 errorMessage = error.localizedDescription
                 isShowingError = true
+            }
+        }
+    }
+
+    func handleScrollOnAppear(proxy: ScrollViewProxy) {
+        if let id = scrollToID {
+            DispatchQueue.main.async {
+                withAnimation {
+                    proxy.scrollTo(id, anchor: .top)
+                }
+            }
+        }
+    }
+
+    func handleScrollOnChange(proxy: ScrollViewProxy, newID: String?) {
+        if let id = newID {
+            withAnimation {
+                proxy.scrollTo(id, anchor: .top)
             }
         }
     }
@@ -109,6 +146,15 @@ class ExamScheduleViewModel: ObservableObject {
         }
     }
 
+    private func updateScrollTarget(exams: [EduHelper.Exam]) {
+        let now = Date()
+        if let firstUnfinished = exams.first(where: { $0.examEndTime >= now }) {
+            self.scrollToID = firstUnfinished.courseID
+        } else {
+            self.scrollToID = nil
+        }
+    }
+
     func loadExams() {
         isLoading = true
         Task {
@@ -125,6 +171,7 @@ class ExamScheduleViewModel: ObservableObject {
 
                     let data = Cached<[EduHelper.Exam]>(cachedAt: .now, value: sortedExams)
                     self.data = data
+                    self.updateScrollTarget(exams: sortedExams)
                     MMKVHelper.shared.examSchedulesCache = data
                 } catch {
                     errorMessage = error.localizedDescription
