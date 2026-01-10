@@ -71,7 +71,7 @@ struct FeaturesView: View {
             sectionHeader(title: "教务系统", icon: "graduationcap.fill", color: .blue) {
                 Group {
                     if authManager.isSSOLoggingIn {
-                        StatusBadge(text: "SSO登录中")
+                        StatusBadge(text: "统一身份认证登录中")
                     } else if !authManager.isSSOLoggedIn {
                         ActionBadge(text: "点击登录", icon: "person.crop.circle.badge.exclamationmark") {
                             globalManager.selectedTab = .profile
@@ -99,7 +99,7 @@ struct FeaturesView: View {
             sectionHeader(title: "网络课程中心", icon: "book.closed.fill", color: .indigo) {
                 Group {
                     if authManager.isSSOLoggingIn {
-                        StatusBadge(text: "SSO登录中")
+                        StatusBadge(text: "统一身份认证登录中")
                     } else if !authManager.isSSOLoggedIn {
                         ActionBadge(text: "点击登录", icon: "person.crop.circle.badge.exclamationmark") {
                             globalManager.selectedTab = .profile
@@ -171,13 +171,13 @@ struct FeaturesView: View {
             VStack(spacing: 0) {
                 ToolRow(
                     destination: PhysicsExperimentScheduleView().environmentObject(physicsExperimentManager),
-                    title: "物理实验安排", icon: "calendar", color: .purple)
+                    title: "实验安排", icon: "calendar", color: .purple)
 
                 Divider().padding(.leading, 56)
 
                 ToolRow(
                     destination: PhysicsExperimentGradeView().environmentObject(physicsExperimentManager),
-                    title: "物理实验成绩", icon: "doc.text", color: .purple
+                    title: "实验成绩", icon: "doc.text", color: .purple
                 )
             }
             .background(Color(uiColor: .secondarySystemGroupedBackground))
@@ -188,7 +188,7 @@ struct FeaturesView: View {
 
     private var examQuerySection: some View {
         VStack(spacing: spacing) {
-            sectionHeader(title: "考试查询", icon: "magnifyingglass.circle", color: .indigo)
+            sectionHeader(title: "其他考试查询", icon: "magnifyingglass.circle", color: .indigo)
 
             VStack(spacing: 0) {
                 ToolRow(destination: CETView(), title: "四六级查询", icon: "character.book.closed", color: .indigo)
