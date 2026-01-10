@@ -146,9 +146,30 @@ struct GradeQueryView: View {
                 .background(colorScheme == .light ? Color(.systemBackground) : Color(.secondarySystemBackground))
 
             if !viewModel.filteredCourseGrades.isEmpty {
-                List(selection: $viewModel.selectedCourseIDs) {
-                    ForEach(viewModel.filteredCourseGrades, id: \.courseID) { courseGrade in
-                        gradeCard(courseGrade: courseGrade)
+                // 这里是修复跳转页面选中状态问题
+                List(selection: viewModel.isSelectionMode ? $viewModel.selectedItems : .constant(Set<GradeQueryViewModel.SelectionItem>())) {
+                    ForEach(viewModel.groupedFilteredCourseGrades, id: \.semester) { group in
+                        Section {
+                            DisclosureGroup(isExpanded: viewModel.bindingForSemester(group.semester)) {
+                                ForEach(group.grades, id: \.courseID) { courseGrade in
+                                    gradeCard(courseGrade: courseGrade)
+                                        .tag(GradeQueryViewModel.SelectionItem(course: courseGrade.courseID))
+                                }
+                            } label: {
+                                HStack {
+                                    Text(group.semester)
+                                        .font(.headline)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Text("\(group.grades.count)门课程")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                .contentShape(Rectangle())
+                                .onTapGesture { viewModel.toggleExpandSemester(group.semester) }
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                 }
                 .listStyle(.insetGrouped)
@@ -184,9 +205,7 @@ struct GradeQueryView: View {
     private func mainToolbar() -> some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
             Menu {
-                Button(action: {
-                    viewModel.enterSelectionMode()
-                }) {
+                Button(action: viewModel.enterSelectionMode) {
                     Label("选择", systemImage: "checkmark.circle")
                 }
                 .disabled(viewModel.isLoading || viewModel.data == nil)
@@ -217,21 +236,15 @@ struct GradeQueryView: View {
     @ToolbarContentBuilder
     private func selectionToolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
-            Button("取消") {
-                viewModel.exitSelectionMode()
-            }
+            Button("取消") { viewModel.exitSelectionMode() }
         }
 
         ToolbarItem(placement: .primaryAction) {
-            Button("全选") {
-                viewModel.selectedCourseIDs = Set(viewModel.filteredCourseGrades.map { $0.courseID })
-            }
+            Button("全选") { viewModel.selectAll() }
         }
 
         ToolbarItem(placement: .primaryAction) {
-            Button("全不选") {
-                viewModel.selectedCourseIDs.removeAll()
-            }
+            Button("全不选") { viewModel.selectNone() }
         }
     }
 }

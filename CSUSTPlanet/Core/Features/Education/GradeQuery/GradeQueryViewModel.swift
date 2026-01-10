@@ -13,6 +13,10 @@ import WidgetKit
 
 @MainActor
 class GradeQueryViewModel: ObservableObject {
+    struct SelectionItem: Hashable {
+        let course: String
+    }
+
     // MARK: States
 
     @Published var data: Cached<[EduHelper.CourseGrade]>? = nil {
@@ -32,9 +36,11 @@ class GradeQueryViewModel: ObservableObject {
         didSet { updateAnalysis() }
     }
 
-    @Published var selectedCourseIDs = Set<String>() {
+    @Published var selectedItems = Set<SelectionItem>() {
         didSet { if isSelectionMode { updateAnalysis() } }
     }
+
+    @Published var expandedSemesters: Set<String> = []
 
     var shareContent: Any? = nil
     var isLoaded: Bool = false
@@ -48,11 +54,19 @@ class GradeQueryViewModel: ObservableObject {
         }
     }
 
+    var groupedFilteredCourseGrades: [(semester: String, grades: [EduHelper.CourseGrade])] {
+        let grades = filteredCourseGrades
+        let grouped = Dictionary(grouping: grades) { $0.semester }
+        let sortedSemesters = grouped.keys.sorted(by: >)
+        return sortedSemesters.map { (semester: $0, grades: grouped[$0] ?? []) }
+    }
+
     // MARK: - Methods
 
     init() {
         guard let data = MMKVHelper.shared.courseGradesCache else { return }
         self.data = data
+        self.expandedSemesters = Set(data.value.map { $0.semester })
     }
 
     func task() {
@@ -72,6 +86,7 @@ class GradeQueryViewModel: ObservableObject {
                     let courseGrades = try await eduHelper.courseService.getCourseGrades(academicYearSemester: nil, courseNature: nil, courseName: "")
                     let data = Cached(cachedAt: .now, value: courseGrades)
                     self.data = data
+                    self.expandedSemesters = Set(courseGrades.map { $0.semester })
                     MMKVHelper.shared.courseGradesCache = data
                     MMKVHelper.shared.sync()
                     WidgetCenter.shared.reloadTimelines(ofKind: "GradeAnalysisWidget")
@@ -88,6 +103,7 @@ class GradeQueryViewModel: ObservableObject {
                     return
                 }
                 self.data = data
+                self.expandedSemesters = Set(data.value.map { $0.semester })
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.warningMessage = String(format: "教务系统未登录，\n已加载上次查询数据（%@）", DateUtil.relativeTimeString(for: data.cachedAt))
                     self.isShowingWarning = true
@@ -96,16 +112,51 @@ class GradeQueryViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Expand Semesters
+
+    func toggleExpandSemester(_ semester: String) {
+        withAnimation {
+            if expandedSemesters.contains(semester) {
+                expandedSemesters.remove(semester)
+            } else {
+                expandedSemesters.insert(semester)
+            }
+        }
+    }
+
+    func bindingForSemester(_ semester: String) -> Binding<Bool> {
+        Binding<Bool>(
+            get: { [weak self] in
+                self?.expandedSemesters.contains(semester) ?? false
+            },
+            set: { [weak self] newValue in
+                if newValue {
+                    self?.expandedSemesters.insert(semester)
+                } else {
+                    self?.expandedSemesters.remove(semester)
+                }
+            }
+        )
+    }
+
     // MARK: - Selection Mode
 
     func enterSelectionMode() {
+        selectedItems = Set(filteredCourseGrades.map { SelectionItem(course: $0.courseID) })
         isSelectionMode = true
-        selectedCourseIDs = Set(filteredCourseGrades.map { $0.courseID })
     }
 
     func exitSelectionMode() {
         isSelectionMode = false
-        selectedCourseIDs.removeAll()
+        selectedItems.removeAll()
+    }
+
+    func selectAll() {
+        selectedItems = Set(filteredCourseGrades.map { SelectionItem(course: $0.courseID) })
+    }
+
+    func selectNone() {
+        selectedItems.removeAll()
     }
 
     private func updateAnalysis() {
@@ -117,7 +168,7 @@ class GradeQueryViewModel: ObservableObject {
         let coursesToAnalyze: [EduHelper.CourseGrade]
 
         if isSelectionMode {
-            coursesToAnalyze = allCourses.filter { selectedCourseIDs.contains($0.courseID) }
+            coursesToAnalyze = allCourses.filter { selectedItems.contains(SelectionItem(course: $0.courseID)) }
         } else {
             coursesToAnalyze = allCourses
         }
