@@ -15,42 +15,25 @@ import WidgetKit
 class GradeQueryViewModel: ObservableObject {
     // MARK: States
 
-    @Published var availableSemesters: [String] = []
     @Published var data: Cached<[EduHelper.CourseGrade]>? = nil {
-        didSet {
-            updateAnalysis()
-        }
+        didSet { updateAnalysis() }
     }
     @Published var analysis: GradeAnalysisData? = nil
+    @Published var searchText: String = ""
     @Published var errorMessage: String = ""
     @Published var warningMessage: String = ""
 
     @Published var isLoading: Bool = false
-    @Published var isSemestersLoading: Bool = false
-    @Published var isShowingFilterSheet: Bool = false
     @Published var isShowingShareSheet: Bool = false
-
     @Published var isShowingError: Bool = false
     @Published var isShowingWarning: Bool = false
 
-    @Published var searchText: String = ""
-    @Published var selectedSemester: String = ""
-    @Published var selectedCourseNature: EduHelper.CourseNature? = nil
-    @Published var selectedDisplayMode: EduHelper.DisplayMode = .bestGrade
-    @Published var selectedStudyMode: EduHelper.StudyMode = .major
-
     @Published var isSelectionMode: Bool = false {
-        didSet {
-            updateAnalysis()
-        }
+        didSet { updateAnalysis() }
     }
 
     @Published var selectedCourseIDs = Set<String>() {
-        didSet {
-            if isSelectionMode {
-                updateAnalysis()
-            }
-        }
+        didSet { if isSelectionMode { updateAnalysis() } }
     }
 
     var shareContent: Any? = nil
@@ -70,57 +53,12 @@ class GradeQueryViewModel: ObservableObject {
     init() {
         guard let data = MMKVHelper.shared.courseGradesCache else { return }
         self.data = data
-        updateAnalysis()
     }
 
     func task() {
         guard !isLoaded else { return }
         isLoaded = true
-        loadAvailableSemesters()
         loadCourseGrades()
-    }
-
-    private func updateAnalysis() {
-        guard let allCourses = data?.value else {
-            analysis = nil
-            return
-        }
-
-        let coursesToAnalyze: [EduHelper.CourseGrade]
-
-        if isSelectionMode {
-            coursesToAnalyze = allCourses.filter { selectedCourseIDs.contains($0.courseID) }
-        } else {
-            coursesToAnalyze = allCourses
-        }
-
-        analysis = GradeAnalysisData.fromCourseGrades(coursesToAnalyze)
-    }
-
-    func enterSelectionMode() {
-        isSelectionMode = true
-        selectedCourseIDs = Set(filteredCourseGrades.map { $0.courseID })
-    }
-
-    func exitSelectionMode() {
-        isSelectionMode = false
-        selectedCourseIDs.removeAll()
-    }
-
-    func loadAvailableSemesters() {
-        guard let eduHelper = AuthManager.shared.eduHelper else { return }
-        isSemestersLoading = true
-        Task {
-            defer {
-                isSemestersLoading = false
-            }
-            do {
-                availableSemesters = try await eduHelper.courseService.getAvailableSemestersForCourseGrades()
-            } catch {
-                errorMessage = error.localizedDescription
-                isShowingError = true
-            }
-        }
     }
 
     func loadCourseGrades() {
@@ -131,13 +69,7 @@ class GradeQueryViewModel: ObservableObject {
             }
             if let eduHelper = AuthManager.shared.eduHelper {
                 do {
-                    let courseGrades = try await eduHelper.courseService.getCourseGrades(
-                        academicYearSemester: selectedSemester,
-                        courseNature: selectedCourseNature,
-                        courseName: "",
-                        displayMode: selectedDisplayMode,
-                        studyMode: selectedStudyMode
-                    )
+                    let courseGrades = try await eduHelper.courseService.getCourseGrades(academicYearSemester: nil, courseNature: nil, courseName: "")
                     let data = Cached(cachedAt: .now, value: courseGrades)
                     self.data = data
                     MMKVHelper.shared.courseGradesCache = data
@@ -163,6 +95,37 @@ class GradeQueryViewModel: ObservableObject {
             }
         }
     }
+
+    // MARK: - Selection Mode
+
+    func enterSelectionMode() {
+        isSelectionMode = true
+        selectedCourseIDs = Set(filteredCourseGrades.map { $0.courseID })
+    }
+
+    func exitSelectionMode() {
+        isSelectionMode = false
+        selectedCourseIDs.removeAll()
+    }
+
+    private func updateAnalysis() {
+        guard let allCourses = data?.value else {
+            analysis = nil
+            return
+        }
+
+        let coursesToAnalyze: [EduHelper.CourseGrade]
+
+        if isSelectionMode {
+            coursesToAnalyze = allCourses.filter { selectedCourseIDs.contains($0.courseID) }
+        } else {
+            coursesToAnalyze = allCourses
+        }
+
+        analysis = GradeAnalysisData.fromCourseGrades(coursesToAnalyze)
+    }
+
+    // MARK: - CSV Export
 
     func exportGradesAsCSV() {
         guard let csvString = generateCSVString(from: filteredCourseGrades) else {

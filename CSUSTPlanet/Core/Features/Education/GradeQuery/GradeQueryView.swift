@@ -59,88 +59,19 @@ struct GradeQueryView: View {
         }
     }
 
-    // MARK: - Filter View
-
-    @ViewBuilder
-    private var filterView: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("学期选择")) {
-                    Picker("学期", selection: $viewModel.selectedSemester) {
-                        Text("全部学期").tag("")
-                        ForEach(viewModel.availableSemesters, id: \.self) { semester in
-                            Text(semester).tag(semester)
-                        }
-                    }
-                    .pickerStyle(.wheel)
-                    HStack {
-                        Button(action: viewModel.loadAvailableSemesters) {
-                            Text("刷新学期列表")
-                        }
-                        if viewModel.isSemestersLoading {
-                            Spacer()
-                            ProgressView()
-                        }
-                    }
-                }
-                Section(header: Text("筛选条件")) {
-                    Picker("课程性质", selection: $viewModel.selectedCourseNature) {
-                        Text("全部性质").tag(nil as EduHelper.CourseNature?)
-                        ForEach(EduHelper.CourseNature.allCases, id: \.self) { nature in
-                            Text(nature.rawValue).tag(nature as EduHelper.CourseNature?)
-                        }
-                    }
-                    Picker("修读方式", selection: $viewModel.selectedStudyMode) {
-                        ForEach(EduHelper.StudyMode.allCases, id: \.self) { mode in
-                            Text(mode.rawValue).tag(mode)
-                        }
-                    }
-                    Picker("显示模式", selection: $viewModel.selectedDisplayMode) {
-                        ForEach(EduHelper.DisplayMode.allCases, id: \.self) { mode in
-                            Text(mode.rawValue).tag(mode)
-                        }
-                    }
-                }
-            }
-            .navigationTitle("高级查询")
-            .toolbarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") {
-                        viewModel.isShowingFilterSheet = false
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("完成") {
-                        viewModel.isShowingFilterSheet = false
-                        viewModel.loadCourseGrades()
-                    }
-                }
-            }
-        }
-        .trackView("GradeQueryFilter")
-    }
-
     // MARK: - Empty State Section
 
     @ViewBuilder
     private var emptyStateSection: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "doc.text.magnifyingglass")
-                .font(.system(size: 40))
-                .foregroundColor(.secondary)
-                .padding(.bottom, 8)
-
-            Text("暂无成绩记录")
-                .font(.headline)
-
-            Text(viewModel.searchText.isEmpty ? "当前筛选条件下没有找到成绩记录" : "没有找到匹配的课程")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+        if viewModel.searchText.isEmpty {
+            ContentUnavailableView {
+                Label("暂无成绩记录", systemImage: "doc.text.magnifyingglass")
+            } description: {
+                Text("当前筛选条件下没有找到成绩记录")
+            }
+        } else {
+            ContentUnavailableView.search(text: viewModel.searchText)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.vertical, 20)
     }
 
     // MARK: - Grade Card
@@ -214,23 +145,21 @@ struct GradeQueryView: View {
                 .padding(.vertical)
                 .background(colorScheme == .light ? Color(.systemBackground) : Color(.secondarySystemBackground))
 
-            if viewModel.data == nil {
-                emptyStateSection
-                    .background(Color(.systemGroupedBackground))
-            } else {
+            if !viewModel.filteredCourseGrades.isEmpty {
                 List(selection: $viewModel.selectedCourseIDs) {
                     ForEach(viewModel.filteredCourseGrades, id: \.courseID) { courseGrade in
                         gradeCard(courseGrade: courseGrade)
                     }
                 }
                 .listStyle(.insetGrouped)
+            } else {
+                emptyStateSection.background(Color(.systemGroupedBackground))
             }
         }
         .searchable(text: $viewModel.searchText, prompt: "搜索课程")
         .toast(isPresenting: $viewModel.isShowingError) {
             AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
-
         .toast(isPresenting: $viewModel.isShowingWarning) {
             AlertToast(displayMode: .banner(.slide), type: .systemImage("exclamationmark.triangle", .yellow), title: "警告", subTitle: viewModel.warningMessage)
         }
@@ -243,7 +172,6 @@ struct GradeQueryView: View {
             }
         }
         .sheet(isPresented: $viewModel.isShowingShareSheet) { ShareSheet(items: [viewModel.shareContent!]) }
-        .sheet(isPresented: $viewModel.isShowingFilterSheet) { filterView }
         .navigationTitle("成绩查询")
         .navigationBarTitleDisplayMode(.inline)
         .environment(\.editMode, .constant(viewModel.isSelectionMode ? .active : .inactive))
@@ -262,11 +190,6 @@ struct GradeQueryView: View {
                     Label("选择", systemImage: "checkmark.circle")
                 }
                 .disabled(viewModel.isLoading || viewModel.data == nil)
-
-                Button(action: { viewModel.isShowingFilterSheet.toggle() }) {
-                    Label("高级查询", systemImage: "slider.horizontal.3")
-                }
-
                 Button(action: viewModel.exportGradesAsCSV) {
                     Label("导出为CSV表格", systemImage: "doc.plaintext")
                 }
