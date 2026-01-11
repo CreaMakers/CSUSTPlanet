@@ -31,9 +31,10 @@ struct DormCardView: View {
             .opacity(0)
 
             // 卡片内容
-            VStack(alignment: .leading, spacing: 12) {
-                // MARK: - Header
-                HStack {
+            HStack(alignment: .top) {
+                // MARK: - Left Column
+                VStack(alignment: .leading, spacing: 12) {
+                    // 1. Room + Icons
                     HStack(spacing: 6) {
                         Text(dorm.room)
                             .font(.title3)
@@ -53,8 +54,39 @@ struct DormCardView: View {
                         }
                     }
 
-                    Spacer()
+                    // 2. Electricity
+                    if let record = dorm.lastRecord {
+                        HStack(alignment: .lastTextBaseline, spacing: 4) {
+                            Text(String(format: "%.2f", record.electricity))
+                                .font(.system(.largeTitle, design: .rounded))
+                                .fontWeight(.bold)
+                                .foregroundStyle(electricityColor)
+                                .contentTransition(.numericText())
 
+                            Text("kWh")
+                                .font(.body)
+                                .fontWeight(.medium)
+                                .foregroundStyle(.secondary)
+                                .padding(.bottom, 2)
+                        }
+                    } else {
+                        Text("暂无数据")
+                            .font(.title3)
+                            .foregroundStyle(.secondary)
+                            .padding(.vertical, 4)
+                    }
+
+                    // 3. Campus info
+                    Text("\(dorm.campusName) · \(dorm.buildingName)")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+
+                Spacer()
+
+                // MARK: - Right Column
+                VStack(alignment: .trailing) {
+                    // 1. Refresh Button
                     Button(action: { viewModel.handleQueryElectricity(dorm) }) {
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 15, weight: .semibold))
@@ -63,42 +95,21 @@ struct DormCardView: View {
                             .animation(viewModel.isQueryingElectricity ? .linear(duration: 1).repeatForever(autoreverses: false) : .default, value: viewModel.isQueryingElectricity)
                     }
                     .buttonStyle(.plain)
-                }
-
-                // MARK: - Body
-                if let record = dorm.lastRecord {
-                    HStack(alignment: .lastTextBaseline, spacing: 4) {
-                        Text(String(format: "%.2f", record.electricity))
-                            .font(.system(.largeTitle, design: .rounded))
-                            .fontWeight(.bold)
-                            .foregroundStyle(electricityColor)
-                            .contentTransition(.numericText())
-
-                        Text("kWh")
-                            .font(.body)
-                            .fontWeight(.medium)
-                            .foregroundStyle(.secondary)
-                            .padding(.bottom, 2)
-                    }
-                } else {
-                    Text("暂无数据")
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
-                        .padding(.vertical, 4)
-                }
-
-                // MARK: - Footer
-                HStack {
-                    Text("\(dorm.campusName) · \(dorm.buildingName)")
 
                     Spacer()
 
+                    // 3. Update Info
                     if let record = dorm.lastRecord {
-                        Text(viewModel.getExhaustionInfo(from: dorm.records) ?? viewModel.formatDate(record.date))
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text("更新于 " + record.date.formatted(.relative(presentation: .named)))
+                            if let info = viewModel.getExhaustionInfo(from: dorm.records) {
+                                Text(info)
+                            }
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
                     }
                 }
-                .font(.caption)
-                .foregroundStyle(.tertiary)
             }
             .padding(16)
         }
