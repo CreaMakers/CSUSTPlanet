@@ -161,9 +161,14 @@ struct GradeQueryView: View {
                                         .font(.headline)
                                         .foregroundColor(.primary)
                                     Spacer()
-                                    Text("\(group.grades.count)门课程")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                                    VStack(alignment: .trailing) {
+                                        Text("\(group.grades.count)门课程")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        Text("学期GPA: \(viewModel.semesterGPAs[group.semester] ?? 0.0, specifier: "%.2f")")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
                                 .contentShape(Rectangle())
                                 .onTapGesture { viewModel.toggleExpandSemester(group.semester) }

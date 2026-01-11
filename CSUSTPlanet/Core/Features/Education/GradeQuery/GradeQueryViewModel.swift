@@ -42,6 +42,8 @@ class GradeQueryViewModel: ObservableObject {
 
     @Published var expandedSemesters: Set<String> = []
 
+    @Published var semesterGPAs: [String: Double] = [:]
+
     var shareContent: Any? = nil
     var isLoaded: Bool = false
 
@@ -87,6 +89,13 @@ class GradeQueryViewModel: ObservableObject {
                     let data = Cached(cachedAt: .now, value: courseGrades)
                     self.data = data
                     self.expandedSemesters = Set(courseGrades.map { $0.semester })
+                    self.semesterGPAs = Dictionary(grouping: courseGrades, by: { $0.semester }).map { semester, grades in
+                        let totalCredits = grades.reduce(0) { $0 + $1.credit }
+                        let totalGradePoints = grades.reduce(0) { $0 + $1.gradePoint * $1.credit }
+                        let gpa = totalCredits > 0 ? totalGradePoints / totalCredits : 0.0
+                        return (semester: semester, gpa: gpa)
+                    }
+                    .reduce(into: [:]) { $0[$1.semester] = $1.gpa }
                     MMKVHelper.shared.courseGradesCache = data
                     MMKVHelper.shared.sync()
                     WidgetCenter.shared.reloadTimelines(ofKind: "GradeAnalysisWidget")
@@ -104,6 +113,13 @@ class GradeQueryViewModel: ObservableObject {
                 }
                 self.data = data
                 self.expandedSemesters = Set(data.value.map { $0.semester })
+                self.semesterGPAs = Dictionary(grouping: data.value, by: { $0.semester }).map { semester, grades in
+                    let totalCredits = grades.reduce(0) { $0 + $1.credit }
+                    let totalGradePoints = grades.reduce(0) { $0 + $1.gradePoint * $1.credit }
+                    let gpa = totalCredits > 0 ? totalGradePoints / totalCredits : 0.0
+                    return (semester: semester, gpa: gpa)
+                }
+                .reduce(into: [:]) { $0[$1.semester] = $1.gpa }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.warningMessage = String(format: "教务系统未登录，\n已加载上次查询数据（%@）", DateUtil.relativeTimeString(for: data.cachedAt))
                     self.isShowingWarning = true
