@@ -139,12 +139,7 @@ struct GradeQueryView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 0) {
-            statsSection
-                .padding(.horizontal)
-                .padding(.vertical)
-                .background(colorScheme == .light ? Color(.systemBackground) : Color(.secondarySystemBackground))
-
+        Group {
             if !viewModel.filteredCourseGrades.isEmpty {
                 // 这里是修复跳转页面选中状态问题
                 List(selection: viewModel.isSelectionMode ? $viewModel.selectedItems : .constant(Set<GradeQueryViewModel.SelectionItem>())) {
@@ -181,6 +176,13 @@ struct GradeQueryView: View {
             } else {
                 emptyStateSection.background(Color(.systemGroupedBackground))
             }
+        }
+        .safeAreaInset(edge: .top) {
+            statsSection
+                .padding(.horizontal)
+                .padding(.vertical)
+                .background(.ultraThinMaterial)
+
         }
         .searchable(text: $viewModel.searchText, prompt: "搜索课程")
         .toast(isPresenting: $viewModel.isShowingError) {
