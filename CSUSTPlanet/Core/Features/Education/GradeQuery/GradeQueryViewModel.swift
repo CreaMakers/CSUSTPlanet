@@ -69,6 +69,13 @@ class GradeQueryViewModel: ObservableObject {
         guard let data = MMKVHelper.shared.courseGradesCache else { return }
         self.data = data
         self.expandedSemesters = Set(data.value.map { $0.semester })
+        self.semesterGPAs = Dictionary(grouping: data.value, by: { $0.semester }).map { semester, grades in
+            let totalCredits = grades.reduce(0) { $0 + $1.credit }
+            let totalGradePoints = grades.reduce(0) { $0 + $1.gradePoint * $1.credit }
+            let gpa = totalCredits > 0 ? totalGradePoints / totalCredits : 0.0
+            return (semester: semester, gpa: gpa)
+        }
+        .reduce(into: [:]) { $0[$1.semester] = $1.gpa }
     }
 
     func task() {
