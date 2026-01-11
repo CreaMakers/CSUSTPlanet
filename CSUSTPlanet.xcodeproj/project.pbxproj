@@ -113,8 +113,6 @@
 		};
 		00BBB2AF2EEEE5C10047AEEF /* Configs */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Configs;
 			sourceTree = "<group>";
 		};
@@ -323,9 +321,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-CSUSTPlanet/Pods-CSUSTPlanet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-CSUSTPlanet/Pods-CSUSTPlanet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -551,6 +553,7 @@
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "我们需要访问您的日历以添加事件";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "我们需要您的位置来显示您在校园中的实时位置";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "我们需要访问您的相册以保存图片";
 				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "我们需要访问您的提醒事项以添加事件";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
@@ -601,6 +604,7 @@
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "我们需要访问您的日历以添加事件";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "我们需要您的位置来显示您在校园中的实时位置";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "我们需要访问您的相册以保存图片";
 				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "我们需要访问您的提醒事项以添加事件";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
