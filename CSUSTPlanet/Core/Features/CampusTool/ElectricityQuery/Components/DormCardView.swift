@@ -99,9 +99,9 @@ struct DormCardView: View {
                     Spacer()
 
                     // 3. Update Info
-                    if let record = dorm.lastRecord {
+                    if let lastFetchDate = dorm.lastFetchDate {
                         VStack(alignment: .trailing, spacing: 2) {
-                            Text("更新于 " + record.date.formatted(.relative(presentation: .named)))
+                            Text("更新于 " + lastFetchDate.formatted(.relative(presentation: .named)))
                             if let info = viewModel.getExhaustionInfo(from: dorm.records) {
                                 Text(info)
                             }

@@ -97,8 +97,18 @@ class DormElectricityViewModel: ObservableObject {
                     isQueryingElectricity = false
                 }
                 let electricity = try await campusCardHelper.getElectricity(building: building, room: dorm.room)
-                let record = ElectricityRecord(electricity: electricity, date: Date(), dorm: dorm)
-                modelContext.insert(record)
+
+                let now = Date()
+                if let lastRecord = dorm.lastRecord, abs(lastRecord.electricity - electricity) < 0.001 {
+                    // 电量未变化，仅更新查询时间
+                    dorm.lastFetchDate = now
+                } else {
+                    // 电量变化，记录新数据
+                    let record = ElectricityRecord(electricity: electricity, date: now, dorm: dorm)
+                    modelContext.insert(record)
+                    dorm.lastFetchDate = now
+                }
+
                 try modelContext.save()
 
                 WidgetCenter.shared.reloadTimelines(ofKind: "DormElectricityWidget")

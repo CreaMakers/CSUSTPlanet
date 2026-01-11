@@ -45,7 +45,8 @@ struct DormDetailView: View {
                 ElectricityDashboardCard(
                     viewModel: viewModel,
                     records: dorm.records,
-                    isLoading: viewModel.isQueryingElectricity
+                    isLoading: viewModel.isQueryingElectricity,
+                    lastFetchDate: dorm.lastFetchDate
                 )
 
                 QuickActionsGrid(
@@ -115,6 +116,7 @@ private struct ElectricityDashboardCard: View {
     @ObservedObject var viewModel: DormElectricityViewModel
     let records: [ElectricityRecord]?
     let isLoading: Bool
+    let lastFetchDate: Date?
 
     private var record: ElectricityRecord? {
         records?.sorted(by: { $0.date > $1.date }).first
@@ -131,7 +133,7 @@ private struct ElectricityDashboardCard: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
-                if let date = record?.date {
+                if let date = lastFetchDate {
                     Text("更新于 " + date.formatted(.relative(presentation: .named)))
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
