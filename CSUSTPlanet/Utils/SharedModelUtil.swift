@@ -26,7 +26,11 @@ enum SharedModelUtil {
         Logger.sharedModel.info("正在使用 iCloud 容器：\(String(describing: config.cloudKitDatabase))")
 
         do {
-            return try ModelContainer(for: schema, configurations: [config])
+            return try ModelContainer(
+                for: schema,
+                migrationPlan: DormMigrationPlan.self,
+                configurations: [config]
+            )
         } catch {
             Logger.sharedModel.error("ModelContainer 初始化失败: \(error)")
             fatalError("ModelContainer 初始化失败: \(error)")
