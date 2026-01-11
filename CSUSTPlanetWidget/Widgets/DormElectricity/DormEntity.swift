@@ -19,6 +19,7 @@ struct DormEntity: AppEntity, Identifiable {
     var campusName: String
 
     var records: [ElectricityRecord]
+    var lastFetchDate: Date?
 
     static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "宿舍")
 
@@ -45,6 +46,7 @@ struct DormEntity: AppEntity, Identifiable {
         self.buildingName = dorm.buildingName
         self.campusID = dorm.campusID
         self.campusName = dorm.campusName
+        self.lastFetchDate = dorm.lastFetchDate
 
         self.records = dorm.records?.map { ElectricityRecord(electricity: $0.electricity, date: $0.date) } ?? []
     }
