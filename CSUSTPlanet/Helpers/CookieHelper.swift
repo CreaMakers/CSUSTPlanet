@@ -29,6 +29,17 @@ final class CookieHelper {
         )
     }
 
+    func clearCookies() {
+        if let storage = session.sessionConfiguration.httpCookieStorage {
+            if let cookies = storage.cookies {
+                for cookie in cookies {
+                    storage.deleteCookie(cookie)
+                }
+            }
+        }
+        KeychainHelper.shared.cookies = nil
+    }
+
     func updateCookies(_ cookies: [HTTPCookie]) {
         guard let storage = session.sessionConfiguration.httpCookieStorage else { return }
         cookies.forEach { storage.setCookie($0) }

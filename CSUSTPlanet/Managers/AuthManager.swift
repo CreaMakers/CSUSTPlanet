@@ -61,6 +61,7 @@ class AuthManager: ObservableObject {
         guard !isSSOLoggedIn else { return }
         isSSOLoggingIn = true
         defer { isSSOLoggingIn = false }
+        CookieHelper.shared.clearCookies()
         try await ssoHelper.login(username: username, password: password)
         TrackHelper.shared.event(category: "Auth", action: "Login", name: "Account", value: 1)
         KeychainHelper.shared.ssoUsername = username
