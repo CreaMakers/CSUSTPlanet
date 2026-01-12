@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/11.
 //
 
+import AlertToast
 import CSUSTKit
 import MapKit
 import SwiftUI
@@ -130,11 +131,20 @@ struct CampusMapView: View {
                 }
             }
         }
+        .task {
+            viewModel.loadBuildings()
+        }
         .navigationTitle("校园地图")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $viewModel.searchText, prompt: "搜索地址")
         .sheet(isPresented: $viewModel.isOnlineMapShown) {
             SafariView(url: url).trackView("CampusMapOnline")
+        }
+        .toast(isPresenting: $viewModel.isShowingError) {
+            AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
+        }
+        .toast(isPresenting: $viewModel.isLoading) {
+            AlertToast(type: .loading, title: "加载中", subTitle: "正在加载地图数据")
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
