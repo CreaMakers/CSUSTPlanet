@@ -9,6 +9,7 @@ import CSUSTKit
 import CoreLocation
 import MapKit
 import SwiftUI
+import Alamofire
 
 // GeoJSON Data Models
 struct GeoJSON: Decodable {
@@ -59,6 +60,9 @@ final class CampusMapViewModel: ObservableObject {
         }
     }
     @Published var mapPosition: MapCameraPosition = .region(MKCoordinateRegion(center: CampusMapViewModel.defaultLocation, span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)))
+    @Published var isLoading: Bool = false
+    @Published var isShowingError: Bool = false
+    @Published var errorMessage: String = ""
 
     static let defaultLocation = CLLocationCoordinate2D(latitude: 28.160, longitude: 112.972)
 
@@ -100,20 +104,25 @@ final class CampusMapViewModel: ObservableObject {
     }
 
     func loadBuildings() {
-        guard let url = Bundle.main.url(forResource: "map", withExtension: "geojson") else {
-            print("Failed to find map.geojson")
-            return
-        }
+        let urlString = "https://api-dev.csustplanet.zhelearn.com/static/campus_map/map.json"
 
-        do {
-            let data = try Data(contentsOf: url)
-            let geoJSON = try JSONDecoder().decode(GeoJSON.self, from: data)
-            self.allBuildings = geoJSON.features.sorted {
-                $0.properties.name.localizedStandardCompare($1.properties.name) == .orderedAscending
+        Task {
+            isLoading = true
+            defer {
+                isLoading = false
             }
-            centerMapOnCampus()
-        } catch {
-            print("Failed to decode buildings: \(error)")
+            
+            do {
+                let geoJSON = try (await AF.request(urlString).serializingDecodable(GeoJSON.self).value)
+                
+                self.allBuildings = geoJSON.features.sorted {
+                    $0.properties.name.localizedStandardCompare($1.properties.name) == .orderedAscending
+                }
+                centerMapOnCampus()
+            } catch {
+                errorMessage = error.localizedDescription
+                isShowingError = true
+            }
         }
     }
 

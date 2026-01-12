@@ -12,123 +12,131 @@ import Zoomable
 
 struct CampusMapView: View {
     @StateObject private var viewModel = CampusMapViewModel()
-
+    
     var url: URL {
         URL(string: "https://gis.csust.edu.cn/cmipsh5/#/")!
     }
-
+    
     var body: some View {
         VStack(spacing: 0) {
-            // Map View
-            Map(position: $viewModel.mapPosition, selection: $viewModel.selectedBuilding) {
-                ForEach(viewModel.filteredBuildings) { building in
-                    MapPolygon(coordinates: viewModel.getPolygonCoordinates(for: building))
-                        .foregroundStyle(viewModel.color(for: building.properties.category).opacity(viewModel.selectedBuilding == building ? 0.8 : 0.5))
-                        .stroke(viewModel.selectedBuilding == building ? Color.primary : viewModel.color(for: building.properties.category), lineWidth: viewModel.selectedBuilding == building ? 2 : 1)
-                        .tag(building)
-
-                    Annotation(building.properties.name, coordinate: viewModel.getCenter(for: building)) {
-                        EmptyView()
-                    }
-                    .tag(building)
-                }
-                UserAnnotation()
-            }
-            .mapControls {
-                MapUserLocationButton()
-                MapCompass()
-                MapScaleView()
-                MapPitchToggle()
-            }
-            .frame(height: 320)
-
-            // Category Selector
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(viewModel.availableCategories, id: \.self) { category in
-                        Button(action: { withAnimation { viewModel.selectedCategory = category } }) {
-                            Text(category ?? "全部")
-                                .font(.subheadline)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(viewModel.selectedCategory == category ? Color.accentColor : Color(.secondarySystemBackground))
-                                .foregroundColor(viewModel.selectedCategory == category ? .white : .primary)
-                                .cornerRadius(20)
+                // Map View
+                Map(position: $viewModel.mapPosition, selection: $viewModel.selectedBuilding) {
+                    ForEach(viewModel.filteredBuildings) { building in
+                        MapPolygon(coordinates: viewModel.getPolygonCoordinates(for: building))
+                            .foregroundStyle(viewModel.color(for: building.properties.category).opacity(viewModel.selectedBuilding == building ? 0.8 : 0.5))
+                            .stroke(viewModel.selectedBuilding == building ? Color.primary : viewModel.color(for: building.properties.category), lineWidth: viewModel.selectedBuilding == building ? 2 : 1)
+                            .tag(building)
+                        
+                        Annotation(building.properties.name, coordinate: viewModel.getCenter(for: building)) {
+                            EmptyView()
                         }
+                        .tag(building)
                     }
+                    UserAnnotation()
                 }
-                .padding()
-            }
-            .background(Color(.systemBackground))
-
-            // Building List
-            ScrollViewReader { proxy in
-                ScrollView {
-                    if viewModel.filteredBuildings.isEmpty && !viewModel.searchText.isEmpty {
-                        ContentUnavailableView.search(text: viewModel.searchText)
-                            .padding(.top, 40)
-                    } else {
-                        LazyVStack(spacing: 8) {
-                            ForEach(viewModel.filteredBuildings) { building in
-                                HStack(spacing: 0) {
-                                    Button(action: { viewModel.selectBuilding(building) }) {
-                                        HStack(spacing: 12) {
-                                            // Icon
-                                            ZStack {
-                                                Circle()
-                                                    .fill(viewModel.color(for: building.properties.category).opacity(0.1))
-                                                    .frame(width: 40, height: 40)
-                                                Image(systemName: viewModel.icon(for: building.properties.category))
-                                                    .font(.title2)
-                                                    .foregroundColor(viewModel.color(for: building.properties.category))
-                                            }
-
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                Text(building.properties.name)
-                                                    .font(.headline)
-                                                    .foregroundColor(.primary)
-
-                                                Text(building.properties.category)
-                                                    .font(.caption)
-                                                    .foregroundColor(.secondary)
-                                            }
-
-                                            Spacer()
-                                        }
-                                        .contentShape(Rectangle())
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-
-                                    Button(action: { viewModel.openNavigation(for: building) }) {
-                                        Image(systemName: "arrow.triangle.turn.up.right.circle.fill")
-                                            .font(.largeTitle)
-                                            .symbolRenderingMode(.hierarchical)
-                                            .foregroundColor(.accentColor)
-                                            .frame(width: 50, height: 50)
-                                    }
-                                }
-                                .padding(12)
-                                .background(Color(.secondarySystemBackground))
-                                .cornerRadius(12)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(viewModel.selectedBuilding == building ? Color.accentColor : Color.clear, lineWidth: 2)
-                                )
-                                .padding(.horizontal)
-                                .id(building.id)
+                .mapControls {
+                    MapUserLocationButton()
+                    MapCompass()
+                    MapScaleView()
+                    MapPitchToggle()
+                }
+                .frame(height: 320)
+                
+                // Category Selector
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(viewModel.availableCategories, id: \.self) { category in
+                            Button(action: { withAnimation { viewModel.selectedCategory = category } }) {
+                                Text(category ?? "全部")
+                                    .font(.subheadline)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(viewModel.selectedCategory == category ? Color.accentColor : Color(.secondarySystemBackground))
+                                    .foregroundColor(viewModel.selectedCategory == category ? .white : .primary)
+                                    .cornerRadius(20)
                             }
                         }
-                        .padding(.vertical)
                     }
+                    .padding()
                 }
-                .onChange(of: viewModel.selectedBuilding) { _, newValue in
-                    if let building = newValue {
-                        withAnimation {
-                            proxy.scrollTo(building.id, anchor: .center)
+                .background(Color(.systemBackground))
+                
+            if viewModel.isLoading {
+                    ProgressView().padding() // 只有下方显示小转圈
+            } else {
+                // Building List
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        if viewModel.filteredBuildings.isEmpty && !viewModel.searchText.isEmpty {
+                            ContentUnavailableView.search(text: viewModel.searchText)
+                                .padding(.top, 40)
+                        } else {
+                            LazyVStack(spacing: 8) {
+                                ForEach(viewModel.filteredBuildings) { building in
+                                    HStack(spacing: 0) {
+                                        Button(action: { viewModel.selectBuilding(building) }) {
+                                            HStack(spacing: 12) {
+                                                // Icon
+                                                ZStack {
+                                                    Circle()
+                                                        .fill(viewModel.color(for: building.properties.category).opacity(0.1))
+                                                        .frame(width: 40, height: 40)
+                                                    Image(systemName: viewModel.icon(for: building.properties.category))
+                                                        .font(.title2)
+                                                        .foregroundColor(viewModel.color(for: building.properties.category))
+                                                }
+                                                
+                                                VStack(alignment: .leading, spacing: 4) {
+                                                    Text(building.properties.name)
+                                                        .font(.headline)
+                                                        .foregroundColor(.primary)
+                                                    
+                                                    Text(building.properties.category)
+                                                        .font(.caption)
+                                                        .foregroundColor(.secondary)
+                                                }
+                                                
+                                                Spacer()
+                                            }
+                                            .contentShape(Rectangle())
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
+                                        
+                                        Button(action: { viewModel.openNavigation(for: building) }) {
+                                            Image(systemName: "arrow.triangle.turn.up.right.circle.fill")
+                                                .font(.largeTitle)
+                                                .symbolRenderingMode(.hierarchical)
+                                                .foregroundColor(.accentColor)
+                                                .frame(width: 50, height: 50)
+                                        }
+                                    }
+                                    .padding(12)
+                                    .background(Color(.secondarySystemBackground))
+                                    .cornerRadius(12)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(viewModel.selectedBuilding == building ? Color.accentColor : Color.clear, lineWidth: 2)
+                                    )
+                                    .padding(.horizontal)
+                                    .id(building.id)
+                                }
+                            }
+                            .padding(.vertical)
+                        }
+                    }
+                    .onChange(of: viewModel.selectedBuilding) { _, newValue in
+                        if let building = newValue {
+                            withAnimation {
+                                proxy.scrollTo(building.id, anchor: .center)
+                            }
                         }
                     }
                 }
             }
+            
+        }
+        .task {
+            viewModel.loadBuildings()
         }
         .navigationTitle("校园地图")
         .navigationBarTitleDisplayMode(.inline)
