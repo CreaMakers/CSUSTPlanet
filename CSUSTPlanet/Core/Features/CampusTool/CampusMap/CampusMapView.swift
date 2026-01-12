@@ -9,6 +9,7 @@ import CSUSTKit
 import MapKit
 import SwiftUI
 import Zoomable
+import AlertToast
 
 struct CampusMapView: View {
     @StateObject private var viewModel = CampusMapViewModel()
@@ -143,6 +144,9 @@ struct CampusMapView: View {
         .searchable(text: $viewModel.searchText, prompt: "搜索地址")
         .sheet(isPresented: $viewModel.isOnlineMapShown) {
             SafariView(url: url).trackView("CampusMapOnline")
+        }
+        .toast(isPresenting: $viewModel.isShowingError) {
+            AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

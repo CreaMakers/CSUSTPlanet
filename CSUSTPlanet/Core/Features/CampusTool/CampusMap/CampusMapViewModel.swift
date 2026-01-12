@@ -104,7 +104,7 @@ final class CampusMapViewModel: ObservableObject {
     }
 
     func loadBuildings() {
-        let urlString = "https://api-dev.csustplanet.zhelearn.com/static/campus_map/map.json"
+        let urlString = "\(Constants.backendHost)/static/campus_map/map.json"
 
         Task {
             isLoading = true
