@@ -5,11 +5,11 @@
 //  Created by Zhe_Learn on 2026/1/9.
 //
 
+import Alamofire
 import CSUSTKit
 import CoreLocation
 import MapKit
 import SwiftUI
-import Alamofire
 
 // GeoJSON Data Models
 struct GeoJSON: Decodable {
@@ -111,10 +111,10 @@ final class CampusMapViewModel: ObservableObject {
             defer {
                 isLoading = false
             }
-            
+
             do {
                 let geoJSON = try (await AF.request(urlString).serializingDecodable(GeoJSON.self).value)
-                
+
                 self.allBuildings = geoJSON.features.sorted {
                     $0.properties.name.localizedStandardCompare($1.properties.name) == .orderedAscending
                 }
