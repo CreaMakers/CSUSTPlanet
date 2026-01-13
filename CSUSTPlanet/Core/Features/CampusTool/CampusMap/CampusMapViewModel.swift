@@ -87,7 +87,7 @@ final class CampusMapViewModel: ObservableObject {
         if searchText.isEmpty {
             return categoryFiltered
         } else {
-            return categoryFiltered.filter { $0.properties.name.localizedStandardContains(searchText) }
+            return categoryFiltered.filter { fuzzyMatches($0.properties.name, searchText) }
         }
     }
 
@@ -193,6 +193,23 @@ final class CampusMapViewModel: ObservableObject {
         case "生活休闲": return "cup.and.saucer.fill"
         default: return "building.2.fill"
         }
+    }
+
+    private func fuzzyMatches(_ string: String, _ pattern: String) -> Bool {
+        if pattern.isEmpty { return true }
+        let target = string.lowercased()
+        let query = pattern.lowercased()
+
+        var targetIndex = target.startIndex
+        var queryIndex = query.startIndex
+        while queryIndex < query.endIndex && targetIndex < target.endIndex {
+            if query[queryIndex] == target[targetIndex] {
+                queryIndex = query.index(after: queryIndex)
+            }
+            targetIndex = target.index(after: targetIndex)
+        }
+
+        return queryIndex == query.endIndex
     }
 }
 
