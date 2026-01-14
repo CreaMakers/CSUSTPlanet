@@ -9,10 +9,13 @@ import AlertToast
 import CSUSTKit
 import MapKit
 import SwiftUI
+import TipKit
 import Zoomable
 
 struct CampusMapView: View {
     @StateObject private var viewModel = CampusMapViewModel()
+
+    private var campusTip = CampusTip()
 
     var url: URL {
         URL(string: "https://gis.csust.edu.cn/cmipsh5/#/")!
@@ -156,6 +159,11 @@ struct CampusMapView: View {
                 } label: {
                     Image(systemName: "building.2")
                 }
+                .popoverTip(campusTip) { action in
+                    if action.index == 0 {
+                        campusTip.invalidate(reason: .actionPerformed)
+                    }
+                }
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: { viewModel.isOnlineMapShown = true }) {
@@ -164,6 +172,16 @@ struct CampusMapView: View {
             }
         }
         .trackView("CampusMap")
+    }
+}
+
+extension CampusMapView {
+    struct CampusTip: Tip {
+        var title: Text { Text("切换校区") }
+        var message: Text? { Text("点击此处可以切换金盆岭和云塘校区") }
+        var image: Image? { Image(systemName: "building.2") }
+        var actions: [Action] { [Action(title: "知道了")] }
+        var options: [TipOption] { [Tip.MaxDisplayCount(1)] }
     }
 }
 
