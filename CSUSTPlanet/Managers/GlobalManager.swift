@@ -27,6 +27,7 @@ class GlobalManager: ObservableObject {
 
         TrackHelper.shared.updateIsOptedOut(!isUserAgreementAccepted)
         TrackHelper.shared.event(category: "LiveActivity", action: "Status", name: isLiveActivityEnabled ? "Enabled" : "Disabled")
+        TrackHelper.shared.event(category: "WebVPN", action: "Status", name: isWebVPNModeEnabled ? "Enabled" : "Disabled")
     }
 
     @Published var selectedTab: TabItem = .overview
@@ -49,7 +50,10 @@ class GlobalManager: ObservableObject {
         }
     }
     @Published var isWebVPNModeEnabled: Bool {
-        didSet { MMKVHelper.shared.isWebVPNModeEnabled = isWebVPNModeEnabled }
+        didSet {
+            MMKVHelper.shared.isWebVPNModeEnabled = isWebVPNModeEnabled
+            TrackHelper.shared.event(category: "WebVPN", action: "Status", name: isWebVPNModeEnabled ? "Enabled" : "Disabled")
+        }
     }
     @Published var isNotificationEnabled: Bool {
         didSet { MMKVHelper.shared.isNotificationEnabled = isNotificationEnabled }
