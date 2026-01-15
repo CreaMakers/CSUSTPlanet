@@ -8,6 +8,7 @@
 import Foundation
 import MMKV
 import OSLog
+import TipKit
 import UIKit
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -22,6 +23,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         setupNotificationCenter()
         setupUI()
         setupCleaner()
+        setupTipKit()
 
         ActivityHelper.shared.setup()
         NotificationManager.shared.setup()
@@ -90,6 +92,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                 Logger.appDelegate.error("清理 tmp 失败: \(error)")
             }
         }
+    }
+
+    func setupTipKit() {
+        // try? Tips.resetDatastore()
+        try? Tips.configure([
+            .displayFrequency(.immediate),
+            .datastoreLocation(.applicationDefault),
+        ])
     }
 
     deinit {

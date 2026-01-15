@@ -7,6 +7,7 @@
 
 import MarkdownUI
 import SwiftUI
+import TipKit
 
 #if DEBUG
     import FLEX
@@ -29,32 +30,24 @@ struct AboutView: View {
 
             #if DEBUG
                 Section("Debug") {
-                    Button(action: {
-                        try? SharedModelUtil.clearAllData()
-                    }) {
-                        Label("清除所有SwiftData数据", systemImage: "trash")
-                            .foregroundColor(.red)
+                    Button(action: { try? SharedModelUtil.clearAllData() }) {
+                        Label("清除所有SwiftData数据", systemImage: "trash").foregroundColor(.red)
                     }
 
-                    Button(action: {
-                        MMKVHelper.shared.clearAll()
-                    }) {
-                        Label("清除所有MMKV数据", systemImage: "trash")
-                            .foregroundColor(.red)
+                    Button(action: { MMKVHelper.shared.clearAll() }) {
+                        Label("清除所有MMKV数据", systemImage: "trash").foregroundColor(.red)
                     }
 
-                    Button(action: {
-                        KeychainHelper.shared.deleteAll()
-                    }) {
-                        Label("清除所有Keychain数据", systemImage: "trash")
-                            .foregroundColor(.red)
+                    Button(action: { KeychainHelper.shared.deleteAll() }) {
+                        Label("清除所有Keychain数据", systemImage: "trash").foregroundColor(.red)
                     }
 
-                    Button(action: {
-                        FLEXManager.shared.showExplorer()
-                    }) {
-                        Label("Flipboard Explorer", systemImage: "ladybug.fill")
-                            .foregroundColor(.blue)
+                    Button(action: { try? Tips.resetDatastore() }) {
+                        Label("重置 TipKit 数据", systemImage: "trash").foregroundColor(.red)
+                    }
+
+                    Button(action: { FLEXManager.shared.showExplorer() }) {
+                        Label("Flipboard Explorer", systemImage: "ladybug.fill").foregroundColor(.blue)
                     }
                 }
             #endif
