@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/23.
 //
 
+import AlertToast
 import SwiftUI
 
 struct SchoolCalendarListView: View {
@@ -40,6 +41,9 @@ struct SchoolCalendarListView: View {
         }
         .refreshable {
             viewModel.loadSchoolCalendars()
+        }
+        .toast(isPresenting: $viewModel.isShowingError) {
+            AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
         }
         .navigationTitle("校历列表")
         .trackView("SchoolCalendarList")
