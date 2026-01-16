@@ -247,3 +247,21 @@ extension MMKVHelper {
         set { set(forKey: "Cached.physicsExperimentScheduleCache", newValue) }
     }
 }
+
+// MARK: - CampusMap
+
+extension MMKVHelper {
+    var selectedCampus: CampusCardHelper.Campus? {
+        get {
+            guard let rawValue = string(forKey: "CampusMap.selectedCampus") else { return nil }
+            return CampusCardHelper.Campus(rawValue: rawValue)
+        }
+        set {
+            if let value = newValue {
+                set(forKey: "CampusMap.selectedCampus", value.rawValue)
+            } else {
+                removeValue(forKey: "CampusMap.selectedCampus")
+            }
+        }
+    }
+}

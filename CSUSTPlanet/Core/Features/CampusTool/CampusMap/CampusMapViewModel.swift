@@ -12,12 +12,12 @@ import MapKit
 import SwiftUI
 
 // GeoJSON Data Models
-struct GeoJSON: Decodable {
+struct GeoJSON: Codable, Equatable {
     let type: String
     let features: [Feature]
 }
 
-struct Feature: Decodable, Identifiable, Equatable, Hashable {
+struct Feature: Codable, Identifiable, Equatable, Hashable {
     let type: String
     let properties: FeatureProperties
     let geometry: FeatureGeometry
@@ -25,27 +25,30 @@ struct Feature: Decodable, Identifiable, Equatable, Hashable {
     var id: String { properties.name + properties.campus }
 }
 
-struct FeatureProperties: Decodable, Hashable {
+struct FeatureProperties: Codable, Hashable {
     let name: String
     let category: String
     let campus: String
 }
 
-struct FeatureGeometry: Decodable, Hashable {
+struct FeatureGeometry: Codable, Hashable {
     let type: String
     let coordinates: [[[Double]]]
 }
 
 @MainActor
 final class CampusMapViewModel: ObservableObject {
-    @Published var selectedCampus: CampusCardHelper.Campus = .jinpenling {
+    @Published var selectedCampus: CampusCardHelper.Campus? = MMKVHelper.shared.selectedCampus {
         didSet {
+            MMKVHelper.shared.selectedCampus = selectedCampus
             selectedCategory = nil
             selectedBuilding = nil
             centerMapOnCampus()
         }
     }
+    @Published var settingsDetent: PresentationDetent = .fraction(0.3)
     @Published var isOnlineMapShown: Bool = false
+    @Published var isBuildingsListShown: Bool = true
     @Published var allBuildings: [Feature] = []
     @Published var selectedCategory: String? = nil
     @Published var searchText: String = ""
@@ -67,15 +70,35 @@ final class CampusMapViewModel: ObservableObject {
     static let defaultLocation = CLLocationCoordinate2D(latitude: 28.160, longitude: 112.972)
 
     var availableCategories: [String?] {
-        let buildings = allBuildings.filter { $0.properties.campus == selectedCampus.rawValue }
-        let existingCategories = Set(buildings.map { $0.properties.category })
-        var categories: [String?] = Array(existingCategories).sorted().map { Optional($0) }
+        let buildings: [Feature]
+        if let campus = selectedCampus {
+            buildings = allBuildings.filter { $0.properties.campus == campus.rawValue }
+        } else {
+            buildings = allBuildings
+        }
+        let categoriesList = buildings.map { $0.properties.category }
+        var uniqueCategories: [String] = []
+        var seen: Set<String> = []
+
+        for category in categoriesList {
+            if !seen.contains(category) {
+                seen.insert(category)
+                uniqueCategories.append(category)
+            }
+        }
+
+        var categories: [String?] = uniqueCategories.map { Optional($0) }
         categories.insert(nil, at: 0)
         return categories
     }
 
     var filteredBuildings: [Feature] {
-        let campusBuildings = allBuildings.filter { $0.properties.campus == selectedCampus.rawValue }
+        let campusBuildings: [Feature]
+        if let campus = selectedCampus {
+            campusBuildings = allBuildings.filter { $0.properties.campus == campus.rawValue }
+        } else {
+            campusBuildings = allBuildings
+        }
 
         let categoryFiltered: [Feature]
         if let category = selectedCategory {
@@ -103,8 +126,39 @@ final class CampusMapViewModel: ObservableObject {
         locationManager.requestWhenInUseAuthorization()
     }
 
+    private var cacheURL: URL? {
+        let fileManager = FileManager.default
+        guard let cacheDir = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else { return nil }
+        return cacheDir.appendingPathComponent("map.json")
+    }
+
+    private func loadFromCache() {
+        guard let url = cacheURL,
+            let data = try? Data(contentsOf: url),
+            let geoJSON = try? JSONDecoder().decode(GeoJSON.self, from: data)
+        else {
+            return
+        }
+        self.allBuildings = geoJSON.features
+        centerMapOnCampus()
+    }
+
+    private func saveToCache(_ geoJSON: GeoJSON) {
+        guard let url = cacheURL,
+            let data = try? JSONEncoder().encode(geoJSON)
+        else {
+            return
+        }
+        try? data.write(to: url)
+    }
+
     func loadBuildings() {
+        loadFromCache()
+
         let urlString = "\(Constants.backendHost)/static/campus_map/map.json"
+        guard let url = URL(string: urlString) else { return }
+        var request = URLRequest(url: url)
+        request.cachePolicy = .reloadIgnoringLocalCacheData
 
         Task {
             isLoading = true
@@ -113,22 +167,30 @@ final class CampusMapViewModel: ObservableObject {
             }
 
             do {
-                let geoJSON = try (await AF.request(urlString).serializingDecodable(GeoJSON.self).value)
+                let geoJSON = try (await AF.request(request).serializingDecodable(GeoJSON.self).value)
 
-                self.allBuildings = geoJSON.features.sorted {
-                    $0.properties.name.localizedStandardCompare($1.properties.name) == .orderedAscending
+                if self.allBuildings != geoJSON.features {
+                    self.allBuildings = geoJSON.features
+                    centerMapOnCampus()
+                    saveToCache(geoJSON)
                 }
-                centerMapOnCampus()
             } catch {
-                errorMessage = error.localizedDescription
-                isShowingError = true
+                if allBuildings.isEmpty {
+                    errorMessage = error.localizedDescription
+                    isShowingError = true
+                }
             }
         }
     }
 
     func centerMapOnCampus() {
         withAnimation {
-            mapPosition = .region(MKCoordinateRegion(center: selectedCampus.center, span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015)))
+            if let campus = selectedCampus {
+                mapPosition = .region(MKCoordinateRegion(center: campus.center, span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015)))
+            } else {
+                let center = CLLocationCoordinate2D(latitude: 28.1106, longitude: 112.993)
+                mapPosition = .region(MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.12, longitudeDelta: 0.12)))
+            }
         }
     }
 
@@ -197,8 +259,8 @@ final class CampusMapViewModel: ObservableObject {
 
     private func fuzzyMatches(_ string: String, _ pattern: String) -> Bool {
         if pattern.isEmpty { return true }
-        let target = string.lowercased()
-        let query = pattern.lowercased()
+        let target = normalizeNumbers(string.lowercased())
+        let query = normalizeNumbers(pattern.lowercased())
 
         var targetIndex = target.startIndex
         var queryIndex = query.startIndex
@@ -210,6 +272,33 @@ final class CampusMapViewModel: ObservableObject {
         }
 
         return queryIndex == query.endIndex
+    }
+
+    private func normalizeNumbers(_ input: String) -> String {
+        var result = input
+        let replacements = [
+            ("十一", "11"), ("十二", "12"), ("十三", "13"),
+            ("十四", "14"), ("十五", "15"), ("十六", "16"),
+            ("十", "10"), ("一", "1"), ("二", "2"), ("三", "3"),
+            ("四", "4"), ("五", "5"), ("六", "6"), ("七", "7"),
+            ("八", "8"), ("九", "9"),
+        ]
+        for (chinese, arabic) in replacements {
+            result = result.replacingOccurrences(of: chinese, with: arabic)
+        }
+        return result
+    }
+
+    func toggleBuildingsList() {
+        isBuildingsListShown.toggle()
+        if isBuildingsListShown {
+            settingsDetent = .fraction(0.3)
+        }
+    }
+
+    func showOnlineMap() {
+        isBuildingsListShown = false
+        isOnlineMapShown = true
     }
 }
 
