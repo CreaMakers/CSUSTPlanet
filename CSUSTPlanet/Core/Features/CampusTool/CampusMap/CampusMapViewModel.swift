@@ -45,7 +45,9 @@ final class CampusMapViewModel: ObservableObject {
             centerMapOnCampus()
         }
     }
+    @Published var settingsDetent: PresentationDetent = .fraction(0.3)
     @Published var isOnlineMapShown: Bool = false
+    @Published var isBuildingsListShown: Bool = true
     @Published var allBuildings: [Feature] = []
     @Published var selectedCategory: String? = nil
     @Published var searchText: String = ""
@@ -210,6 +212,18 @@ final class CampusMapViewModel: ObservableObject {
         }
 
         return queryIndex == query.endIndex
+    }
+
+    func toggleBuildingsList() {
+        isBuildingsListShown.toggle()
+        if isBuildingsListShown {
+            settingsDetent = .fraction(0.3)
+        }
+    }
+
+    func showOnlineMap() {
+        isBuildingsListShown = false
+        isOnlineMapShown = true
     }
 }
 

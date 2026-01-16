@@ -17,13 +17,15 @@ struct CampusMapView: View {
 
     private var campusTip = CampusTip()
 
+    @State private var stableSheetHeight: CGFloat = 0
+    @State private var debounceTask: Task<Void, Never>? = nil
+
     var url: URL {
         URL(string: "https://gis.csust.edu.cn/cmipsh5/#/")!
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Map View
+        ZStack(alignment: .topLeading) {
             Map(position: $viewModel.mapPosition, selection: $viewModel.selectedBuilding) {
                 ForEach(viewModel.filteredBuildings) { building in
                     MapPolygon(coordinates: viewModel.getPolygonCoordinates(for: building))
@@ -38,14 +40,78 @@ struct CampusMapView: View {
                 }
                 UserAnnotation()
             }
+            .contentMargins(.bottom, stableSheetHeight, for: .scrollContent)
             .mapControls {
                 MapUserLocationButton()
                 MapCompass()
                 MapScaleView()
                 MapPitchToggle()
             }
-            .frame(height: 320)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
+            Button(action: viewModel.toggleBuildingsList) {
+                Image(systemName: "building.columns")
+                    .font(.title2)
+                    .padding(12)
+                    .background(.thickMaterial)
+                    .clipShape(Circle())
+            }
+            .padding()
+        }
+        .onChange(of: viewModel.isBuildingsListShown) { _, isShown in
+            if !isShown {
+                debounceTask?.cancel()
+                stableSheetHeight = 0
+            }
+        }
+        .sheet(isPresented: $viewModel.isBuildingsListShown) {
+            sheetContent
+                .presentationContentInteraction(.scrolls)
+                .presentationBackgroundInteraction(.enabled)
+                .presentationDetents([.fraction(0.3), .fraction(0.5), .fraction(0.7)], selection: $viewModel.settingsDetent)
+        }
+        .task {
+            viewModel.loadBuildings()
+        }
+        .navigationTitle("校园地图")
+        .navigationBarTitleDisplayMode(.inline)
+        // .searchable(text: $viewModel.searchText, prompt: "搜索地址")
+        .sheet(isPresented: $viewModel.isOnlineMapShown) {
+            SafariView(url: url).trackView("CampusMapOnline")
+        }
+        .toast(isPresenting: $viewModel.isShowingError) {
+            AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
+        }
+        .toast(isPresenting: $viewModel.isLoading) {
+            AlertToast(type: .loading, title: "加载中", subTitle: "正在加载地图数据")
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Picker("校区", selection: $viewModel.selectedCampus) {
+                        Text("金盆岭校区").tag(CampusCardHelper.Campus.jinpenling)
+                        Text("云塘校区").tag(CampusCardHelper.Campus.yuntang)
+                    }
+                } label: {
+                    Image(systemName: "building.2")
+                }
+                .popoverTip(campusTip) { action in
+                    if action.index == 0 {
+                        campusTip.invalidate(reason: .actionPerformed)
+                    }
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: viewModel.showOnlineMap) {
+                    Label("在线地图", systemImage: "globe")
+                }
+            }
+        }
+        .trackView("CampusMap")
+    }
+
+    private var sheetContent: some View {
+        VStack(spacing: 0) {
             // Category Selector
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
@@ -134,44 +200,24 @@ struct CampusMapView: View {
                 }
             }
         }
-        .task {
-            viewModel.loadBuildings()
-        }
-        .navigationTitle("校园地图")
-        .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, prompt: "搜索地址")
-        .sheet(isPresented: $viewModel.isOnlineMapShown) {
-            SafariView(url: url).trackView("CampusMapOnline")
-        }
-        .toast(isPresenting: $viewModel.isShowingError) {
-            AlertToast(type: .error(.red), title: "错误", subTitle: viewModel.errorMessage)
-        }
-        .toast(isPresenting: $viewModel.isLoading) {
-            AlertToast(type: .loading, title: "加载中", subTitle: "正在加载地图数据")
-        }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Picker("校区", selection: $viewModel.selectedCampus) {
-                        Text("金盆岭校区").tag(CampusCardHelper.Campus.jinpenling)
-                        Text("云塘校区").tag(CampusCardHelper.Campus.yuntang)
+        .background {
+            GeometryReader { proxy in
+                Color.clear
+                    .onAppear {
+                        let h = proxy.size.height
+                        if h > 0 { stableSheetHeight = h }
                     }
-                } label: {
-                    Image(systemName: "building.2")
-                }
-                .popoverTip(campusTip) { action in
-                    if action.index == 0 {
-                        campusTip.invalidate(reason: .actionPerformed)
+                    .onChange(of: proxy.size.height) { _, newHeight in
+                        debounceTask?.cancel()
+                        debounceTask = Task {
+                            try? await Task.sleep(nanoseconds: 200_000_000)
+                            if !Task.isCancelled && viewModel.isBuildingsListShown {
+                                stableSheetHeight = newHeight
+                            }
+                        }
                     }
-                }
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: { viewModel.isOnlineMapShown = true }) {
-                    Label("在线地图", systemImage: "globe")
-                }
             }
         }
-        .trackView("CampusMap")
     }
 }
 
