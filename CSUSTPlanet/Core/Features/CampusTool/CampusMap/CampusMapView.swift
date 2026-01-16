@@ -15,10 +15,11 @@ import UIKit
 struct CampusMapView: View {
     @StateObject private var viewModel = CampusMapViewModel()
 
-    private var campusTip = CampusTip()
-
     @State private var stableSheetHeight: CGFloat = 0
     @State private var debounceTask: Task<Void, Never>? = nil
+    @FocusState private var isSearchFocused: Bool
+
+    private var campusTip = CampusTip()
 
     var url: URL {
         URL(string: "https://gis.csust.edu.cn/cmipsh5/#/")!
@@ -117,6 +118,42 @@ struct CampusMapView: View {
 
     private var sheetContent: some View {
         VStack(spacing: 0) {
+            HStack {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                    TextField("搜索建筑、地点...", text: $viewModel.searchText)
+                        .focused($isSearchFocused)
+                        .submitLabel(.search)
+                        .overlay(alignment: .trailing) {
+                            if !viewModel.searchText.isEmpty {
+                                Button(action: {
+                                    viewModel.searchText = ""
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.secondary)
+                                        .padding(.trailing, 4)
+                                }
+                            }
+                        }
+                }
+                .padding(8)
+                .background(Color(.tertiarySystemFill))
+                .cornerRadius(24)
+
+                if isSearchFocused {
+                    Button("取消") {
+                        isSearchFocused = false
+                        viewModel.searchText = ""
+                    }
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 24)
+            .padding(.bottom, 8)
+            .animation(.spring(), value: isSearchFocused)
+
             // Category Selector
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
@@ -132,9 +169,8 @@ struct CampusMapView: View {
                         }
                     }
                 }
-                .padding()
+                .padding(.horizontal)
             }
-            .background(Color(.systemBackground))
 
             // Building List
             ScrollViewReader { proxy in
@@ -202,6 +238,13 @@ struct CampusMapView: View {
                             proxy.scrollTo(building.id, anchor: .center)
                         }
                     }
+                }
+            }
+        }
+        .onChange(of: isSearchFocused) { _, newValue in
+            if newValue {
+                withAnimation(.spring()) {
+                    viewModel.settingsDetent = .fraction(0.7)
                 }
             }
         }
