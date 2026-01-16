@@ -12,12 +12,12 @@ import MapKit
 import SwiftUI
 
 // GeoJSON Data Models
-struct GeoJSON: Decodable {
+struct GeoJSON: Codable, Equatable {
     let type: String
     let features: [Feature]
 }
 
-struct Feature: Decodable, Identifiable, Equatable, Hashable {
+struct Feature: Codable, Identifiable, Equatable, Hashable {
     let type: String
     let properties: FeatureProperties
     let geometry: FeatureGeometry
@@ -25,13 +25,13 @@ struct Feature: Decodable, Identifiable, Equatable, Hashable {
     var id: String { properties.name + properties.campus }
 }
 
-struct FeatureProperties: Decodable, Hashable {
+struct FeatureProperties: Codable, Hashable {
     let name: String
     let category: String
     let campus: String
 }
 
-struct FeatureGeometry: Decodable, Hashable {
+struct FeatureGeometry: Codable, Hashable {
     let type: String
     let coordinates: [[[Double]]]
 }
@@ -126,7 +126,35 @@ final class CampusMapViewModel: ObservableObject {
         locationManager.requestWhenInUseAuthorization()
     }
 
+    private var cacheURL: URL? {
+        let fileManager = FileManager.default
+        guard let cacheDir = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else { return nil }
+        return cacheDir.appendingPathComponent("map.json")
+    }
+
+    private func loadFromCache() {
+        guard let url = cacheURL,
+            let data = try? Data(contentsOf: url),
+            let geoJSON = try? JSONDecoder().decode(GeoJSON.self, from: data)
+        else {
+            return
+        }
+        self.allBuildings = geoJSON.features
+        centerMapOnCampus()
+    }
+
+    private func saveToCache(_ geoJSON: GeoJSON) {
+        guard let url = cacheURL,
+            let data = try? JSONEncoder().encode(geoJSON)
+        else {
+            return
+        }
+        try? data.write(to: url)
+    }
+
     func loadBuildings() {
+        loadFromCache()
+
         let urlString = "\(Constants.backendHost)/static/campus_map/map.json"
         guard let url = URL(string: urlString) else { return }
         var request = URLRequest(url: url)
@@ -141,11 +169,16 @@ final class CampusMapViewModel: ObservableObject {
             do {
                 let geoJSON = try (await AF.request(request).serializingDecodable(GeoJSON.self).value)
 
-                self.allBuildings = geoJSON.features
-                centerMapOnCampus()
+                if self.allBuildings != geoJSON.features {
+                    self.allBuildings = geoJSON.features
+                    centerMapOnCampus()
+                    saveToCache(geoJSON)
+                }
             } catch {
-                errorMessage = error.localizedDescription
-                isShowingError = true
+                if allBuildings.isEmpty {
+                    errorMessage = error.localizedDescription
+                    isShowingError = true
+                }
             }
         }
     }
