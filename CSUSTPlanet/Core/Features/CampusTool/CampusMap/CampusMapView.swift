@@ -128,9 +128,7 @@ struct CampusMapView: View {
                         .submitLabel(.search)
                         .overlay(alignment: .trailing) {
                             if !viewModel.searchText.isEmpty {
-                                Button(action: {
-                                    viewModel.searchText = ""
-                                }) {
+                                Button(action: { viewModel.searchText = "" }) {
                                     Image(systemName: "xmark.circle.fill")
                                         .foregroundColor(.secondary)
                                         .padding(.trailing, 4)
@@ -171,6 +169,7 @@ struct CampusMapView: View {
                     }
                 }
                 .padding(.horizontal)
+                .padding(.bottom, 8)
             }
 
             // Building List
@@ -200,7 +199,7 @@ struct CampusMapView: View {
                                                     .font(.headline)
                                                     .foregroundColor(.primary)
 
-                                                Text(building.properties.category)
+                                                Text(building.properties.campus + "校区 · " + building.properties.category)
                                                     .font(.caption)
                                                     .foregroundColor(.secondary)
                                             }
