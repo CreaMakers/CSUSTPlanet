@@ -10,7 +10,7 @@ import CSUSTKit
 import MapKit
 import SwiftUI
 import TipKit
-import Zoomable
+import UIKit
 
 struct CampusMapView: View {
     @StateObject private var viewModel = CampusMapViewModel()
@@ -58,6 +58,11 @@ struct CampusMapView: View {
             }
             .padding()
         }
+        .background(
+            WillDisappearHandler {
+                viewModel.isBuildingsListShown = false
+            }
+        )
         .onChange(of: viewModel.isBuildingsListShown) { _, isShown in
             if !isShown {
                 debounceTask?.cancel()
@@ -228,6 +233,32 @@ extension CampusMapView {
         var image: Image? { Image(systemName: "building.2") }
         var actions: [Action] { [Action(title: "知道了")] }
         var options: [TipOption] { [Tip.MaxDisplayCount(1)] }
+    }
+}
+
+struct WillDisappearHandler: UIViewControllerRepresentable {
+    let onWillDisappear: () -> Void
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        return WillDisappearViewController(onWillDisappear: onWillDisappear)
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+
+    class WillDisappearViewController: UIViewController {
+        let onWillDisappear: () -> Void
+
+        init(onWillDisappear: @escaping () -> Void) {
+            self.onWillDisappear = onWillDisappear
+            super.init(nibName: nil, bundle: nil)
+        }
+
+        required init?(coder: NSCoder) { fatalError() }
+
+        override func viewWillDisappear(_ animated: Bool) {
+            super.viewWillDisappear(animated)
+            onWillDisappear()
+        }
     }
 }
 
