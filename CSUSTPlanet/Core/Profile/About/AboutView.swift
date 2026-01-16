@@ -42,10 +42,6 @@ struct AboutView: View {
                         Label("清除所有Keychain数据", systemImage: "trash").foregroundColor(.red)
                     }
 
-                    Button(action: { try? Tips.resetDatastore() }) {
-                        Label("重置 TipKit 数据", systemImage: "trash").foregroundColor(.red)
-                    }
-
                     Button(action: { FLEXManager.shared.showExplorer() }) {
                         Label("Flipboard Explorer", systemImage: "ladybug.fill").foregroundColor(.blue)
                     }

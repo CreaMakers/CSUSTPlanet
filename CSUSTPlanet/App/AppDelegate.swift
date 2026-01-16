@@ -95,7 +95,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 
     func setupTipKit() {
-        // try? Tips.resetDatastore()
+        #if DEBUG
+            try? Tips.resetDatastore()
+        #endif
         try? Tips.configure([
             .displayFrequency(.immediate),
             .datastoreLocation(.applicationDefault),
