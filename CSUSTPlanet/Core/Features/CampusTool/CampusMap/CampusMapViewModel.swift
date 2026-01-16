@@ -225,8 +225,8 @@ final class CampusMapViewModel: ObservableObject {
 
     private func fuzzyMatches(_ string: String, _ pattern: String) -> Bool {
         if pattern.isEmpty { return true }
-        let target = string.lowercased()
-        let query = pattern.lowercased()
+        let target = normalizeNumbers(string.lowercased())
+        let query = normalizeNumbers(pattern.lowercased())
 
         var targetIndex = target.startIndex
         var queryIndex = query.startIndex
@@ -238,6 +238,21 @@ final class CampusMapViewModel: ObservableObject {
         }
 
         return queryIndex == query.endIndex
+    }
+
+    private func normalizeNumbers(_ input: String) -> String {
+        var result = input
+        let replacements = [
+            ("十一", "11"), ("十二", "12"), ("十三", "13"),
+            ("十四", "14"), ("十五", "15"), ("十六", "16"),
+            ("十", "10"), ("一", "1"), ("二", "2"), ("三", "3"),
+            ("四", "4"), ("五", "5"), ("六", "6"), ("七", "7"),
+            ("八", "8"), ("九", "9"),
+        ]
+        for (chinese, arabic) in replacements {
+            result = result.replacingOccurrences(of: chinese, with: arabic)
+        }
+        return result
     }
 
     func toggleBuildingsList() {
