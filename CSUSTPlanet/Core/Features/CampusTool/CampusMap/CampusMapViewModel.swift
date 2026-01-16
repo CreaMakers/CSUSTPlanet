@@ -38,7 +38,7 @@ struct FeatureGeometry: Decodable, Hashable {
 
 @MainActor
 final class CampusMapViewModel: ObservableObject {
-    @Published var selectedCampus: CampusCardHelper.Campus = .jinpenling {
+    @Published var selectedCampus: CampusCardHelper.Campus? = nil {
         didSet {
             selectedCategory = nil
             selectedBuilding = nil
@@ -69,7 +69,12 @@ final class CampusMapViewModel: ObservableObject {
     static let defaultLocation = CLLocationCoordinate2D(latitude: 28.160, longitude: 112.972)
 
     var availableCategories: [String?] {
-        let buildings = allBuildings.filter { $0.properties.campus == selectedCampus.rawValue }
+        let buildings: [Feature]
+        if let campus = selectedCampus {
+            buildings = allBuildings.filter { $0.properties.campus == campus.rawValue }
+        } else {
+            buildings = allBuildings
+        }
         let existingCategories = Set(buildings.map { $0.properties.category })
         var categories: [String?] = Array(existingCategories).sorted().map { Optional($0) }
         categories.insert(nil, at: 0)
@@ -77,7 +82,12 @@ final class CampusMapViewModel: ObservableObject {
     }
 
     var filteredBuildings: [Feature] {
-        let campusBuildings = allBuildings.filter { $0.properties.campus == selectedCampus.rawValue }
+        let campusBuildings: [Feature]
+        if let campus = selectedCampus {
+            campusBuildings = allBuildings.filter { $0.properties.campus == campus.rawValue }
+        } else {
+            campusBuildings = allBuildings
+        }
 
         let categoryFiltered: [Feature]
         if let category = selectedCategory {
@@ -130,7 +140,12 @@ final class CampusMapViewModel: ObservableObject {
 
     func centerMapOnCampus() {
         withAnimation {
-            mapPosition = .region(MKCoordinateRegion(center: selectedCampus.center, span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015)))
+            if let campus = selectedCampus {
+                mapPosition = .region(MKCoordinateRegion(center: campus.center, span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015)))
+            } else {
+                let center = CLLocationCoordinate2D(latitude: 28.1106, longitude: 112.993)
+                mapPosition = .region(MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.12, longitudeDelta: 0.12)))
+            }
         }
     }
 

@@ -95,8 +95,9 @@ struct CampusMapView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Picker("校区", selection: $viewModel.selectedCampus) {
-                        Text("金盆岭校区").tag(CampusCardHelper.Campus.jinpenling)
-                        Text("云塘校区").tag(CampusCardHelper.Campus.yuntang)
+                        Text("全部校区").tag(CampusCardHelper.Campus?.none)
+                        Text("金盆岭校区").tag(Optional(CampusCardHelper.Campus.jinpenling))
+                        Text("云塘校区").tag(Optional(CampusCardHelper.Campus.yuntang))
                     }
                 } label: {
                     Image(systemName: "building.2")
