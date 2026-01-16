@@ -75,8 +75,18 @@ final class CampusMapViewModel: ObservableObject {
         } else {
             buildings = allBuildings
         }
-        let existingCategories = Set(buildings.map { $0.properties.category })
-        var categories: [String?] = Array(existingCategories).sorted().map { Optional($0) }
+        let categoriesList = buildings.map { $0.properties.category }
+        var uniqueCategories: [String] = []
+        var seen: Set<String> = []
+
+        for category in categoriesList {
+            if !seen.contains(category) {
+                seen.insert(category)
+                uniqueCategories.append(category)
+            }
+        }
+
+        var categories: [String?] = uniqueCategories.map { Optional($0) }
         categories.insert(nil, at: 0)
         return categories
     }
@@ -117,6 +127,9 @@ final class CampusMapViewModel: ObservableObject {
 
     func loadBuildings() {
         let urlString = "\(Constants.backendHost)/static/campus_map/map.json"
+        guard let url = URL(string: urlString) else { return }
+        var request = URLRequest(url: url)
+        request.cachePolicy = .reloadIgnoringLocalCacheData
 
         Task {
             isLoading = true
@@ -125,11 +138,9 @@ final class CampusMapViewModel: ObservableObject {
             }
 
             do {
-                let geoJSON = try (await AF.request(urlString).serializingDecodable(GeoJSON.self).value)
+                let geoJSON = try (await AF.request(request).serializingDecodable(GeoJSON.self).value)
 
-                self.allBuildings = geoJSON.features.sorted {
-                    $0.properties.name.localizedStandardCompare($1.properties.name) == .orderedAscending
-                }
+                self.allBuildings = geoJSON.features
                 centerMapOnCampus()
             } catch {
                 errorMessage = error.localizedDescription
