@@ -38,8 +38,9 @@ struct FeatureGeometry: Decodable, Hashable {
 
 @MainActor
 final class CampusMapViewModel: ObservableObject {
-    @Published var selectedCampus: CampusCardHelper.Campus? = nil {
+    @Published var selectedCampus: CampusCardHelper.Campus? = MMKVHelper.shared.selectedCampus {
         didSet {
+            MMKVHelper.shared.selectedCampus = selectedCampus
             selectedCategory = nil
             selectedBuilding = nil
             centerMapOnCampus()
