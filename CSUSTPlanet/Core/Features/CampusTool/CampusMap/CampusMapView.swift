@@ -85,12 +85,9 @@ struct CampusMapView: View {
                 .presentationBackgroundInteraction(.enabled)
                 .presentationDetents([.fraction(0.3), .fraction(0.5), .fraction(0.7)], selection: $viewModel.settingsDetent)
         }
-        //        .task {
-        //            viewModel.loadBuildings()
-        //        }
         .navigationTitle("校园地图")
         .navigationBarTitleDisplayMode(.inline)
-        // .searchable(text: $viewModel.searchText, prompt: "搜索地址")
+        .searchable(text: $viewModel.searchText, prompt: "搜索地址")
         .sheet(isPresented: $viewModel.isOnlineMapShown) {
             SafariView(url: url).trackView("CampusMapOnline")
         }
@@ -134,28 +131,6 @@ struct CampusMapView: View {
         }
         .task {
             viewModel.loadBuildings()
-            // 监听 1: Toolbar 第一个按钮消失 -> 触发页面按钮 Tip
-            Task {
-                for await status in campusTip.statusUpdates {
-                    if case .invalidated = status {
-                        await MainActor.run {
-                            BuildingInfoTip.campusTipFinished = true
-                        }
-                    }
-                }
-            }
-
-            // 监听 2: 页面按钮 Tip 消失 -> 触发 Toolbar 第二个按钮 Tip
-            Task {
-                for await status in buildingInfoTip.statusUpdates {
-                    if case .invalidated = status {
-                        try? await Task.sleep(nanoseconds: 600_000_000)
-                        await MainActor.run {
-                            OnlineMapTip.buildingListFinished = true
-                        }
-                    }
-                }
-            }
         }
         .trackView("CampusMap")
     }
