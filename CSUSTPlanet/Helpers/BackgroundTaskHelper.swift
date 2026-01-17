@@ -26,7 +26,7 @@ final class BackgroundTaskHelper {
 
     private let tasks: [BackgroundTaskProvider] = [
         GradeBackgroundTask(),
-        ElectricityBackgroundTask(),
+        // ElectricityBackgroundTask(),
     ]
 
     func registerAllTasks() {
@@ -41,6 +41,10 @@ final class BackgroundTaskHelper {
     }
 
     func schedule(provider: BackgroundTaskProvider) {
+        guard MMKVHelper.shared.isBackgroundTaskEnabled else {
+            Logger.backgroundTaskHelper.debug("未开启后台智能更新，跳过调度: \(provider.identifier)")
+            return
+        }
         let request = BGAppRefreshTaskRequest(identifier: provider.identifier)
         request.earliestBeginDate = Date(timeIntervalSinceNow: provider.interval)
         do {
@@ -52,6 +56,10 @@ final class BackgroundTaskHelper {
     }
 
     func scheduleAllTasks() {
+        guard MMKVHelper.shared.isBackgroundTaskEnabled else {
+            Logger.backgroundTaskHelper.debug("未开启后台智能更新，跳过调度全部任务")
+            return
+        }
         tasks.forEach { schedule(provider: $0) }
         Logger.backgroundTaskHelper.debug("调度全部后台任务成功")
     }

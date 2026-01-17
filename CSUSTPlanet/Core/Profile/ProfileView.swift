@@ -162,6 +162,10 @@ struct ProfileView: View {
                 }
                 .onChange(of: globalManager.isNotificationEnabled, { _, _ in NotificationManager.shared.toggle() })
 
+                Toggle(isOn: $globalManager.isBackgroundTaskEnabled) {
+                    ColoredLabel(title: "开启后台任务", iconName: "bell.badge", color: .blue)
+                }
+
                 Toggle(isOn: $globalManager.isLiveActivityEnabled) {
                     ColoredLabel(title: "启用实时活动/灵动岛", iconName: "bolt.circle", color: .yellow)
                 }

@@ -207,6 +207,11 @@ extension MMKVHelper {
         set { set(forKey: "GlobalVars.isNotificationEnabled", newValue) }
     }
 
+    var isBackgroundTaskEnabled: Bool {
+        get { bool(forKey: "GlobalVars.isBackgroundTaskEnabled") ?? false }
+        set { set(forKey: "GlobalVars.isBackgroundTaskEnabled", newValue) }
+    }
+
     var userId: String? {
         get { string(forKey: "GlobalVars.userId") }
         set {
