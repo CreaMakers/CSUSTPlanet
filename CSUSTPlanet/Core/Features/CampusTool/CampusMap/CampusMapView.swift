@@ -59,11 +59,10 @@ struct CampusMapView: View {
                     .background(.thickMaterial)
                     .clipShape(Circle())
             }
-            // MARK: - 建筑物列表开关tip
+            // MARK: - 建筑物列表开关 Tip
             .popoverTip(buildingInfoTip) { action in
                 if action.index == 0 {
                     buildingInfoTip.invalidate(reason: .actionPerformed)
-                    OnlineMapTip.buildingListFinished = true
                 }
             }
             .padding()
@@ -99,32 +98,33 @@ struct CampusMapView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 20) {
-                    Menu {
-                        Picker("校区", selection: $viewModel.selectedCampus) {
-                            Text("全部校区").tag(CampusCardHelper.Campus?.none)
-                            Text("金盆岭校区").tag(Optional(CampusCardHelper.Campus.jinpenling))
-                            Text("云塘校区").tag(Optional(CampusCardHelper.Campus.yuntang))
-                        }
-                    } label: {
-                        Image(systemName: "building.2")
+                Menu {
+                    Picker("校区", selection: $viewModel.selectedCampus) {
+                        Text("全部校区").tag(CampusCardHelper.Campus?.none)
+                        Text("金盆岭校区").tag(Optional(CampusCardHelper.Campus.jinpenling))
+                        Text("云塘校区").tag(Optional(CampusCardHelper.Campus.yuntang))
                     }
-                    // MARK: - 校区选择tip
-                    .popoverTip(campusTip) { action in
-                        if action.index == 0 {
-                            campusTip.invalidate(reason: .actionPerformed)
-                            BuildingInfoTip.campusTipFinished = true
-                        }
+                } label: {
+                    Image(systemName: "building.2")
+                }
+                // MARK: - 校区选择 Tip
+                .popoverTip(campusTip) { action in
+                    if action.index == 0 {
+                        campusTip.invalidate(reason: .actionPerformed)
+                        OnlineMapTip.shouldShown = true
                     }
+                }
 
-                    Button(action: viewModel.showOnlineMap) {
-                        Image(systemName: "globe")
-                    }
-                    // MARK: - 在线地图tip
-                    .popoverTip(onlineMapTip) { action in
-                        if action.index == 0 {
-                            onlineMapTip.invalidate(reason: .actionPerformed)
-                        }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: viewModel.showOnlineMap) {
+                    Image(systemName: "globe")
+                }
+                // MARK: - 在线地图 Tip
+                .popoverTip(onlineMapTip) { action in
+                    if action.index == 0 {
+                        onlineMapTip.invalidate(reason: .actionPerformed)
+                        BuildingInfoTip.shouldShown = true
                     }
                 }
             }
@@ -288,65 +288,61 @@ struct CampusMapView: View {
 }
 
 extension CampusMapView {
-    // MARK: - 1. 校区切换 Tip
+    // MARK: - 校区切换 Tip
     struct CampusTip: Tip {
         var title: Text { Text("切换校区") }
         var message: Text? { Text("点击此处可以切换金盆岭和云塘校区") }
         var image: Image? { Image(systemName: "building.2") }
-
         var actions: [Action] {
-            [Tip.Action(id: "next", title: "下一步")]
+            [Tip.Action(title: "下一步 (1/3)")]
         }
-
-        var options: [TipOption] {
-            [
-                Tip.IgnoresDisplayFrequency(true)  // 必须加这个，否则很难连续弹
-                // Tip.MaxDisplayCount(1) // 调试时注释掉
-            ]
-        }
-    }
-
-    // MARK: - 2. 列表开关 Tip
-    struct BuildingInfoTip: Tip {
-        var title: Text { Text("查看建筑物列表") }
-        var message: Text? { Text("点击此处可以开启/关闭建筑物列表") }
-        var image: Image? { Image(systemName: "list.bullet.indent") }
-
-        var actions: [Action] {
-            [Tip.Action(id: "next", title: "下一步")]
-        }
-
-        var rules: [Rule] {
-            #Rule(Self.$campusTipFinished) { $0 == true }
-        }
-
         var options: [TipOption] {
             [Tip.IgnoresDisplayFrequency(true)]
         }
+        var rules: [Rule] {
+            #Rule(Self.$shouldShown) { $0 == true }
+        }
 
         @Parameter
-        static var campusTipFinished: Bool = false
+        static var shouldShown: Bool = true
     }
 
-    // MARK: - 3. 在线地图 Tip
+    // MARK: - 在线地图 Tip
     struct OnlineMapTip: Tip {
         var title: Text { Text("在线地图") }
         var message: Text? { Text("点击此处打开在线地图") }
-
+        var image: Image? { Image(systemName: "globe") }
         var actions: [Action] {
-            [Tip.Action(id: "close", title: "明白了")]
+            [Tip.Action(title: "下一步 (2/3)")]
         }
-
         var rules: [Rule] {
-            #Rule(Self.$buildingListFinished) { $0 == true }
+            #Rule(Self.$shouldShown) { $0 == true }
         }
-
         var options: [TipOption] {
             [Tip.IgnoresDisplayFrequency(true)]
         }
 
         @Parameter
-        static var buildingListFinished: Bool = false
+        static var shouldShown: Bool = false
+    }
+
+    // MARK: - 列表开关 Tip
+    struct BuildingInfoTip: Tip {
+        var title: Text { Text("查看建筑物列表") }
+        var message: Text? { Text("点击此处可以开启/关闭建筑物列表") }
+        var image: Image? { Image(systemName: "building.columns") }
+        var actions: [Action] {
+            [Tip.Action(title: "明白了 (3/3)")]
+        }
+        var options: [TipOption] {
+            [Tip.IgnoresDisplayFrequency(true)]
+        }
+        var rules: [Rule] {
+            #Rule(Self.$shouldShown) { $0 == true }
+        }
+
+        @Parameter
+        static var shouldShown: Bool = false
     }
 }
 
