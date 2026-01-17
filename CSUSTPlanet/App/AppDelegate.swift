@@ -5,6 +5,7 @@
 //  Created by Zhe_Learn on 2025/7/15.
 //
 
+import BackgroundTasks
 import Foundation
 import MMKV
 import OSLog
@@ -24,6 +25,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         setupUI()
         setupCleaner()
         setupTipKit()
+        setupBackgroundTasks()
 
         ActivityHelper.shared.setup()
         NotificationManager.shared.setup()
@@ -33,6 +35,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 
     // MARK: - Setup Methods
+
+    func setupBackgroundTasks() {
+        BackgroundTaskHelper.shared.registerAllTasks()
+    }
 
     func setupStorage() {
         MMKVHelper.shared.setup()
@@ -135,7 +141,9 @@ extension AppDelegate {
     @objc
     private func appDidEnterBackground() {
         Logger.appDelegate.debug("App进入后台: appDidEnterBackground")
+
         ActivityHelper.shared.autoUpdateActivity()
+        BackgroundTaskHelper.shared.scheduleAllTasks()
 
         TrackHelper.shared.event(category: "Lifecycle", action: "Background")
 
@@ -145,7 +153,9 @@ extension AppDelegate {
     @objc
     private func appWillEnterForeground() {
         Logger.appDelegate.debug("App回到前台: appWillEnterForeground")
+
         ActivityHelper.shared.autoUpdateActivity()
+        BackgroundTaskHelper.shared.cancelAllTasks()
 
         if !isFirstAppear {
             checkAndRelogin()

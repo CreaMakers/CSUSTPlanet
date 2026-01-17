@@ -59,4 +59,7 @@ enum Constants {
             return matomoSiteIDDev
         }
     }
+
+    static let backgroundGradeID = AssetUtil.bundleInfo(forKey: "ConfigBackgroundGradeID")
+    static let backgroundElectricityID = AssetUtil.bundleInfo(forKey: "ConfigBackgroundElectricityID")
 }

@@ -2,30 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ConfigAppGroupID</key>
-	<string>$(CSUSTPLANET_GROUP_ID)</string>
-	<key>ConfigCloudContainerID</key>
-	<string>$(CSUSTPLANET_ICLOUD_ID)</string>
-	<key>ConfigKeychainGroup</key>
-	<string>$(CSUSTPLANET_TEAM_ID).$(CSUSTPLANET_KEYCHAIN_SUFFIX)</string>
-	<key>ConfigApiHostProd</key>
-	<string>$(CSUSTPLANET_API_HOST_PROD)</string>
-	<key>ConfigApiHostDev</key>
-	<string>$(CSUSTPLANET_API_HOST_DEV)</string>
-	<key>ConfigAppBundleID</key>
-	<string>$(CSUSTPLANET_APP_BUNDLE_ID)</string>
-	<key>ConfigWidgetBundleID</key>
-	<string>$(CSUSTPLANET_WIDGET_BUNDLE_ID)</string>
-	<key>ConfigMatomoURL</key>
-	<string>$(CSUSTPLANET_MATOMO_URL)</string>
-	<key>ConfigMatomoSiteIDDev</key>
-	<string>$(CSUSTPLANET_MATOMO_SITE_ID_DEV)</string>
-	<key>ConfigMatomoSiteIDProd</key>
-	<string>$(CSUSTPLANET_MATOMO_SITE_ID_PROD)</string>
-	<key>ConfigMatomoUserIDSalt</key>
-	<string>$(CSUSTPLANET_MATOMO_USER_ID_SALT)</string>
-	<key>ConfigMatomoDimensionIDAppFullVersion</key>
-	<string>$(CSUSTPLANET_MATOMO_DIMENSION_ID_APP_FULL_VERSION)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -39,6 +15,34 @@
 			</array>
 		</dict>
 	</array>
+	<key>ConfigApiHostDev</key>
+	<string>$(CSUSTPLANET_API_HOST_DEV)</string>
+	<key>ConfigApiHostProd</key>
+	<string>$(CSUSTPLANET_API_HOST_PROD)</string>
+	<key>ConfigAppBundleID</key>
+	<string>$(CSUSTPLANET_APP_BUNDLE_ID)</string>
+	<key>ConfigAppGroupID</key>
+	<string>$(CSUSTPLANET_GROUP_ID)</string>
+	<key>ConfigCloudContainerID</key>
+	<string>$(CSUSTPLANET_ICLOUD_ID)</string>
+	<key>ConfigKeychainGroup</key>
+	<string>$(CSUSTPLANET_TEAM_ID).$(CSUSTPLANET_KEYCHAIN_SUFFIX)</string>
+	<key>ConfigMatomoDimensionIDAppFullVersion</key>
+	<string>$(CSUSTPLANET_MATOMO_DIMENSION_ID_APP_FULL_VERSION)</string>
+	<key>ConfigMatomoSiteIDDev</key>
+	<string>$(CSUSTPLANET_MATOMO_SITE_ID_DEV)</string>
+	<key>ConfigMatomoSiteIDProd</key>
+	<string>$(CSUSTPLANET_MATOMO_SITE_ID_PROD)</string>
+	<key>ConfigMatomoURL</key>
+	<string>$(CSUSTPLANET_MATOMO_URL)</string>
+	<key>ConfigMatomoUserIDSalt</key>
+	<string>$(CSUSTPLANET_MATOMO_USER_ID_SALT)</string>
+	<key>ConfigWidgetBundleID</key>
+	<string>$(CSUSTPLANET_WIDGET_BUNDLE_ID)</string>
+	<key>ConfigBackgroundGradeID</key>
+	<string>$(CSUSTPLANET_BACKGROUND_GRADE_ID)</string>
+	<key>ConfigBackgroundElectricityID</key>
+	<string>$(CSUSTPLANET_BACKGROUND_ELECTRICITY_ID)</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
@@ -69,6 +73,12 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
+		<string>fetch</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>$(CSUSTPLANET_BACKGROUND_GRADE_ID)</string>
+		<string>$(CSUSTPLANET_BACKGROUND_ELECTRICITY_ID)</string>
 	</array>
 </dict>
 </plist>
