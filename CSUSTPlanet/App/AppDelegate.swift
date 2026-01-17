@@ -25,8 +25,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         setupUI()
         setupCleaner()
         setupTipKit()
-        setupBackgroundTasks()
 
+        BackgroundTaskHelper.shared.registerAllTasks()
         ActivityHelper.shared.setup()
         NotificationManager.shared.setup()
         TrackHelper.shared.setup()
@@ -35,10 +35,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 
     // MARK: - Setup Methods
-
-    func setupBackgroundTasks() {
-        BackgroundTaskHelper.shared.registerAllTasks()
-    }
 
     func setupStorage() {
         MMKVHelper.shared.setup()
@@ -155,10 +151,10 @@ extension AppDelegate {
         Logger.appDelegate.debug("App回到前台: appWillEnterForeground")
 
         ActivityHelper.shared.autoUpdateActivity()
-        BackgroundTaskHelper.shared.cancelAllTasks()
 
         if !isFirstAppear {
             checkAndRelogin()
+            BackgroundTaskHelper.shared.cancelAllTasks()
             TrackHelper.shared.event(category: "Lifecycle", action: "Foreground")
         }
 

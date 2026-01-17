@@ -67,7 +67,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Extensions/Logger+Extension.swift",
-				Helpers/BackgroundTaskHelper.swift,
 				Helpers/CookieHelper.swift,
 				Helpers/KeychainHelper.swift,
 				Helpers/MMKVHelper.swift,

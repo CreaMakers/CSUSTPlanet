@@ -37,6 +37,7 @@ final class BackgroundTaskHelper {
                 provider.handle(task: task)
             }
         }
+        Logger.backgroundTaskHelper.debug("注册全部后台任务成功")
     }
 
     func schedule(provider: BackgroundTaskProvider) {
@@ -44,6 +45,7 @@ final class BackgroundTaskHelper {
         request.earliestBeginDate = Date(timeIntervalSinceNow: provider.interval)
         do {
             try BGTaskScheduler.shared.submit(request)
+            Logger.backgroundTaskHelper.debug("调度后台任务成功: \(provider.identifier)")
         } catch {
             Logger.backgroundTaskHelper.error("调度后台任务失败: \(error)")
         }
@@ -51,45 +53,16 @@ final class BackgroundTaskHelper {
 
     func scheduleAllTasks() {
         tasks.forEach { schedule(provider: $0) }
+        Logger.backgroundTaskHelper.debug("调度全部后台任务成功")
     }
 
     func cancel(provider: BackgroundTaskProvider) {
         BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: provider.identifier)
+        Logger.backgroundTaskHelper.debug("取消后台任务: \(provider.identifier)")
     }
 
     func cancelAllTasks() {
         tasks.forEach { cancel(provider: $0) }
-    }
-}
-
-// MARK: - GradeBackgroundTask
-
-struct GradeBackgroundTask: BackgroundTaskProvider {
-    var identifier: String { Constants.backgroundGradeID }
-
-    var interval: TimeInterval { 3 * 60 * 60 }
-
-    func handle(task: BGAppRefreshTask) {
-        task.expirationHandler = {
-            // TODO: 处理后台任务超时
-        }
-        // TODO: 获取成绩
-        task.setTaskCompleted(success: true)
-    }
-}
-
-// MARK: - ElectricityBackgroundTask
-
-struct ElectricityBackgroundTask: BackgroundTaskProvider {
-    var identifier: String { Constants.backgroundElectricityID }
-
-    var interval: TimeInterval { 6 * 60 * 60 }
-
-    func handle(task: BGAppRefreshTask) {
-        task.expirationHandler = {
-            // TODO: 处理后台任务超时
-        }
-        // TODO: 获取电量
-        task.setTaskCompleted(success: true)
+        Logger.backgroundTaskHelper.debug("取消全部后台任务")
     }
 }
