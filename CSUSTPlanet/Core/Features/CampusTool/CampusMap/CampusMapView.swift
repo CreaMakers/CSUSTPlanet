@@ -20,6 +20,8 @@ struct CampusMapView: View {
     @FocusState private var isSearchFocused: Bool
 
     private var campusTip = CampusTip()
+    private var buildingInfoTip = BuildingInfoTip()
+    private var onlineMapTip = OnlineMapTip()
 
     var url: URL {
         URL(string: "https://gis.csust.edu.cn/cmipsh5/#/")!
@@ -57,6 +59,13 @@ struct CampusMapView: View {
                     .background(.thickMaterial)
                     .clipShape(Circle())
             }
+            // MARK: - 建筑物列表开关tip
+            .popoverTip(buildingInfoTip) { action in
+                if action.index == 0 {
+                    buildingInfoTip.invalidate(reason: .actionPerformed)
+                    OnlineMapTip.buildingListFinished = true
+                }
+            }
             .padding()
         }
         .background(
@@ -76,9 +85,9 @@ struct CampusMapView: View {
                 .presentationBackgroundInteraction(.enabled)
                 .presentationDetents([.fraction(0.3), .fraction(0.5), .fraction(0.7)], selection: $viewModel.settingsDetent)
         }
-        .task {
-            viewModel.loadBuildings()
-        }
+        //        .task {
+        //            viewModel.loadBuildings()
+        //        }
         .navigationTitle("校园地图")
         .navigationBarTitleDisplayMode(.inline)
         // .searchable(text: $viewModel.searchText, prompt: "搜索地址")
@@ -93,24 +102,58 @@ struct CampusMapView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Picker("校区", selection: $viewModel.selectedCampus) {
-                        Text("全部校区").tag(CampusCardHelper.Campus?.none)
-                        Text("金盆岭校区").tag(Optional(CampusCardHelper.Campus.jinpenling))
-                        Text("云塘校区").tag(Optional(CampusCardHelper.Campus.yuntang))
+                HStack(spacing: 20) {
+                    Menu {
+                        Picker("校区", selection: $viewModel.selectedCampus) {
+                            Text("全部校区").tag(CampusCardHelper.Campus?.none)
+                            Text("金盆岭校区").tag(Optional(CampusCardHelper.Campus.jinpenling))
+                            Text("云塘校区").tag(Optional(CampusCardHelper.Campus.yuntang))
+                        }
+                    } label: {
+                        Image(systemName: "building.2")
                     }
-                } label: {
-                    Image(systemName: "building.2")
-                }
-                .popoverTip(campusTip) { action in
-                    if action.index == 0 {
-                        campusTip.invalidate(reason: .actionPerformed)
+                    // MARK: - 校区选择tip
+                    .popoverTip(campusTip) { action in
+                        if action.index == 0 {
+                            campusTip.invalidate(reason: .actionPerformed)
+                            BuildingInfoTip.campusTipFinished = true
+                        }
+                    }
+
+                    Button(action: viewModel.showOnlineMap) {
+                        Image(systemName: "globe")
+                    }
+                    // MARK: - 在线地图tip
+                    .popoverTip(onlineMapTip) { action in
+                        if action.index == 0 {
+                            onlineMapTip.invalidate(reason: .actionPerformed)
+                        }
                     }
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: viewModel.showOnlineMap) {
-                    Label("在线地图", systemImage: "globe")
+        }
+        .task {
+            viewModel.loadBuildings()
+            // 监听 1: Toolbar 第一个按钮消失 -> 触发页面按钮 Tip
+            Task {
+                for await status in campusTip.statusUpdates {
+                    if case .invalidated = status {
+                        await MainActor.run {
+                            BuildingInfoTip.campusTipFinished = true
+                        }
+                    }
+                }
+            }
+
+            // 监听 2: 页面按钮 Tip 消失 -> 触发 Toolbar 第二个按钮 Tip
+            Task {
+                for await status in buildingInfoTip.statusUpdates {
+                    if case .invalidated = status {
+                        try? await Task.sleep(nanoseconds: 600_000_000)
+                        await MainActor.run {
+                            OnlineMapTip.buildingListFinished = true
+                        }
+                    }
                 }
             }
         }
@@ -270,12 +313,65 @@ struct CampusMapView: View {
 }
 
 extension CampusMapView {
+    // MARK: - 1. 校区切换 Tip
     struct CampusTip: Tip {
         var title: Text { Text("切换校区") }
         var message: Text? { Text("点击此处可以切换金盆岭和云塘校区") }
         var image: Image? { Image(systemName: "building.2") }
-        var actions: [Action] { [Action(title: "知道了")] }
-        var options: [TipOption] { [Tip.MaxDisplayCount(1)] }
+
+        var actions: [Action] {
+            [Tip.Action(id: "next", title: "下一步")]
+        }
+
+        var options: [TipOption] {
+            [
+                Tip.IgnoresDisplayFrequency(true)  // 必须加这个，否则很难连续弹
+                // Tip.MaxDisplayCount(1) // 调试时注释掉
+            ]
+        }
+    }
+
+    // MARK: - 2. 列表开关 Tip
+    struct BuildingInfoTip: Tip {
+        var title: Text { Text("查看建筑物列表") }
+        var message: Text? { Text("点击此处可以开启/关闭建筑物列表") }
+        var image: Image? { Image(systemName: "list.bullet.indent") }
+
+        var actions: [Action] {
+            [Tip.Action(id: "next", title: "下一步")]
+        }
+
+        var rules: [Rule] {
+            #Rule(Self.$campusTipFinished) { $0 == true }
+        }
+
+        var options: [TipOption] {
+            [Tip.IgnoresDisplayFrequency(true)]
+        }
+
+        @Parameter
+        static var campusTipFinished: Bool = false
+    }
+
+    // MARK: - 3. 在线地图 Tip
+    struct OnlineMapTip: Tip {
+        var title: Text { Text("在线地图") }
+        var message: Text? { Text("点击此处打开在线地图") }
+
+        var actions: [Action] {
+            [Tip.Action(id: "close", title: "明白了")]
+        }
+
+        var rules: [Rule] {
+            #Rule(Self.$buildingListFinished) { $0 == true }
+        }
+
+        var options: [TipOption] {
+            [Tip.IgnoresDisplayFrequency(true)]
+        }
+
+        @Parameter
+        static var buildingListFinished: Bool = false
     }
 }
 
