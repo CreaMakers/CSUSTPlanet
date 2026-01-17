@@ -9,6 +9,7 @@ import BackgroundTasks
 import CSUSTKit
 import Foundation
 import OSLog
+import UserNotifications
 
 struct GradeBackgroundTask: BackgroundTaskProvider {
     var identifier: String { Constants.backgroundGradeID }
@@ -75,7 +76,22 @@ struct GradeBackgroundTask: BackgroundTaskProvider {
                 if lastCourseGrades != nowCourseGrades {
                     Logger.gradeBackgroundTask.debug("成绩发生变化，准备更新缓存并处理通知")
                     MMKVHelper.shared.courseGradesCache = .init(cachedAt: .now, value: nowCourseGrades)
-                    // TODO: 处理本地通知
+
+                    let content = UNMutableNotificationContent()
+                    content.title = "成绩更新提醒"
+                    content.body = "检测到教务系统成绩有变动，点击查看详情。"
+                    content.sound = .default
+                    content.badge = 0
+
+                    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+                    let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+
+                    do {
+                        try await UNUserNotificationCenter.current().add(request)
+                        Logger.gradeBackgroundTask.debug("推送设置成功")
+                    } catch {
+                        Logger.gradeBackgroundTask.error("推送调度失败: \(error.localizedDescription)")
+                    }
                 } else {
                     Logger.gradeBackgroundTask.debug("成绩未发生变化")
                 }
