@@ -65,6 +65,7 @@ struct GradeAnalysisProvider: AppIntentTimelineProvider {
         defer {
             MMKVHelper.shared.close()
         }
+        MMKVHelper.shared.checkContentChanged()
         Logger.gradeAnalysisWidget.info("GradeAnalysisProvider: 开始获取成绩分析数据")
 
         var finalData: Cached<[EduHelper.CourseGrade]>? = nil

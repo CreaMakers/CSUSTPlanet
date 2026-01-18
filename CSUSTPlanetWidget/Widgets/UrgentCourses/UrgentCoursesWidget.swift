@@ -39,6 +39,7 @@ struct UrgentCoursesProvider: AppIntentTimelineProvider {
         defer {
             MMKVHelper.shared.close()
         }
+        MMKVHelper.shared.checkContentChanged()
 
         var finalData: Cached<UrgentCoursesData>? = nil
         if let urgentCourses = MMKVHelper.shared.urgentCoursesCache {

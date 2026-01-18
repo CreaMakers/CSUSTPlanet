@@ -105,7 +105,6 @@ class CourseScheduleViewModel: ObservableObject {
                     let data = Cached<CourseScheduleData>(cachedAt: .now, value: CourseScheduleData(semester: selectedSemester, semesterStartDate: semesterStartDate, courses: courses))
                     self.data = data
                     MMKVHelper.shared.courseScheduleCache = data
-                    MMKVHelper.shared.sync()
                     updateSchedules(semesterStartDate, courses)
                     WidgetCenter.shared.reloadTimelines(ofKind: "TodayCoursesWidget")
                     WidgetCenter.shared.reloadTimelines(ofKind: "WeeklyCoursesWidget")
