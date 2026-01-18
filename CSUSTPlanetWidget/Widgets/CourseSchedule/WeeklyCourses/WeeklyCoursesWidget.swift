@@ -24,6 +24,7 @@ struct WeeklyCoursesProvider: AppIntentTimelineProvider {
         defer {
             MMKVHelper.shared.close()
         }
+        MMKVHelper.shared.checkContentChanged()
         let currentDate: Date = .now
 
         guard let data = MMKVHelper.shared.courseScheduleCache else {

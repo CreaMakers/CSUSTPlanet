@@ -105,7 +105,6 @@ class GradeQueryViewModel: ObservableObject {
                     }
                     .reduce(into: [:]) { $0[$1.semester] = $1.gpa }
                     MMKVHelper.shared.courseGradesCache = data
-                    MMKVHelper.shared.sync()
                     WidgetCenter.shared.reloadTimelines(ofKind: "GradeAnalysisWidget")
                 } catch {
                     errorMessage = error.localizedDescription

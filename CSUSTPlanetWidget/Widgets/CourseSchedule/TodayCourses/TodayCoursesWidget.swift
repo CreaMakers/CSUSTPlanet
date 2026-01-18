@@ -23,6 +23,7 @@ struct TodayCoursesProvider: AppIntentTimelineProvider {
         defer {
             MMKVHelper.shared.close()
         }
+        MMKVHelper.shared.checkContentChanged()
 
         // #if DEBUG
         //     let currentDate = {

@@ -40,7 +40,6 @@ class UrgentCoursesViewModel: ObservableObject {
                     let data = Cached(cachedAt: .now, value: UrgentCoursesData.fromCourses(urgentCourses))
                     self.data = data
                     MMKVHelper.shared.urgentCoursesCache = data
-                    MMKVHelper.shared.sync()
                     WidgetCenter.shared.reloadTimelines(ofKind: "UrgentCoursesWidget")
                 } catch {
                     errorMessage = error.localizedDescription
