@@ -23,7 +23,7 @@ struct Cached<T: Codable>: Codable {
 
 // MARK: - Properties
 
-class MMKVHelper: ObservableObject {
+class MMKVHelper {
     static let shared = MMKVHelper()
 
     private init() {}
@@ -61,7 +61,13 @@ extension MMKVHelper {
             fatalError("Failed to get MMKV directory URL")
         }
         MMKV.initialize(rootDir: mmkvDirectoryURL.path)
-        guard let defaultMMKV = MMKV(mmapID: Constants.mmkvID) else {
+        guard let defaultMMKV = MMKV(
+            mmapID: Constants.mmkvID,
+            cryptKey: nil,
+            rootPath: mmkvDirectoryURL.path,
+            mode: .multiProcess,
+            expectedCapacity: 0
+        ) else {
             fatalError("Failed to initialize MMKV with ID: \(Constants.mmkvID)")
         }
         self.defaultMMKV = defaultMMKV
@@ -84,6 +90,10 @@ extension MMKVHelper {
 
     func removeValue(forKey key: String) {
         defaultMMKV?.removeValue(forKey: key)
+    }
+
+    func checkContentChanged() {
+        defaultMMKV?.checkContentChanged()
     }
 }
 
