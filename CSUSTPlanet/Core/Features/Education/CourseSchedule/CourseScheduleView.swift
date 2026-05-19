@@ -9,8 +9,6 @@ import AlertToast
 import CSUSTKit
 import SwiftUI
 
-// MARK: - CourseScheduleView
-
 struct CourseScheduleView: View {
     @State private var viewModel = CourseScheduleViewModel()
 
@@ -22,6 +20,8 @@ struct CourseScheduleView: View {
     private var timeColWidth: CGFloat { isWideSize ? 50 : 30 }
     private var headerHeight: CGFloat { isWideSize ? 70 : 50 }
     private var sectionHeight: CGFloat { isWideSize ? 90 : 60 }
+
+    private var horizontalPadding: CGFloat { 5 }
 
     // MARK: - Body
 
@@ -70,12 +70,12 @@ struct CourseScheduleView: View {
         .apply { view in
             if !isWideSize {
                 view.sheet(isPresented: $viewModel.isCourseDetailPresented) {
-                    sheetContent
+                    sheetContentView
                 }
             } else {
                 view
                     .inspector(isPresented: .constant(true)) {
-                        sheetContent
+                        sheetContentView
                             #if os(macOS)
                         .inspectorColumnWidth(min: 200, ideal: 250, max: 300)
                             #elseif os(iOS)
@@ -139,33 +139,10 @@ struct CourseScheduleView: View {
         }
     }
 
-    @ViewBuilder
-    private func scrollView(data: Cached<CourseScheduleData>, weeklyCourses: [Int: [CourseDisplayInfo]]) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 0) {
-                ForEach(1...CourseScheduleUtil.weekCount, id: \.self) { week in
-                    tableView(
-                        for: week,
-                        semesterStartDate: data.value.semesterStartDate,
-                        weeklyCourses: weeklyCourses
-                    )
-                    .containerRelativeFrame(.horizontal)
-                }
-            }
-            .scrollTargetLayout()
-        }
-        .scrollTargetBehavior(.paging)
-        .scrollPosition(
-            id: Binding<Int?>(
-                get: { viewModel.currentWeek },
-                set: { if let newWeek = $0 { viewModel.currentWeek = newWeek } }
-            )
-        )
-    }
+    // MARK: - Sheet Content View
 
-    // MARK: - 课程详情视图
     @ViewBuilder
-    var sheetContent: some View {
+    var sheetContentView: some View {
         if let courseInfo = viewModel.selectedCourseInfo {
             CourseScheduleDetailView(
                 course: courseInfo.course,
@@ -200,7 +177,8 @@ struct CourseScheduleView: View {
         }
     }
 
-    // MARK: - 顶部全局控制栏
+    // MARK: - Top Control Bar
+
     @ViewBuilder
     private var topControlBar: some View {
         HStack {
@@ -241,17 +219,44 @@ struct CourseScheduleView: View {
         #endif
     }
 
-    // MARK: - 单周课表页面
+    // MARK: - Horizontal Scroll View
+
+    @ViewBuilder
+    private func scrollView(data: Cached<CourseScheduleData>, weeklyCourses: [Int: [CourseDisplayInfo]]) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 0) {
+                ForEach(1...CourseScheduleUtil.weekCount, id: \.self) { week in
+                    tableView(
+                        for: week,
+                        semesterStartDate: data.value.semesterStartDate,
+                        weeklyCourses: weeklyCourses
+                    )
+                    .containerRelativeFrame(.horizontal)
+                }
+            }
+            .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(
+            id: Binding<Int?>(
+                get: { viewModel.currentWeek },
+                set: { if let newWeek = $0 { viewModel.currentWeek = newWeek } }
+            )
+        )
+    }
+
+    // MARK: - Table View
+
     @ViewBuilder
     private func tableView(for week: Int, semesterStartDate: Date, weeklyCourses: [Int: [CourseDisplayInfo]]) -> some View {
         // 课表网格
         ScrollView {
             ZStack(alignment: .topLeading) {
                 // 背景网格
-                backgroundGrid
+                backgroundGridView
 
                 // 课程视图
-                coursesOverlay(for: week, weeklyCourses: weeklyCourses)
+                coursesOverlayView(for: week, weeklyCourses: weeklyCourses)
             }
         }
         .safeAreaInset(edge: .top) {
@@ -273,7 +278,8 @@ struct CourseScheduleView: View {
         }
     }
 
-    // MARK: - 星期头部视图
+    // MARK: - Header View
+
     @ViewBuilder
     private func headerView(for week: Int, semesterStartDate: Date) -> some View {
         let dates = CourseScheduleUtil.getDatesForWeek(semesterStartDate: semesterStartDate, week: week)
@@ -315,12 +321,13 @@ struct CourseScheduleView: View {
         }
         .padding(.top, 6)
         .padding(.bottom, 6)
-        .padding(.horizontal, 5)
+        .padding(.horizontal, horizontalPadding)
     }
 
-    // MARK: - 背景网格视图
+    // MARK: - Background Grid View
+
     @ViewBuilder
-    private var backgroundGrid: some View {
+    private var backgroundGridView: some View {
         HStack(spacing: colSpacing) {
             // 左侧时间列
             VStack(spacing: rowSpacing) {
@@ -354,17 +361,15 @@ struct CourseScheduleView: View {
                 }
             }
         }
-        .padding(.horizontal, 5)
+        .padding(.horizontal, horizontalPadding)
         .padding(.vertical)
     }
 
-    // MARK: - 课程浮层视图
-    @ViewBuilder
-    private func coursesOverlay(for week: Int, weeklyCourses: [Int: [CourseDisplayInfo]]) -> some View {
-        GeometryReader { geometry in
-            // 计算每日的列宽
-            let horizontalPadding: CGFloat = 5
+    // MARK: - Course Overlay View
 
+    @ViewBuilder
+    private func coursesOverlayView(for week: Int, weeklyCourses: [Int: [CourseDisplayInfo]]) -> some View {
+        GeometryReader { geometry in
             // 通过减去水平内边距来计算实际内容宽度
             let contentWidth = geometry.size.width - (horizontalPadding * 2)
 
@@ -388,21 +393,14 @@ struct CourseScheduleView: View {
 
                             if group.count == 1 {
                                 // 正常课程
-                                CourseCardView(
-                                    course: firstCourseInfo.course,
-                                    session: firstCourseInfo.session,
-                                    color: viewModel.courseColors[firstCourseInfo.course.courseName] ?? .gray
-                                ) {
+                                CourseCardView(course: firstCourseInfo.course, session: firstCourseInfo.session, color: viewModel.courseColors[firstCourseInfo.course.courseName] ?? .gray) {
                                     presentCourseDetail(firstCourseInfo)
                                 }
                                 .frame(width: dayColumnWidth, height: courseHeight)
                                 .offset(x: xOffset, y: yOffset)
                             } else {
                                 // 冲突课程
-                                ConflictCourseCardView(
-                                    courses: group,
-                                    isPad: isWideSize
-                                ) { selectedInfo in
+                                ConflictCourseCardView(courses: group, isPad: isWideSize) { selectedInfo in
                                     presentCourseDetail(selectedInfo)
                                 }
                                 .frame(width: dayColumnWidth, height: courseHeight)
