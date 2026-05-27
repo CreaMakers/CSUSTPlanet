@@ -52,6 +52,8 @@ struct ElectricityBackgroundTask: BackgroundTaskProvider {
                 return false
             }
             let building = CampusCardHelper.Building(name: dorm.buildingName, id: dorm.buildingID, campus: campus)
+            // TODO: Need to fix
+            let room = CampusCardHelper.Room(name: dorm.room, id: "", building: building)
 
             let helper = CampusCardHelper()
             var fetchedElectricity: Double? = nil
@@ -59,7 +61,7 @@ struct ElectricityBackgroundTask: BackgroundTaskProvider {
             for i in 1...3 {
                 try Task.checkCancellation()
                 do {
-                    fetchedElectricity = try await helper.getElectricity(building: building, room: dorm.room)
+                    fetchedElectricity = try await helper.getElectricity(room: room)
                     Logger.electricityBackgroundTask.debug("第 \(i) 次尝试获取宿舍 \(dorm.buildingName)-\(dorm.room) 电量成功: \(fetchedElectricity!)")
                     break
                 } catch {
