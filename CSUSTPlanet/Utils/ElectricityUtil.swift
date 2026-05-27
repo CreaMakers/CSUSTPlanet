@@ -5,7 +5,25 @@
 //  Created by Zhe_Learn on 2025/12/18.
 //
 
+import CSUSTKit
 import Foundation
+
+enum ElectricityUtilError: LocalizedError {
+    case campusNotFound
+    case buildingNotFound
+    case roomNotFound
+
+    var errorDescription: String? {
+        switch self {
+        case .campusNotFound:
+            return "未找到校区"
+        case .buildingNotFound:
+            return "未找到楼栋"
+        case .roomNotFound:
+            return "未找到宿舍"
+        }
+    }
+}
 
 enum ElectricityUtil {
     static let recentHistoryMonths = 3
@@ -163,5 +181,58 @@ enum ElectricityUtil {
         let upperBound = max(lowerBound + minimumSpan, maxValue + padding)
 
         return lowerBound...upperBound
+    }
+
+    @MainActor
+    static func getBuildings(_ campus: CampusCardHelper.Campus, useCache: Bool = true) async throws -> [CampusCardHelper.Building] {
+        if useCache, let buildings = MMKVHelper.ElectricityUtil.buildingsCache[campus] {
+            return buildings
+        }
+
+        let buildings = try await AuthManager.shared.campusCardHelper.getBuildings(campus: campus)
+        MMKVHelper.ElectricityUtil.buildingsCache[campus] = buildings
+
+        return buildings
+    }
+
+    @MainActor
+    static func getRooms(_ building: CampusCardHelper.Building, useCache: Bool = true) async throws -> [CampusCardHelper.Room] {
+        if useCache, let rooms = MMKVHelper.ElectricityUtil.roomsCache[building] {
+            return rooms
+        }
+
+        let rooms = try await AuthManager.shared.campusCardHelper.getRooms(building: building)
+        MMKVHelper.ElectricityUtil.roomsCache[building] = rooms
+
+        return rooms
+    }
+
+    @MainActor
+    static func getElectricity(campusName: String, buildingName: String, roomName: String, useCache: Bool = true) async throws -> Double {
+        guard let campus = CampusCardHelper.Campus(rawValue: campusName) else {
+            throw ElectricityUtilError.campusNotFound
+        }
+
+        let buildings = try await getBuildings(campus, useCache: useCache)
+        guard let building = buildings.first(where: { $0.name == buildingName }) else {
+            throw ElectricityUtilError.buildingNotFound
+        }
+
+        let rooms = try await getRooms(building, useCache: useCache)
+        guard let room = rooms.first(where: { $0.name == roomName }) else {
+            throw ElectricityUtilError.roomNotFound
+        }
+
+        return try await AuthManager.shared.campusCardHelper.getElectricity(room: room)
+    }
+}
+
+extension MMKVHelper {
+    enum ElectricityUtil {
+        @MMKVStorage(key: "ElectricityUtil.buildingsCache", defaultValue: [:])
+        static var buildingsCache: [CampusCardHelper.Campus: [CampusCardHelper.Building]]
+
+        @MMKVStorage(key: "ElectricityUtil.roomsCache", defaultValue: [:])
+        static var roomsCache: [CampusCardHelper.Building: [CampusCardHelper.Room]]
     }
 }

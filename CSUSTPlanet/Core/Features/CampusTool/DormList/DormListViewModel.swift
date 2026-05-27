@@ -105,15 +105,18 @@ final class DormListViewModel {
         )
     }
 
-    func addDorm(building: CampusCardHelper.Building, room: String) {
+    func addDorm(room: CampusCardHelper.Room) {
         guard let pool = DatabaseManager.shared.pool else { return }
+        let building = room.building
+        let campus = building.campus
 
         do {
             try pool.write { db in
                 let duplicated =
                     try DormGRDB
-                    .filter(DormGRDB.Columns.room == room)
-                    .filter(DormGRDB.Columns.buildingID == building.id)
+                    .filter(DormGRDB.Columns.room == room.name)
+                    .filter(DormGRDB.Columns.buildingName == building.name)
+                    .filter(DormGRDB.Columns.campusName == campus.rawValue)
                     .fetchOne(db) != nil
                 if duplicated {
                     errorToast.show(message: "该宿舍信息已存在")
@@ -122,11 +125,10 @@ final class DormListViewModel {
 
                 var dorm = DormGRDB(
                     id: nil,
-                    room: room,
-                    buildingID: building.id,
+                    room: room.name,
+                    buildingID: "",
                     buildingName: building.name,
-                    // TODO: Need to fix
-                    campusID: building.campus.rawValue,
+                    campusID: "",
                     campusName: building.campus.rawValue,
                     isFavorite: false,
                     lastFetchDate: nil,
@@ -170,19 +172,14 @@ final class DormListViewModel {
 
     func queryElectricity(for dorm: DormGRDB) async {
         guard let dormID = dorm.id else { return }
-        guard let campus = CampusCardHelper.Campus(rawValue: dorm.campusName) else { return }
         guard let pool = DatabaseManager.shared.pool else { return }
 
         guard !queryingDormIDs.contains(dormID) else { return }
         queryingDormIDs.insert(dormID)
         defer { queryingDormIDs.remove(dormID) }
 
-        let building = CampusCardHelper.Building(name: dorm.buildingName, id: dorm.buildingID, campus: campus)
-        // TODO: Need to fix
-        let room = CampusCardHelper.Room(name: dorm.room, id: "", building: building)
-
         do {
-            let electricity = try await campusCardHelper.getElectricity(room: room)
+            let electricity = try await ElectricityUtil.getElectricity(campusName: dorm.campusName, buildingName: dorm.buildingName, roomName: dorm.room)
             try await pool.write { db in try DormGRDB.updateElectricity(dormID: dormID, electricity: electricity, in: db) }
             WidgetTimelineRefreshHelper.reloadDormElectricity()
         } catch {

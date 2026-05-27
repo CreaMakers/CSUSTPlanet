@@ -58,19 +58,14 @@ final class DormDetailViewModel: Hashable {
 
     func queryElectricity() async {
         guard let dormID = dorm.id else { return }
-        guard let campus = CampusCardHelper.Campus(rawValue: dorm.campusName) else { return }
         guard let pool = DatabaseManager.shared.pool else { return }
 
         guard !isQueryingElectricity else { return }
         isQueryingElectricity = true
         defer { isQueryingElectricity = false }
 
-        let building = CampusCardHelper.Building(name: dorm.buildingName, id: dorm.buildingID, campus: campus)
-        // TODO: Need to fix
-        let room = CampusCardHelper.Room(name: dorm.room, id: "", building: building)
-
         do {
-            let electricity = try await campusCardHelper.getElectricity(room: room)
+            let electricity = try await ElectricityUtil.getElectricity(campusName: dorm.campusName, buildingName: dorm.buildingName, roomName: dorm.room)
             try await pool.write { db in try DormGRDB.updateElectricity(dormID: dormID, electricity: electricity, in: db) }
             WidgetTimelineRefreshHelper.reloadDormElectricity()
         } catch {

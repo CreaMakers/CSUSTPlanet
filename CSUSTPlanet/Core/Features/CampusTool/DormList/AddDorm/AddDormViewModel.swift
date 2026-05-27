@@ -16,21 +16,30 @@ final class AddDormViewModel: Observable {
 
     var errorToast: ToastState = .errorTitle
 
-    var selectedCampus: CampusCardHelper.Campus = .jinpenling
-    var selectedBuildingID: String = ""
-    var room: String = ""
-    var trimmedRoom: String { room.trimmingCharacters(in: .whitespacesAndNewlines) }
-
-    var buildings: [CampusCardHelper.Campus: [CampusCardHelper.Building]] = [:]
-    var isBuildingsLoading: Bool = false
-
-    var selectedCampusBuildings: [CampusCardHelper.Building] {
-        buildings[selectedCampus] ?? []
+    var selectedCampus: CampusCardHelper.Campus = .jinpenling {
+        didSet {
+            if oldValue != selectedCampus {
+                buildings = []
+                selectedBuilding = nil
+                rooms = []
+                selectedRoom = nil
+                Task { await loadBuildings() }
+            }
+        }
     }
-
-    var selectedBuilding: CampusCardHelper.Building? {
-        selectedCampusBuildings.first(where: { $0.id == selectedBuildingID })
+    var selectedBuilding: CampusCardHelper.Building? = nil {
+        didSet {
+            if oldValue != selectedBuilding {
+                rooms = []
+                selectedRoom = nil
+                Task { await loadRooms() }
+            }
+        }
     }
+    var selectedRoom: CampusCardHelper.Room? = nil
+
+    var buildings: [CampusCardHelper.Building] = []
+    var rooms: [CampusCardHelper.Room] = []
 
     @ObservationIgnored var isInitial = true
 
@@ -41,32 +50,25 @@ final class AddDormViewModel: Observable {
     }
 
     func loadBuildings() async {
-        withAnimation { isBuildingsLoading = true }
-        defer {
-            withAnimation { isBuildingsLoading = false }
-        }
-
         do {
-            // TODO: Need to fix
-            let jinpenlingBuildings = try await campusCardHelper.getBuildings(campus: .jinpenling)
-            buildings[.jinpenling] = jinpenlingBuildings.sorted { $0.name < $1.name }
-
-            let yuntangBuildings = try await campusCardHelper.getBuildings(campus: .yuntang)
-            buildings[.yuntang] = yuntangBuildings.sorted { $0.name < $1.name }
-
-            if let firstBuilding = buildings[selectedCampus]?.first {
-                selectedBuildingID = firstBuilding.id
-            }
+            buildings = try await ElectricityUtil.getBuildings(selectedCampus, useCache: false).sorted { $0.name < $1.name }
         } catch {
             errorToast.show(message: error.localizedDescription)
         }
     }
 
-    func handleCampusPickerChange(oldCampus: CampusCardHelper.Campus, newCampus: CampusCardHelper.Campus) {
-        if let firstBuilding = buildings[newCampus]?.first {
-            selectedBuildingID = firstBuilding.id
-        } else {
-            selectedBuildingID = ""
+    func loadRooms() async {
+        guard let selectedBuilding else {
+            return
+        }
+
+        do {
+            rooms = try await ElectricityUtil.getRooms(selectedBuilding, useCache: false).sorted { $0.name < $1.name }
+        } catch {
+            errorToast.show(message: error.localizedDescription)
         }
     }
 }
+
+extension CampusCardHelper.Building: @retroactive Identifiable {}
+extension CampusCardHelper.Room: @retroactive Identifiable {}

@@ -174,7 +174,7 @@ extension Array: MMKVValueType where Element: Codable {
     func write(to helper: MMKVHelper, key: String) { helper.set(forKey: key, self) }
 }
 
-extension Dictionary: MMKVValueType where Key == String, Value: Codable {
+extension Dictionary: MMKVValueType where Key: Codable, Value: Codable {
     static func read(from helper: MMKVHelper, key: String) -> Dictionary? { return helper.object(forKey: key, as: Self.self) }
     func write(to helper: MMKVHelper, key: String) { helper.set(forKey: key, self) }
 }

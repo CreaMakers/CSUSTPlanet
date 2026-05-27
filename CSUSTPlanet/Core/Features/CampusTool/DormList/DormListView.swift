@@ -54,8 +54,8 @@ struct DormListView: View {
             }
         }
         .sheet(isPresented: $viewModel.isAddDormSheetPresented) {
-            AddDormView { building, room in
-                viewModel.addDorm(building: building, room: room)
+            AddDormView { room in
+                viewModel.addDorm(room: room)
             }
         }
         .sheet(isPresented: scheduleConfigPresentedBinding) {
