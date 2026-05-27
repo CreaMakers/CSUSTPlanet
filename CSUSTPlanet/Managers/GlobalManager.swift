@@ -89,7 +89,7 @@ final class GlobalManager {
         isCheckingAppVersion = true
         defer { isCheckingAppVersion = false }
 
-        guard let currentVersionName = AppVersionHelper.currentVersionName, let currentVersionCode = AppVersionHelper.currentVersionCode else {
+        guard let currentVersionName = AppVersionUtil.currentVersionName, let currentVersionCode = AppVersionUtil.currentVersionCode else {
             Logger.globalManager.error("启动版本检查失败：无法解析当前版本号")
             return
         }

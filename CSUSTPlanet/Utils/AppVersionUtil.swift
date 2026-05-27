@@ -1,5 +1,5 @@
 //
-//  AppVersionHelper.swift
+//  AppVersionUtil.swift
 //  CSUSTPlanet
 //
 //  Created by Codex on 2026/3/29.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AppVersionHelper {
+enum AppVersionUtil {
     static var currentVersionName: String? {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
     }

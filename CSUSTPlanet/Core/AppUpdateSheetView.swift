@@ -28,7 +28,7 @@ struct AppUpdateSheetView: View {
     }
 
     private var currentVersionName: String {
-        AppVersionHelper.currentVersionName ?? "未知版本"
+        AppVersionUtil.currentVersionName ?? "未知版本"
     }
 
     private var downloadURLText: String {
