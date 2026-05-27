@@ -107,6 +107,11 @@ extension KeychainUtil {
         get { getData(forKey: "Cookies") }
         set { set(newValue, forKey: "Cookies") }
     }
+
+    static var campusCardToken: String? {
+        get { getString(forKey: "CampusCardToken") }
+        set { set(newValue, forKey: "CampusCardToken") }
+    }
 }
 #elseif os(macOS)
 extension KeychainUtil {
@@ -134,6 +139,11 @@ extension KeychainUtil {
         get { MMKVHelper.Keychain.cookies }
         set { MMKVHelper.Keychain.cookies = newValue }
     }
+
+    static var campusCardToken: String? {
+        get { MMKVHelper.Keychain.campusCardToken }
+        set { MMKVHelper.Keychain.campusCardToken = newValue }
+    }
 }
 
 extension MMKVHelper {
@@ -152,6 +162,9 @@ extension MMKVHelper {
 
         @MMKVOptionalStorage(key: "Keychain.Cookies")
         static var cookies: Data?
+
+        @MMKVOptionalStorage(key: "Keychain.CampusCardToken")
+        static var campusCardToken: String?
     }
 }
 #endif

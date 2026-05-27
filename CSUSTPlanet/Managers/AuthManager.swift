@@ -37,13 +37,21 @@ final class AuthManager {
     var educationInfo: String = ""
     var educationError: String = ""
 
-    // MARK: - MOOC Properties
+    // MARK: - Mooc Properties
 
     var isMoocLoggingIn: Bool = false
     var isMoocInfoPresented: Bool = false
     var isMoocErrorPresented: Bool = false
     var moocInfo: String = ""
     var moocError: String = ""
+
+    // MARK: - Campus Card Properties
+
+    var isCampusCardLoggingIn: Bool = false
+    var isCampusCardInfoPresented: Bool = false
+    var isCampusCardErrorPresented: Bool = false
+    var campusCardInfo: String = ""
+    var campusCardError: String = ""
 
     // MARK: - Captcha Properties
 
@@ -64,6 +72,7 @@ final class AuthManager {
     private(set) var ssoHelper: SSOHelper
     private(set) var eduHelper: EduHelper
     private(set) var moocHelper: MoocHelper
+    private(set) var campusCardHelper: CampusCardHelper
 
     let mode: ConnectionMode = GlobalManager.shared.isWebVPNModeEnabled ? .webVpn : .direct
     private let session: Session = CookieHelper.shared.session
@@ -71,6 +80,7 @@ final class AuthManager {
     @ObservationIgnored private var ssoLoginTask: Task<Void, Error>?
     @ObservationIgnored private var eduLoginTask: Task<Void, Error>?
     @ObservationIgnored private var moocLoginTask: Task<Void, Error>?
+    @ObservationIgnored private var campusCardLoginTask: Task<Void, Error>?
 
     // MARK: - Initializer
 
@@ -78,6 +88,7 @@ final class AuthManager {
         ssoHelper = SSOHelper(mode: mode, session: session)
         eduHelper = EduHelper(mode: mode, session: session)
         moocHelper = MoocHelper(mode: mode, session: session)
+        campusCardHelper = CampusCardHelper(mode: mode, session: session)
         startObservingLifecycle()
         ssoRelogin(isSilent: true)
     }
@@ -164,6 +175,7 @@ final class AuthManager {
 
             try? await eduHelper.authService.logout()
             try? await moocHelper.logout()
+            try? await campusCardHelper.logout()
             try? await ssoHelper.logout()
             CookieHelper.shared.save()
             saveCredentials(credentials: nil)
@@ -384,10 +396,74 @@ final class AuthManager {
         try await task.value
     }
 
+    // MARK: - CampusCard Login Async
+
+    func campusCardLoginAsync(isSilent: Bool) async throws {
+        if let task = campusCardLoginTask {
+            return try await task.value
+        }
+
+        let task = Task { @MainActor in
+            isCampusCardLoggingIn = true
+            defer { isCampusCardLoggingIn = false }
+
+            let tempCampusCardHelper = CampusCardHelper(mode: mode, session: session)
+            tempCampusCardHelper.token = KeychainUtil.campusCardToken
+            if await tempCampusCardHelper.isLoggedIn() {
+                Logger.authManager.debug("campusCardLogin: 教务系统已登录")
+                self.campusCardHelper = tempCampusCardHelper
+
+                if !isSilent {
+                    campusCardInfo = "校园卡系统已登录"
+                    isCampusCardInfoPresented = true
+                }
+                return
+            }
+
+            do {
+                let (_, ticket) = try await ssoHelper.loginToCampusCard()
+                try await tempCampusCardHelper.syncToken(ticket: ticket)
+            } catch {
+                Logger.authManager.error("campusCardLogin: 校园卡登录请求失败, \(error)")
+
+                if !isSilent {
+                    campusCardError = "校园卡登录错误"
+                    isCampusCardErrorPresented = true
+                }
+                throw error
+            }
+
+            if await tempCampusCardHelper.isLoggedIn() {
+                Logger.authManager.debug("campusCardLogin: 验证校园卡登录成功")
+                self.campusCardHelper = tempCampusCardHelper
+                KeychainUtil.campusCardToken = tempCampusCardHelper.token
+                CookieHelper.shared.save()
+
+                if !isSilent {
+                    campusCardInfo = "校园卡系统登录成功"
+                    isCampusCardInfoPresented = true
+                }
+            } else {
+                Logger.authManager.debug("campusCardLogin: 验证校园卡登录失败")
+
+                if !isSilent {
+                    campusCardError = "校园卡登录错误"
+                    isCampusCardErrorPresented = true
+                }
+                throw CampusCardHelper.CampusCardHelperError.notLoggedIn
+            }
+        }
+
+        campusCardLoginTask = task
+        defer { campusCardLoginTask = nil }
+        try await task.value
+    }
+
     func allLoginAsync(isSilent: Bool) async throws {
         async let edu: () = educationLoginAsync(isSilent: isSilent)
         async let mooc: () = moocLoginAsync(isSilent: isSilent)
-        _ = try await (edu, mooc)
+        async let campusCard: () = campusCardLoginAsync(isSilent: isSilent)
+        _ = try await (edu, mooc, campusCard)
     }
 
     func allLogin(isSilent: Bool) {
@@ -427,6 +503,16 @@ final class AuthManager {
                 try await moocLoginAsync(isSilent: isSilent)
             } catch {
                 Logger.authManager.error("moocLogin 失败: \(error)")
+            }
+        }
+    }
+
+    func campusCardLogin(isSilent: Bool) {
+        Task {
+            do {
+                try await campusCardLoginAsync(isSilent: isSilent)
+            } catch {
+                Logger.authManager.error("campusCardLogin失败: \(error)")
             }
         }
     }
