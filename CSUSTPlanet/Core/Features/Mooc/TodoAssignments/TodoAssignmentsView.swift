@@ -12,9 +12,26 @@ struct TodoAssignmentsCoursePageView: View {
     let courseID: String
     @State private var webViewController = WebViewController()
 
+    var originalURL: URL? { URL(string: "http://pt.csust.edu.cn/meol/jpk/course/layout/newpage/index.jsp?courseId=\(courseID)") }
+    var vpnURL: URL? {
+        if let originalURL {
+            try? WebVPNHelper.encryptURL(originalURL)
+        } else {
+            nil
+        }
+    }
+
+    var url: URL? {
+        if MMKVHelper.GlobalManager.isWebVPNModeEnabled {
+            vpnURL
+        } else {
+            originalURL
+        }
+    }
+
     var body: some View {
         Group {
-            if let url = URL(string: "http://pt.csust.edu.cn/meol/jpk/course/layout/newpage/index.jsp?courseId=\(courseID)") {
+            if let url {
                 WebView(
                     url: url,
                     cookies: CookieHelper.shared.session.session.configuration.httpCookieStorage?.cookies,
