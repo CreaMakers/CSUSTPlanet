@@ -104,6 +104,7 @@
 				Utils/ColorUtil.swift,
 				Utils/Constants.swift,
 				Utils/CourseScheduleUtil.swift,
+				Utils/ElectricityUtil.swift,
 				Utils/EnvironmentUtil.swift,
 				Utils/KeychainUtil.swift,
 				Utils/PlatformAliases.swift,
@@ -885,8 +886,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/zHElEARN/CSUSTKit.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
+				branch = dev;
+				kind = branch;
 			};
 		};
 		00E574A92F1F4F0400440D8D /* XCRemoteSwiftPackageReference "matomo-sdk-ios" */ = {

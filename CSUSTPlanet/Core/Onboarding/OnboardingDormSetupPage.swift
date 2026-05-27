@@ -37,8 +37,8 @@ struct OnboardingDormSetupPage: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .sheet(isPresented: $viewModel.isAddDormSheetPresented) {
-            AddDormView { building, room in
-                viewModel.addDormAndQuery(building: building, room: room)
+            AddDormView { room in
+                viewModel.addDormAndQuery(room: room)
             }
         }
         .errorToast($viewModel.errorToast)
@@ -172,8 +172,8 @@ struct OnboardingDormSetupPage: View {
 }
 
 extension DormListViewModel {
-    func addDormAndQuery(building: CampusCardHelper.Building, room: String) {
-        guard let dorm = insertDormForOnboarding(building: building, room: room) else { return }
+    func addDormAndQuery(room: CampusCardHelper.Room) {
+        guard let dorm = insertDormForOnboarding(room: room) else { return }
 
         Task {
             await queryElectricity(for: dorm)
@@ -181,15 +181,18 @@ extension DormListViewModel {
     }
 
     @discardableResult
-    private func insertDormForOnboarding(building: CampusCardHelper.Building, room: String) -> DormGRDB? {
+    private func insertDormForOnboarding(room: CampusCardHelper.Room) -> DormGRDB? {
         guard let pool = DatabaseManager.shared.pool else { return nil }
+        let building = room.building
+        let campus = building.campus
 
         do {
             return try pool.write { db in
                 let duplicated =
                     try DormGRDB
-                    .filter(DormGRDB.Columns.room == room)
-                    .filter(DormGRDB.Columns.buildingID == building.id)
+                    .filter(DormGRDB.Columns.room == room.name)
+                    .filter(DormGRDB.Columns.buildingName == building.name)
+                    .filter(DormGRDB.Columns.campusName == campus.rawValue)
                     .fetchOne(db) != nil
                 if duplicated {
                     errorToast.show(message: "该宿舍信息已存在")
@@ -198,11 +201,11 @@ extension DormListViewModel {
 
                 var dorm = DormGRDB(
                     id: nil,
-                    room: room,
-                    buildingID: building.id,
+                    room: room.name,
+                    buildingID: "",
                     buildingName: building.name,
-                    campusID: building.campus.id,
-                    campusName: building.campus.rawValue,
+                    campusID: "",
+                    campusName: campus.rawValue,
                     isFavorite: false,
                     lastFetchDate: nil,
                     lastFetchElectricity: nil,
@@ -217,8 +220,9 @@ extension DormListViewModel {
 
                 return
                     try DormGRDB
-                    .filter(DormGRDB.Columns.room == room)
-                    .filter(DormGRDB.Columns.buildingID == building.id)
+                    .filter(DormGRDB.Columns.room == room.name)
+                    .filter(DormGRDB.Columns.buildingName == building.name)
+                    .filter(DormGRDB.Columns.campusName == campus.rawValue)
                     .order(DormGRDB.Columns.id.desc)
                     .fetchOne(db)
             }

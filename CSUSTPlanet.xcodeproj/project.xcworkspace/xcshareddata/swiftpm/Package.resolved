@@ -31,10 +31,10 @@
     {
       "identity" : "csustkit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/zHElEARN/CSUSTKit",
+      "location" : "https://github.com/zHElEARN/CSUSTKit.git",
       "state" : {
-        "revision" : "cea96cc02008a81536ca56c723c7d00328d24304",
-        "version" : "2.0.0"
+        "branch" : "dev",
+        "revision" : "7edac229057acbbe6ff5cc44d83953c17c78e227"
       }
     },
     {

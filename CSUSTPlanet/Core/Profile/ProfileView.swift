@@ -80,6 +80,17 @@ struct ProfileView: View {
                         }
                     }
 
+                    HStack {
+                        Button(action: { authManager.campusCardLogin(isSilent: false) }) {
+                            Label("刷新校园卡系统登录", systemImage: "creditcard")
+                        }
+                        .disabled(!authManager.isSSOLoggedIn || authManager.isCampusCardLoggingIn)
+                        if authManager.isCampusCardLoggingIn {
+                            Spacer()
+                            ProgressView().smallControlSizeOnMac()
+                        }
+                    }
+
                     Button(action: { isLogoutAlertPresented = true }) {
                         Label("退出登录", systemImage: "arrow.right.circle").foregroundColor(.red)
                     }

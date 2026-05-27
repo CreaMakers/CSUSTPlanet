@@ -47,19 +47,42 @@ struct ElectricityBackgroundTask: BackgroundTaskProvider {
                 return true
             }
 
-            guard let campus = CampusCardHelper.Campus(rawValue: dorm.campusName) else {
-                Logger.electricityBackgroundTask.error("宿舍 \(dorm.room) 无法解析校区枚举: \(dorm.campusName)")
-                return false
-            }
-            let building = CampusCardHelper.Building(name: dorm.buildingName, id: dorm.buildingID, campus: campus)
+            let mode: ConnectionMode = MMKVHelper.GlobalManager.isWebVPNModeEnabled ? .webVpn : .direct
+            let session = CookieHelper.shared.session
 
-            let helper = CampusCardHelper()
+            let ssoHelper = SSOHelper(mode: mode, session: session)
+            let campusCardHelper = CampusCardHelper(mode: mode, session: session)
+
+            campusCardHelper.token = KeychainUtil.campusCardToken
+
+            if await !campusCardHelper.isLoggedIn() {
+                if await ssoHelper.isLoggedIn() {
+                    let (_, ticket) = try await ssoHelper.loginToCampusCard()
+                    try await campusCardHelper.syncToken(ticket: ticket)
+
+                    CookieHelper.shared.save()
+                    KeychainUtil.campusCardToken = campusCardHelper.token
+                } else {
+                    guard let username = KeychainUtil.ssoUsername, let password = KeychainUtil.ssoPassword else {
+                        return false
+                    }
+                    let loginForm = try await ssoHelper.getLoginForm()
+                    try await ssoHelper.login(loginForm: loginForm, username: username, password: password, captcha: nil)
+
+                    let (_, ticket) = try await ssoHelper.loginToCampusCard()
+                    try await campusCardHelper.syncToken(ticket: ticket)
+
+                    CookieHelper.shared.save()
+                    KeychainUtil.campusCardToken = campusCardHelper.token
+                }
+            }
+
             var fetchedElectricity: Double? = nil
 
             for i in 1...3 {
                 try Task.checkCancellation()
                 do {
-                    fetchedElectricity = try await helper.getElectricity(building: building, room: dorm.room)
+                    fetchedElectricity = try await ElectricityUtil.getElectricity(campusCardHelper, campusName: dorm.campusName, buildingName: dorm.buildingName, roomName: dorm.room)
                     Logger.electricityBackgroundTask.debug("第 \(i) 次尝试获取宿舍 \(dorm.buildingName)-\(dorm.room) 电量成功: \(fetchedElectricity!)")
                     break
                 } catch {

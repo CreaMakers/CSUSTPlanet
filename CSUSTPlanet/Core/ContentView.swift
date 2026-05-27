@@ -208,6 +208,12 @@ struct ContentView: View {
         .toast(isPresenting: $authManager.isMoocErrorPresented) {
             AlertToast(displayMode: .hud, type: .error(.red), title: authManager.moocError)
         }
+        .toast(isPresenting: $authManager.isCampusCardInfoPresented) {
+            AlertToast(displayMode: .hud, type: .systemImage("info.circle.fill", .blue), title: authManager.campusCardInfo)
+        }
+        .toast(isPresenting: $authManager.isCampusCardErrorPresented) {
+            AlertToast(displayMode: .hud, type: .error(.red), title: authManager.campusCardError)
+        }
 
         // MARK: - 主题设置 & 用户协议弹窗
 

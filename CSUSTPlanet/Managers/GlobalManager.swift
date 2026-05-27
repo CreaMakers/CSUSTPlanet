@@ -156,22 +156,3 @@ final class GlobalManager {
 extension Logger {
     static let globalManager = Logger(appCategory: "GlobalManager")
 }
-
-extension MMKVHelper {
-    enum GlobalManager {
-        @MMKVStorage(key: "GlobalVars.appearance", defaultValue: "system")
-        static var appearance: String
-
-        @MMKVStorage(key: "GlobalVars.isUserAgreementAccepted", defaultValue: false)
-        static var isUserAgreementAccepted: Bool
-
-        @MMKVStorage(key: "GlobalVars.isWebVPNModeEnabled", defaultValue: false)
-        static var isWebVPNModeEnabled: Bool
-
-        @MMKVStorage(key: "GlobalVars.hasCompletedOnboarding", defaultValue: false)
-        static var hasCompletedOnboarding: Bool
-
-        @MMKVOptionalStorage(key: "GlobalVars.ignoredAppUpdateVersionCode")
-        static var ignoredAppUpdateVersionCode: Int?
-    }
-}

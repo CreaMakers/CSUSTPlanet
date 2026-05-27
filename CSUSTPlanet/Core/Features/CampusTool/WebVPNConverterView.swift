@@ -201,12 +201,26 @@ struct WebVPNConverterView: View {
             return
         }
 
+        var urlString = urlString
+        if let u = URL(string: urlString), u.scheme == nil {
+            if urlString.hasPrefix("//") {
+                urlString = "http:" + urlString
+            } else {
+                urlString = "http://" + urlString
+            }
+        }
+        guard let url = URL(string: urlString), url.host != nil, url.scheme != nil else {
+            resultUrl = "无效的 URL 或无法获取主机名/协议"
+            isErrorPresented = true
+            return
+        }
+
         do {
             switch selectedMode {
             case .convert:
-                resultUrl = try WebVPNHelper.encryptURL(originalURL: urlString)
+                resultUrl = try WebVPNHelper.encryptURL(url).absoluteString
             case .restore:
-                resultUrl = try WebVPNHelper.decryptURL(vpnURL: urlString)
+                resultUrl = try WebVPNHelper.decryptURL(url).absoluteString
             }
             isErrorPresented = false
         } catch {
