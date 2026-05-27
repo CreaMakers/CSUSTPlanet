@@ -885,8 +885,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/zHElEARN/CSUSTKit.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
+				branch = dev;
+				kind = branch;
 			};
 		};
 		00E574A92F1F4F0400440D8D /* XCRemoteSwiftPackageReference "matomo-sdk-ios" */ = {
