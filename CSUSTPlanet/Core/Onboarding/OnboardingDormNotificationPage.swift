@@ -73,8 +73,8 @@ struct OnboardingDormNotificationPage: View {
             syncSelectedDorm(with: newDorms)
         }
         .sheet(isPresented: $viewModel.isAddDormSheetPresented) {
-            AddDormView { building, room in
-                viewModel.addDormAndQuery(building: building, room: room)
+            AddDormView { room in
+                viewModel.addDormAndQuery(room: room)
             }
         }
         .sheet(isPresented: $isScheduleConfigPresented) {
