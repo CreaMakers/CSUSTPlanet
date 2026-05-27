@@ -41,9 +41,11 @@ struct RefreshElectricityTimelineIntent: AppIntent {
 
         // 解析校区与楼栋信息
         let building = CampusCardHelper.Building(name: localDorm.buildingName, id: localDorm.buildingID, campus: campus)
+        // TODO: Need to fix
+        let room = CampusCardHelper.Room(name: localDorm.room, id: "", building: building)
 
         // 拉取网络数据并更新数据库
-        guard let networkElectricity = try? await CampusCardHelper().getElectricity(building: building, room: localDorm.room) else {
+        guard let networkElectricity = try? await CampusCardHelper().getElectricity(room: room) else {
             return
         }
         try? await pool.write { db in

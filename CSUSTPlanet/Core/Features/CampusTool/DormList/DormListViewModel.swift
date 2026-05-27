@@ -125,7 +125,8 @@ final class DormListViewModel {
                     room: room,
                     buildingID: building.id,
                     buildingName: building.name,
-                    campusID: building.campus.id,
+                    // TODO: Need to fix
+                    campusID: building.campus.rawValue,
                     campusName: building.campus.rawValue,
                     isFavorite: false,
                     lastFetchDate: nil,
@@ -177,9 +178,11 @@ final class DormListViewModel {
         defer { queryingDormIDs.remove(dormID) }
 
         let building = CampusCardHelper.Building(name: dorm.buildingName, id: dorm.buildingID, campus: campus)
+        // TODO: Need to fix
+        let room = CampusCardHelper.Room(name: dorm.room, id: "", building: building)
 
         do {
-            let electricity = try await campusCardHelper.getElectricity(building: building, room: dorm.room)
+            let electricity = try await campusCardHelper.getElectricity(room: room)
             try await pool.write { db in try DormGRDB.updateElectricity(dormID: dormID, electricity: electricity, in: db) }
             WidgetTimelineRefreshHelper.reloadDormElectricity()
         } catch {

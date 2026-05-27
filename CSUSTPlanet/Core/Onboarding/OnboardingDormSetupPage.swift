@@ -201,7 +201,8 @@ extension DormListViewModel {
                     room: room,
                     buildingID: building.id,
                     buildingName: building.name,
-                    campusID: building.campus.id,
+                    // TODO: Need to fix
+                    campusID: building.campus.rawValue,
                     campusName: building.campus.rawValue,
                     isFavorite: false,
                     lastFetchDate: nil,

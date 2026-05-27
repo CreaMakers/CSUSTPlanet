@@ -47,10 +47,11 @@ final class AddDormViewModel: Observable {
         }
 
         do {
-            let jinpenlingBuildings = try await campusCardHelper.getBuildings(for: .jinpenling)
+            // TODO: Need to fix
+            let jinpenlingBuildings = try await campusCardHelper.getBuildings(campus: .jinpenling)
             buildings[.jinpenling] = jinpenlingBuildings.sorted { $0.name < $1.name }
 
-            let yuntangBuildings = try await campusCardHelper.getBuildings(for: .yuntang)
+            let yuntangBuildings = try await campusCardHelper.getBuildings(campus: .yuntang)
             buildings[.yuntang] = yuntangBuildings.sorted { $0.name < $1.name }
 
             if let firstBuilding = buildings[selectedCampus]?.first {
