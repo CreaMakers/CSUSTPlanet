@@ -21,39 +21,40 @@ struct RefreshTodoAssignmentsTimelineIntent: AppIntent {
     }
 
     static func update() async {
-        let ssoHelper = SSOHelper(session: CookieHelper.shared.session)
+        do {
+            let mode: ConnectionMode = MMKVHelper.GlobalManager.isWebVPNModeEnabled ? .webVpn : .direct
+            let session = CookieHelper.shared.session
 
-        let hasValidSession: Bool
-        if (try? await ssoHelper.getLoginUser()) == nil {
-            if let username = KeychainUtil.ssoUsername,
-                let password = KeychainUtil.ssoPassword,
-                let loginForm = try? await ssoHelper.getLoginForm()
-            {
-                hasValidSession = (try? await ssoHelper.login(loginForm: loginForm, username: username, password: password, captcha: nil)) != nil
-            } else {
-                hasValidSession = false
-            }
-        } else {
-            hasValidSession = true
-        }
+            let ssoHelper = SSOHelper(mode: mode, session: session)
+            let moocHelper = MoocHelper(mode: mode, session: session)
 
-        if hasValidSession, let moocHelper = try? MoocHelper(session: await ssoHelper.loginToMooc()) {
-            if let courses = try? await moocHelper.getCoursesWithPendingAssignments() {
-                var groups: [TodoAssignmentsData] = []
-                var fetchFailed = false
-
-                for course in courses {
-                    guard let assignments = try? await moocHelper.getCourseAssignments(course: course) else {
-                        fetchFailed = true
-                        break
+            if await !moocHelper.isLoggedIn() {
+                if await ssoHelper.isLoggedIn() {
+                    try await ssoHelper.loginToMooc()
+                    CookieHelper.shared.save()
+                } else {
+                    guard let username = KeychainUtil.ssoUsername, let password = KeychainUtil.ssoPassword else {
+                        return
                     }
-                    groups.append(.init(course: course, assignments: assignments))
-                }
+                    let loginForm = try await ssoHelper.getLoginForm()
+                    try await ssoHelper.login(loginForm: loginForm, username: username, password: password, captcha: nil)
 
-                if !fetchFailed {
-                    MMKVHelper.TodoAssignments.cache = Cached(cachedAt: .now, value: groups)
+                    try await ssoHelper.loginToMooc()
+                    CookieHelper.shared.save()
                 }
             }
+
+            let courses = try await moocHelper.getCoursesWithPendingAssignments()
+            var groups: [TodoAssignmentsData] = []
+
+            for course in courses {
+                let assignments = try await moocHelper.getCourseAssignments(course: course)
+                groups.append(.init(course: course, assignments: assignments))
+            }
+
+            MMKVHelper.TodoAssignments.cache = Cached(cachedAt: .now, value: groups)
+        } catch {
+            return
         }
     }
 }

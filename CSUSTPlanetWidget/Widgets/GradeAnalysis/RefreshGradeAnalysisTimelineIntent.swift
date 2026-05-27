@@ -21,31 +21,33 @@ struct RefreshGradeAnalysisTimelineIntent: AppIntent {
     }
 
     static func update() async {
-        let ssoHelper = SSOHelper(session: CookieHelper.shared.session)
+        do {
+            let mode: ConnectionMode = MMKVHelper.GlobalManager.isWebVPNModeEnabled ? .webVpn : .direct
+            let session = CookieHelper.shared.session
 
-        // 先尝试使用保存的cookie登录统一认证
-        let hasValidSSOSession: Bool
-        if (try? await ssoHelper.getLoginUser()) == nil {
-            // 保存的cookie无效，尝试账号密码登录
-            if let username = KeychainUtil.ssoUsername,
-                let password = KeychainUtil.ssoPassword,
-                let loginForm = try? await ssoHelper.getLoginForm()
-            {
-                hasValidSSOSession = (try? await ssoHelper.login(loginForm: loginForm, username: username, password: password, captcha: nil)) != nil
-            } else {
-                hasValidSSOSession = false
+            let ssoHelper = SSOHelper(mode: mode, session: session)
+            let eduHelper = EduHelper(mode: mode, session: session)
+
+            if await !eduHelper.isLoggedIn() {
+                if await ssoHelper.isLoggedIn() {
+                    try await ssoHelper.loginToEducation()
+                    CookieHelper.shared.save()
+                } else {
+                    guard let username = KeychainUtil.ssoUsername, let password = KeychainUtil.ssoPassword else {
+                        return
+                    }
+                    let loginForm = try await ssoHelper.getLoginForm()
+                    try await ssoHelper.login(loginForm: loginForm, username: username, password: password, captcha: nil)
+
+                    try await ssoHelper.loginToEducation()
+                    CookieHelper.shared.save()
+                }
             }
-        } else {
-            hasValidSSOSession = true
-        }
 
-        // 登录教务系统并获取数据
-        if hasValidSSOSession,
-            let eduHelper = try? EduHelper(session: await ssoHelper.loginToEducation()),
-            let courseGrades = try? await eduHelper.courseService.getCourseGrades(),
-            !courseGrades.isEmpty
-        {
+            let courseGrades = try await eduHelper.courseService.getCourseGrades()
             MMKVHelper.CourseGrades.cache = Cached<[EduHelper.CourseGrade]>(cachedAt: .now, value: courseGrades)
+        } catch {
+            return
         }
     }
 }
