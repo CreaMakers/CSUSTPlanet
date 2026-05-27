@@ -31,6 +31,23 @@ extension MMKVHelper {
         static var scheduleCache: Cached<[PhysicsExperimentHelper.Course]>?
     }
 
+    enum GlobalManager {
+        @MMKVStorage(key: "GlobalVars.appearance", defaultValue: "system")
+        static var appearance: String
+
+        @MMKVStorage(key: "GlobalVars.isUserAgreementAccepted", defaultValue: false)
+        static var isUserAgreementAccepted: Bool
+
+        @MMKVStorage(key: "GlobalVars.isWebVPNModeEnabled", defaultValue: false)
+        static var isWebVPNModeEnabled: Bool
+
+        @MMKVStorage(key: "GlobalVars.hasCompletedOnboarding", defaultValue: false)
+        static var hasCompletedOnboarding: Bool
+
+        @MMKVOptionalStorage(key: "GlobalVars.ignoredAppUpdateVersionCode")
+        static var ignoredAppUpdateVersionCode: Int?
+    }
+
     enum WidgetSettings {
         enum DormElectricity {
             @MMKVStorage(key: "WidgetSettings.DormElectricity.isAutoRefresh", defaultValue: true)

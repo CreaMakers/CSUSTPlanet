@@ -104,6 +104,7 @@
 				Utils/ColorUtil.swift,
 				Utils/Constants.swift,
 				Utils/CourseScheduleUtil.swift,
+				Utils/ElectricityUtil.swift,
 				Utils/EnvironmentUtil.swift,
 				Utils/KeychainUtil.swift,
 				Utils/PlatformAliases.swift,
