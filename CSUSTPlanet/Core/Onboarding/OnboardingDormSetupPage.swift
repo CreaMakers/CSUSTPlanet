@@ -202,9 +202,7 @@ extension DormListViewModel {
                 var dorm = DormGRDB(
                     id: nil,
                     room: room.name,
-                    buildingID: "",
                     buildingName: building.name,
-                    campusID: "",
                     campusName: campus.rawValue,
                     isFavorite: false,
                     lastFetchDate: nil,

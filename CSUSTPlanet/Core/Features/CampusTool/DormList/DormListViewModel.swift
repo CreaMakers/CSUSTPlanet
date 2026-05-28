@@ -126,9 +126,7 @@ final class DormListViewModel {
                 var dorm = DormGRDB(
                     id: nil,
                     room: room.name,
-                    buildingID: "",
                     buildingName: building.name,
-                    campusID: "",
                     campusName: building.campus.rawValue,
                     isFavorite: false,
                     lastFetchDate: nil,

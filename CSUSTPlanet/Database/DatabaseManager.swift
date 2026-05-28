@@ -63,9 +63,9 @@ final class DatabaseManager {
             try db.create(table: DormGRDB.databaseTableName) { t in
                 t.autoIncrementedPrimaryKey(DormGRDB.Columns.id.name)
                 t.column(DormGRDB.Columns.room.name, .text).notNull()
-                t.column(DormGRDB.Columns.buildingID.name, .text).notNull()
+                t.column("buildingID", .text).notNull()
                 t.column(DormGRDB.Columns.buildingName.name, .text).notNull()
-                t.column(DormGRDB.Columns.campusID.name, .text).notNull()
+                t.column("campusID", .text).notNull()
                 t.column(DormGRDB.Columns.campusName.name, .text).notNull()
                 t.column(DormGRDB.Columns.isFavorite.name, .boolean).notNull().defaults(to: false)
                 t.column(DormGRDB.Columns.lastFetchDate.name, .datetime)
@@ -104,6 +104,13 @@ final class DatabaseManager {
             }
 
             try db.create(index: "idx_matomo_events_createdAt", on: MatomoEventGRDB.databaseTableName, columns: [MatomoEventGRDB.Columns.createdAt.name])
+        }
+
+        migrator.registerMigration("v4_drop_buildingID_campusID") { db in
+            try db.alter(table: DormGRDB.databaseTableName) { t in
+                t.drop(column: "buildingID")
+                t.drop(column: "campusID")
+            }
         }
 
         return migrator

@@ -13,9 +13,7 @@ struct DormGRDB: Codable, FetchableRecord, MutablePersistableRecord, TableRecord
 
     var id: Int64?
     var room: String
-    var buildingID: String
     var buildingName: String
-    var campusID: String
     var campusName: String
     var isFavorite: Bool
     var lastFetchDate: Date?
@@ -27,7 +25,8 @@ struct DormGRDB: Codable, FetchableRecord, MutablePersistableRecord, TableRecord
     var hasFetchedElectricity: Bool { return lastFetchDate != nil && lastFetchElectricity != nil }
 
     enum Columns: String, ColumnExpression {
-        case id, room, buildingID, buildingName, campusID, campusName
+        case id
+        case campusName, buildingName, room
         case isFavorite
         case lastFetchDate, lastFetchElectricity
         case scheduleHour, scheduleMinute
