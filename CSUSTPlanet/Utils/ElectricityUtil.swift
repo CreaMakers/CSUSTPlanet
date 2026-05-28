@@ -183,44 +183,83 @@ enum ElectricityUtil {
         return lowerBound...upperBound
     }
 
-    static func getBuildings(_ campusCardHelper: CampusCardHelper, _ campus: CampusCardHelper.Campus, useCache: Bool = true) async throws -> [CampusCardHelper.Building] {
+    static func getBuildings(
+        _ campusCardHelper: CampusCardHelper,
+        _ campus: CampusCardHelper.Campus,
+        useCache: Bool = true,
+        retryProvider: AuthRetryProvider? = nil
+    ) async throws -> [CampusCardHelper.Building] {
         if useCache, let buildings = MMKVHelper.ElectricityUtil.buildingsCache[campus] {
             return buildings
         }
 
-        let buildings = try await campusCardHelper.getBuildings(campus: campus)
+        let buildings =
+            if let retryProvider {
+                try await retryProvider.withAuthRetry(system: .campusCard, maxRetries: 2) {
+                    try await campusCardHelper.getBuildings(campus: campus)
+                }
+            } else {
+                try await campusCardHelper.getBuildings(campus: campus)
+            }
+
         MMKVHelper.ElectricityUtil.buildingsCache[campus] = buildings
 
         return buildings
     }
 
-    static func getRooms(_ campusCardHelper: CampusCardHelper, _ building: CampusCardHelper.Building, useCache: Bool = true) async throws -> [CampusCardHelper.Room] {
+    static func getRooms(
+        _ campusCardHelper: CampusCardHelper,
+        _ building: CampusCardHelper.Building,
+        useCache: Bool = true,
+        retryProvider: AuthRetryProvider? = nil
+    ) async throws -> [CampusCardHelper.Room] {
         if useCache, let rooms = MMKVHelper.ElectricityUtil.roomsCache[building] {
             return rooms
         }
 
-        let rooms = try await campusCardHelper.getRooms(building: building)
+        let rooms =
+            if let retryProvider {
+                try await retryProvider.withAuthRetry(system: .campusCard, maxRetries: 2) {
+                    try await campusCardHelper.getRooms(building: building)
+                }
+            } else {
+                try await campusCardHelper.getRooms(building: building)
+            }
+
         MMKVHelper.ElectricityUtil.roomsCache[building] = rooms
 
         return rooms
     }
 
-    static func getElectricity(_ campusCardHelper: CampusCardHelper, campusName: String, buildingName: String, roomName: String, useCache: Bool = true) async throws -> Double {
+    static func getElectricity(
+        _ campusCardHelper: CampusCardHelper,
+        campusName: String,
+        buildingName: String,
+        roomName: String,
+        useCache: Bool = true,
+        retryProvider: AuthRetryProvider? = nil
+    ) async throws -> Double {
         guard let campus = CampusCardHelper.Campus(rawValue: campusName) else {
             throw ElectricityUtilError.campusNotFound
         }
 
-        let buildings = try await getBuildings(campusCardHelper, campus, useCache: useCache)
+        let buildings = try await getBuildings(campusCardHelper, campus, useCache: useCache, retryProvider: retryProvider)
         guard let building = buildings.first(where: { $0.name == buildingName }) else {
             throw ElectricityUtilError.buildingNotFound
         }
 
-        let rooms = try await getRooms(campusCardHelper, building, useCache: useCache)
+        let rooms = try await getRooms(campusCardHelper, building, useCache: useCache, retryProvider: retryProvider)
         guard let room = rooms.first(where: { $0.name == roomName }) else {
             throw ElectricityUtilError.roomNotFound
         }
 
-        return try await campusCardHelper.getElectricity(room: room)
+        return if let retryProvider {
+            try await retryProvider.withAuthRetry(system: .campusCard, maxRetries: 2) {
+                try await campusCardHelper.getElectricity(room: room)
+            }
+        } else {
+            try await campusCardHelper.getElectricity(room: room)
+        }
     }
 }
 

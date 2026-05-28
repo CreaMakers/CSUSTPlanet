@@ -53,7 +53,13 @@ final class DormOverviewViewModel {
         defer { isQueryingElectricity = false }
 
         do {
-            let electricity = try await ElectricityUtil.getElectricity(AuthManager.shared.campusCardHelper, campusName: dorm.campusName, buildingName: dorm.buildingName, roomName: dorm.room)
+            let electricity = try await ElectricityUtil.getElectricity(
+                AuthManager.shared.campusCardHelper,
+                campusName: dorm.campusName,
+                buildingName: dorm.buildingName,
+                roomName: dorm.room,
+                retryProvider: AuthManager.shared
+            )
             try await pool.write { db in try DormGRDB.updateElectricity(dormID: dormID, electricity: electricity, in: db) }
             WidgetTimelineRefreshHelper.reloadDormElectricity()
         } catch {}

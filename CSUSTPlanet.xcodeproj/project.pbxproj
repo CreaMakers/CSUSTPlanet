@@ -96,6 +96,7 @@
 				Helpers/Track/MatomoGRDBQueue.swift,
 				Helpers/Track/MatomoLogger.swift,
 				Helpers/Track/TrackHelper.swift,
+				"Managers/AuthManager+RetryProtocol.swift",
 				Models/Cached.swift,
 				Models/CourseScheduleData.swift,
 				Models/GradeAnalysisData.swift,

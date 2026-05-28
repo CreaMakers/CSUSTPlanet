@@ -8,12 +8,7 @@
 import CSUSTKit
 import OSLog
 
-enum CampusSystem {
-    case edu
-    case mooc
-}
-
-extension AuthManager {
+extension AuthManager: AuthRetryProvider {
     func withAuthRetry<T>(
         system: CampusSystem,
         maxRetries: Int = 2,
@@ -42,6 +37,8 @@ extension AuthManager {
                         try await educationLoginAsync(isSilent: true)
                     case .mooc:
                         try await moocLoginAsync(isSilent: true)
+                    case .campusCard:
+                        try await campusCardLoginAsync(isSilent: true)
                     }
                 } catch let loginError {
                     if isNotLoggedInError(error: loginError, system: system) {
@@ -64,6 +61,11 @@ extension AuthManager {
             return false
         case .mooc:
             if let moocError = error as? MoocHelper.MoocHelperError, case .notLoggedIn = moocError {
+                return true
+            }
+            return false
+        case .campusCard:
+            if let campusCardError = error as? CampusCardHelper.CampusCardHelperError, case .notLoggedIn = campusCardError {
                 return true
             }
             return false

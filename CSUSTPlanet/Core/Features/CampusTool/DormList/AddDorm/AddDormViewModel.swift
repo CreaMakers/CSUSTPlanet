@@ -51,7 +51,12 @@ final class AddDormViewModel: Observable {
 
     func loadBuildings() async {
         do {
-            buildings = try await ElectricityUtil.getBuildings(AuthManager.shared.campusCardHelper, selectedCampus, useCache: false).sorted { $0.name < $1.name }
+            buildings = try await ElectricityUtil.getBuildings(
+                AuthManager.shared.campusCardHelper,
+                selectedCampus,
+                useCache: false,
+                retryProvider: AuthManager.shared
+            ).sorted { $0.name < $1.name }
         } catch {
             errorToast.show(message: error.localizedDescription)
         }
@@ -63,7 +68,12 @@ final class AddDormViewModel: Observable {
         }
 
         do {
-            rooms = try await ElectricityUtil.getRooms(AuthManager.shared.campusCardHelper, selectedBuilding, useCache: false).sorted { $0.name < $1.name }
+            rooms = try await ElectricityUtil.getRooms(
+                AuthManager.shared.campusCardHelper,
+                selectedBuilding,
+                useCache: false,
+                retryProvider: AuthManager.shared
+            ).sorted { $0.name < $1.name }
         } catch {
             errorToast.show(message: error.localizedDescription)
         }
