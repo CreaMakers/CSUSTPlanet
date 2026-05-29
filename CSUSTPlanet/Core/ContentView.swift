@@ -77,6 +77,7 @@ private let featureSections: [FeatureSection] = [
         items: [
             FeatureItem(id: .cet),
             FeatureItem(id: .mandarin),
+            FeatureItem(id: .ncre),
         ]
     ),
 ]

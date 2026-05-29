@@ -166,6 +166,10 @@ struct FeaturesView: View {
                 Divider().padding(.leading, 56)
 
                 ToolRow(route: .features(.examQuery(.mandarin)), title: "普通话查询", icon: "mic.circle.fill", color: .indigo)
+
+                Divider().padding(.leading, 56)
+
+                ToolRow(route: .features(.examQuery(.ncre)), title: "计算机等级查询", icon: "desktopcomputer", color: .indigo)
             }
             #if os(iOS)
             .background(Color(PlatformColor.secondarySystemGroupedBackground))

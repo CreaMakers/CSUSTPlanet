@@ -347,6 +347,7 @@ enum AppRoute: Hashable {
         enum ExamQueryRoute: Hashable {
             case cet
             case mandarin
+            case ncre
 
             var trackSegment: String {
                 switch self {
@@ -354,6 +355,8 @@ enum AppRoute: Hashable {
                     return "CET"
                 case .mandarin:
                     return "Mandarin"
+                case .ncre:
+                    return "NCRE"
                 }
             }
 
@@ -364,6 +367,8 @@ enum AppRoute: Hashable {
                     CETView()
                 case .mandarin:
                     MandarinView()
+                case .ncre:
+                    NCREView()
                 }
             }
         }

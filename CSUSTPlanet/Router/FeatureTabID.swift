@@ -31,6 +31,7 @@ enum FeatureTabID: Hashable, CaseIterable {
 
     case cet
     case mandarin
+    case ncre
 
     var name: String {
         switch self {
@@ -50,6 +51,7 @@ enum FeatureTabID: Hashable, CaseIterable {
         case .physicsExperimentGrade: return "实验成绩"
         case .cet: return "四六级查询"
         case .mandarin: return "普通话查询"
+        case .ncre: return "计算机等级查询"
         }
     }
 
@@ -71,6 +73,7 @@ enum FeatureTabID: Hashable, CaseIterable {
         case .physicsExperimentGrade: return "PhysicsExperimentGrade"
         case .cet: return "CET"
         case .mandarin: return "Mandarin"
+        case .ncre: return "NCRE"
         }
     }
 
@@ -92,6 +95,7 @@ enum FeatureTabID: Hashable, CaseIterable {
         case .physicsExperimentGrade: return "doc.text"
         case .cet: return "character.book.closed"
         case .mandarin: return "mic.circle.fill"
+        case .ncre: return "desktopcomputer"
         }
     }
 
@@ -129,6 +133,8 @@ enum FeatureTabID: Hashable, CaseIterable {
             return .features(.examQuery(.cet))
         case .mandarin:
             return .features(.examQuery(.mandarin))
+        case .ncre:
+            return .features(.examQuery(.ncre))
         }
     }
 }
