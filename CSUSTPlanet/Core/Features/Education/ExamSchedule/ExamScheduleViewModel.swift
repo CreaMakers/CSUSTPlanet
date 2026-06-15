@@ -16,14 +16,11 @@ class ExamScheduleViewModel {
     var availableSemesters: [String] = []
     var examData: Cached<[EduHelper.Exam]>? = nil
 
-    @ObservationIgnored private var cancellables = Set<AnyCancellable>()
-
     var isLoadingSemesters: Bool = false
     var isLoadingExams: Bool = false
 
     var isAddToCalendarAlertPresented: Bool = false
     var isFilterPresented: Bool = false
-    var isShareSheetPresented: Bool = false
 
     var selectedSemester: String? = nil
     var selectedSemesterType: EduHelper.SemesterType? = nil
@@ -32,32 +29,18 @@ class ExamScheduleViewModel {
     var successToast: ToastState = .successTitle
     var loadingToast: ToastState = .init(title: "添加中")
 
-    var targetScrollID: String? = nil
-
     @ObservationIgnored var isInitial: Bool = true
 
+    @ObservationIgnored private var cancellables = Set<AnyCancellable>()
+
     init() {
-        applyExamScheduleCache(MMKVHelper.ExamSchedule.cache)
+        examData = MMKVHelper.ExamSchedule.cache
 
         MMKVHelper.ExamSchedule.$cache
             .dropFirst()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] data in
-                self?.applyExamScheduleCache(data)
-            }
+            .sink { [weak self] data in self?.examData = data }
             .store(in: &cancellables)
-    }
-
-    func isExamFinished(_ exam: EduHelper.Exam) -> Bool {
-        return .now > exam.examEndTime
-    }
-
-    func daysUntilExam(_ exam: EduHelper.Exam) -> Int {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: .now)
-        let examDay = calendar.startOfDay(for: exam.examStartTime)
-        let components = calendar.dateComponents([.day], from: startOfDay, to: examDay)
-        return components.day ?? 0
     }
 
     func loadInitial() async {
@@ -103,6 +86,18 @@ class ExamScheduleViewModel {
         }
     }
 
+    func isExamFinished(_ exam: EduHelper.Exam) -> Bool {
+        return .now > exam.examEndTime
+    }
+
+    func daysUntilExam(_ exam: EduHelper.Exam) -> Int {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: .now)
+        let examDay = calendar.startOfDay(for: exam.examStartTime)
+        let components = calendar.dateComponents([.day], from: startOfDay, to: examDay)
+        return components.day ?? 0
+    }
+
     func addToCalendar() async {
         guard let exams = examData?.value, !exams.isEmpty else {
             errorToast.show(message: "考试安排为空，无法添加到日历")
@@ -126,25 +121,6 @@ class ExamScheduleViewModel {
         } catch {
             errorToast.show(message: error.localizedDescription)
         }
-    }
-
-    private func updateScrollTarget(exams: [EduHelper.Exam]) {
-        if let firstUnfinished = exams.first(where: { $0.examEndTime >= .now }) {
-            self.targetScrollID = firstUnfinished.courseID
-        } else {
-            self.targetScrollID = nil
-        }
-    }
-
-    private func applyExamScheduleCache(_ data: Cached<[EduHelper.Exam]>?) {
-        examData = data
-
-        guard let data else {
-            targetScrollID = nil
-            return
-        }
-
-        updateScrollTarget(exams: data.value)
     }
 }
 

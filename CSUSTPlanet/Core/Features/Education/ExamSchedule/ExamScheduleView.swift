@@ -17,33 +17,19 @@ struct ExamScheduleView: View {
 
     var body: some View {
         Group {
-            ScrollViewReader { proxy in
+            if let data = viewModel.examData, !data.value.isEmpty {
                 ScrollView {
-                    if let data = viewModel.examData, !data.value.isEmpty {
-                        LazyVStack(spacing: 16) {
-                            ForEach(data.value, id: \.courseID) { exam in
-                                examCard(exam: exam).id(exam.courseID)
-                            }
+                    LazyVStack(spacing: 16) {
+                        ForEach(data.value, id: \.courseID) { exam in
+                            examCard(exam: exam).id(exam.courseID)
                         }
-                        .padding(.horizontal)
-                        .padding(.vertical)
-                    } else {
-                        CustomGroupBox {
-                            ContentUnavailableView("暂无考试安排", systemImage: "calendar.badge.exclamationmark", description: Text("当前筛选条件下没有找到考试安排"))
-                        }
-                        .padding()
                     }
+                    .padding()
+                    .frame(maxWidth: 700)
+                    .frame(maxWidth: .infinity)
                 }
-                .onChange(of: viewModel.targetScrollID) { _, newValue in
-                    if let id = newValue {
-                        withAnimation { proxy.scrollTo(id, anchor: .top) }
-                    }
-                }
-                .onAppear {
-                    if let id = viewModel.targetScrollID {
-                        withAnimation { proxy.scrollTo(id, anchor: .top) }
-                    }
-                }
+            } else {
+                ContentUnavailableView("暂无考试安排", systemImage: "calendar.badge.exclamationmark", description: Text("当前筛选条件下没有找到考试安排"))
             }
         }
         .task { await viewModel.loadInitial() }
@@ -51,7 +37,7 @@ struct ExamScheduleView: View {
         .errorToast($viewModel.errorToast)
         .successToast($viewModel.successToast)
         .loadingToast($viewModel.loadingToast)
-        .sheet(isPresented: $viewModel.isFilterPresented) { filterView }
+        .sheet(isPresented: $viewModel.isFilterPresented) { filterView.presentationDetents([.medium, .large]) }
         .alert("添加日历", isPresented: $viewModel.isAddToCalendarAlertPresented) {
             Button(asyncAction: viewModel.addToCalendar) {
                 Text("确认添加")
@@ -229,11 +215,6 @@ extension ExamScheduleView {
             .navigationTitle("高级查询")
             .inlineToolbarTitle()
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") {
-                        viewModel.isFilterPresented = false
-                    }
-                }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完成") {
                         viewModel.isFilterPresented = false
