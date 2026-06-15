@@ -11,22 +11,20 @@ struct FeaturesView: View {
     @Bindable var authManager = AuthManager.shared
     @Bindable var globalManager = GlobalManager.shared
 
-    @Environment(\.horizontalSizeClass) var sizeClass
-
     @State private var isPhysicsExperimentLoginPresented: Bool = false
     @State private var isAnnualReviewPresented: Bool = false
 
     private let spacing: CGFloat = 12
 
     private var horizontalPadding: CGFloat {
-        return sizeClass == .regular ? 32 : 20
+        20
     }
 
     private var shouldShowAnnualReviewBanner: Bool = false
 
     var body: some View {
         ScrollView {
-            VStack(spacing: sizeClass == .regular ? 32 : 28) {
+            VStack(spacing: 28) {
                 if shouldShowAnnualReviewBanner {
                     AnnualReviewBanner(isPresented: $isAnnualReviewPresented)
                         .padding(.top, 10)
@@ -36,27 +34,17 @@ struct FeaturesView: View {
 
                 moocSection
 
-                campusToolsSection
-
-                if sizeClass == .regular {
-                    HStack(alignment: .top, spacing: spacing) {
-                        physicsSection
-                        examQuerySection
-                    }
-                    .padding(.horizontal, horizontalPadding)
-                } else {
-                    VStack(spacing: spacing) {
-                        physicsSection
-                        examQuerySection
-                    }
-                    .padding(.horizontal, horizontalPadding)
+                VStack(spacing: spacing) {
+                    campusToolsSection
+                    physicsSection
+                    examQuerySection
                 }
+                .padding(.horizontal, horizontalPadding)
 
                 Color.clear.frame(height: 20)
             }
-            .frame(maxWidth: sizeClass == .regular ? 900 : .infinity)
             .frame(maxWidth: .infinity)
-            .padding(.top, sizeClass == .regular ? 20 : 0)
+            .padding(.top, 0)
         }
         .navigationTitle("全部功能")
         #if os(iOS)
@@ -101,35 +89,68 @@ struct FeaturesView: View {
     }
 
     private var campusToolsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: spacing) {
             sectionHeader(title: "校园工具", color: .orange)
-                .padding(.horizontal, horizontalPadding)
 
-            if sizeClass == .regular {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 85), spacing: 12)], spacing: 12) {
-                    toolItems
-                }
-                .padding(.horizontal, horizontalPadding)
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        Spacer().frame(width: horizontalPadding - 12)
-                        toolItems
-                        Spacer().frame(width: horizontalPadding - 12)
-                    }
-                }
+            VStack(spacing: 0) {
+                ToolRow(
+                    route: .features(.campusTool(.dormList(.main))),
+                    title: "电量查询",
+                    icon: "bolt.fill",
+                    color: .yellow
+                )
+
+                Divider().padding(.leading, 56)
+
+                ToolRow(
+                    route: .features(.campusTool(.availableClassroom)),
+                    title: "空教室查询",
+                    icon: "building.2.fill",
+                    color: .blue
+                )
+
+                Divider().padding(.leading, 56)
+
+                ToolRow(
+                    route: .features(.campusTool(.campusMap)),
+                    title: "校园地图",
+                    icon: "map.fill",
+                    color: .mint
+                )
+
+                Divider().padding(.leading, 56)
+
+                ToolRow(
+                    route: .features(.campusTool(.schoolCalendarList(.main))),
+                    title: "校历",
+                    icon: "calendar.badge.clock",
+                    color: .pink
+                )
+
+                Divider().padding(.leading, 56)
+
+                ToolRow(
+                    route: .features(.campusTool(.electricityRecharge)),
+                    title: "电费充值",
+                    icon: "creditcard.fill",
+                    color: .cyan
+                )
+
+                Divider().padding(.leading, 56)
+
+                ToolRow(
+                    route: .features(.campusTool(.webVPNConverter)),
+                    title: "WebVPN",
+                    icon: "lock.shield",
+                    color: .gray
+                )
             }
+            #if os(iOS)
+            .background(Color(PlatformColor.secondarySystemGroupedBackground))
+            #endif
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
         }
-    }
-
-    @ViewBuilder
-    private var toolItems: some View {
-        ServiceSquare(route: .features(.campusTool(.dormList(.main))), title: "电量查询", icon: "bolt.fill", color: .yellow)
-        ServiceSquare(route: .features(.campusTool(.availableClassroom)), title: "空教室查询", icon: "building.2.fill", color: .blue)
-        ServiceSquare(route: .features(.campusTool(.campusMap)), title: "校园地图", icon: "map.fill", color: .mint)
-        ServiceSquare(route: .features(.campusTool(.schoolCalendarList(.main))), title: "校历", icon: "calendar.badge.clock", color: .pink)
-        ServiceSquare(route: .features(.campusTool(.electricityRecharge)), title: "电费充值", icon: "creditcard.fill", color: .cyan)
-        ServiceSquare(route: .features(.campusTool(.webVPNConverter)), title: "WebVPN", icon: "lock.shield", color: .gray)
     }
 
     private var physicsSection: some View {
