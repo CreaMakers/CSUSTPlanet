@@ -13,7 +13,7 @@ struct AvailableClassroomView: View {
     @State var viewModel = AvailableClassroomViewModel()
 
     var body: some View {
-        ScrollView {
+        CustomScrollView {
             VStack(spacing: 20) {
                 // MARK: - Filter Section
                 CustomGroupBox {

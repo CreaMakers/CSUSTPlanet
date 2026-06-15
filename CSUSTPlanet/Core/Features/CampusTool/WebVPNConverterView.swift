@@ -48,7 +48,7 @@ struct WebVPNConverterView: View {
     // MARK: - Body
 
     var body: some View {
-        ScrollView {
+        CustomScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // MARK: Mode Picker
 

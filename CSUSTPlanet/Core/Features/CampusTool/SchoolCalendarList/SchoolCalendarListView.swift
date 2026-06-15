@@ -13,31 +13,37 @@ struct SchoolCalendarListView: View {
 
     var body: some View {
         Group {
-            Form {
-                if viewModel.schoolCalendars.isEmpty {
-                    ContentUnavailableView("无校历数据", systemImage: "calendar.badge.exclamationmark")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
+            if viewModel.schoolCalendars.isEmpty {
+                ContentUnavailableView("无校历数据", systemImage: "calendar.badge.exclamationmark")
+            } else {
+                CustomScrollView {
                     ForEach(viewModel.schoolCalendars) { calendar in
-                        NavigationLink(value: AppRoute.features(.campusTool(.schoolCalendarList(.detail(calendar))))) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(calendar.title)
-                                    .font(.headline)
-                                    .foregroundColor(.primary)
+                        CustomGroupBox {
+                            NavigationLink(value: AppRoute.features(.campusTool(.schoolCalendarList(.detail(calendar))))) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(calendar.title)
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
 
-                                Text(calendar.subtitle)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                        Text(calendar.subtitle)
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right").frame(width: 16)
+                                }
+                                .contentShape(.rect)
                             }
+                            .buttonStyle(.plain)
                         }
                     }
+                    .padding()
                 }
             }
-            .formStyle(.grouped)
         }
-        #if os(iOS)
-        .background(Color(PlatformColor.systemGroupedBackground))
-        #endif
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(asyncAction: viewModel.loadSchoolCalendars) {
