@@ -33,6 +33,8 @@ struct DormDetailView: View {
                 }
             }
             .padding()
+            .frame(maxWidth: 700)
+            .frame(maxWidth: .infinity)
         }
         .task { await viewModel.loadInitial() }
         .navigationTitle("宿舍详情")
@@ -73,6 +75,7 @@ struct DormDetailView: View {
                     await viewModel.configureSchedule(hour: hour, minute: minute)
                 }
             }
+            .presentationDetents([.medium, .large])
         }
         .errorToast($viewModel.errorToast)
     }

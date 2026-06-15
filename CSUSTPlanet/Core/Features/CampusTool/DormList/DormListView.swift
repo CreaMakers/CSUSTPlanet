@@ -29,6 +29,8 @@ struct DormListView: View {
                         }
                     }
                     .padding(.vertical, 6)
+                    .frame(maxWidth: 700)
+                    .frame(maxWidth: .infinity)
                 }
                 #elseif os(iOS)
                 List {
@@ -57,6 +59,7 @@ struct DormListView: View {
             AddDormView { room in
                 viewModel.addDorm(room: room)
             }
+            .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: scheduleConfigPresentedBinding) {
             if let dorm = scheduleConfigTargetDorm {
@@ -65,6 +68,7 @@ struct DormListView: View {
                         await viewModel.configureSchedule(for: dorm, hour: hour, minute: minute)
                     }
                 }
+                .presentationDetents([.medium, .large])
             }
         }
         .alert("通知权限被拒绝", isPresented: $viewModel.isNotificationDeniedAlertPresented) {
