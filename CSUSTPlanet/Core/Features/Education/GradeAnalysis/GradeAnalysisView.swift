@@ -17,15 +17,12 @@ struct GradeAnalysisView: View {
 
     var body: some View {
         Group {
-            ScrollView {
-                if let data = viewModel.analysisData {
+            if let data = viewModel.analysisData {
+                CustomScrollView {
                     analysisContent(data)
-                } else {
-                    CustomGroupBox {
-                        ContentUnavailableView("暂无成绩数据", systemImage: "doc.text.magnifyingglass", description: Text("当前没有找到成绩数据"))
-                    }
-                    .padding()
                 }
+            } else {
+                ContentUnavailableView("暂无成绩数据", systemImage: "doc.text.magnifyingglass", description: Text("当前没有找到成绩数据"))
             }
         }
         .task { await viewModel.loadInitial() }

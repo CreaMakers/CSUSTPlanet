@@ -18,15 +18,13 @@ struct ExamScheduleView: View {
     var body: some View {
         Group {
             if let data = viewModel.examData, !data.value.isEmpty {
-                ScrollView {
+                CustomScrollView {
                     LazyVStack(spacing: 16) {
                         ForEach(data.value, id: \.courseID) { exam in
                             examCard(exam: exam).id(exam.courseID)
                         }
                     }
                     .padding()
-                    .frame(maxWidth: 700)
-                    .frame(maxWidth: .infinity)
                 }
             } else {
                 ContentUnavailableView("暂无考试安排", systemImage: "calendar.badge.exclamationmark", description: Text("当前筛选条件下没有找到考试安排"))

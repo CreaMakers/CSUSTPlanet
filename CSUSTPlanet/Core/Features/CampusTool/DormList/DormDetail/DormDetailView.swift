@@ -16,7 +16,7 @@ struct DormDetailView: View {
     }
 
     var body: some View {
-        ScrollView {
+        CustomScrollView {
             VStack(spacing: 20) {
                 electricityDashboardCard
                 quickActionsGrid
@@ -33,8 +33,6 @@ struct DormDetailView: View {
                 }
             }
             .padding()
-            .frame(maxWidth: 700)
-            .frame(maxWidth: .infinity)
         }
         .task { await viewModel.loadInitial() }
         .navigationTitle("宿舍详情")

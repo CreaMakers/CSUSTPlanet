@@ -21,7 +21,7 @@ struct DormListView: View {
                 ContentUnavailableView("暂无宿舍", systemImage: "building.2", description: Text("点击右上角添加宿舍"))
             } else {
                 #if os(macOS)
-                ScrollView {
+                CustomScrollView {
                     LazyVStack(spacing: 12) {
                         ForEach(viewModel.dorms) { dorm in
                             dormCard(dorm)
@@ -29,8 +29,6 @@ struct DormListView: View {
                         }
                     }
                     .padding(.vertical, 6)
-                    .frame(maxWidth: 700)
-                    .frame(maxWidth: .infinity)
                 }
                 #elseif os(iOS)
                 List {
