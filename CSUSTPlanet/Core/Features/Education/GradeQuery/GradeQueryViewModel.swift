@@ -98,21 +98,6 @@ class GradeQueryViewModel {
         }
     }
 
-    func bindingForSemester(_ semester: String) -> Binding<Bool> {
-        Binding<Bool>(
-            get: { [weak self] in
-                self?.expandedSemesters.contains(semester) ?? false
-            },
-            set: { [weak self] newValue in
-                if newValue {
-                    self?.expandedSemesters.insert(semester)
-                } else {
-                    self?.expandedSemesters.remove(semester)
-                }
-            }
-        )
-    }
-
     // MARK: - Selection Mode
 
     func enterSelectionMode() {

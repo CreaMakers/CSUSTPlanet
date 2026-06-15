@@ -16,16 +16,17 @@ struct GradeQueryView: View {
 
     var body: some View {
         Group {
-            Form {
-                if !viewModel.filteredGrades.isEmpty {
+            if !viewModel.filteredGrades.isEmpty {
+                CustomScrollView {
                     ForEach(viewModel.groupedFilteredGrades, id: \.semester) { group in
-                        Section {
-                            DisclosureGroup(isExpanded: viewModel.bindingForSemester(group.semester)) {
-                                ForEach(group.grades, id: \.courseID) { courseGrade in
-                                    gradeCard(courseGrade: courseGrade)
-                                }
-                            } label: {
+                        CustomGroupBox {
+                            let isExpanded = viewModel.expandedSemesters.contains(group.semester)
+
+                            VStack {
                                 HStack {
+                                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                                        .frame(width: 16, alignment: .leading)
+
                                     Text(group.semester)
                                         .font(.headline)
                                         .foregroundColor(.primary)
@@ -41,25 +42,27 @@ struct GradeQueryView: View {
                                 }
                                 .contentShape(.rect)
                                 .onTapGesture { viewModel.toggleExpandSemester(group.semester) }
+
+                                if isExpanded {
+                                    ForEach(group.grades, id: \.courseID) { courseGrade in
+                                        Divider()
+                                        gradeCard(courseGrade: courseGrade)
+                                    }
+                                }
                             }
-                            .buttonStyle(.plain)
                         }
                     }
+                    .padding()
+                }
+            } else {
+                if viewModel.searchText.isEmpty {
+                    ContentUnavailableView("暂无成绩记录", systemImage: "doc.text.magnifyingglass", description: Text("没有找到成绩记录"))
                 } else {
-                    if viewModel.searchText.isEmpty {
-                        ContentUnavailableView("暂无成绩记录", systemImage: "doc.text.magnifyingglass", description: Text("没有找到成绩记录"))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else {
-                        ContentUnavailableView.search(text: viewModel.searchText)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
+                    ContentUnavailableView.search(text: viewModel.searchText)
                 }
             }
-            .formStyle(.grouped)
         }
-        #if os(iOS)
-        .background(Color(PlatformColor.systemGroupedBackground))
-        #endif
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .top) {
             statsSection
                 .padding(.horizontal)
@@ -73,6 +76,7 @@ struct GradeQueryView: View {
                         view.background(.ultraThinMaterial)
                     }
                 }
+                .frame(maxWidth: 700)
         }
         #if os(iOS)
         .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "搜索课程")
@@ -196,6 +200,7 @@ struct GradeQueryView: View {
                 .foregroundColor(ColorUtil.dynamicColor(grade: Double(courseGrade.grade)))
         }
         .padding(.vertical, 8)
+        .padding(.horizontal, 8)
     }
 
     // MARK: - Grade Card
@@ -206,20 +211,20 @@ struct GradeQueryView: View {
             Button {
                 viewModel.toggleSelection(for: courseGrade.courseID)
             } label: {
-                HStack {
-                    gradeCardContent(courseGrade: courseGrade)
-                    Image(systemName: viewModel.isSelected(courseGrade.courseID) ? "checkmark.circle.fill" : "circle")
-                        .foregroundColor(viewModel.isSelected(courseGrade.courseID) ? .accentColor : .secondary)
-                        .imageScale(.large)
-                }
-                .contentShape(.rect)
+                gradeCardContent(courseGrade: courseGrade)
+                    .contentShape(.rect)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(viewModel.isSelected(courseGrade.courseID) ? Color.gray.opacity(0.2) : Color.clear)
+                    )
             }
             .buttonStyle(.plain)
-            .listRowBackground(viewModel.isSelected(courseGrade.courseID) ? Color.gray.opacity(0.2) : Color.clear)
         } else {
             NavigationLink(value: AppRoute.features(.education(.gradeQuery(.detail(courseGrade))))) {
                 gradeCardContent(courseGrade: courseGrade)
+                    .contentShape(.rect)
             }
+            .buttonStyle(.plain)
         }
     }
 

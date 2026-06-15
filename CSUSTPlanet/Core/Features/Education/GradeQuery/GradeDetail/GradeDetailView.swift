@@ -18,7 +18,7 @@ struct GradeDetailView: View {
     // MARK: - Body
 
     var body: some View {
-        ScrollView {
+        CustomScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 courseTitle
                 scoresSection
