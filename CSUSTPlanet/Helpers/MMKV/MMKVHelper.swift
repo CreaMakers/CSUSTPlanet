@@ -192,16 +192,6 @@ extension Cached: MMKVValueType {
     func write(to helper: MMKVHelper, key: String) { helper.set(forKey: key, self) }
 }
 
-extension CourseScheduleCustomization: MMKVValueType {
-    static func read(from helper: MMKVHelper, key: String) -> CourseScheduleCustomization? {
-        helper.object(forKey: key, as: Self.self)
-    }
-
-    func write(to helper: MMKVHelper, key: String) {
-        helper.set(forKey: key, self)
-    }
-}
-
 extension CampusCardHelper.Campus: MMKVValueType {
     static func read(from helper: MMKVHelper, key: String) -> Self? {
         guard let rawValue = helper.string(forKey: key) else { return nil }

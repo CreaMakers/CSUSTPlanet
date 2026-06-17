@@ -35,6 +35,8 @@ struct CourseScheduleView: View {
             )
 
             if let data = viewModel.courseScheduleData, !data.value.courses.isEmpty {
+                let weeklyCourses = CourseScheduleUtil.getWeeklyCourses(data.value.courses)
+
                 HStack {
                     #if os(macOS)
                     Button(action: { viewModel.changeWeek(by: -1) }) {
@@ -53,7 +55,7 @@ struct CourseScheduleView: View {
 
                     ScrollTableView(
                         semesterStartDate: data.value.semesterStartDate,
-                        weeklyCourses: viewModel.weeklyCourses,
+                        weeklyCourses: weeklyCourses,
                         courseColors: viewModel.courseColors,
                         currentWeek: $viewModel.currentWeek,
                         isCourseDetailPresented: $viewModel.isCourseDetailPresented,
@@ -106,11 +108,6 @@ struct CourseScheduleView: View {
         .inlineToolbarTitle()
         .toolbar {
             ToolbarItemGroup(placement: .secondaryAction) {
-                Button(action: { viewModel.isCustomizationManagementSheetPresented = true }) {
-                    Label("自定义课程管理", systemImage: "slider.horizontal.3")
-                }
-                .disabled(viewModel.courseScheduleData == nil)
-
                 Button(action: { viewModel.isSemestersSheetPresented = true }) {
                     Label("学期选择", systemImage: "calendar")
                 }
@@ -142,15 +139,6 @@ struct CourseScheduleView: View {
         .sheet(isPresented: $viewModel.isSemestersSheetPresented) {
             CourseSemesterView(viewModel: viewModel)
         }
-        .sheet(isPresented: $viewModel.isCourseEditorSheetPresented) {
-            CourseScheduleCustomCourseEditorView(
-                viewModel: viewModel,
-                editingCourse: viewModel.editingCustomCourse
-            )
-        }
-        .sheet(isPresented: $viewModel.isCustomizationManagementSheetPresented) {
-            CourseScheduleCustomizationManagementView(viewModel: viewModel)
-        }
     }
 
     // MARK: - Sheet Content View
@@ -161,30 +149,7 @@ struct CourseScheduleView: View {
             CourseScheduleDetailView(
                 course: courseInfo.course,
                 session: courseInfo.session,
-                isShowingToolbar: !(sizeClass == .regular),
-                showsCustomizationActions: true,
-                isCustomCourse: {
-                    if case .custom = courseInfo.source {
-                        return true
-                    }
-                    return false
-                }(),
-                onHideOfficialCourse: {
-                    viewModel.hideOfficialCourse(named: courseInfo.course.courseName)
-                },
-                onEditCustomCourse: {
-                    if case .custom(let id) = courseInfo.source,
-                        let customCourse = viewModel.customCourse(id: id)
-                    {
-                        viewModel.presentEditor(for: customCourse)
-                        viewModel.isCourseDetailPresented = false
-                    }
-                },
-                onDeleteCustomCourse: {
-                    if case .custom(let id) = courseInfo.source {
-                        viewModel.deleteCustomCourse(id: id)
-                    }
-                }
+                isShowingToolbar: sizeClass == .compact,
             )
         } else {
             ContentUnavailableView("请选择课程查看详情", systemImage: "doc.text.magnifyingglass")

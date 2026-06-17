@@ -12,16 +12,8 @@ struct CourseScheduleDetailView: View {
     let course: EduHelper.Course
     let session: EduHelper.ScheduleSession
     let isShowingToolbar: Bool
-    let showsCustomizationActions: Bool
-    let isCustomCourse: Bool
-    let onHideOfficialCourse: () -> Void
-    let onEditCustomCourse: () -> Void
-    let onDeleteCustomCourse: () -> Void
 
     @Environment(\.dismiss) private var dismiss
-
-    @State private var isHideConfirmationPresented = false
-    @State private var isDeleteConfirmationPresented = false
 
     private var otherSessions: [EduHelper.ScheduleSession] {
         course.sessions.filter { $0 != session }
@@ -91,52 +83,10 @@ struct CourseScheduleDetailView: View {
                         }
                     }
                 }
-
-                if showsCustomizationActions {
-                    Section("操作") {
-                        if isCustomCourse {
-                            Button {
-                                onEditCustomCourse()
-                            } label: {
-                                Label("编辑课程", systemImage: "pencil")
-                            }
-
-                            Button {
-                                isDeleteConfirmationPresented = true
-                            } label: {
-                                Label("删除课程", systemImage: "trash")
-                                    .foregroundColor(.red)
-                            }
-                        } else {
-                            Button {
-                                isHideConfirmationPresented = true
-                            } label: {
-                                Label("隐藏此课程", systemImage: "eye.slash")
-                                    .foregroundColor(.red)
-                            }
-                        }
-                    }
-                }
             }
             .formStyle(.grouped)
             .navigationTitle("课程详情")
             .inlineToolbarTitle()
-            .alert("隐藏课程", isPresented: $isHideConfirmationPresented) {
-                Button("隐藏", role: .destructive) {
-                    onHideOfficialCourse()
-                }
-                Button("取消", role: .cancel) {}
-            } message: {
-                Text("隐藏后，这门官方课程的所有上课时间都会从课表中移除。")
-            }
-            .alert("删除课程", isPresented: $isDeleteConfirmationPresented) {
-                Button("删除", role: .destructive) {
-                    onDeleteCustomCourse()
-                }
-                Button("取消", role: .cancel) {}
-            } message: {
-                Text("删除后，这门自定义课程会从课表中移除。")
-            }
             .apply { view in
                 if isShowingToolbar {
                     view.toolbar {

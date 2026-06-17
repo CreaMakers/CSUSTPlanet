@@ -21,9 +21,6 @@ extension MMKVHelper {
     enum CourseSchedule {
         @MMKVOptionalStorage(key: "Cached.courseScheduleCache")
         static var cache: Cached<CourseScheduleData>?
-
-        @MMKVStorage(key: "CourseSchedule.customization", defaultValue: CourseScheduleCustomization())
-        static var customization: CourseScheduleCustomization
     }
 
     enum PhysicsExperiment {

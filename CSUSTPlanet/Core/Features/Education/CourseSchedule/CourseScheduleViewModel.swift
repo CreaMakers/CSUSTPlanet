@@ -66,8 +66,6 @@ class CourseScheduleViewModel {
 
     var isSemestersSheetPresented: Bool = false
     var isCalendarSettingsSheetPresented: Bool = false
-    var isCourseEditorSheetPresented: Bool = false
-    var isCustomizationManagementSheetPresented: Bool = false
 
     var isCourseDetailPresented: Bool = false
 
@@ -76,9 +74,6 @@ class CourseScheduleViewModel {
     var selectedSemester: String? = nil
 
     var selectedCourseInfo: CourseDisplayInfo?
-    var editingCustomCourse: CourseScheduleCustomCourse?
-    var currentCustomization = CourseScheduleCustomization()
-    var weeklyCourses: [Int: [CourseDisplayInfo]] = [:]
 
     var courseColors: [String: Color] = [:]
 
@@ -127,8 +122,10 @@ class CourseScheduleViewModel {
     func loadInitial() async {
         guard isInitial else { return }
         isInitial = false
-        await loadAvailableSemesters()
-        await loadCourses()
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { await self.loadAvailableSemesters() }
+            group.addTask { await self.loadCourses() }
+        }
     }
 
     func loadAvailableSemesters() async {
@@ -157,55 +154,25 @@ class CourseScheduleViewModel {
             let semesterStartDate = try await AuthManager.shared.withAuthRetry(system: .edu) {
                 try await AuthManager.shared.eduHelper.semesterService.getSemesterStartDate(academicYearSemester: self.selectedSemester)
             }
-            persistSchedule(
-                semester: selectedSemester,
-                semesterStartDate: semesterStartDate,
-                officialCourses: courses,
-                cachedAt: .now
-            )
+            let data = Cached<CourseScheduleData>(cachedAt: .now, value: CourseScheduleData(semester: selectedSemester, semesterStartDate: semesterStartDate, courses: courses))
+            MMKVHelper.CourseSchedule.cache = data
+            WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
         } catch {
             errorToast.show(message: error.localizedDescription)
         }
     }
 
     private func applyCourseScheduleCache(_ data: Cached<CourseScheduleData>?) {
+        courseScheduleData = data
+
         guard let data else {
-            courseScheduleData = nil
-            currentCustomization = CourseScheduleCustomization()
-            weeklyCourses = [:]
             realCurrentWeek = nil
             courseColors = [:]
             currentWeek = 1
             return
         }
 
-        let officialCourses = officialCourses(from: data.value)
-        let customization = MMKVHelper.CourseSchedule.customization
-        let composedCourses = CourseScheduleComposer.compose(
-            officialCourses: officialCourses,
-            customization: customization
-        )
-        let composedValue = CourseScheduleData(
-            semester: data.value.semester,
-            semesterStartDate: data.value.semesterStartDate,
-            officialCourses: officialCourses,
-            courses: composedCourses
-        )
-        let composedData = Cached(cachedAt: data.cachedAt, value: composedValue)
-
-        courseScheduleData = composedData
-        currentCustomization = customization
-        weeklyCourses = makeWeeklyCourses(
-            officialCourses: officialCourses,
-            customization: customization
-        )
-
-        if data.value.officialCourses == nil || data.value.courses != composedCourses {
-            MMKVHelper.CourseSchedule.cache = composedData
-            WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
-        }
-
-        updateSchedules(composedValue.semesterStartDate, composedValue.courses)
+        updateSchedules(data.value.semesterStartDate, data.value.courses)
     }
 
     private func updateSchedules(_ semesterStartDate: Date, _ courses: [EduHelper.Course]) {
@@ -241,202 +208,6 @@ class CourseScheduleViewModel {
                 self.currentWeek = newWeek
             }
         }
-    }
-
-    func presentAddCustomCourseEditor() {
-        editingCustomCourse = nil
-        isCourseEditorSheetPresented = true
-    }
-
-    func presentEditor(for customCourse: CourseScheduleCustomCourse) {
-        editingCustomCourse = customCourse
-        isCourseEditorSheetPresented = true
-    }
-
-    func customCourse(id: UUID) -> CourseScheduleCustomCourse? {
-        currentCustomization.customCourses.first { $0.id == id }
-    }
-
-    func saveCustomCourse(_ course: EduHelper.Course, editingID: UUID?) {
-        let isEditingSelectedCourse: Bool
-        if let editingID,
-            case .custom(let selectedID)? = selectedCourseInfo?.source
-        {
-            isEditingSelectedCourse = selectedID == editingID
-        } else {
-            isEditingSelectedCourse = false
-        }
-
-        updateCurrentCustomization { customization in
-            if let editingID,
-                let index = customization.customCourses.firstIndex(where: { $0.id == editingID })
-            {
-                customization.customCourses[index].course = course
-            } else {
-                customization.customCourses.append(CourseScheduleCustomCourse(course: course))
-            }
-        }
-
-        if isEditingSelectedCourse, let editingID {
-            if let updatedInfo = displayInfo(forCustomCourseID: editingID, preferredWeek: currentWeek) {
-                selectedCourseInfo = updatedInfo
-            } else {
-                selectedCourseInfo = nil
-                isCourseDetailPresented = false
-            }
-        }
-
-        successToast.show(message: editingID == nil ? "自定义课程已添加" : "自定义课程已更新")
-    }
-
-    func deleteCustomCourse(id: UUID) {
-        let isDeletingSelectedCourse: Bool
-        if case .custom(let selectedID)? = selectedCourseInfo?.source {
-            isDeletingSelectedCourse = selectedID == id
-        } else {
-            isDeletingSelectedCourse = false
-        }
-
-        updateCurrentCustomization { customization in
-            customization.customCourses.removeAll { $0.id == id }
-        }
-        if isDeletingSelectedCourse {
-            selectedCourseInfo = nil
-            isCourseDetailPresented = false
-        }
-        successToast.show(message: "自定义课程已删除")
-    }
-
-    func deleteCustomCourse(_ customCourse: CourseScheduleCustomCourse) {
-        deleteCustomCourse(id: customCourse.id)
-    }
-
-    func hideOfficialCourse(named courseName: String) {
-        updateCurrentCustomization { customization in
-            customization.hiddenOfficialCourseNames.insert(courseName)
-        }
-        selectedCourseInfo = nil
-        isCourseDetailPresented = false
-        successToast.show(message: "已隐藏 \(courseName)")
-    }
-
-    func restoreOfficialCourse(named courseName: String) {
-        updateCurrentCustomization { customization in
-            customization.hiddenOfficialCourseNames.remove(courseName)
-        }
-        successToast.show(message: "已恢复 \(courseName)")
-    }
-
-    private func updateCurrentCustomization(_ update: (inout CourseScheduleCustomization) -> Void) {
-        guard let data = courseScheduleData?.value else { return }
-
-        var customization = MMKVHelper.CourseSchedule.customization
-        update(&customization)
-        MMKVHelper.CourseSchedule.customization = customization
-        currentCustomization = customization
-
-        persistSchedule(
-            semester: data.semester,
-            semesterStartDate: data.semesterStartDate,
-            officialCourses: officialCourses(from: data),
-            cachedAt: .now
-        )
-    }
-
-    private func persistSchedule(
-        semester: String?,
-        semesterStartDate: Date,
-        officialCourses: [EduHelper.Course],
-        cachedAt: Date
-    ) {
-        let customization = MMKVHelper.CourseSchedule.customization
-        let courses = CourseScheduleComposer.compose(
-            officialCourses: officialCourses,
-            customization: customization
-        )
-        weeklyCourses = makeWeeklyCourses(
-            officialCourses: officialCourses,
-            customization: customization
-        )
-        currentCustomization = customization
-
-        let data = Cached(
-            cachedAt: cachedAt,
-            value: CourseScheduleData(
-                semester: semester,
-                semesterStartDate: semesterStartDate,
-                officialCourses: officialCourses,
-                courses: courses
-            )
-        )
-        courseScheduleData = data
-        updateSchedules(semesterStartDate, courses)
-
-        MMKVHelper.CourseSchedule.cache = data
-        WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
-    }
-
-    private func officialCourses(from data: CourseScheduleData) -> [EduHelper.Course] {
-        data.officialCourses ?? data.courses
-    }
-
-    private func makeWeeklyCourses(
-        officialCourses: [EduHelper.Course],
-        customization: CourseScheduleCustomization
-    ) -> [Int: [CourseDisplayInfo]] {
-        var result: [Int: [CourseDisplayInfo]] = [:]
-        let visibleOfficialCourses = officialCourses.filter {
-            !customization.hiddenOfficialCourseNames.contains($0.courseName)
-        }
-
-        appendCourses(visibleOfficialCourses, source: .official, to: &result)
-        for customCourse in customization.customCourses {
-            appendCourses([customCourse.course], source: .custom(customCourse.id), to: &result)
-        }
-
-        return result
-    }
-
-    private func appendCourses(
-        _ courses: [EduHelper.Course],
-        source: CourseDisplaySource,
-        to weeklyCourses: inout [Int: [CourseDisplayInfo]]
-    ) {
-        for course in courses {
-            for session in course.sessions {
-                let displayInfo = CourseDisplayInfo(
-                    course: course,
-                    session: session,
-                    source: source
-                )
-                for week in session.weeks {
-                    weeklyCourses[week, default: []].append(displayInfo)
-                }
-            }
-        }
-    }
-
-    private func displayInfo(forCustomCourseID id: UUID, preferredWeek: Int) -> CourseDisplayInfo? {
-        if let info = weeklyCourses[preferredWeek]?.first(where: { displayInfo in
-            if case .custom(let customID) = displayInfo.source {
-                return customID == id
-            }
-            return false
-        }) {
-            return info
-        }
-
-        return weeklyCourses
-            .keys
-            .sorted()
-            .compactMap { weeklyCourses[$0] }
-            .flatMap { $0 }
-            .first { displayInfo in
-                if case .custom(let customID) = displayInfo.source {
-                    return customID == id
-                }
-                return false
-            }
     }
 
     func loadCalendarSettings() {
