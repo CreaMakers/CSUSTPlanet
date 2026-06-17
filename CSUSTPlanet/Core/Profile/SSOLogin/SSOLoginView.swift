@@ -82,7 +82,7 @@ struct SSOLoginView: View {
                                 viewModel.username.isEmpty || viewModel.password.isEmpty || AuthManager.shared.isSSOLoggingIn
                             }
                         } else {
-                            false
+                            true
                         }
 
                     Button(asyncAction: { await viewModel.login { dismiss() } }) {
