@@ -33,26 +33,6 @@ enum CalendarReminderOffset: TimeInterval, CaseIterable, Identifiable {
     }
 }
 
-enum CalendarExportScope: Int, CaseIterable, Identifiable {
-    case next1Week = 1
-    case next2Weeks = 2
-    case next3Weeks = 3
-    case next4Weeks = 4
-    case next5Weeks = 5
-
-    var id: Int { rawValue }
-
-    var title: String {
-        switch self {
-        case .next1Week: return "未来 1 周"
-        case .next2Weeks: return "未来 2 周"
-        case .next3Weeks: return "未来 3 周"
-        case .next4Weeks: return "未来 4 周"
-        case .next5Weeks: return "未来 5 周"
-        }
-    }
-}
-
 @MainActor
 @Observable
 class CourseScheduleViewModel {
@@ -63,11 +43,6 @@ class CourseScheduleViewModel {
 
     var isCourseScheduleLoading: Bool = false
     var isSemestersLoading: Bool = false
-
-    var isSemestersSheetPresented: Bool = false
-    var isCalendarSettingsSheetPresented: Bool = false
-
-    var isCourseDetailPresented: Bool = false
 
     // TabView显示的第几周
     var currentWeek: Int = 1
@@ -97,15 +72,6 @@ class CourseScheduleViewModel {
     var successToast: ToastState = .init(title: "添加成功")
 
     @ObservationIgnored var isInitial: Bool = true
-
-    var firstReminderOffset: CalendarReminderOffset = .tenMinutes
-    var isFirstReminderEnabled: Bool = false
-
-    var secondReminderOffset: CalendarReminderOffset = .atTime
-    var isSecondReminderEnabled: Bool = false
-
-    var exportScope: CalendarExportScope = .next1Week
-    var isExportScopeLimited: Bool = false
 
     init() {
         applyCourseScheduleCache(MMKVHelper.CourseSchedule.cache)
@@ -210,7 +176,7 @@ class CourseScheduleViewModel {
         }
     }
 
-    func addToCalendar() async {
+    func addToCalendar(isFirstReminderEnabled: Bool, firstReminderOffset: CalendarReminderOffset, isSecondReminderEnabled: Bool, secondReminderOffset: CalendarReminderOffset) async {
         guard let data = self.courseScheduleData?.value else {
             errorToast.show(message: "课表数据未加载，无法导出")
             return
@@ -232,13 +198,6 @@ class CourseScheduleViewModel {
                         guard let dates = CourseScheduleUtil.getCourseEventDates(session: session, week: week, semesterStartDate: data.semesterStartDate) else { continue }
                         let eventStartDate = dates.startDate
                         let eventEndDate = dates.endDate
-
-                        if isExportScopeLimited {
-                            let expectedWeeks = exportScope.rawValue
-                            let startOfToday = currentCalendar.startOfDay(for: Date())
-                            let timeLimit = currentCalendar.date(byAdding: .day, value: expectedWeeks * 7, to: startOfToday)!
-                            guard eventStartDate >= startOfToday && eventStartDate < timeLimit else { continue }
-                        }
 
                         // 与课程相关的备注信息
                         var notes = "教师: \(course.teacher ?? "未知")"

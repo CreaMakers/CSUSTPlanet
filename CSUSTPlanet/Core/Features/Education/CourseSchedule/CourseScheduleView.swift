@@ -42,6 +42,11 @@ extension EnvironmentValues {
 
 struct CourseScheduleView: View {
     @State private var viewModel = CourseScheduleViewModel()
+
+    @State private var isSemestersSheetPresented = false
+    @State private var isCalendarSettingsSheetPresented = false
+    @State private var isCourseDetailPresented = false
+
     @Environment(\.horizontalSizeClass) private var sizeClass
 
     var body: some View {
@@ -87,7 +92,7 @@ struct CourseScheduleView: View {
                         weeklyCourses: weeklyCourses,
                         courseColors: viewModel.courseColors,
                         currentWeek: $viewModel.currentWeek,
-                        isCourseDetailPresented: $viewModel.isCourseDetailPresented,
+                        isCourseDetailPresented: $isCourseDetailPresented,
                         selectedCourseInfo: $viewModel.selectedCourseInfo
                     )
 
@@ -114,7 +119,7 @@ struct CourseScheduleView: View {
         .environment(\.layoutConfig, layoutConfig)
         .apply { view in
             if !isWideSize {
-                view.sheet(isPresented: $viewModel.isCourseDetailPresented) {
+                view.sheet(isPresented: $isCourseDetailPresented) {
                     sheetContentView
                 }
             } else {
@@ -130,19 +135,19 @@ struct CourseScheduleView: View {
             }
         }
         .onChange(of: !isWideSize) { _, usesSheet in
-            viewModel.isCourseDetailPresented = usesSheet && viewModel.selectedCourseInfo != nil
+            isCourseDetailPresented = usesSheet && viewModel.selectedCourseInfo != nil
         }
         .navigationTitle("我的课表")
         .navigationSubtitleCompat(viewModel.selectedSemester == nil ? "默认学期" : "学期" + (viewModel.selectedSemester ?? ""))
         .inlineToolbarTitle()
         .toolbar {
             ToolbarItemGroup(placement: .secondaryAction) {
-                Button(action: { viewModel.isSemestersSheetPresented = true }) {
+                Button(action: { isSemestersSheetPresented = true }) {
                     Label("学期选择", systemImage: "calendar")
                 }
                 .disabled(viewModel.isSemestersLoading)
 
-                Button(action: { viewModel.isCalendarSettingsSheetPresented = true }) {
+                Button(action: { isCalendarSettingsSheetPresented = true }) {
                     Label("添加课表到系统日历", systemImage: "square.and.arrow.up")
                 }
                 .disabled(viewModel.isSemestersLoading || viewModel.courseScheduleData?.value.courses.isEmpty == true)
@@ -162,11 +167,18 @@ struct CourseScheduleView: View {
         .errorToast($viewModel.errorToast)
         .loadingToast($viewModel.loadingToast)
         .successToast($viewModel.successToast)
-        .sheet(isPresented: $viewModel.isCalendarSettingsSheetPresented) {
-            CourseScheduleCalendarSettingsView(viewModel: viewModel)
+        .sheet(isPresented: $isCalendarSettingsSheetPresented) {
+            CalendarSettingsView(onAdd: viewModel.addToCalendar)
         }
-        .sheet(isPresented: $viewModel.isSemestersSheetPresented) {
-            CourseSemesterView(viewModel: viewModel)
+        .sheet(isPresented: $isSemestersSheetPresented) {
+            SemesterSelectView(
+                selectedSemester: $viewModel.selectedSemester,
+                availableSemesters: viewModel.availableSemesters,
+                isLoading: viewModel.isSemestersLoading,
+                onRefresh: viewModel.loadAvailableSemesters,
+                onComplete: viewModel.loadCourses
+            )
+            .presentationDetents([.medium, .large])
         }
     }
 
@@ -576,4 +588,151 @@ private struct ScrollTableView: View {
         isCourseDetailPresented: .constant(false),
         selectedCourseInfo: .constant(nil)
     )
+}
+
+// MARK: - SemesterSelectView
+
+private struct SemesterSelectView: View {
+    @Binding var selectedSemester: String?
+    let availableSemesters: [String]
+    let isLoading: Bool
+
+    let onRefresh: () async -> Void
+    let onComplete: () async -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("学期选择") {
+                    Picker("学期", selection: $selectedSemester) {
+                        Text("默认学期").tag(nil as String?)
+                        ForEach(availableSemesters, id: \.self) { semester in
+                            Text(semester).tag(semester as String?)
+                        }
+                    }
+                    #if os(iOS)
+                    .pickerStyle(.wheel)
+                    #elseif os(macOS)
+                    .pickerStyle(.menu)
+                    #endif
+                }
+                HStack {
+                    Button(asyncAction: onRefresh) {
+                        Text("刷新学期列表")
+                    }
+                    .disabled(isLoading)
+                    if isLoading {
+                        Spacer()
+                        ProgressView().smallControlSizeOnMac()
+                    }
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("完成") {
+                        dismiss()
+                        await onComplete()
+                    }
+                }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") {
+                        dismiss()
+                    }
+                }
+            }
+            .formStyle(.grouped)
+            .navigationTitle("学期选择")
+            .inlineToolbarTitle()
+        }
+    }
+}
+
+#Preview("SemesterSelectView") {
+    SemesterSelectView(
+        selectedSemester: .constant(nil),
+        availableSemesters: [],
+        isLoading: false,
+        onRefresh: {},
+        onComplete: {}
+    )
+}
+
+// MARK: - CalendarSettingsView
+
+private struct CalendarSettingsView: View {
+    @State private var isFirstReminderEnabled: Bool = true
+    @State private var firstReminderOffset: CalendarReminderOffset = .tenMinutes
+    @State private var isSecondReminderEnabled: Bool = false
+    @State private var secondReminderOffset: CalendarReminderOffset = .atTime
+
+    @Environment(\.dismiss) private var dismiss
+
+    let onAdd: (Bool, CalendarReminderOffset, Bool, CalendarReminderOffset) async -> Void
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Toggle("开启提醒", isOn: $isFirstReminderEnabled.withAnimation())
+                    if isFirstReminderEnabled {
+                        reminderPicker(title: "提醒时间", selection: $firstReminderOffset)
+                    }
+                } header: {
+                    Text("提醒")
+                } footer: {
+                    Text("作为你的主要上课提醒。可以设置为你需要出门通勤或做课前准备的时间。")
+                }
+
+                Section {
+                    Toggle("开启额外提醒", isOn: $isSecondReminderEnabled.withAnimation())
+                    if isSecondReminderEnabled {
+                        reminderPicker(title: "额外提醒时间", selection: $secondReminderOffset)
+                    }
+                } header: {
+                    Text("额外提醒")
+                } footer: {
+                    Text("你也可以设置两个不同的提醒时间，一个用于预留充足的准备时间，另一个用于临近上课时的最终提醒。")
+                }
+            }
+            .formStyle(.grouped)
+            .navigationTitle("添加课表到系统日历")
+            .inlineToolbarTitle()
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("添加") {
+                        dismiss()
+                        await onAdd(
+                            isFirstReminderEnabled,
+                            firstReminderOffset,
+                            isSecondReminderEnabled,
+                            secondReminderOffset
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    func reminderPicker(title: String, selection: Binding<CalendarReminderOffset>) -> some View {
+        Picker(title, selection: selection) {
+            ForEach(CalendarReminderOffset.allCases) { offset in
+                Text(offset.title).tag(offset)
+            }
+        }
+        .pickerStyle(.menu)
+    }
+}
+
+#Preview("CalendarSettingsView") {
+    CalendarSettingsView {
+        debugPrint($0, $1, $2, $3)
+    }
 }
