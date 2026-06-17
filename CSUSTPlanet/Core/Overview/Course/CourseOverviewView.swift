@@ -28,7 +28,7 @@ struct CourseOverviewView: View {
             CourseScheduleDetailView(
                 course: courseInfo.course,
                 session: courseInfo.session,
-                isShowingToolbar: true,
+                isToolbarPresented: true,
             )
         }
     }

@@ -11,7 +11,8 @@ import SwiftUI
 struct CourseScheduleDetailView: View {
     let course: EduHelper.Course
     let session: EduHelper.ScheduleSession
-    let isShowingToolbar: Bool
+
+    let isToolbarPresented: Bool
 
     @Environment(\.dismiss) private var dismiss
 
@@ -22,7 +23,6 @@ struct CourseScheduleDetailView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // MARK: - 课程基本信息
                 Section {
                     VStack(spacing: 8) {
                         Text(course.courseName)
@@ -46,20 +46,18 @@ struct CourseScheduleDetailView: View {
                                     .padding(.vertical, 3)
                                     .background(Color.accentColor.opacity(0.12))
                                     .foregroundStyle(.primary)
-                                    .clipShape(Capsule())
+                                    .clipShape(.capsule)
                             }
                         }
                     }
                 }
 
-                // MARK: - 本次安排
                 Section("本次安排") {
-                    FormRow(label: "课程周次", value: formatWeeks(session.weeks))
+                    FormRow(label: "课程周次", value: "第\(session.weeks.map { String($0) }.joined(separator: "，"))周")
                     FormRow(label: "上课时间", value: "\(session.dayOfWeek.chineseLongString) · 第\(session.startSection)-\(session.endSection)节")
                     FormRow(label: "上课教室", value: session.classroom ?? "未安排教室")
                 }
 
-                // MARK: - 其他安排
                 if !otherSessions.isEmpty {
                     Section("其他安排") {
                         ForEach(otherSessions, id: \.self) { otherSession in
@@ -75,7 +73,7 @@ struct CourseScheduleDetailView: View {
                                         .foregroundStyle(otherSession.classroom == nil ? .secondary : .primary)
                                 }
 
-                                Text(formatWeeks(otherSession.weeks))
+                                Text("第\(otherSession.weeks.map { String($0) }.joined(separator: "，"))周")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -88,7 +86,7 @@ struct CourseScheduleDetailView: View {
             .navigationTitle("课程详情")
             .inlineToolbarTitle()
             .apply { view in
-                if isShowingToolbar {
+                if isToolbarPresented {
                     view.toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("关闭") {
@@ -101,38 +99,5 @@ struct CourseScheduleDetailView: View {
                 }
             }
         }
-    }
-}
-
-// MARK: - Helpers
-extension CourseScheduleDetailView {
-    private func formatWeeks(_ weeks: [Int]) -> String {
-        guard !weeks.isEmpty else { return "" }
-
-        var result = [String]()
-        var start = weeks[0]
-        var prev = weeks[0]
-
-        for week in weeks.dropFirst() {
-            if week == prev + 1 {
-                prev = week
-            } else {
-                if start == prev {
-                    result.append("第\(start)周")
-                } else {
-                    result.append("第\(start)-\(prev)周")
-                }
-                start = week
-                prev = week
-            }
-        }
-
-        if start == prev {
-            result.append("第\(start)周")
-        } else {
-            result.append("第\(start)-\(prev)周")
-        }
-
-        return result.joined(separator: ", ")
     }
 }
