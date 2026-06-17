@@ -25,6 +25,7 @@ enum FeatureTabID: Hashable, CaseIterable {
     case schoolCalendar
     case electricityRecharge
     case webVPNConverter
+    case eval
 
     case physicsExperimentSchedule
     case physicsExperimentGrade
@@ -47,6 +48,7 @@ enum FeatureTabID: Hashable, CaseIterable {
         case .schoolCalendar: return "校历"
         case .electricityRecharge: return "电费充值"
         case .webVPNConverter: return "WebVPN"
+        case .eval: return "评教系统"
         case .physicsExperimentSchedule: return "实验安排"
         case .physicsExperimentGrade: return "实验成绩"
         case .cet: return "四六级查询"
@@ -69,6 +71,7 @@ enum FeatureTabID: Hashable, CaseIterable {
         case .schoolCalendar: return "SchoolCalendarList"
         case .electricityRecharge: return "ElectricityRecharge"
         case .webVPNConverter: return "WebVPNConverter"
+        case .eval: return "Eval"
         case .physicsExperimentSchedule: return "PhysicsExperimentSchedule"
         case .physicsExperimentGrade: return "PhysicsExperimentGrade"
         case .cet: return "CET"
@@ -88,6 +91,7 @@ enum FeatureTabID: Hashable, CaseIterable {
         case .electricityQuery: return "bolt.fill"
         case .availableClassroom: return "building.2.fill"
         case .campusMap: return "map.fill"
+        case .eval: return "pencil.and.list.clipboard"
         case .schoolCalendar: return "calendar.badge.clock"
         case .electricityRecharge: return "creditcard.fill"
         case .webVPNConverter: return "lock.shield"
@@ -125,6 +129,8 @@ enum FeatureTabID: Hashable, CaseIterable {
             return .features(.campusTool(.electricityRecharge))
         case .webVPNConverter:
             return .features(.campusTool(.webVPNConverter))
+        case .eval:
+            return .features(.campusTool(.eval))
         case .physicsExperimentSchedule:
             return .features(.physicsExperiment(.schedule))
         case .physicsExperimentGrade:

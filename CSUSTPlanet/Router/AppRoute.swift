@@ -211,6 +211,7 @@ enum AppRoute: Hashable {
             case schoolCalendarList(SchoolCalendarListRoute)
             case electricityRecharge
             case webVPNConverter
+            case eval
 
             var trackSegment: String {
                 switch self {
@@ -226,6 +227,8 @@ enum AppRoute: Hashable {
                     return "ElectricityRecharge"
                 case .webVPNConverter:
                     return "WebVPNConverter"
+                case .eval:
+                    return "Eval"
                 }
             }
 
@@ -244,6 +247,8 @@ enum AppRoute: Hashable {
                     ElectricityRechargeView()
                 case .webVPNConverter:
                     WebVPNConverterView()
+                case .eval:
+                    EvalView()
                 }
             }
 
