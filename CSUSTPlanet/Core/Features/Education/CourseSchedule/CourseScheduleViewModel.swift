@@ -210,28 +210,7 @@ class CourseScheduleViewModel {
         }
     }
 
-    func loadCalendarSettings() {
-        if let firstOffset = MMKVHelper.CourseSchedule.CalendarSync.firstReminderOffset, let offset = CalendarReminderOffset(rawValue: firstOffset) {
-            isFirstReminderEnabled = true
-            firstReminderOffset = offset
-        }
-
-        if let secondOffset = MMKVHelper.CourseSchedule.CalendarSync.secondReminderOffset, let offset = CalendarReminderOffset(rawValue: secondOffset) {
-            isSecondReminderEnabled = true
-            secondReminderOffset = offset
-        }
-
-        if let scope = MMKVHelper.CourseSchedule.CalendarSync.exportScopeLimit, let scope = CalendarExportScope(rawValue: scope) {
-            isExportScopeLimited = true
-            exportScope = scope
-        }
-    }
-
     func addToCalendar() async {
-        MMKVHelper.CourseSchedule.CalendarSync.firstReminderOffset = isFirstReminderEnabled ? firstReminderOffset.rawValue : nil
-        MMKVHelper.CourseSchedule.CalendarSync.secondReminderOffset = isSecondReminderEnabled ? secondReminderOffset.rawValue : nil
-        MMKVHelper.CourseSchedule.CalendarSync.exportScopeLimit = isExportScopeLimited ? exportScope.rawValue : nil
-
         guard let data = self.courseScheduleData?.value else {
             errorToast.show(message: "课表数据未加载，无法导出")
             return
@@ -296,18 +275,5 @@ class CourseScheduleViewModel {
         } catch {
             errorToast.show(message: "导出失败: \(error.localizedDescription)")
         }
-    }
-}
-
-extension MMKVHelper.CourseSchedule {
-    enum CalendarSync {
-        @MMKVOptionalStorage(key: "CourseSchedule.CalendarSync.exportScopeLimit")
-        static var exportScopeLimit: Int?
-
-        @MMKVOptionalStorage(key: "CourseSchedule.CalendarSync.firstReminderOffset")
-        static var firstReminderOffset: Double?
-
-        @MMKVOptionalStorage(key: "CourseSchedule.CalendarSync.secondReminderOffset")
-        static var secondReminderOffset: Double?
     }
 }

@@ -51,7 +51,6 @@ struct CourseScheduleCalendarSettingsView: View {
                     Text("每次打开课表页面时会自动将课程导出到系统日历。默认导出本学期所有课程，开启后可限制仅导出未来几周的课程。")
                 }
             }
-            .task { viewModel.loadCalendarSettings() }
             .formStyle(.grouped)
             .navigationTitle("添加课表到系统日历")
             .inlineToolbarTitle()

@@ -9,11 +9,40 @@ import AlertToast
 import CSUSTKit
 import SwiftUI
 
+// MARK: - LayoutConfig
+
+private struct LayoutConfig {
+    let isWideSize: Bool
+    let colSpacing: CGFloat
+    let rowSpacing: CGFloat
+    let horizontalPadding: CGFloat
+    let timeColWidth: CGFloat
+    let sectionHeight: CGFloat
+}
+
+private struct LayoutConfigKey: EnvironmentKey {
+    static var defaultValue = LayoutConfig(
+        isWideSize: false,
+        colSpacing: 2,
+        rowSpacing: 2,
+        horizontalPadding: 8,
+        timeColWidth: 30,
+        sectionHeight: 60,
+    )
+}
+
+extension EnvironmentValues {
+    fileprivate var layoutConfig: LayoutConfig {
+        get { self[LayoutConfigKey.self] }
+        set { self[LayoutConfigKey.self] = newValue }
+    }
+}
+
+// MARK: - CourseScheduleView
+
 struct CourseScheduleView: View {
     @State private var viewModel = CourseScheduleViewModel()
     @Environment(\.horizontalSizeClass) private var sizeClass
-
-    // MARK: - Body
 
     var body: some View {
         let isWideSize = (sizeClass == .regular)
@@ -141,8 +170,6 @@ struct CourseScheduleView: View {
         }
     }
 
-    // MARK: - Sheet Content View
-
     @ViewBuilder
     var sheetContentView: some View {
         if let courseInfo = viewModel.selectedCourseInfo {
@@ -154,33 +181,6 @@ struct CourseScheduleView: View {
         } else {
             ContentUnavailableView("请选择课程查看详情", systemImage: "doc.text.magnifyingglass")
         }
-    }
-}
-
-private struct LayoutConfig {
-    let isWideSize: Bool
-    let colSpacing: CGFloat
-    let rowSpacing: CGFloat
-    let horizontalPadding: CGFloat
-    let timeColWidth: CGFloat
-    let sectionHeight: CGFloat
-}
-
-private struct LayoutConfigKey: EnvironmentKey {
-    static var defaultValue = LayoutConfig(
-        isWideSize: false,
-        colSpacing: 2,
-        rowSpacing: 2,
-        horizontalPadding: 8,
-        timeColWidth: 30,
-        sectionHeight: 60,
-    )
-}
-
-extension EnvironmentValues {
-    fileprivate var layoutConfig: LayoutConfig {
-        get { self[LayoutConfigKey.self] }
-        set { self[LayoutConfigKey.self] = newValue }
     }
 }
 
@@ -310,6 +310,7 @@ private struct HeaderView: View {
                             .glassEffect()
                             .padding(.horizontal, 4)
                     }
+                    .padding(.top, 8)
             } else {
                 view.background(.ultraThinMaterial)
             }
