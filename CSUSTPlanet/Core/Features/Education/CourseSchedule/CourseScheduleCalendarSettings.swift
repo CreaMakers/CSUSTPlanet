@@ -9,13 +9,13 @@ import SwiftUI
 
 struct CourseScheduleCalendarSettings: View {
     @State private var isFirstReminderEnabled: Bool = true
-    @State private var firstReminderOffset: CalendarReminderOffset = .tenMinutes
+    @State private var firstReminderOffset: CourseScheduleReminderOffset = .tenMinutes
     @State private var isSecondReminderEnabled: Bool = false
-    @State private var secondReminderOffset: CalendarReminderOffset = .atTime
+    @State private var secondReminderOffset: CourseScheduleReminderOffset = .atTime
 
     @Environment(\.dismiss) private var dismiss
 
-    let onAdd: (Bool, CalendarReminderOffset, Bool, CalendarReminderOffset) async -> Void
+    let onAdd: (Bool, CourseScheduleReminderOffset, Bool, CourseScheduleReminderOffset) async -> Void
 
     var body: some View {
         NavigationStack {
@@ -67,9 +67,9 @@ struct CourseScheduleCalendarSettings: View {
     }
 
     @ViewBuilder
-    func reminderPicker(title: String, selection: Binding<CalendarReminderOffset>) -> some View {
+    func reminderPicker(title: String, selection: Binding<CourseScheduleReminderOffset>) -> some View {
         Picker(title, selection: selection) {
-            ForEach(CalendarReminderOffset.allCases) { offset in
+            ForEach(CourseScheduleReminderOffset.allCases) { offset in
                 Text(offset.title).tag(offset)
             }
         }
