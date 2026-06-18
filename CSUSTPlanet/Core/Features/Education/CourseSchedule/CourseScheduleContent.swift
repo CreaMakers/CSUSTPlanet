@@ -17,6 +17,7 @@ struct CourseScheduleContent: View {
     let weeklyCourses: [Int: [CourseDisplayInfo]]?
     let courseColors: [String: Color]
     let semesterStartDate: Date?
+    let remarks: [String]
 
     let selectedSemester: String?
 
@@ -49,6 +50,7 @@ struct CourseScheduleContent: View {
 
         VStack(spacing: 0) {
             CourseScheduleControlBar(
+                remarks: remarks,
                 selectedSemester: selectedSemester,
                 realCurrentWeek: realCurrentWeek,
                 currentWeek: $currentWeek
@@ -209,6 +211,7 @@ struct CourseScheduleContent: View {
             weeklyCourses: [:],
             courseColors: [:],
             semesterStartDate: nil,
+            remarks: [],
             selectedSemester: nil,
             isSemestersLoading: false,
             isCourseScheduleLoading: false,

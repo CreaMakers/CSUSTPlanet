@@ -21,6 +21,7 @@ struct CourseScheduleView: View {
     @State private var weeklyCourses: [Int: [CourseDisplayInfo]]? = nil
     @State private var courseColors: [String: Color] = [:]
     @State private var semesterStartDate: Date? = nil
+    @State private var remarks: [String] = []
 
     @State private var selectedSemester: String? = nil
 
@@ -47,6 +48,7 @@ struct CourseScheduleView: View {
             weeklyCourses: weeklyCourses,
             courseColors: courseColors,
             semesterStartDate: semesterStartDate,
+            remarks: remarks,
             selectedSemester: selectedSemester,
             isSemestersLoading: isSemestersLoading,
             isCourseScheduleLoading: isCourseScheduleLoading,
@@ -116,6 +118,7 @@ struct CourseScheduleView: View {
             semesterStartDate = nil
             realCurrentWeek = nil
             courseColors = [:]
+            remarks = []
             return
         }
 
@@ -124,6 +127,7 @@ struct CourseScheduleView: View {
         semesterStartDate = data.value.semesterStartDate
         realCurrentWeek = CourseScheduleUtil.getCurrentWeek(semesterStartDate: data.value.semesterStartDate, now: .now)
         courseColors = ColorUtil.getCourseColors(data.value.courses)
+        remarks = data.value.remarks
 
         if let week = realCurrentWeek {
             withAnimation {

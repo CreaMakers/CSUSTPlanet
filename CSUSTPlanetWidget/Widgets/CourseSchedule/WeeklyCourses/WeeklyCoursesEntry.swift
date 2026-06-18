@@ -112,7 +112,7 @@ struct WeeklyCoursesEntry: TimelineEntry {
         semesterDateFormatter.dateFormat = "yyyy-MM-dd"
         let semesterStartDate = semesterDateFormatter.date(from: semesterStartDate) ?? .now
 
-        let data = CourseScheduleData(semester: semester, semesterStartDate: semesterStartDate, courses: courses)
+        let data = CourseScheduleData(semester: semester, semesterStartDate: semesterStartDate, courses: courses, remarks: [])
 
         let timeDateFormatter = DateFormatter()
         timeDateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
