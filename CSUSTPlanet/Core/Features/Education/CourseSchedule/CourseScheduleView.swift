@@ -22,7 +22,6 @@ struct CourseScheduleView: View {
     @State private var courseColors: [String: Color] = [:]
     @State private var semesterStartDate: Date? = nil
 
-    @State private var availableSemesters: [String] = []
     @State private var selectedSemester: String? = nil
 
     @State private var isCourseScheduleLoading: Bool = false
@@ -48,8 +47,7 @@ struct CourseScheduleView: View {
             weeklyCourses: weeklyCourses,
             courseColors: courseColors,
             semesterStartDate: semesterStartDate,
-            availableSemesters: availableSemesters,
-            selectedSemester: $selectedSemester,
+            selectedSemester: selectedSemester,
             isSemestersLoading: isSemestersLoading,
             isCourseScheduleLoading: isCourseScheduleLoading,
             currentWeek: $currentWeek,
@@ -57,8 +55,12 @@ struct CourseScheduleView: View {
             errorToast: $errorToast,
             loadingToast: $loadingToast,
             successToast: $successToast,
-            onRefreshCourses: loadCourses,
-            onRefreshSemesters: loadAvailableSemesters,
+            onRefreshCourses: {
+                await loadCourses(selectedSemester: selectedSemester)
+            },
+            onSelectSemester: { selectedSemester in
+                await loadCourses(selectedSemester: selectedSemester)
+            },
             onAddCalendar: addToCalendar
         )
         .onReceive(MMKVHelper.CourseSchedule.$cache.dropFirst().receive(on: RunLoop.main)) { data in
@@ -70,42 +72,29 @@ struct CourseScheduleView: View {
             }
             isInitial = false
             applyData(MMKVHelper.CourseSchedule.cache)
-            await withTaskGroup(of: Void.self) { group in
-                group.addTask { await self.loadAvailableSemesters() }
-                group.addTask { await self.loadCourses() }
-            }
+            await loadCourses(selectedSemester: selectedSemester)
         }
     }
 
-    private func loadCourses() async {
+    // MARK: - Methods
+
+    private func loadCourses(selectedSemester: String?) async {
         guard !isCourseScheduleLoading else { return }
         isCourseScheduleLoading = true
         defer { isCourseScheduleLoading = false }
 
         do {
             let courses = try await AuthManager.shared.withAuthRetry(system: .edu) {
-                try await AuthManager.shared.eduHelper.courseService.getCourseSchedule(academicYearSemester: self.selectedSemester)
+                try await AuthManager.shared.eduHelper.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
             }
             let semesterStartDate = try await AuthManager.shared.withAuthRetry(system: .edu) {
-                try await AuthManager.shared.eduHelper.semesterService.getSemesterStartDate(academicYearSemester: self.selectedSemester)
+                try await AuthManager.shared.eduHelper.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
             }
             let data = Cached<CourseScheduleData>(cachedAt: .now, value: CourseScheduleData(semester: selectedSemester, semesterStartDate: semesterStartDate, courses: courses))
             MMKVHelper.CourseSchedule.cache = data
             WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
-        } catch {
-            errorToast.show(message: error.localizedDescription)
-        }
-    }
 
-    private func loadAvailableSemesters() async {
-        guard !isSemestersLoading else { return }
-        isSemestersLoading = true
-        defer { isSemestersLoading = false }
-
-        do {
-            (availableSemesters, selectedSemester) = try await AuthManager.shared.withAuthRetry(system: .edu) {
-                try await AuthManager.shared.eduHelper.courseService.getAvailableSemestersForCourseSchedule()
-            }
+            self.selectedSemester = selectedSemester
         } catch {
             errorToast.show(message: error.localizedDescription)
         }
@@ -129,12 +118,17 @@ struct CourseScheduleView: View {
 
         if let week = realCurrentWeek {
             withAnimation {
-                self.currentWeek = week
+                currentWeek = week
             }
         }
     }
 
-    private func addToCalendar(isFirstReminderEnabled: Bool, firstReminderOffset: CourseScheduleReminderOffset, isSecondReminderEnabled: Bool, secondReminderOffset: CourseScheduleReminderOffset) async {
+    private func addToCalendar(
+        isFirstReminderEnabled: Bool,
+        firstReminderOffset: CourseScheduleReminderOffset,
+        isSecondReminderEnabled: Bool,
+        secondReminderOffset: CourseScheduleReminderOffset
+    ) async {
         guard let courses, let semesterStartDate else {
             errorToast.show(message: "课表数据未加载，无法导出")
             return
@@ -142,12 +136,14 @@ struct CourseScheduleView: View {
 
         loadingToast.show(message: "正在将课表添加到日历")
         defer { loadingToast.hide() }
+
         do {
             let currentCalendar = Calendar.current
 
             let calendar = try await CalendarUtil.getOrCreateEventCalendar(named: "长理星球 - 课表")
             let clearStartDate = currentCalendar.date(byAdding: .year, value: -1, to: Date())!
             let clearEndDate = currentCalendar.date(byAdding: .year, value: 1, to: Date())!
+
             try await CalendarUtil.clearCalendar(calendar: calendar, from: clearStartDate, to: clearEndDate)
 
             for course in courses {
@@ -185,6 +181,7 @@ struct CourseScheduleView: View {
                     }
                 }
             }
+
             // 最后统一提交改变
             try CalendarUtil.commitChanges()
 

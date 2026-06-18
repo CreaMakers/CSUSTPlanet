@@ -18,8 +18,7 @@ struct CourseScheduleContent: View {
     let courseColors: [String: Color]
     let semesterStartDate: Date?
 
-    let availableSemesters: [String]
-    @Binding var selectedSemester: String?
+    let selectedSemester: String?
 
     let isSemestersLoading: Bool
     let isCourseScheduleLoading: Bool
@@ -32,7 +31,7 @@ struct CourseScheduleContent: View {
     @Binding var successToast: ToastState
 
     var onRefreshCourses: () async -> Void
-    var onRefreshSemesters: () async -> Void
+    var onSelectSemester: (String?) async -> Void
     var onAddCalendar: (Bool, CourseScheduleReminderOffset, Bool, CourseScheduleReminderOffset) async -> Void
 
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -181,14 +180,8 @@ struct CourseScheduleContent: View {
                 .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $isSemestersSheetPresented) {
-            CourseScheduleSemesterSelect(
-                selectedSemester: $selectedSemester,
-                availableSemesters: availableSemesters,
-                isLoading: isSemestersLoading,
-                onRefresh: onRefreshSemesters,
-                onComplete: onRefreshCourses
-            )
-            .presentationDetents([.medium, .large])
+            CourseScheduleSemesterSelect(onComplete: onSelectSemester)
+                .presentationDetents([.medium, .large])
         }
     }
 
@@ -216,8 +209,7 @@ struct CourseScheduleContent: View {
             weeklyCourses: [:],
             courseColors: [:],
             semesterStartDate: nil,
-            availableSemesters: [],
-            selectedSemester: .constant(nil),
+            selectedSemester: nil,
             isSemestersLoading: false,
             isCourseScheduleLoading: false,
             currentWeek: .constant(1),
@@ -226,7 +218,7 @@ struct CourseScheduleContent: View {
             loadingToast: .constant(.loadingTitle),
             successToast: .constant(.successTitle),
             onRefreshCourses: {},
-            onRefreshSemesters: {},
+            onSelectSemester: { _ in },
             onAddCalendar: { _, _, _, _ in }
         )
     }
