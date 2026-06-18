@@ -61,7 +61,7 @@ struct CourseScheduleView: View {
             onRefreshSemesters: loadAvailableSemesters,
             onAddCalendar: addToCalendar
         )
-        .onReceive(MMKVHelper.CourseSchedule.$cache.receive(on: RunLoop.main)) { data in
+        .onReceive(MMKVHelper.CourseSchedule.$cache.dropFirst().receive(on: RunLoop.main)) { data in
             applyData(data)
         }
         .task {
@@ -69,6 +69,7 @@ struct CourseScheduleView: View {
                 return
             }
             isInitial = false
+            applyData(MMKVHelper.CourseSchedule.cache)
             await withTaskGroup(of: Void.self) { group in
                 group.addTask { await self.loadAvailableSemesters() }
                 group.addTask { await self.loadCourses() }

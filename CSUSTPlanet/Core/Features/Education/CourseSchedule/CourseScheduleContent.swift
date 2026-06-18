@@ -142,7 +142,7 @@ struct CourseScheduleContent: View {
             }
         }
         .navigationTitle("我的课表")
-        .navigationSubtitleCompat(selectedSemester == nil ? "默认学期" : "学期" + (selectedSemester ?? ""))
+        .navigationSubtitleCompat(selectedSemester.map { "学期\($0)" } ?? "默认学期")
         .inlineToolbarTitle()
         .toolbar {
             ToolbarItemGroup(placement: .secondaryAction) {
