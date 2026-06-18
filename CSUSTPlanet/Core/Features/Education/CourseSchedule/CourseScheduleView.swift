@@ -91,32 +91,35 @@ struct CourseScheduleView: View {
                     sheetContentView
                 }
             } else {
-                view
-                    .inspector(isPresented: .constant(true)) {
-                        sheetContentView
-                            #if os(macOS)
-                        .inspectorColumnWidth(min: 200, ideal: 250, max: 300)
-                            #elseif os(iOS)
-                        .inspectorColumnWidth(min: 300, ideal: 400, max: 500)
-                            #endif
-                    }
+                view.inspector(isPresented: $isCourseDetailPresented) {
+                    sheetContentView
+                        #if os(macOS)
+                    .inspectorColumnWidth(min: 200, ideal: 250, max: 300)
+                        #elseif os(iOS)
+                    .inspectorColumnWidth(min: 300, ideal: 400, max: 500)
+                        #endif
+                }
             }
         }
-        // .onChange(of: !isWideSize) { _, usesSheet in
-        //     isCourseDetailPresented = usesSheet && viewModel.selectedCourseInfo != nil
-        // }
+        .onChange(of: isWideSize) { _, isWideSize in
+            if isWideSize {
+                Task { @MainActor in
+                    isCourseDetailPresented = true
+                }
+            }
+        }
         .navigationTitle("我的课表")
         .navigationSubtitleCompat(viewModel.selectedSemester == nil ? "默认学期" : "学期" + (viewModel.selectedSemester ?? ""))
         .inlineToolbarTitle()
         .toolbar {
             ToolbarItemGroup(placement: .secondaryAction) {
                 Button(action: { isSemestersSheetPresented = true }) {
-                    Label("学期选择", systemImage: "calendar")
+                    Label("学期选择", systemImage: "gearshape")
                 }
                 .disabled(viewModel.isSemestersLoading)
 
                 Button(action: { isCalendarSettingsSheetPresented = true }) {
-                    Label("添加课表到系统日历", systemImage: "square.and.arrow.up")
+                    Label("添加课表到系统日历", systemImage: "calendar.badge.plus")
                 }
                 .disabled(viewModel.isSemestersLoading || viewModel.courseScheduleData?.value.courses.isEmpty == true)
             }
@@ -129,6 +132,11 @@ struct CourseScheduleView: View {
                     }
                 }
                 .disabled(viewModel.isCourseScheduleLoading)
+            }
+        }
+        .onAppear {
+            if isWideSize {
+                isCourseDetailPresented = true
             }
         }
         .task { await viewModel.loadInitial() }
