@@ -5,266 +5,255 @@
 //  Created by Zhe_Learn on 2025/7/9.
 //
 
-import AlertToast
 import CSUSTKit
 import SwiftUI
+import UniformTypeIdentifiers
+
+#if os(macOS)
+import AppKit
+#endif
 
 struct GradeQueryView: View {
-    @State var viewModel = GradeQueryViewModel()
+    @State private var gradeData: Cached<[EduHelper.CourseGrade]>?
+    @State private var searchText = ""
+    @State private var expandedSemesters: Set<String> = []
+    @State private var selectedCourseIDs: Set<String> = []
 
-    // MARK: - Body
+    @State private var isLoadingGrades = false
+    @State private var isSelectionMode = false
+
+    @State private var errorToast = ToastState()
+    @State private var shareContent: Any?
+    @State private var isShareSheetPresented = false
+
+    @State private var isInitial = true
+
+    private var courseGrades: [EduHelper.CourseGrade] {
+        gradeData?.value ?? []
+    }
+
+    private var filteredGrades: [EduHelper.CourseGrade] {
+        if searchText.isEmpty {
+            return courseGrades
+        }
+        return courseGrades.filter { $0.courseName.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    private var groupedFilteredGrades: [(semester: String, grades: [EduHelper.CourseGrade])] {
+        let grouped = Dictionary(grouping: filteredGrades) { $0.semester }
+        return grouped.keys.sorted(by: >).map { (semester: $0, grades: grouped[$0] ?? []) }
+    }
+
+    private var semesterGPAs: [String: Double] {
+        computeSemesterGPAs(courseGrades)
+    }
+
+    private var gradeAnalysis: GradeAnalysisData? {
+        guard let grades = gradeData?.value else { return nil }
+
+        if isSelectionMode {
+            return GradeAnalysisData.fromCourseGrades(grades.filter { selectedCourseIDs.contains($0.courseID) })
+        }
+        return GradeAnalysisData.fromCourseGrades(grades)
+    }
 
     var body: some View {
-        Group {
-            if !viewModel.filteredGrades.isEmpty {
-                CustomScrollView {
-                    ForEach(viewModel.groupedFilteredGrades, id: \.semester) { group in
-                        CustomGroupBox {
-                            let isExpanded = viewModel.expandedSemesters.contains(group.semester)
+        GradeQueryContent(
+            searchText: $searchText,
+            groupedFilteredGrades: groupedFilteredGrades,
+            expandedSemesters: expandedSemesters,
+            semesterGPAs: semesterGPAs,
+            gradeAnalysis: gradeAnalysis,
+            gradeCount: gradeData?.value.count ?? 0,
+            isLoadingGrades: isLoadingGrades,
+            areGradeActionsDisabled: isLoadingGrades || gradeData?.value.isEmpty == true,
+            isSelectionMode: isSelectionMode,
+            selectedCourseIDs: selectedCourseIDs,
+            errorToast: $errorToast,
+            shareContent: shareContent,
+            isShareSheetPresented: $isShareSheetPresented,
+            onRefreshGrades: loadCourseGrades,
+            onToggleSemester: toggleExpandSemester,
+            onEnterSelectionMode: enterSelectionMode,
+            onExitSelectionMode: exitSelectionMode,
+            onSelectAll: selectAll,
+            onSelectNone: selectNone,
+            onToggleSelection: toggleSelection,
+            onExportGrades: exportGradesAsCSV
+        )
+        .onReceive(MMKVHelper.CourseGrades.$cache.dropFirst().receive(on: RunLoop.main)) { data in
+            applyGradeData(data)
+        }
+        .task {
+            guard isInitial else {
+                return
+            }
+            isInitial = false
+            applyGradeData(MMKVHelper.CourseGrades.cache)
+            await loadCourseGrades()
+        }
+    }
 
-                            VStack {
-                                HStack {
-                                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                                        .frame(width: 16, alignment: .leading)
+    // MARK: - Data
 
-                                    Text(group.semester)
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-                                    Spacer()
-                                    VStack(alignment: .trailing) {
-                                        Text("\(group.grades.count)门课程")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                        Text("学期GPA: \(viewModel.semesterGPAs[group.semester] ?? 0.0, specifier: "%.2f")")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                                .contentShape(.rect)
-                                .onTapGesture { viewModel.toggleExpandSemester(group.semester) }
+    private func loadCourseGrades() async {
+        guard !isLoadingGrades else { return }
+        isLoadingGrades = true
+        defer { isLoadingGrades = false }
 
-                                if isExpanded {
-                                    ForEach(group.grades, id: \.courseID) { courseGrade in
-                                        Divider()
-                                        gradeCard(courseGrade: courseGrade)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .padding()
-                }
+        do {
+            let courseGrades = try await AuthManager.shared.withAuthRetry(system: .edu) {
+                try await AuthManager.shared.eduHelper.courseService.getCourseGrades(academicYearSemester: nil, courseNature: nil, courseName: "")
+            }
+            MMKVHelper.CourseGrades.cache = Cached(cachedAt: .now, value: courseGrades)
+            WidgetTimelineRefreshHelper.reloadGradeAnalysis()
+        } catch {
+            errorToast.show(message: error.localizedDescription)
+        }
+    }
+
+    private func applyGradeData(_ data: Cached<[EduHelper.CourseGrade]>?) {
+        gradeData = data
+
+        guard let data else {
+            expandedSemesters = []
+            selectedCourseIDs = []
+            isSelectionMode = false
+            return
+        }
+
+        expandedSemesters = Set(data.value.map { $0.semester })
+    }
+
+    private func computeSemesterGPAs(_ grades: [EduHelper.CourseGrade]) -> [String: Double] {
+        Dictionary(grouping: grades, by: { $0.semester }).reduce(into: [:]) { result, entry in
+            let totalCredits = entry.value.reduce(0) { $0 + $1.credit }
+            let totalGradePoints = entry.value.reduce(0) { $0 + $1.gradePoint * $1.credit }
+            result[entry.key] = totalCredits > 0 ? totalGradePoints / totalCredits : 0.0
+        }
+    }
+
+    // MARK: - Selection
+
+    private func toggleExpandSemester(_ semester: String) {
+        withAnimation {
+            if expandedSemesters.contains(semester) {
+                expandedSemesters.remove(semester)
             } else {
-                if viewModel.searchText.isEmpty {
-                    ContentUnavailableView("暂无成绩记录", systemImage: "doc.text.magnifyingglass", description: Text("没有找到成绩记录"))
-                } else {
-                    ContentUnavailableView.search(text: viewModel.searchText)
-                }
+                expandedSemesters.insert(semester)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .safeAreaInset(edge: .top) {
-            statsSection
-                .padding(.horizontal)
-                .padding(.vertical)
-                .apply { view in
-                    if #available(iOS 26.0, macOS 26.0, *) {
-                        view
-                            .glassEffect()
-                            .padding(.horizontal)
-                    } else {
-                        view.background(.ultraThinMaterial)
-                    }
-                }
-                .frame(maxWidth: 700)
+    }
+
+    private func enterSelectionMode() {
+        selectedCourseIDs = Set(filteredGrades.map { $0.courseID })
+        isSelectionMode = true
+    }
+
+    private func exitSelectionMode() {
+        isSelectionMode = false
+        selectedCourseIDs.removeAll()
+    }
+
+    private func selectAll() {
+        selectedCourseIDs = Set(filteredGrades.map { $0.courseID })
+    }
+
+    private func selectNone() {
+        selectedCourseIDs.removeAll()
+    }
+
+    private func toggleSelection(for courseID: String) {
+        withAnimation {
+            if selectedCourseIDs.contains(courseID) {
+                selectedCourseIDs.remove(courseID)
+            } else {
+                selectedCourseIDs.insert(courseID)
+            }
         }
+    }
+
+    // MARK: - Export
+
+    private func exportGradesAsCSV() {
+        guard let csvString = makeCSVString(from: filteredGrades) else {
+            errorToast.show(message: "没有可导出的成绩数据")
+            return
+        }
+
+        guard let csvData = csvString.data(using: .utf8) else {
+            errorToast.show(message: "无法将CSV数据编码为UTF-8")
+            return
+        }
+
         #if os(iOS)
-        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "搜索课程")
+        let temporaryDirectory = FileManager.default.temporaryDirectory
+        let fileName = "成绩导出-\(Date().formatted(date: .numeric, time: .shortened)).csv"
+        let sanitizedFileName = fileName.replacingOccurrences(of: "/", with: "-")
+        let fileURL = temporaryDirectory.appendingPathComponent(sanitizedFileName)
+
+        do {
+            try csvData.write(to: fileURL)
+            shareContent = fileURL
+            isShareSheetPresented = true
+        } catch {
+            errorToast.show(message: "无法保存临时的CSV文件: \(error.localizedDescription)")
+        }
         #elseif os(macOS)
-        .searchable(text: $viewModel.searchText, placement: .toolbar, prompt: "搜索课程")
+        let savePanel = NSSavePanel()
+        savePanel.title = "导出成绩表格"
+        savePanel.nameFieldStringValue = "成绩导出-\(Date().formatted(date: .numeric, time: .shortened)).csv"
+        savePanel.allowedContentTypes = [.commaSeparatedText]
+        savePanel.canCreateDirectories = true
+
+        savePanel.begin { response in
+            guard response == .OK, let url = savePanel.url else { return }
+
+            do {
+                try csvData.write(to: url)
+            } catch {
+                Task { @MainActor in
+                    errorToast.show(message: "无法保存CSV文件: \(error.localizedDescription)")
+                }
+            }
+        }
         #endif
-        .safeRefreshable { await viewModel.loadCourseGrades() }
-        .errorToast($viewModel.errorToast)
-        .task { await viewModel.loadInitial() }
-        .toolbar {
-            if viewModel.isSelectionMode {
-                selectionToolbar()
-            } else {
-                mainToolbar()
-            }
-        }
-        #if os(iOS)
-        .sheet(isPresented: $viewModel.isShareSheetPresented) { ShareSheet(items: [viewModel.shareContent ?? "分享错误"]) }
-        #endif
-        .navigationTitle("成绩查询")
-        .navigationSubtitleCompat("共\(viewModel.gradeData?.value.count ?? 0)门课程成绩")
-        .inlineToolbarTitle()
     }
 
-    // MARK: - Stat Item
+    private func makeCSVString(from courseGrades: [EduHelper.CourseGrade]) -> String? {
+        guard !courseGrades.isEmpty else { return nil }
 
-    @ViewBuilder
-    private func statItem(title: String, value: String, color: Color) -> some View {
-        VStack(alignment: .center, spacing: 8) {
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-            Text(value)
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(color)
+        let header = "开课学期,课程编号,课程名称,分组名,成绩,详细成绩链接,修读方式,成绩标识,学分,总学时,绩点,补重学期,考核方式,考试性质,课程属性,课程性质,课程类别\n"
+        let rows = courseGrades.map { grade in
+            [
+                escapeCSVField(grade.semester),
+                escapeCSVField(grade.courseID),
+                escapeCSVField(grade.courseName),
+                escapeCSVField(grade.groupName),
+                "\(grade.grade)",
+                escapeCSVField(grade.gradeDetailUrl),
+                escapeCSVField(grade.studyMode),
+                escapeCSVField(grade.gradeIdentifier),
+                "\(grade.credit)",
+                "\(grade.totalHours)",
+                "\(grade.gradePoint)",
+                escapeCSVField(grade.retakeSemester),
+                escapeCSVField(grade.assessmentMethod),
+                escapeCSVField(grade.examNature),
+                escapeCSVField(grade.courseAttribute),
+                escapeCSVField(grade.courseNature.rawValue),
+                escapeCSVField(grade.courseCategory),
+            ].joined(separator: ",")
         }
-        .frame(maxWidth: .infinity)
+
+        return header + rows.joined(separator: "\n")
     }
 
-    // MARK: - Stats Section
-
-    @ViewBuilder
-    private var statsSection: some View {
-        VStack(alignment: .center) {
-            if let analysis = viewModel.gradeAnalysis {
-                HStack(spacing: 10) {
-                    statItem(title: "GPA", value: String(format: "%.2f", analysis.overallGPA), color: ColorUtil.dynamicColor(point: analysis.overallGPA))
-                    statItem(title: "平均成绩", value: String(format: "%.2f", analysis.overallAverageGrade), color: ColorUtil.dynamicColor(grade: analysis.overallAverageGrade))
-                    statItem(title: "加权平均成绩", value: String(format: "%.2f", analysis.weightedAverageGrade), color: ColorUtil.dynamicColor(grade: analysis.weightedAverageGrade))
-                    statItem(title: "已修总学分", value: String(format: "%.1f", analysis.totalCredits), color: .blue)
-                    statItem(title: "课程总数", value: "\(analysis.totalCourses)", color: .purple)
-                }
-                .frame(maxWidth: .infinity)
-            } else {
-                HStack(spacing: 10) {
-                    statItem(title: "GPA", value: "0.0", color: .primary)
-                    statItem(title: "平均成绩", value: "0.0", color: .primary)
-                    statItem(title: "加权平均成绩", value: "0.0", color: .primary)
-                    statItem(title: "已修总学分", value: "0.0", color: .primary)
-                    statItem(title: "课程总数", value: "0", color: .primary)
-                }
-                .frame(maxWidth: .infinity)
-                .redacted(reason: viewModel.isLoadingGrades ? .placeholder : [])
-            }
+    private func escapeCSVField(_ field: String) -> String {
+        let escapedField = field.replacingOccurrences(of: "\"", with: "\"\"")
+        if escapedField.contains(",") || escapedField.contains("\"") {
+            return "\"\(escapedField)\""
         }
-    }
-
-    // MARK: - Grade Card Content
-
-    @ViewBuilder
-    private func gradeCardContent(courseGrade: EduHelper.CourseGrade) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text(courseGrade.courseAttribute)
-                        .font(.caption2)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 2)
-                        .background(Color.accentColor.opacity(0.2))
-                        .foregroundColor(Color.accentColor)
-                        .cornerRadius(4)
-                    Text(courseGrade.courseName)
-                        .font(.headline)
-                }
-                if !courseGrade.groupName.isEmpty {
-                    Text("(\(courseGrade.groupName))")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-
-                HStack(spacing: 20) {
-                    HStack(spacing: 4) {
-                        Text("学分：")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(String(format: "%.1f", courseGrade.credit))
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundColor(.secondary)
-                    }
-                    HStack(spacing: 4) {
-                        Text("绩点：")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(String(format: "%.1f", courseGrade.gradePoint))
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundColor(ColorUtil.dynamicColor(point: courseGrade.gradePoint))
-                    }
-                }
-            }
-
-            Spacer()
-
-            Text("\(courseGrade.grade)分")
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(ColorUtil.dynamicColor(grade: Double(courseGrade.grade)))
-        }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 8)
-    }
-
-    // MARK: - Grade Card
-
-    @ViewBuilder
-    private func gradeCard(courseGrade: EduHelper.CourseGrade) -> some View {
-        if viewModel.isSelectionMode {
-            Button {
-                viewModel.toggleSelection(for: courseGrade.courseID)
-            } label: {
-                gradeCardContent(courseGrade: courseGrade)
-                    .contentShape(.rect)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(viewModel.isSelected(courseGrade.courseID) ? Color.gray.opacity(0.2) : Color.clear)
-                    )
-            }
-            .buttonStyle(.plain)
-        } else {
-            NavigationLink(value: AppRoute.features(.education(.gradeQuery(.detail(courseGrade))))) {
-                gradeCardContent(courseGrade: courseGrade)
-                    .contentShape(.rect)
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    // MARK: - Main Toolbar
-
-    @ToolbarContentBuilder
-    private func mainToolbar() -> some ToolbarContent {
-        ToolbarItemGroup(placement: .secondaryAction) {
-            Button(action: viewModel.enterSelectionMode) {
-                Label("选择", systemImage: "checkmark.circle")
-            }
-            .disabled(viewModel.isLoadingGrades || viewModel.gradeData?.value.isEmpty == true)
-            Button(action: viewModel.exportGradesAsCSV) {
-                Label("导出表格", systemImage: "doc.plaintext")
-            }
-            .disabled(viewModel.isLoadingGrades || viewModel.gradeData?.value.isEmpty == true)
-        }
-        ToolbarItem(placement: .primaryAction) {
-            Button(asyncAction: viewModel.loadCourseGrades) {
-                if viewModel.isLoadingGrades {
-                    ProgressView().smallControlSizeOnMac()
-                } else {
-                    Label("查询", systemImage: "arrow.clockwise")
-                }
-            }
-            .disabled(viewModel.isLoadingGrades)
-        }
-    }
-
-    // MARK: - Selection Toolbar
-
-    @ToolbarContentBuilder
-    private func selectionToolbar() -> some ToolbarContent {
-        ToolbarItem(placement: .cancellationAction) {
-            Button("取消") { viewModel.exitSelectionMode() }
-        }
-
-        ToolbarItemGroup(placement: .primaryAction) {
-            Button("全选") { viewModel.selectAll() }
-            Button("全不选") { viewModel.selectNone() }
-        }
+        return escapedField
     }
 }
