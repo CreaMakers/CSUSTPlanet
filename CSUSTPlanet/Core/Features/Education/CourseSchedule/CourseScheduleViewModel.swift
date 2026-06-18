@@ -52,18 +52,6 @@ class CourseScheduleViewModel {
 
     var courseColors: [String: Color] = [:]
 
-    // 当日日期
-    // #if DEBUG
-    //     let today: Date = {
-    //         let dateFormatter = DateFormatter()
-    //         dateFormatter.dateFormat = "yyyy-MM-dd"
-    //         // 调试时使用固定日期
-    //         return dateFormatter.date(from: "2025-09-15")!
-    //     }()
-    // #else
-    @ObservationIgnored let today: Date = .now
-    // #endif
-
     // 当前日期在第几周
     var realCurrentWeek: Int? = nil
 
@@ -138,31 +126,15 @@ class CourseScheduleViewModel {
             return
         }
 
-        updateSchedules(data.value.semesterStartDate, data.value.courses)
-    }
-
-    private func updateSchedules(_ semesterStartDate: Date, _ courses: [EduHelper.Course]) {
-        self.realCurrentWeek = CourseScheduleUtil.getCurrentWeek(semesterStartDate: semesterStartDate, now: today)
+        self.realCurrentWeek = CourseScheduleUtil.getCurrentWeek(semesterStartDate: data.value.semesterStartDate, now: .now)
 
         // 为每门课程分配颜色
-        courseColors = ColorUtil.getCourseColors(courses)
+        courseColors = ColorUtil.getCourseColors(data.value.courses)
 
         // 自动跳转到当前周
         if let week = realCurrentWeek {
             withAnimation {
                 self.currentWeek = week
-            }
-        }
-    }
-
-    func goToCurrentWeek() {
-        if let realWeek = realCurrentWeek, realWeek > 0 && realWeek <= CourseScheduleUtil.weekCount {
-            withAnimation(.snappy(duration: 0.15, extraBounce: 0)) {
-                self.currentWeek = realWeek
-            }
-        } else {
-            withAnimation(.snappy(duration: 0.15, extraBounce: 0)) {
-                self.currentWeek = 1
             }
         }
     }

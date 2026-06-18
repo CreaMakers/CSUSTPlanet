@@ -1,0 +1,55 @@
+//
+//  CourseScheduleScrollTable.swift
+//  CSUSTPlanet
+//
+//  Created by Zachary Liu on 2026/6/18.
+//
+
+import SwiftUI
+
+struct CourseScheduleScrollTable: View {
+    let semesterStartDate: Date
+    let weeklyCourses: [Int: [CourseDisplayInfo]]
+    let courseColors: [String: Color]
+
+    @Binding var currentWeek: Int
+    @Binding var isCourseDetailPresented: Bool
+    @Binding var selectedCourseInfo: CourseDisplayInfo?
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 0) {
+                ForEach(1...CourseScheduleUtil.weekCount, id: \.self) { week in
+                    CourseScheduleTable(
+                        semesterStartDate: semesterStartDate,
+                        targetWeek: week,
+                        weeklyCourses: weeklyCourses,
+                        courseColors: courseColors,
+                        isCourseDetailPresented: $isCourseDetailPresented,
+                        selectedCourseInfo: $selectedCourseInfo
+                    )
+                    .containerRelativeFrame(.horizontal)
+                }
+            }
+            .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(
+            id: Binding<Int?>(
+                get: { currentWeek },
+                set: { if let newWeek = $0 { currentWeek = newWeek } }
+            )
+        )
+    }
+}
+
+#Preview("CourseScheduleScrollTable") {
+    CourseScheduleScrollTable(
+        semesterStartDate: .init(timeIntervalSince1970: 1_781_366_400),
+        weeklyCourses: [:],
+        courseColors: [:],
+        currentWeek: .constant(1),
+        isCourseDetailPresented: .constant(false),
+        selectedCourseInfo: .constant(nil)
+    )
+}
