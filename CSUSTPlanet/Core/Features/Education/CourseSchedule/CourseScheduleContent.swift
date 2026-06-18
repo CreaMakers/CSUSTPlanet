@@ -178,6 +178,7 @@ struct CourseScheduleContent: View {
         .successToast($successToast)
         .sheet(isPresented: $isCalendarSettingsSheetPresented) {
             CourseScheduleCalendarSettings(onAdd: onAddCalendar)
+                .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $isSemestersSheetPresented) {
             CourseScheduleSemesterSelect(
