@@ -84,13 +84,22 @@ struct CourseScheduleView: View {
         defer { isCourseScheduleLoading = false }
 
         do {
-            let courses = try await AuthManager.shared.withAuthRetry(system: .edu) {
+            let (courses, remarks) = try await AuthManager.shared.withAuthRetry(system: .edu) {
                 try await AuthManager.shared.eduHelper.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
             }
             let semesterStartDate = try await AuthManager.shared.withAuthRetry(system: .edu) {
                 try await AuthManager.shared.eduHelper.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
             }
-            let data = Cached<CourseScheduleData>(cachedAt: .now, value: CourseScheduleData(semester: selectedSemester, semesterStartDate: semesterStartDate, courses: courses))
+
+            let data = Cached<CourseScheduleData>(
+                cachedAt: .now,
+                value: CourseScheduleData(
+                    semester: selectedSemester,
+                    semesterStartDate: semesterStartDate,
+                    courses: courses,
+                    remarks: remarks
+                )
+            )
             MMKVHelper.CourseSchedule.cache = data
             WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
 

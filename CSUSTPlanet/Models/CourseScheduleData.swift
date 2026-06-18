@@ -24,10 +24,12 @@ struct CourseScheduleData: Codable {
     var semester: String?
     var semesterStartDate: Date
     var courses: [EduHelper.Course]
+    var remarks: [String]
 
-    init(semester: String?, semesterStartDate: Date, courses: [EduHelper.Course]) {
+    init(semester: String?, semesterStartDate: Date, courses: [EduHelper.Course], remarks: [String]) {
         self.semester = semester
         self.semesterStartDate = semesterStartDate
         self.courses = courses
+        self.remarks = remarks
     }
 }
