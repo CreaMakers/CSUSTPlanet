@@ -28,12 +28,7 @@ struct CourseOverviewView: View {
             CourseScheduleDetailView(
                 course: courseInfo.course,
                 session: courseInfo.session,
-                isShowingToolbar: true,
-                showsCustomizationActions: false,
-                isCustomCourse: false,
-                onHideOfficialCourse: {},
-                onEditCustomCourse: {},
-                onDeleteCustomCourse: {}
+                isToolbarPresented: true,
             )
         }
     }

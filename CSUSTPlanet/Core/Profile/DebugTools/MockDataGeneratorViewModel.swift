@@ -280,7 +280,8 @@ private enum MockCourseScheduleFactory {
         CourseScheduleData(
             semester: semesterText(for: referenceDate),
             semesterStartDate: semesterStartDate(for: referenceDate),
-            courses: []
+            courses: [],
+            remarks: []
         )
     }
 
@@ -334,7 +335,8 @@ private enum MockCourseScheduleFactory {
         return CourseScheduleData(
             semester: semesterText(for: referenceDate),
             semesterStartDate: semesterStartDate(for: referenceDate),
-            courses: courses
+            courses: courses,
+            remarks: []
         )
     }
 
@@ -380,7 +382,8 @@ private enum MockCourseScheduleFactory {
         return CourseScheduleData(
             semester: semesterText(for: referenceDate),
             semesterStartDate: semesterStartDate(for: referenceDate),
-            courses: courses
+            courses: courses,
+            remarks: []
         )
     }
 

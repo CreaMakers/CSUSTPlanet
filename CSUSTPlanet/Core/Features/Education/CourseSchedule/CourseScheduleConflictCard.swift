@@ -1,18 +1,20 @@
 //
-//  ConflictCourseCardView.swift
+//  CourseScheduleConflictCard.swift
 //  CSUSTPlanet
 //
-//  Created by Zachary Liu on 2026/4/1.
+//  Created by Zachary Liu on 2026/6/18.
 //
 
+import CSUSTKit
 import SwiftUI
 
-struct ConflictCourseCardView: View {
+struct CourseScheduleConflictCard: View {
     let courses: [CourseDisplayInfo]
-    let isPad: Bool
     let onSelect: (CourseDisplayInfo) -> Void
 
     @State private var isShowingPopover = false
+
+    @Environment(\.courseScheduleLayoutConfig) private var layoutConfig
 
     var body: some View {
         #if os(macOS)
@@ -44,18 +46,34 @@ struct ConflictCourseCardView: View {
 
     private var cardVisual: some View {
         ZStack {
-            StripedBackground(stripeColor: Color.white.opacity(0.25), backgroundColor: Color.red)
+            GeometryReader { geometry in
+                let width = geometry.size.width
+                let height = geometry.size.height
+                let diagonal = sqrt(width * width + height * height)
+                let stripeWidth: CGFloat = 6
+                let spacing = stripeWidth * 2
 
-            VStack(spacing: isPad ? 6 : 4) {
+                Path { path in
+                    for i in stride(from: -diagonal, to: diagonal, by: spacing) {
+                        path.move(to: CGPoint(x: i, y: -diagonal))
+                        path.addLine(to: CGPoint(x: i + diagonal * 2, y: diagonal))
+                    }
+                }
+                .stroke(.white.opacity(0.25), lineWidth: stripeWidth)
+                .background(.red)
+            }
+            .clipped()
+
+            VStack(spacing: layoutConfig.isWideSize ? 6 : 4) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: isPad ? 18 : 14))
+                    .font(.system(size: layoutConfig.isWideSize ? 18 : 14))
                     .foregroundColor(.white)
                 Text("课程冲突")
-                    .font(.system(size: isPad ? 14 : 11, weight: .bold))
+                    .font(.system(size: layoutConfig.isWideSize ? 14 : 11, weight: .bold))
                     .foregroundColor(.white)
             }
         }
-        .cornerRadius(isPad ? 10 : 6)
+        .cornerRadius(layoutConfig.isWideSize ? 10 : 6)
         .shadow(color: Color.red.opacity(0.3), radius: 2, x: 0, y: 1)
     }
 
@@ -120,27 +138,18 @@ struct ConflictCourseCardView: View {
     #endif
 }
 
-struct StripedBackground: View {
-    var stripeColor: Color
-    var backgroundColor: Color
+#Preview("CourseScheduleConflictCard") {
+    let sessionA = EduHelper.ScheduleSession(weeks: [1], startSection: 1, endSection: 2, dayOfWeek: .monday, classroom: "教室A")
+    let courseA = EduHelper.Course(courseName: "课程A", groupName: nil, teacher: "老师A", sessions: [sessionA])
+    let courseDisplayInfoA = CourseDisplayInfo(course: courseA, session: sessionA)
 
-    var body: some View {
-        GeometryReader { geometry in
-            let width = geometry.size.width
-            let height = geometry.size.height
-            let diagonal = sqrt(width * width + height * height)
-            let stripeWidth: CGFloat = 6
-            let spacing = stripeWidth * 2
+    let sessionB = EduHelper.ScheduleSession(weeks: [1], startSection: 1, endSection: 4, dayOfWeek: .monday, classroom: "教室B")
+    let courseB = EduHelper.Course(courseName: "课程B", groupName: nil, teacher: "老师B", sessions: [sessionB])
+    let courseDisplayInfoB = CourseDisplayInfo(course: courseB, session: sessionB)
 
-            Path { path in
-                for i in stride(from: -diagonal, to: diagonal, by: spacing) {
-                    path.move(to: CGPoint(x: i, y: -diagonal))
-                    path.addLine(to: CGPoint(x: i + diagonal * 2, y: diagonal))
-                }
-            }
-            .stroke(stripeColor, lineWidth: stripeWidth)
-            .background(backgroundColor)
-        }
-        .clipped()
-    }
+    CourseScheduleConflictCard(
+        courses: [courseDisplayInfoA, courseDisplayInfoB],
+        onSelect: { _ in }
+    )
+    .frame(width: 50, height: 150)
 }

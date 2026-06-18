@@ -11,17 +11,10 @@ import SwiftUI
 struct CourseScheduleDetailView: View {
     let course: EduHelper.Course
     let session: EduHelper.ScheduleSession
-    let isShowingToolbar: Bool
-    let showsCustomizationActions: Bool
-    let isCustomCourse: Bool
-    let onHideOfficialCourse: () -> Void
-    let onEditCustomCourse: () -> Void
-    let onDeleteCustomCourse: () -> Void
+
+    let isToolbarPresented: Bool
 
     @Environment(\.dismiss) private var dismiss
-
-    @State private var isHideConfirmationPresented = false
-    @State private var isDeleteConfirmationPresented = false
 
     private var otherSessions: [EduHelper.ScheduleSession] {
         course.sessions.filter { $0 != session }
@@ -30,7 +23,6 @@ struct CourseScheduleDetailView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // MARK: - 课程基本信息
                 Section {
                     VStack(spacing: 8) {
                         Text(course.courseName)
@@ -54,20 +46,18 @@ struct CourseScheduleDetailView: View {
                                     .padding(.vertical, 3)
                                     .background(Color.accentColor.opacity(0.12))
                                     .foregroundStyle(.primary)
-                                    .clipShape(Capsule())
+                                    .clipShape(.capsule)
                             }
                         }
                     }
                 }
 
-                // MARK: - 本次安排
                 Section("本次安排") {
-                    FormRow(label: "课程周次", value: formatWeeks(session.weeks))
+                    FormRow(label: "课程周次", value: "第\(session.weeks.map { String($0) }.joined(separator: "，"))周")
                     FormRow(label: "上课时间", value: "\(session.dayOfWeek.chineseLongString) · 第\(session.startSection)-\(session.endSection)节")
                     FormRow(label: "上课教室", value: session.classroom ?? "未安排教室")
                 }
 
-                // MARK: - 其他安排
                 if !otherSessions.isEmpty {
                     Section("其他安排") {
                         ForEach(otherSessions, id: \.self) { otherSession in
@@ -83,7 +73,7 @@ struct CourseScheduleDetailView: View {
                                         .foregroundStyle(otherSession.classroom == nil ? .secondary : .primary)
                                 }
 
-                                Text(formatWeeks(otherSession.weeks))
+                                Text("第\(otherSession.weeks.map { String($0) }.joined(separator: "，"))周")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -91,54 +81,12 @@ struct CourseScheduleDetailView: View {
                         }
                     }
                 }
-
-                if showsCustomizationActions {
-                    Section("操作") {
-                        if isCustomCourse {
-                            Button {
-                                onEditCustomCourse()
-                            } label: {
-                                Label("编辑课程", systemImage: "pencil")
-                            }
-
-                            Button {
-                                isDeleteConfirmationPresented = true
-                            } label: {
-                                Label("删除课程", systemImage: "trash")
-                                    .foregroundColor(.red)
-                            }
-                        } else {
-                            Button {
-                                isHideConfirmationPresented = true
-                            } label: {
-                                Label("隐藏此课程", systemImage: "eye.slash")
-                                    .foregroundColor(.red)
-                            }
-                        }
-                    }
-                }
             }
             .formStyle(.grouped)
             .navigationTitle("课程详情")
             .inlineToolbarTitle()
-            .alert("隐藏课程", isPresented: $isHideConfirmationPresented) {
-                Button("隐藏", role: .destructive) {
-                    onHideOfficialCourse()
-                }
-                Button("取消", role: .cancel) {}
-            } message: {
-                Text("隐藏后，这门官方课程的所有上课时间都会从课表中移除。")
-            }
-            .alert("删除课程", isPresented: $isDeleteConfirmationPresented) {
-                Button("删除", role: .destructive) {
-                    onDeleteCustomCourse()
-                }
-                Button("取消", role: .cancel) {}
-            } message: {
-                Text("删除后，这门自定义课程会从课表中移除。")
-            }
             .apply { view in
-                if isShowingToolbar {
+                if isToolbarPresented {
                     view.toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("关闭") {
@@ -154,35 +102,15 @@ struct CourseScheduleDetailView: View {
     }
 }
 
-// MARK: - Helpers
-extension CourseScheduleDetailView {
-    private func formatWeeks(_ weeks: [Int]) -> String {
-        guard !weeks.isEmpty else { return "" }
+#Preview("CourseScheduleDetailView") {
+    let sessionA = EduHelper.ScheduleSession(weeks: [1], startSection: 1, endSection: 2, dayOfWeek: .monday, classroom: "教室A")
+    let courseA = EduHelper.Course(courseName: "课程A", groupName: nil, teacher: "老师A", sessions: [sessionA])
 
-        var result = [String]()
-        var start = weeks[0]
-        var prev = weeks[0]
-
-        for week in weeks.dropFirst() {
-            if week == prev + 1 {
-                prev = week
-            } else {
-                if start == prev {
-                    result.append("第\(start)周")
-                } else {
-                    result.append("第\(start)-\(prev)周")
-                }
-                start = week
-                prev = week
-            }
-        }
-
-        if start == prev {
-            result.append("第\(start)周")
-        } else {
-            result.append("第\(start)-\(prev)周")
-        }
-
-        return result.joined(separator: ", ")
+    NavigationStack {
+        CourseScheduleDetailView(
+            course: courseA,
+            session: sessionA,
+            isToolbarPresented: true
+        )
     }
 }
