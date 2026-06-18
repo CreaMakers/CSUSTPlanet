@@ -9,7 +9,7 @@ import SwiftUI
 
 struct GradeQueryStatsSection: View {
     let analysis: GradeAnalysisData?
-    let isLoadingGrades: Bool
+    let isLoading: Bool
 
     var body: some View {
         HStack(spacing: 10) {
@@ -28,7 +28,18 @@ struct GradeQueryStatsSection: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .redacted(reason: analysis == nil && isLoadingGrades ? .placeholder : [])
+        .redacted(reason: analysis == nil && isLoading ? .placeholder : [])
+        .padding(.horizontal)
+        .padding(.vertical)
+        .apply { view in
+            if #available(iOS 26.0, macOS 26.0, *) {
+                view
+                    .glassEffect()
+                    .padding(.horizontal)
+            } else {
+                view.background(.ultraThinMaterial)
+            }
+        }
     }
 }
 
@@ -57,7 +68,7 @@ private struct GradeQueryStatItem: View {
 #Preview("GradeQueryStatsSection") {
     GradeQueryStatsSection(
         analysis: GradeAnalysisData.fromCourseGrades(GradeQueryPreviewData.grades),
-        isLoadingGrades: false
+        isLoading: false
     )
     .padding()
 }
@@ -65,7 +76,7 @@ private struct GradeQueryStatItem: View {
 #Preview("GradeQueryStatsSection Loading") {
     GradeQueryStatsSection(
         analysis: nil,
-        isLoadingGrades: true
+        isLoading: true
     )
     .padding()
 }

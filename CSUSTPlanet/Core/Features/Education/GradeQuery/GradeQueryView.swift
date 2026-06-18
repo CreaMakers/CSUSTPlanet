@@ -14,92 +14,57 @@ import AppKit
 #endif
 
 struct GradeQueryView: View {
-    @State private var gradeData: Cached<[EduHelper.CourseGrade]>?
+    @State private var grades: [EduHelper.CourseGrade]?
+
     @State private var searchText = ""
+
     @State private var expandedSemesters: Set<String> = []
+
+    @State private var isSelectionMode = false
     @State private var selectedCourseIDs: Set<String> = []
 
-    @State private var isLoadingGrades = false
-    @State private var isSelectionMode = false
+    @State private var isLoading = false
 
     @State private var errorToast = ToastState()
+
     @State private var shareContent: Any?
     @State private var isShareSheetPresented = false
 
     @State private var isInitial = true
 
-    private var courseGrades: [EduHelper.CourseGrade] {
-        gradeData?.value ?? []
-    }
-
-    private var filteredGrades: [EduHelper.CourseGrade] {
-        if searchText.isEmpty {
-            return courseGrades
-        }
-        return courseGrades.filter { $0.courseName.localizedCaseInsensitiveContains(searchText) }
-    }
-
-    private var groupedFilteredGrades: [(semester: String, grades: [EduHelper.CourseGrade])] {
-        let grouped = Dictionary(grouping: filteredGrades) { $0.semester }
-        return grouped.keys.sorted(by: >).map { (semester: $0, grades: grouped[$0] ?? []) }
-    }
-
-    private var semesterGPAs: [String: Double] {
-        computeSemesterGPAs(courseGrades)
-    }
-
-    private var gradeAnalysis: GradeAnalysisData? {
-        guard let grades = gradeData?.value else { return nil }
-
-        if isSelectionMode {
-            return GradeAnalysisData.fromCourseGrades(grades.filter { selectedCourseIDs.contains($0.courseID) })
-        }
-        return GradeAnalysisData.fromCourseGrades(grades)
-    }
-
     var body: some View {
         GradeQueryContent(
+            grades: grades,
             searchText: $searchText,
-            groupedFilteredGrades: groupedFilteredGrades,
-            expandedSemesters: expandedSemesters,
-            semesterGPAs: semesterGPAs,
-            gradeAnalysis: gradeAnalysis,
-            gradeCount: gradeData?.value.count ?? 0,
-            isLoadingGrades: isLoadingGrades,
-            areGradeActionsDisabled: isLoadingGrades || gradeData?.value.isEmpty == true,
-            isSelectionMode: isSelectionMode,
-            selectedCourseIDs: selectedCourseIDs,
+            expandedSemesters: $expandedSemesters,
+            isSelectionMode: $isSelectionMode,
+            selectedCourseIDs: $selectedCourseIDs,
+            isLoading: isLoading,
             errorToast: $errorToast,
             shareContent: shareContent,
             isShareSheetPresented: $isShareSheetPresented,
             onRefreshGrades: loadCourseGrades,
-            onToggleSemester: toggleExpandSemester,
-            onEnterSelectionMode: enterSelectionMode,
-            onExitSelectionMode: exitSelectionMode,
-            onSelectAll: selectAll,
-            onSelectNone: selectNone,
-            onToggleSelection: toggleSelection,
             onExportGrades: exportGradesAsCSV
         )
         .onReceive(MMKVHelper.CourseGrades.$cache.dropFirst().receive(on: RunLoop.main)) { data in
-            applyGradeData(data)
+            applyData(data)
         }
         .task {
             guard isInitial else {
                 return
             }
             isInitial = false
-            applyGradeData(MMKVHelper.CourseGrades.cache)
+            applyData(MMKVHelper.CourseGrades.cache)
             await loadCourseGrades()
         }
     }
 
-    // MARK: - Data
+    // MARK: - Methods
 
     private func loadCourseGrades() async {
-        guard !isLoadingGrades else { return }
-        isLoadingGrades = true
-        defer { isLoadingGrades = false }
+        guard !isLoading else { return }
+        isLoading = true
+        defer { isLoading = false }
 
         do {
             let courseGrades = try await AuthManager.shared.withAuthRetry(system: .edu) {
@@ -112,8 +77,8 @@ struct GradeQueryView: View {
         }
     }
 
-    private func applyGradeData(_ data: Cached<[EduHelper.CourseGrade]>?) {
-        gradeData = data
+    private func applyData(_ data: Cached<[EduHelper.CourseGrade]>?) {
+        grades = data?.value
 
         guard let data else {
             expandedSemesters = []
@@ -125,58 +90,8 @@ struct GradeQueryView: View {
         expandedSemesters = Set(data.value.map { $0.semester })
     }
 
-    private func computeSemesterGPAs(_ grades: [EduHelper.CourseGrade]) -> [String: Double] {
-        Dictionary(grouping: grades, by: { $0.semester }).reduce(into: [:]) { result, entry in
-            let totalCredits = entry.value.reduce(0) { $0 + $1.credit }
-            let totalGradePoints = entry.value.reduce(0) { $0 + $1.gradePoint * $1.credit }
-            result[entry.key] = totalCredits > 0 ? totalGradePoints / totalCredits : 0.0
-        }
-    }
-
-    // MARK: - Selection
-
-    private func toggleExpandSemester(_ semester: String) {
-        withAnimation {
-            if expandedSemesters.contains(semester) {
-                expandedSemesters.remove(semester)
-            } else {
-                expandedSemesters.insert(semester)
-            }
-        }
-    }
-
-    private func enterSelectionMode() {
-        selectedCourseIDs = Set(filteredGrades.map { $0.courseID })
-        isSelectionMode = true
-    }
-
-    private func exitSelectionMode() {
-        isSelectionMode = false
-        selectedCourseIDs.removeAll()
-    }
-
-    private func selectAll() {
-        selectedCourseIDs = Set(filteredGrades.map { $0.courseID })
-    }
-
-    private func selectNone() {
-        selectedCourseIDs.removeAll()
-    }
-
-    private func toggleSelection(for courseID: String) {
-        withAnimation {
-            if selectedCourseIDs.contains(courseID) {
-                selectedCourseIDs.remove(courseID)
-            } else {
-                selectedCourseIDs.insert(courseID)
-            }
-        }
-    }
-
-    // MARK: - Export
-
     private func exportGradesAsCSV() {
-        guard let csvString = makeCSVString(from: filteredGrades) else {
+        guard let grades, let csvString = makeCSVString(from: grades) else {
             errorToast.show(message: "没有可导出的成绩数据")
             return
         }

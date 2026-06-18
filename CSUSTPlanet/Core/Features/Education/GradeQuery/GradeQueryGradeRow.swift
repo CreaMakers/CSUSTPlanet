@@ -11,12 +11,13 @@ import SwiftUI
 struct GradeQueryGradeRow: View {
     let courseGrade: EduHelper.CourseGrade
     let isSelectionMode: Bool
-    let isSelected: Bool
-    let onToggleSelection: () -> Void
+    @Binding var isSelected: Bool
 
     var body: some View {
         if isSelectionMode {
-            Button(action: onToggleSelection) {
+            Button {
+                isSelected.toggle()
+            } label: {
                 GradeQueryGradeRowContent(courseGrade: courseGrade)
                     .contentShape(.rect)
                     .background(
@@ -100,8 +101,7 @@ private struct GradeQueryGradeRowContent: View {
         GradeQueryGradeRow(
             courseGrade: GradeQueryPreviewData.grades[0],
             isSelectionMode: false,
-            isSelected: false,
-            onToggleSelection: {}
+            isSelected: .constant(false)
         )
         .padding()
     }
@@ -111,8 +111,7 @@ private struct GradeQueryGradeRowContent: View {
     GradeQueryGradeRow(
         courseGrade: GradeQueryPreviewData.grades[0],
         isSelectionMode: true,
-        isSelected: true,
-        onToggleSelection: {}
+        isSelected: .constant(true)
     )
     .padding()
 }
