@@ -5,6 +5,7 @@
 //  Created by Zachary Liu on 2026/6/18.
 //
 
+import CSUSTKit
 import SwiftUI
 
 struct CourseScheduleConflictCard: View {
@@ -135,4 +136,20 @@ struct CourseScheduleConflictCard: View {
         .padding(.bottom, 8)
     }
     #endif
+}
+
+#Preview("CourseScheduleConflictCard") {
+    let sessionA = EduHelper.ScheduleSession(weeks: [1], startSection: 1, endSection: 2, dayOfWeek: .monday, classroom: "教室A")
+    let courseA = EduHelper.Course(courseName: "课程A", groupName: nil, teacher: "老师A", sessions: [sessionA])
+    let courseDisplayInfoA = CourseDisplayInfo(course: courseA, session: sessionA)
+
+    let sessionB = EduHelper.ScheduleSession(weeks: [1], startSection: 1, endSection: 4, dayOfWeek: .monday, classroom: "教室B")
+    let courseB = EduHelper.Course(courseName: "课程B", groupName: nil, teacher: "老师B", sessions: [sessionB])
+    let courseDisplayInfoB = CourseDisplayInfo(course: courseB, session: sessionB)
+
+    CourseScheduleConflictCard(
+        courses: [courseDisplayInfoA, courseDisplayInfoB],
+        onSelect: { _ in }
+    )
+    .frame(width: 50, height: 150)
 }

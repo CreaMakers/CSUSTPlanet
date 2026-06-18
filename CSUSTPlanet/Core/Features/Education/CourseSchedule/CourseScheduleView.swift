@@ -32,190 +32,47 @@ struct CourseScheduleView: View {
     @State private var realCurrentWeek: Int? = nil
 
     @State private var errorToast: ToastState = .errorTitle
-    @State private var loadingToast: ToastState = .init(title: "添加中")
-    @State private var successToast: ToastState = .init(title: "添加成功")
+    @State private var loadingToast: ToastState = .loadingTitle
+    @State private var successToast: ToastState = .successTitle
 
     @State private var isInitial: Bool = true
 
     @Environment(\.horizontalSizeClass) private var sizeClass
 
     var body: some View {
-        let isWideSize = (sizeClass == .regular)
-        let layoutConfig = CourseScheduleLayoutConfig(
-            isWideSize: isWideSize,
-            colSpacing: isWideSize ? 4 : 2,
-            rowSpacing: isWideSize ? 4 : 2,
-            horizontalPadding: 5,
-            timeColWidth: isWideSize ? 50 : 30,
-            sectionHeight: isWideSize ? 90 : 60
+        CourseScheduleContent(
+            isSemestersSheetPresented: $isSemestersSheetPresented,
+            isCalendarSettingsSheetPresented: $isCalendarSettingsSheetPresented,
+            isCourseDetailPresented: $isCourseDetailPresented,
+            selectedCourseInfo: $selectedCourseInfo,
+            weeklyCourses: weeklyCourses,
+            courseColors: courseColors,
+            semesterStartDate: semesterStartDate,
+            availableSemesters: availableSemesters,
+            selectedSemester: $selectedSemester,
+            isSemestersLoading: isSemestersLoading,
+            isCourseScheduleLoading: isCourseScheduleLoading,
+            currentWeek: $currentWeek,
+            realCurrentWeek: realCurrentWeek,
+            errorToast: $errorToast,
+            loadingToast: $loadingToast,
+            successToast: $successToast,
+            onRefreshCourses: loadCourses,
+            onRefreshSemesters: loadAvailableSemesters,
+            onAddCalendar: addToCalendar
         )
-
-        VStack(spacing: 0) {
-            CourseScheduleControlBar(
-                selectedSemester: selectedSemester,
-                realCurrentWeek: realCurrentWeek,
-                currentWeek: $currentWeek
-            )
-
-            if let weeklyCourses = weeklyCourses,
-                let semesterStartDate = semesterStartDate
-            {
-                HStack {
-                    #if os(macOS)
-                    Button {
-                        let newWeek = currentWeek - 1
-                        if newWeek >= 1 && newWeek <= CourseScheduleUtil.weekCount {
-                            withAnimation {
-                                currentWeek = newWeek
-                            }
-                        }
-                    } label: {
-                        GroupBox {
-                            Image(systemName: "chevron.left")
-                                .font(.title2.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                                .frame(maxHeight: .infinity)
-                                .frame(width: 32)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(currentWeek <= 1)
-                    .keyboardShortcut(.leftArrow, modifiers: [])
-                    #endif
-
-                    CourseScheduleScrollTable(
-                        semesterStartDate: semesterStartDate,
-                        weeklyCourses: weeklyCourses,
-                        courseColors: courseColors,
-                        currentWeek: $currentWeek,
-                        isCourseDetailPresented: $isCourseDetailPresented,
-                        selectedCourseInfo: $selectedCourseInfo
-                    )
-
-                    #if os(macOS)
-                    Button {
-                        let newWeek = currentWeek + 1
-                        if newWeek >= 1 && newWeek <= CourseScheduleUtil.weekCount {
-                            withAnimation {
-                                currentWeek = newWeek
-                            }
-                        }
-                    } label: {
-                        GroupBox {
-                            Image(systemName: "chevron.right")
-                                .font(.title2.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                                .frame(maxHeight: .infinity)
-                                .frame(width: 32)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(currentWeek >= CourseScheduleUtil.weekCount)
-                    .keyboardShortcut(.rightArrow, modifiers: [])
-                    #endif
-                }
-            } else {
-                ContentUnavailableView("暂无课表数据", systemImage: "doc.text.magnifyingglass", description: Text("当前筛选条件下没有找到课程"))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
-        .environment(\.courseScheduleLayoutConfig, layoutConfig)
-        .apply { view in
-            if !isWideSize {
-                view.sheet(isPresented: $isCourseDetailPresented) {
-                    sheetContent
-                }
-            } else {
-                view.inspector(isPresented: $isCourseDetailPresented) {
-                    sheetContent
-                        #if os(macOS)
-                    .inspectorColumnWidth(min: 200, ideal: 250, max: 300)
-                        #elseif os(iOS)
-                    .inspectorColumnWidth(min: 300, ideal: 400, max: 500)
-                        #endif
-                }
-            }
-        }
-        .onChange(of: isWideSize) { _, isWideSize in
-            if isWideSize {
-                Task { @MainActor in
-                    isCourseDetailPresented = true
-                }
-            }
-        }
-        .navigationTitle("我的课表")
-        .navigationSubtitleCompat(selectedSemester == nil ? "默认学期" : "学期" + (selectedSemester ?? ""))
-        .inlineToolbarTitle()
-        .toolbar {
-            ToolbarItemGroup(placement: .secondaryAction) {
-                Button(action: { isSemestersSheetPresented = true }) {
-                    Label("学期选择", systemImage: "gearshape")
-                }
-                .disabled(isSemestersLoading)
-
-                Button(action: { isCalendarSettingsSheetPresented = true }) {
-                    Label("添加课表到系统日历", systemImage: "calendar.badge.plus")
-                }
-                .disabled(isSemestersLoading)
-            }
-
-            ToolbarItem(placement: .primaryAction) {
-                Button(asyncAction: loadCourses) {
-                    if isCourseScheduleLoading {
-                        ProgressView().smallControlSizeOnMac()
-                    } else {
-                        Label("刷新", systemImage: "arrow.clockwise")
-                    }
-                }
-                .disabled(isCourseScheduleLoading)
-            }
-        }
-        .onAppear {
-            if isWideSize {
-                isCourseDetailPresented = true
-            }
-        }
         .onReceive(MMKVHelper.CourseSchedule.$cache.receive(on: RunLoop.main)) { data in
-            applyCourseScheduleCache(data)
+            applyData(data)
         }
-        .task { await loadInitial() }
-        .errorToast($errorToast)
-        .loadingToast($loadingToast)
-        .successToast($successToast)
-        .sheet(isPresented: $isCalendarSettingsSheetPresented) {
-            CourseScheduleCalendarSettings(onAdd: addToCalendar)
-        }
-        .sheet(isPresented: $isSemestersSheetPresented) {
-            CourseScheduleSemesterSelect(
-                selectedSemester: $selectedSemester,
-                availableSemesters: availableSemesters,
-                isLoading: isSemestersLoading,
-                onRefresh: loadAvailableSemesters,
-                onComplete: loadCourses
-            )
-            .presentationDetents([.medium, .large])
-        }
-    }
-
-    @ViewBuilder
-    var sheetContent: some View {
-        if let courseInfo = selectedCourseInfo {
-            CourseScheduleDetailView(
-                course: courseInfo.course,
-                session: courseInfo.session,
-                isToolbarPresented: sizeClass == .compact,
-            )
-        } else {
-            ContentUnavailableView("请选择课程查看详情", systemImage: "doc.text.magnifyingglass")
-        }
-    }
-
-    private func loadInitial() async {
-        guard isInitial else { return }
-        isInitial = false
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask { await self.loadAvailableSemesters() }
-            group.addTask { await self.loadCourses() }
+        .task {
+            guard isInitial else {
+                return
+            }
+            isInitial = false
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask { await self.loadAvailableSemesters() }
+                group.addTask { await self.loadCourses() }
+            }
         }
     }
 
@@ -253,11 +110,13 @@ struct CourseScheduleView: View {
         }
     }
 
-    private func applyCourseScheduleCache(_ data: Cached<CourseScheduleData>?) {
+    private func applyData(_ data: Cached<CourseScheduleData>?) {
         guard let data else {
+            courses = nil
+            weeklyCourses = nil
+            semesterStartDate = nil
             realCurrentWeek = nil
             courseColors = [:]
-            currentWeek = 1
             return
         }
 
