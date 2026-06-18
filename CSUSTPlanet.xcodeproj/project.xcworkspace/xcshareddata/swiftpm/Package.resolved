@@ -33,7 +33,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zHElEARN/CSUSTKit.git",
       "state" : {
-        "revision" : "ad07d6c17d52722055f702c30b913132405e3d30",
+        "revision" : "c53ca2cad4dd5d267f7ff8540dd9024de8642974",
         "version" : "2.1.2"
       }
     },
