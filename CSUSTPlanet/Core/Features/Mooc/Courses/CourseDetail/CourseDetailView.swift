@@ -40,7 +40,7 @@ struct CourseDetailView: View {
         #if os(iOS)
         .sheet(isPresented: $isCoursePagePresented) {
             NavigationStack {
-                TodoAssignmentsCoursePageView(courseID: course.id)
+                TodoAssignmentsCoursePage(courseID: course.id)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("关闭") {

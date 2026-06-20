@@ -1,5 +1,5 @@
 //
-//  TodoAssignmentsNotificationSettingsView.swift
+//  TodoAssignmentsNotificationSettings.swift
 //  CSUSTPlanet
 //
 //  Created by OpenCode on 2026/4/4.
@@ -7,18 +7,26 @@
 
 import SwiftUI
 
-struct TodoAssignmentsNotificationSettingsView: View {
-    let viewModel: TodoAssignmentsViewModel
+struct TodoAssignmentsNotificationSettings: View {
+    let onCancel: () -> Void
+    let onSave: (Bool, Int, Int) async -> Void
 
     @State private var enabled: Bool
     @State private var selectedHour: Int
     @State private var selectedMinute: Int
 
-    init(viewModel: TodoAssignmentsViewModel) {
-        self.viewModel = viewModel
-        _enabled = State(initialValue: viewModel.isTodoAssignmentsNotificationEnabled)
-        _selectedHour = State(initialValue: viewModel.reminderOffsetHour)
-        _selectedMinute = State(initialValue: viewModel.reminderOffsetMinute)
+    init(
+        isEnabled: Bool = MMKVHelper.TodoAssignments.isNotificationEnabled,
+        reminderOffsetHour: Int = MMKVHelper.TodoAssignments.notificationOffsetHour,
+        reminderOffsetMinute: Int = MMKVHelper.TodoAssignments.notificationOffsetMinute,
+        onCancel: @escaping () -> Void,
+        onSave: @escaping (Bool, Int, Int) async -> Void
+    ) {
+        self.onCancel = onCancel
+        self.onSave = onSave
+        _enabled = State(initialValue: isEnabled)
+        _selectedHour = State(initialValue: Self.clampedReminderOffsetHour(reminderOffsetHour))
+        _selectedMinute = State(initialValue: Self.clampedReminderOffsetMinute(reminderOffsetMinute))
     }
 
     var body: some View {
@@ -81,21 +89,14 @@ struct TodoAssignmentsNotificationSettingsView: View {
             .inlineToolbarTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") {
-                        viewModel.isNotificationSettingsPresented = false
-                    }
+                    Button("取消", action: onCancel)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") {
-                        Task {
-                            await viewModel.saveNotificationSettings(
-                                enabled: enabled,
-                                hour: selectedHour,
-                                minute: selectedMinute
-                            )
-                            viewModel.isNotificationSettingsPresented = false
-                        }
-                    }
+                    Button(
+                        "保存",
+                        asyncAction: {
+                            await onSave(enabled, selectedHour, selectedMinute)
+                        })
                 }
             }
         }
@@ -115,4 +116,22 @@ struct TodoAssignmentsNotificationSettingsView: View {
         }
         return "提前 \(components.joined(separator: " ")) 提醒"
     }
+
+    private static func clampedReminderOffsetHour(_ hour: Int) -> Int {
+        min(max(hour, 0), 72)
+    }
+
+    private static func clampedReminderOffsetMinute(_ minute: Int) -> Int {
+        min(max(minute, 0), 59)
+    }
+}
+
+#Preview("TodoAssignmentsNotificationSettings") {
+    TodoAssignmentsNotificationSettings(
+        isEnabled: true,
+        reminderOffsetHour: 2,
+        reminderOffsetMinute: 30,
+        onCancel: {},
+        onSave: { _, _, _ in }
+    )
 }

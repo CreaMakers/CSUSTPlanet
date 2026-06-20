@@ -75,12 +75,12 @@ final class AssignmentOverviewViewModel {
             let data = Cached(cachedAt: .now, value: newGroups)
             MMKVHelper.TodoAssignments.cache = data
             WidgetTimelineRefreshHelper.reloadTodoAssignments()
-            let drafts = TodoAssignmentsViewModel.buildLocalNotificationDrafts(
+            let drafts = TodoAssignmentsNotificationHelper.buildLocalNotificationDrafts(
                 groups: data.value,
                 reminderOffsetHour: MMKVHelper.TodoAssignments.notificationOffsetHour,
                 reminderOffsetMinute: MMKVHelper.TodoAssignments.notificationOffsetMinute
             )
-            await TodoAssignmentsViewModel.syncTodoNotificationsSilently(
+            await TodoAssignmentsNotificationHelper.syncTodoNotificationsSilently(
                 isNotificationEnabled: MMKVHelper.TodoAssignments.isNotificationEnabled,
                 drafts: drafts,
                 onPermissionDenied: {

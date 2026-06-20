@@ -8,316 +8,314 @@
 import CSUSTKit
 import SwiftUI
 
-struct TodoAssignmentsCoursePageView: View {
-    let courseID: String
-    @State private var webViewController = WebViewController()
-
-    var originalURL: URL? { URL(string: "http://pt.csust.edu.cn/meol/jpk/course/layout/newpage/index.jsp?courseId=\(courseID)") }
-    var vpnURL: URL? {
-        if let originalURL {
-            try? WebVPNHelper.encryptURL(originalURL)
-        } else {
-            nil
-        }
-    }
-
-    var url: URL? {
-        if MMKVHelper.GlobalManager.isWebVPNModeEnabled {
-            vpnURL
-        } else {
-            originalURL
-        }
-    }
-
-    var body: some View {
-        Group {
-            if let url {
-                WebView(
-                    url: url,
-                    cookies: CookieHelper.shared.session.session.configuration.httpCookieStorage?.cookies,
-                    controller: webViewController
-                )
-            } else {
-                ContentUnavailableView("无法打开课程页面", systemImage: "exclamationmark.triangle", description: Text("课程链接无效"))
-            }
-        }
-        .navigationTitle("课程页面")
-        .inlineToolbarTitle()
-        .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button(action: { webViewController.goBack() }) {
-                    Label("上一页", systemImage: "chevron.left")
-                }
-                .disabled(!webViewController.canGoBack)
-
-                Button(action: { webViewController.goForward() }) {
-                    Label("下一页", systemImage: "chevron.right")
-                }
-                .disabled(!webViewController.canGoForward)
-            }
-
-            ToolbarItem(placement: .primaryAction) {
-                Button(action: { webViewController.reload() }) {
-                    if webViewController.isLoading {
-                        ProgressView().smallControlSizeOnMac()
-                    } else {
-                        Label("刷新", systemImage: "arrow.clockwise")
-                    }
-                }
-            }
-        }
-    }
-}
-
-#if os(macOS)
-struct TodoAssignmentsCoursePageScene: Scene {
-    static let windowID = "todo-assignments.course-page"
-
-    var body: some Scene {
-        WindowGroup("课程页面", id: Self.windowID, for: String.self) { $courseID in
-            NavigationStack {
-                if let courseID {
-                    TodoAssignmentsCoursePageView(courseID: courseID)
-                } else {
-                    ContentUnavailableView("未选择课程", systemImage: "book.closed", description: Text("请从待提交作业页面重新打开课程页面"))
-                }
-            }
-            .frame(minWidth: 960, minHeight: 540)
-        }
-        .defaultSize(width: 1280, height: 720)
-        .windowResizability(.contentMinSize)
-    }
-}
-#endif
-
 struct TodoAssignmentsView: View {
     #if os(macOS)
     @Environment(\.openWindow) private var openWindow
     #endif
 
-    @State private var viewModel = TodoAssignmentsViewModel()
+    @State private var todoAssignmentsData: Cached<[TodoAssignmentsData]>?
+    @State private var submittableAssignmentsCount = 0
+    @State private var assignmentsReferenceDate = Date.now
+    @State private var expandedCourseIDs: Set<String> = []
+    @State private var showAllAssignmentsCourseIDs: Set<String> = []
+
+    @State private var selectedCourseID: String?
+    @State private var isCoursePagePresented = false
+
+    @State private var isLoadingAssignments = false
+    @State private var errorToast: ToastState = .errorTitle
+
+    @State private var isNotificationDeniedAlertPresented = false
+    @State private var isNotificationSettingsPresented = false
+
+    @State private var isInitial = true
 
     var body: some View {
-        Group {
-            Form {
-                if let courseGroups = viewModel.todoAssignmentsData?.value, !courseGroups.isEmpty {
-                    ForEach(courseGroups, id: \.course.id) { group in
-                        Section {
-                            DisclosureGroup(isExpanded: bindingForCourse(group.course.id)) {
-                                let assignments = viewModel.displayedAssignments(for: group)
-                                let isShowingAllAssignments = viewModel.isShowingAllAssignments(courseID: group.course.id)
-                                let hasHiddenAssignments = assignments.count < group.assignments.count
-
-                                ForEach(assignments.indices, id: \.self) { index in
-                                    AssignmentInfoView(assignment: assignments[index])
-                                }
-
-                                if hasHiddenAssignments || isShowingAllAssignments {
-                                    Button {
-                                        withAnimation { viewModel.toggleShowAllAssignments(courseID: group.course.id) }
-                                    } label: {
-                                        HStack(spacing: 6) {
-                                            Text(isShowingAllAssignments ? "仅未截止" : "查看全部")
-                                            Image(systemName: isShowingAllAssignments ? "chevron.up" : "chevron.down")
-                                        }
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                        .frame(maxWidth: .infinity, alignment: .center)
-                                        .padding(.vertical, 6)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            } label: {
-                                HStack {
-                                    Text(group.course.name)
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-                                        .contentShape(.rect)
-                                        .onTapGesture {
-                                            withAnimation { viewModel.toggleExpanded(courseID: group.course.id) }
-                                        }
-
-                                    Spacer()
-
-                                    Button {
-                                        #if os(macOS)
-                                        openWindow(id: TodoAssignmentsCoursePageScene.windowID, value: group.course.id)
-                                        #else
-                                        viewModel.selectedCourseID = group.course.id
-                                        viewModel.isCoursePagePresented = true
-                                        #endif
-                                    } label: {
-                                        Text("前往课程")
-                                            .font(.caption)
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .controlSize(.small)
-                                }
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                } else {
-                    ContentUnavailableView("暂无待提交作业", systemImage: "book.closed", description: Text("当前没有需要提交的作业"))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-            }
-            .formStyle(.grouped)
+        TodoAssignmentsContent(
+            courseGroups: todoAssignmentsData?.value,
+            referenceDate: assignmentsReferenceDate,
+            submittableAssignmentsCount: submittableAssignmentsCount,
+            isLoadingAssignments: isLoadingAssignments,
+            expandedCourseIDs: $expandedCourseIDs,
+            showAllAssignmentsCourseIDs: $showAllAssignmentsCourseIDs,
+            errorToast: $errorToast,
+            selectedCourseID: $selectedCourseID,
+            isCoursePagePresented: $isCoursePagePresented,
+            isNotificationSettingsPresented: $isNotificationSettingsPresented,
+            isNotificationDeniedAlertPresented: $isNotificationDeniedAlertPresented,
+            onRefreshAssignments: loadTodoAssignments,
+            onSaveNotificationSettings: saveNotificationSettings,
+            onOpenCoursePage: openCoursePage,
+            onOpenNotificationSettings: openNotificationSettings
+        )
+        .onReceive(MMKVHelper.TodoAssignments.$cache.dropFirst().receive(on: RunLoop.main)) { data in
+            applyData(data)
         }
-        #if os(iOS)
-        .background(Color(PlatformColor.systemGroupedBackground))
-        #endif
-        .task { await viewModel.loadInitial() }
-        .safeRefreshable { await viewModel.loadTodoAssignments() }
-        .errorToast($viewModel.errorToast)
-        .sheet(isPresented: $viewModel.isNotificationSettingsPresented) {
-            TodoAssignmentsNotificationSettingsView(viewModel: viewModel)
+        .task {
+            guard isInitial else {
+                return
+            }
+            isInitial = false
+            applyData(MMKVHelper.TodoAssignments.cache)
+            await syncTodoNotificationsSilently()
+            await loadTodoAssignments()
         }
-        #if os(iOS)
-        .sheet(isPresented: $viewModel.isCoursePagePresented) {
-            NavigationStack {
-                if let courseID = viewModel.selectedCourseID {
-                    TodoAssignmentsCoursePageView(courseID: courseID)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("关闭") {
-                                viewModel.isCoursePagePresented = false
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        #endif
-        .alert("通知权限被拒绝", isPresented: $viewModel.isNotificationDeniedAlertPresented) {
-            Button(action: { viewModel.isNotificationDeniedAlertPresented = false }) {
-                Text("取消")
-            }
-            Button(action: {
-                NotificationManager.shared.openAppNotificationSettings()
-                viewModel.isNotificationDeniedAlertPresented = false
-            }) {
-                Text("前往设置")
-            }
-        } message: {
-            Text("需要开启通知权限以接收待提交作业提醒，请前往系统设置开启通知权限")
-        }
-        .toolbar {
-            ToolbarItem(placement: .secondaryAction) {
-                Button(action: { viewModel.isNotificationSettingsPresented = true }) {
-                    Label("作业提醒设置", systemImage: "bell.badge")
-                }
-            }
-            ToolbarItem(placement: .primaryAction) {
-                Button(asyncAction: viewModel.loadTodoAssignments) {
-                    if viewModel.isLoadingAssignments {
-                        ProgressView().smallControlSizeOnMac()
-                    } else {
-                        Label("刷新", systemImage: "arrow.clockwise")
-                    }
-                }
-                .disabled(viewModel.isLoadingAssignments)
-            }
-        }
-        .navigationTitle("待提交作业")
-        .navigationSubtitleCompat("共\(viewModel.unexpiredAssignmentsCount)个未截止作业")
     }
 
-    private func bindingForCourse(_ courseID: String) -> Binding<Bool> {
-        Binding(
-            get: { viewModel.isExpanded(courseID: courseID) },
-            set: { viewModel.setExpanded($0, courseID: courseID) }
+    // MARK: - Methods
+
+    private func loadTodoAssignments() async {
+        guard !isLoadingAssignments else { return }
+        isLoadingAssignments = true
+        defer { isLoadingAssignments = false }
+
+        do {
+            let courses = try await AuthManager.shared.withAuthRetry(system: .mooc) {
+                try await AuthManager.shared.moocHelper.getCoursesWithPendingAssignments()
+            }
+            var newGroups: [TodoAssignmentsData] = []
+
+            for course in courses {
+                let assignments = try await AuthManager.shared.withAuthRetry(system: .mooc) {
+                    try await AuthManager.shared.moocHelper.getCourseAssignments(course: course)
+                }
+                newGroups.append(.init(course: course, assignments: assignments))
+            }
+
+            let data = Cached(cachedAt: .now, value: newGroups)
+            MMKVHelper.TodoAssignments.cache = data
+            WidgetTimelineRefreshHelper.reloadTodoAssignments()
+
+            let drafts = TodoAssignmentsNotificationHelper.buildLocalNotificationDrafts(
+                groups: data.value,
+                reminderOffsetHour: MMKVHelper.TodoAssignments.notificationOffsetHour,
+                reminderOffsetMinute: MMKVHelper.TodoAssignments.notificationOffsetMinute
+            )
+            await TodoAssignmentsNotificationHelper.syncTodoNotificationsSilently(
+                isNotificationEnabled: MMKVHelper.TodoAssignments.isNotificationEnabled,
+                drafts: drafts,
+                onPermissionDenied: {
+                    MMKVHelper.TodoAssignments.isNotificationEnabled = false
+                }
+            )
+        } catch {
+            errorToast.show(message: error.localizedDescription)
+        }
+    }
+
+    private func applyData(_ data: Cached<[TodoAssignmentsData]>?) {
+        todoAssignmentsData = data
+        assignmentsReferenceDate = .now
+
+        guard let data else {
+            submittableAssignmentsCount = 0
+            expandedCourseIDs = []
+            showAllAssignmentsCourseIDs = []
+            return
+        }
+
+        let existingCourseIDs = Set(data.value.map(\.course.id))
+        submittableAssignmentsCount = data.value.reduce(0) { count, group in
+            count + group.assignments.filter { $0.isSubmittable(referenceDate: assignmentsReferenceDate) }.count
+        }
+        expandedCourseIDs = existingCourseIDs
+        showAllAssignmentsCourseIDs = showAllAssignmentsCourseIDs.intersection(existingCourseIDs)
+    }
+
+    private func openCoursePage(courseID: String) {
+        #if os(macOS)
+        openWindow(id: TodoAssignmentsCoursePageScene.windowID, value: courseID)
+        #else
+        selectedCourseID = courseID
+        isCoursePagePresented = true
+        #endif
+    }
+
+    private func openNotificationSettings() {
+        NotificationManager.shared.openAppNotificationSettings()
+        isNotificationDeniedAlertPresented = false
+    }
+
+    private func saveNotificationSettings(enabled: Bool, hour: Int, minute: Int) async {
+        let wasNotificationEnabled = MMKVHelper.TodoAssignments.isNotificationEnabled
+        MMKVHelper.TodoAssignments.notificationOffsetHour = hour
+        MMKVHelper.TodoAssignments.notificationOffsetMinute = minute
+
+        if enabled == wasNotificationEnabled {
+            if enabled {
+                await syncTodoNotificationsInteractively()
+            } else {
+                await NotificationManager.shared.clearLocalNotifications(prefix: TodoAssignmentsNotificationHelper.notificationPrefix)
+            }
+            return
+        }
+
+        await updateTodoNotificationEnabled(enabled)
+    }
+
+    private func updateTodoNotificationEnabled(_ enabled: Bool) async {
+        if !enabled {
+            MMKVHelper.TodoAssignments.isNotificationEnabled = false
+            await NotificationManager.shared.clearLocalNotifications(prefix: TodoAssignmentsNotificationHelper.notificationPrefix)
+            return
+        }
+
+        await NotificationManager.shared.updatePermissionStatus()
+        let permissionStatus = NotificationManager.shared.permissionStatus ?? .requestable
+
+        do {
+            switch permissionStatus {
+            case .authorized:
+                MMKVHelper.TodoAssignments.isNotificationEnabled = true
+                await syncTodoNotificationsInteractively()
+            case .denied:
+                MMKVHelper.TodoAssignments.isNotificationEnabled = false
+                isNotificationDeniedAlertPresented = true
+            case .requestable:
+                guard try await NotificationManager.shared.requestPermission() else {
+                    MMKVHelper.TodoAssignments.isNotificationEnabled = false
+                    isNotificationDeniedAlertPresented = true
+                    return
+                }
+                MMKVHelper.TodoAssignments.isNotificationEnabled = true
+                await syncTodoNotificationsInteractively()
+            }
+        } catch {
+            MMKVHelper.TodoAssignments.isNotificationEnabled = false
+            errorToast.show(message: error.localizedDescription)
+        }
+    }
+
+    private func syncTodoNotificationsSilently() async {
+        let drafts = TodoAssignmentsNotificationHelper.buildLocalNotificationDrafts(
+            groups: todoAssignmentsData?.value ?? [],
+            reminderOffsetHour: MMKVHelper.TodoAssignments.notificationOffsetHour,
+            reminderOffsetMinute: MMKVHelper.TodoAssignments.notificationOffsetMinute
         )
-        .withAnimation()
+
+        await TodoAssignmentsNotificationHelper.syncTodoNotificationsSilently(
+            isNotificationEnabled: MMKVHelper.TodoAssignments.isNotificationEnabled,
+            drafts: drafts,
+            onPermissionDenied: {
+                MMKVHelper.TodoAssignments.isNotificationEnabled = false
+            }
+        )
+    }
+
+    private func syncTodoNotificationsInteractively() async {
+        do {
+            await NotificationManager.shared.updatePermissionStatus()
+            let permissionStatus = NotificationManager.shared.permissionStatus ?? .requestable
+
+            if permissionStatus == .denied {
+                MMKVHelper.TodoAssignments.isNotificationEnabled = false
+                isNotificationDeniedAlertPresented = true
+                return
+            }
+
+            guard permissionStatus == .authorized else {
+                errorToast.show(message: "通知权限未开启")
+                return
+            }
+
+            guard MMKVHelper.TodoAssignments.isNotificationEnabled else {
+                await NotificationManager.shared.clearLocalNotifications(prefix: TodoAssignmentsNotificationHelper.notificationPrefix)
+                return
+            }
+
+            let drafts = TodoAssignmentsNotificationHelper.buildLocalNotificationDrafts(
+                groups: todoAssignmentsData?.value ?? [],
+                reminderOffsetHour: MMKVHelper.TodoAssignments.notificationOffsetHour,
+                reminderOffsetMinute: MMKVHelper.TodoAssignments.notificationOffsetMinute
+            )
+            try await NotificationManager.shared.syncLocalNotifications(prefix: TodoAssignmentsNotificationHelper.notificationPrefix, drafts: drafts)
+        } catch {
+            errorToast.show(message: error.localizedDescription)
+        }
     }
 }
 
-struct AssignmentInfoView: View {
-    let assignment: MoocHelper.Assignment
+@MainActor
+enum TodoAssignmentsNotificationHelper {
+    static let notificationPrefix = "todo-assignments."
+    private static let notificationThread = "todo-assignments.thread"
 
-    private var deadlineStyle: RelativeDateStyle {
-        RelativeDateStyle.assignment(
-            deadline: assignment.deadline,
-            isSubmitted: assignment.submitStatus
-        )
+    static func syncTodoNotificationsSilently(
+        isNotificationEnabled: Bool,
+        drafts: [LocalNotificationDraft],
+        onPermissionDenied: () -> Void = {}
+    ) async {
+        do {
+            await NotificationManager.shared.updatePermissionStatus()
+            let permissionStatus = NotificationManager.shared.permissionStatus ?? .requestable
+
+            if permissionStatus == .denied {
+                if isNotificationEnabled {
+                    onPermissionDenied()
+                }
+                return
+            }
+
+            guard isNotificationEnabled else {
+                await NotificationManager.shared.clearLocalNotifications(prefix: notificationPrefix)
+                return
+            }
+
+            guard permissionStatus == .authorized else { return }
+
+            try await NotificationManager.shared.syncLocalNotifications(prefix: notificationPrefix, drafts: drafts)
+        } catch {}
     }
 
-    @ViewBuilder
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(assignment.title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .lineLimit(2)
+    static func buildLocalNotificationDrafts(
+        groups: [TodoAssignmentsData],
+        reminderOffsetHour: Int,
+        reminderOffsetMinute: Int
+    ) -> [LocalNotificationDraft] {
+        let reminderOffsetSeconds = reminderOffsetSeconds(
+            hour: reminderOffsetHour,
+            minute: reminderOffsetMinute
+        )
+        let now = Date.now
 
-                Spacer()
+        return groups.flatMap { group in
+            group.assignments.compactMap { assignment in
+                guard assignment.canSubmit else { return nil }
+                guard !assignment.submitStatus else { return nil }
+                guard assignment.deadline > now else { return nil }
 
-                if assignment.submitStatus {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                        .font(.caption)
-                } else if assignment.canSubmit {
-                    Image(systemName: "circle")
-                        .foregroundColor(.orange)
-                        .font(.caption)
-                } else {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.red)
-                        .font(.caption)
-                }
-            }
+                let triggerDate = assignment.deadline.addingTimeInterval(-reminderOffsetSeconds)
+                guard triggerDate > now else { return nil }
 
-            HStack {
-                Text("发布人")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                let identifier = "\(notificationPrefix)\(group.course.id).\(assignment.id)"
 
-                Spacer()
-
-                Text(assignment.publisher)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-
-            HStack {
-                Text("开始时间")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                Spacer()
-
-                Text(assignment.startTime, format: .dateTime.year().month().day().hour().minute())
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                RelativeDateBadge(
-                    text: assignment.startTime.formatted(.relative(presentation: .named, unitsStyle: .abbreviated)),
-                    style: .secondary,
-                    font: .caption2.bold(),
-                    horizontalPadding: 6,
-                    verticalPadding: 2
-                )
-            }
-
-            HStack {
-                Text("截止时间")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                Spacer()
-
-                Text(assignment.deadline, format: .dateTime.year().month().day().hour().minute())
-                    .font(.caption)
-                    .foregroundColor(deadlineStyle.accentColor)
-                RelativeDateBadge(
-                    text: assignment.deadline.formatted(.relative(presentation: .named, unitsStyle: .abbreviated)),
-                    style: deadlineStyle,
-                    font: .caption2.bold(),
-                    horizontalPadding: 6,
-                    verticalPadding: 2
+                return LocalNotificationDraft(
+                    identifier: identifier,
+                    threadIdentifier: notificationThread,
+                    title: "作业截止提醒",
+                    subtitle: group.course.name,
+                    body: "\(assignment.title) 将在 \(assignment.deadline.formatted(.dateTime.month().day().hour().minute())) 截止",
+                    triggerDate: triggerDate,
+                    userInfo: [:]
                 )
             }
         }
-        .padding(.vertical, 6)
     }
+
+    private static func reminderOffsetSeconds(hour: Int, minute: Int) -> TimeInterval {
+        let clampedHour = min(max(hour, 0), 72)
+        let clampedMinute = min(max(minute, 0), 59)
+        return TimeInterval(clampedHour * 3600 + clampedMinute * 60)
+    }
+}
+
+extension MMKVHelper.TodoAssignments {
+    @MMKVStorage(key: "TodoAssignments.isNotificationEnabled", defaultValue: false)
+    static var isNotificationEnabled: Bool
+
+    @MMKVStorage(key: "TodoAssignments.notificationOffsetHour", defaultValue: 2)
+    static var notificationOffsetHour: Int
+
+    @MMKVStorage(key: "TodoAssignments.notificationOffsetMinute", defaultValue: 0)
+    static var notificationOffsetMinute: Int
 }
