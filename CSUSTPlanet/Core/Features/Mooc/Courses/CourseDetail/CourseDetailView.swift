@@ -106,7 +106,7 @@ struct CourseDetailView: View {
                     .padding(.vertical, 20)
             } else {
                 ForEach(assignments.indices, id: \.self) { index in
-                    AssignmentInfoView(assignment: assignments[index])
+                    AssignmentInfo(assignment: assignments[index])
                 }
             }
         } header: {

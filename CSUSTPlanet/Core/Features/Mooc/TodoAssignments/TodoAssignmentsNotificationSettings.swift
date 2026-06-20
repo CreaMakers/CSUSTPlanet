@@ -16,17 +16,17 @@ struct TodoAssignmentsNotificationSettings: View {
     @State private var selectedMinute: Int
 
     init(
-        isEnabled: Bool = MMKVHelper.TodoAssignments.isNotificationEnabled,
-        reminderOffsetHour: Int = MMKVHelper.TodoAssignments.notificationOffsetHour,
-        reminderOffsetMinute: Int = MMKVHelper.TodoAssignments.notificationOffsetMinute,
+        isEnabled: Bool,
+        reminderOffsetHour: Int,
+        reminderOffsetMinute: Int,
         onCancel: @escaping () -> Void,
         onSave: @escaping (Bool, Int, Int) async -> Void
     ) {
         self.onCancel = onCancel
         self.onSave = onSave
         _enabled = State(initialValue: isEnabled)
-        _selectedHour = State(initialValue: Self.clampedReminderOffsetHour(reminderOffsetHour))
-        _selectedMinute = State(initialValue: Self.clampedReminderOffsetMinute(reminderOffsetMinute))
+        _selectedHour = State(initialValue: reminderOffsetHour)
+        _selectedMinute = State(initialValue: reminderOffsetMinute)
     }
 
     var body: some View {
@@ -117,13 +117,6 @@ struct TodoAssignmentsNotificationSettings: View {
         return "提前 \(components.joined(separator: " ")) 提醒"
     }
 
-    private static func clampedReminderOffsetHour(_ hour: Int) -> Int {
-        min(max(hour, 0), 72)
-    }
-
-    private static func clampedReminderOffsetMinute(_ minute: Int) -> Int {
-        min(max(minute, 0), 59)
-    }
 }
 
 #Preview("TodoAssignmentsNotificationSettings") {

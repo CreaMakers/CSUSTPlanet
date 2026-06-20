@@ -10,45 +10,84 @@ import SwiftUI
 
 struct TodoAssignmentsCourseSection: View {
     let group: TodoAssignmentsData
-    let referenceDate: Date
-    @Binding var isExpanded: Bool
-    @Binding var isShowingAllAssignments: Bool
     let onOpenCoursePage: (String) -> Void
 
+    @State private var isExpanded = true
+    @State private var isAllAssignmentsPresented = false
+
     private var submittableAssignments: [MoocHelper.Assignment] {
-        group.assignments.filter { $0.isSubmittable(referenceDate: referenceDate) }
+        let referenceDate = Date.now
+        return group.assignments.filter { $0.isSubmittable(referenceDate: referenceDate) }
     }
 
     private var displayedAssignments: [MoocHelper.Assignment] {
-        if isShowingAllAssignments {
+        if isAllAssignmentsPresented {
             return group.assignments
         }
         return submittableAssignments
     }
 
     private var hasHiddenAssignments: Bool {
-        displayedAssignments.count < group.assignments.count
+        submittableAssignments.count < group.assignments.count
     }
 
     var body: some View {
         CustomGroupBox {
             VStack {
-                header
+                HStack {
+                    HStack {
+                        Image(systemName: "chevron.right")
+                            .frame(width: 16, height: 16, alignment: .leading)
+                            .rotationEffect(.degrees(isExpanded ? 90 : 0), anchor: .center)
 
-                if isExpanded {
-                    ForEach(displayedAssignments.indices, id: \.self) { index in
-                        Divider()
-                        AssignmentInfoView(assignment: displayedAssignments[index])
+                        Text(group.course.name)
+                            .font(.headline)
+                            .foregroundColor(.primary)
+
+                        Spacer()
+
+                        VStack(alignment: .trailing) {
+                            Text("\(group.assignments.count)个作业")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text("\(submittableAssignments.count)个可提交")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .contentShape(.rect)
+                    .onTapGesture {
+                        withAnimation {
+                            isExpanded.toggle()
+                        }
                     }
 
-                    if hasHiddenAssignments || isShowingAllAssignments {
+                    Button {
+                        onOpenCoursePage(group.course.id)
+                    } label: {
+                        Text("前往课程")
+                            .font(.caption)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+
+                if isExpanded {
+                    ForEach(displayedAssignments, id: \.id) { assignment in
+                        Divider()
+                        AssignmentInfo(assignment: assignment)
+                    }
+
+                    if hasHiddenAssignments || isAllAssignmentsPresented {
                         Divider()
                         Button {
-                            isShowingAllAssignments.toggle()
+                            withAnimation {
+                                isAllAssignmentsPresented.toggle()
+                            }
                         } label: {
                             HStack(spacing: 6) {
-                                Text(isShowingAllAssignments ? "仅可提交" : "查看全部")
-                                Image(systemName: isShowingAllAssignments ? "chevron.up" : "chevron.down")
+                                Text(isAllAssignmentsPresented ? "仅可提交" : "查看全部")
+                                Image(systemName: isAllAssignmentsPresented ? "chevron.up" : "chevron.down")
                             }
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -61,82 +100,22 @@ struct TodoAssignmentsCourseSection: View {
             }
         }
     }
-
-    private var header: some View {
-        HStack {
-            HStack {
-                Image(systemName: "chevron.right")
-                    .frame(width: 16, height: 16, alignment: .leading)
-                    .rotationEffect(.degrees(isExpanded ? 90 : 0), anchor: .center)
-
-                Text(group.course.name)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-
-                Spacer()
-
-                VStack(alignment: .trailing) {
-                    Text("\(group.assignments.count)个作业")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("\(submittableAssignments.count)个可提交")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .contentShape(.rect)
-            .onTapGesture {
-                isExpanded.toggle()
-            }
-
-            Button {
-                onOpenCoursePage(group.course.id)
-            } label: {
-                Text("前往课程")
-                    .font(.caption)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-        }
-    }
 }
 
 extension MoocHelper.Assignment {
-    func isSubmittable(referenceDate: Date) -> Bool {
+    func isSubmittable(referenceDate: Date = .now) -> Bool {
         canSubmit && !submitStatus && deadline >= referenceDate
     }
 }
 
 #Preview("TodoAssignmentsCourseSection") {
-    @Previewable @State var isExpanded = true
-    @Previewable @State var isShowingAllAssignments = false
-
     NavigationStack {
         CustomScrollView {
             TodoAssignmentsCourseSection(
                 group: TodoAssignmentsPreviewData.groups[0],
-                referenceDate: TodoAssignmentsPreviewData.referenceDate,
-                isExpanded: $isExpanded,
-                isShowingAllAssignments: $isShowingAllAssignments,
                 onOpenCoursePage: { _ in }
             )
             .padding()
         }
-    }
-}
-
-#Preview("TodoAssignmentsCourseSection All") {
-    @Previewable @State var isExpanded = true
-    @Previewable @State var isShowingAllAssignments = true
-
-    CustomScrollView {
-        TodoAssignmentsCourseSection(
-            group: TodoAssignmentsPreviewData.groups[0],
-            referenceDate: TodoAssignmentsPreviewData.referenceDate,
-            isExpanded: $isExpanded,
-            isShowingAllAssignments: $isShowingAllAssignments,
-            onOpenCoursePage: { _ in }
-        )
-        .padding()
     }
 }

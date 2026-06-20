@@ -20,8 +20,8 @@ struct DormScheduleConfigView: View {
         initialMinute: Int = 0,
         onConfirm: @escaping (Int, Int) -> Void,
     ) {
-        _selectedHour = State(initialValue: min(max(initialHour, 0), 23))
-        _selectedMinute = State(initialValue: min(max(initialMinute, 0), 59))
+        _selectedHour = State(initialValue: initialHour)
+        _selectedMinute = State(initialValue: initialMinute)
         self.onConfirm = onConfirm
     }
 

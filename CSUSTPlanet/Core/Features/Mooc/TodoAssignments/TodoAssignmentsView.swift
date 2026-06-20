@@ -13,16 +13,12 @@ struct TodoAssignmentsView: View {
     @Environment(\.openWindow) private var openWindow
     #endif
 
-    @State private var todoAssignmentsData: Cached<[TodoAssignmentsData]>?
-    @State private var submittableAssignmentsCount = 0
-    @State private var assignmentsReferenceDate = Date.now
-    @State private var expandedCourseIDs: Set<String> = []
-    @State private var showAllAssignmentsCourseIDs: Set<String> = []
+    @State private var courseGroups: [TodoAssignmentsData]?
 
     @State private var selectedCourseID: String?
     @State private var isCoursePagePresented = false
 
-    @State private var isLoadingAssignments = false
+    @State private var isLoading = false
     @State private var errorToast: ToastState = .errorTitle
 
     @State private var isNotificationDeniedAlertPresented = false
@@ -32,18 +28,14 @@ struct TodoAssignmentsView: View {
 
     var body: some View {
         TodoAssignmentsContent(
-            courseGroups: todoAssignmentsData?.value,
-            referenceDate: assignmentsReferenceDate,
-            submittableAssignmentsCount: submittableAssignmentsCount,
-            isLoadingAssignments: isLoadingAssignments,
-            expandedCourseIDs: $expandedCourseIDs,
-            showAllAssignmentsCourseIDs: $showAllAssignmentsCourseIDs,
+            courseGroups: courseGroups,
+            isLoadingAssignments: isLoading,
             errorToast: $errorToast,
             selectedCourseID: $selectedCourseID,
             isCoursePagePresented: $isCoursePagePresented,
             isNotificationSettingsPresented: $isNotificationSettingsPresented,
             isNotificationDeniedAlertPresented: $isNotificationDeniedAlertPresented,
-            onRefreshAssignments: loadTodoAssignments,
+            onRefreshAssignments: loadAssignments,
             onSaveNotificationSettings: saveNotificationSettings,
             onOpenCoursePage: openCoursePage,
             onOpenNotificationSettings: openNotificationSettings
@@ -56,18 +48,20 @@ struct TodoAssignmentsView: View {
                 return
             }
             isInitial = false
+
             applyData(MMKVHelper.TodoAssignments.cache)
+
             await syncTodoNotificationsSilently()
-            await loadTodoAssignments()
+            await loadAssignments()
         }
     }
 
     // MARK: - Methods
 
-    private func loadTodoAssignments() async {
-        guard !isLoadingAssignments else { return }
-        isLoadingAssignments = true
-        defer { isLoadingAssignments = false }
+    private func loadAssignments() async {
+        guard !isLoading else { return }
+        isLoading = true
+        defer { isLoading = false }
 
         do {
             let courses = try await AuthManager.shared.withAuthRetry(system: .mooc) {
@@ -104,22 +98,7 @@ struct TodoAssignmentsView: View {
     }
 
     private func applyData(_ data: Cached<[TodoAssignmentsData]>?) {
-        todoAssignmentsData = data
-        assignmentsReferenceDate = .now
-
-        guard let data else {
-            submittableAssignmentsCount = 0
-            expandedCourseIDs = []
-            showAllAssignmentsCourseIDs = []
-            return
-        }
-
-        let existingCourseIDs = Set(data.value.map(\.course.id))
-        submittableAssignmentsCount = data.value.reduce(0) { count, group in
-            count + group.assignments.filter { $0.isSubmittable(referenceDate: assignmentsReferenceDate) }.count
-        }
-        expandedCourseIDs = existingCourseIDs
-        showAllAssignmentsCourseIDs = showAllAssignmentsCourseIDs.intersection(existingCourseIDs)
+        courseGroups = data?.value
     }
 
     private func openCoursePage(courseID: String) {
@@ -188,7 +167,7 @@ struct TodoAssignmentsView: View {
 
     private func syncTodoNotificationsSilently() async {
         let drafts = TodoAssignmentsNotificationHelper.buildLocalNotificationDrafts(
-            groups: todoAssignmentsData?.value ?? [],
+            groups: courseGroups ?? [],
             reminderOffsetHour: MMKVHelper.TodoAssignments.notificationOffsetHour,
             reminderOffsetMinute: MMKVHelper.TodoAssignments.notificationOffsetMinute
         )
@@ -224,7 +203,7 @@ struct TodoAssignmentsView: View {
             }
 
             let drafts = TodoAssignmentsNotificationHelper.buildLocalNotificationDrafts(
-                groups: todoAssignmentsData?.value ?? [],
+                groups: courseGroups ?? [],
                 reminderOffsetHour: MMKVHelper.TodoAssignments.notificationOffsetHour,
                 reminderOffsetMinute: MMKVHelper.TodoAssignments.notificationOffsetMinute
             )
@@ -303,9 +282,7 @@ enum TodoAssignmentsNotificationHelper {
     }
 
     private static func reminderOffsetSeconds(hour: Int, minute: Int) -> TimeInterval {
-        let clampedHour = min(max(hour, 0), 72)
-        let clampedMinute = min(max(minute, 0), 59)
-        return TimeInterval(clampedHour * 3600 + clampedMinute * 60)
+        TimeInterval(hour * 3600 + minute * 60)
     }
 }
 

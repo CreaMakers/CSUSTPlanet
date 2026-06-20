@@ -10,12 +10,8 @@ import SwiftUI
 
 struct TodoAssignmentsContent: View {
     let courseGroups: [TodoAssignmentsData]?
-    let referenceDate: Date
-    let submittableAssignmentsCount: Int
-    let isLoadingAssignments: Bool
 
-    @Binding var expandedCourseIDs: Set<String>
-    @Binding var showAllAssignmentsCourseIDs: Set<String>
+    let isLoadingAssignments: Bool
 
     @Binding var errorToast: ToastState
     @Binding var selectedCourseID: String?
@@ -28,6 +24,12 @@ struct TodoAssignmentsContent: View {
     let onOpenCoursePage: (String) -> Void
     let onOpenNotificationSettings: () -> Void
 
+    private var submittableAssignmentsCount: Int {
+        return (courseGroups ?? []).reduce(0) { count, group in
+            count + group.assignments.filter { $0.isSubmittable(referenceDate: .now) }.count
+        }
+    }
+
     var body: some View {
         Group {
             if let courseGroups, !courseGroups.isEmpty {
@@ -35,9 +37,6 @@ struct TodoAssignmentsContent: View {
                     ForEach(courseGroups, id: \.course.id) { group in
                         TodoAssignmentsCourseSection(
                             group: group,
-                            referenceDate: referenceDate,
-                            isExpanded: bindingForCourse(group.course.id),
-                            isShowingAllAssignments: showAllBindingForCourse(group.course.id),
                             onOpenCoursePage: onOpenCoursePage
                         )
                     }
@@ -55,6 +54,9 @@ struct TodoAssignmentsContent: View {
         .errorToast($errorToast)
         .sheet(isPresented: $isNotificationSettingsPresented) {
             TodoAssignmentsNotificationSettings(
+                isEnabled: MMKVHelper.TodoAssignments.isNotificationEnabled,
+                reminderOffsetHour: MMKVHelper.TodoAssignments.notificationOffsetHour,
+                reminderOffsetMinute: MMKVHelper.TodoAssignments.notificationOffsetMinute,
                 onCancel: {
                     isNotificationSettingsPresented = false
                 },
@@ -109,34 +111,6 @@ struct TodoAssignmentsContent: View {
         }
         .navigationTitle("待提交作业")
         .navigationSubtitleCompat("共\(submittableAssignmentsCount)个可提交作业")
-    }
-
-    private func bindingForCourse(_ courseID: String) -> Binding<Bool> {
-        Binding(
-            get: { expandedCourseIDs.contains(courseID) },
-            set: { isExpanded in
-                if isExpanded {
-                    expandedCourseIDs.insert(courseID)
-                } else {
-                    expandedCourseIDs.remove(courseID)
-                }
-            }
-        )
-        .withAnimation()
-    }
-
-    private func showAllBindingForCourse(_ courseID: String) -> Binding<Bool> {
-        Binding(
-            get: { showAllAssignmentsCourseIDs.contains(courseID) },
-            set: { isShowingAll in
-                if isShowingAll {
-                    showAllAssignmentsCourseIDs.insert(courseID)
-                } else {
-                    showAllAssignmentsCourseIDs.remove(courseID)
-                }
-            }
-        )
-        .withAnimation()
     }
 }
 
@@ -214,12 +188,6 @@ enum TodoAssignmentsPreviewData {
         ),
     ]
 
-    static var submittableAssignmentsCount: Int {
-        groups.reduce(0) { count, group in
-            count + group.assignments.filter { $0.isSubmittable(referenceDate: referenceDate) }.count
-        }
-    }
-
     static func makeAssignment(
         id: Int,
         title: String,
@@ -247,17 +215,11 @@ enum TodoAssignmentsPreviewData {
     @Previewable @State var isCoursePagePresented = false
     @Previewable @State var isNotificationSettingsPresented = false
     @Previewable @State var isNotificationDeniedAlertPresented = false
-    @Previewable @State var expandedCourseIDs = Set(TodoAssignmentsPreviewData.groups.map(\.course.id))
-    @Previewable @State var showAllAssignmentsCourseIDs: Set<String> = []
 
     NavigationStack {
         TodoAssignmentsContent(
             courseGroups: TodoAssignmentsPreviewData.groups,
-            referenceDate: TodoAssignmentsPreviewData.referenceDate,
-            submittableAssignmentsCount: TodoAssignmentsPreviewData.submittableAssignmentsCount,
             isLoadingAssignments: false,
-            expandedCourseIDs: $expandedCourseIDs,
-            showAllAssignmentsCourseIDs: $showAllAssignmentsCourseIDs,
             errorToast: $errorToast,
             selectedCourseID: $selectedCourseID,
             isCoursePagePresented: $isCoursePagePresented,
@@ -277,17 +239,11 @@ enum TodoAssignmentsPreviewData {
     @Previewable @State var isCoursePagePresented = false
     @Previewable @State var isNotificationSettingsPresented = false
     @Previewable @State var isNotificationDeniedAlertPresented = false
-    @Previewable @State var expandedCourseIDs: Set<String> = []
-    @Previewable @State var showAllAssignmentsCourseIDs: Set<String> = []
 
     NavigationStack {
         TodoAssignmentsContent(
             courseGroups: [],
-            referenceDate: TodoAssignmentsPreviewData.referenceDate,
-            submittableAssignmentsCount: 0,
             isLoadingAssignments: false,
-            expandedCourseIDs: $expandedCourseIDs,
-            showAllAssignmentsCourseIDs: $showAllAssignmentsCourseIDs,
             errorToast: $errorToast,
             selectedCourseID: $selectedCourseID,
             isCoursePagePresented: $isCoursePagePresented,
