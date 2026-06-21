@@ -63,6 +63,7 @@ private let featureSections: [FeatureSection] = [
             FeatureItem(id: .schoolCalendar),
             FeatureItem(id: .electricityRecharge),
             FeatureItem(id: .webVPNConverter),
+            FeatureItem(id: .eval),
         ]
     ),
     FeatureSection(

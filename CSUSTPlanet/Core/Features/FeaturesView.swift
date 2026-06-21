@@ -144,6 +144,15 @@ struct FeaturesView: View {
                     icon: "lock.shield",
                     color: .gray
                 )
+
+                Divider().padding(.leading, 56)
+
+                ToolRow(
+                    route: .features(.campusTool(.eval)),
+                    title: "评教系统",
+                    icon: "pencil.and.list.clipboard",
+                    color: .green
+                )
             }
             #if os(iOS)
             .background(Color(PlatformColor.secondarySystemGroupedBackground))
