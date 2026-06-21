@@ -40,7 +40,7 @@ struct CourseDetailView: View {
         #if os(iOS)
         .sheet(isPresented: $isCoursePagePresented) {
             NavigationStack {
-                TodoAssignmentsCoursePage(courseID: course.id)
+                AssignmentsCoursePage(courseID: course.id)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("关闭") {
@@ -85,7 +85,7 @@ struct CourseDetailView: View {
             }
             Button("前往课程网页") {
                 #if os(macOS)
-                openWindow(id: TodoAssignmentsCoursePageScene.windowID, value: course.id)
+                openWindow(id: AssignmentsCoursePageScene.windowID, value: course.id)
                 #else
                 isCoursePagePresented = true
                 #endif

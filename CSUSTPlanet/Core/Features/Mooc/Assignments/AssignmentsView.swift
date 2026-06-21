@@ -1,5 +1,5 @@
 //
-//  TodoAssignmentsView.swift
+//  AssignmentsView.swift
 //  CSUSTPlanet
 //
 //  Created by Zachary Liu on 2026/3/20.
@@ -8,7 +8,7 @@
 import CSUSTKit
 import SwiftUI
 
-struct TodoAssignmentsView: View {
+struct AssignmentsView: View {
     @State private var courseGroups: [TodoAssignmentsData]?
 
     @State private var isLoading = false
@@ -19,7 +19,7 @@ struct TodoAssignmentsView: View {
     @State private var isInitial = true
 
     var body: some View {
-        TodoAssignmentsContent(
+        AssignmentsContent(
             courseGroups: courseGroups,
             isLoading: isLoading,
             isNotificationEnabled: MMKVHelper.TodoAssignments.isNotificationEnabled,

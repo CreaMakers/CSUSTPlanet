@@ -175,7 +175,7 @@ enum AppRoute: Hashable {
                 case .courses(let route):
                     route.destinationView
                 case .todoAssignments:
-                    TodoAssignmentsView()
+                    AssignmentsView()
                 }
             }
 

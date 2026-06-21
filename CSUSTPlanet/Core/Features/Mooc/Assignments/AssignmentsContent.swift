@@ -1,5 +1,5 @@
 //
-//  TodoAssignmentsContent.swift
+//  AssignmentsContent.swift
 //  CSUSTPlanet
 //
 //  Created by Codex on 2026/6/20.
@@ -8,7 +8,7 @@
 import CSUSTKit
 import SwiftUI
 
-struct TodoAssignmentsContent: View {
+struct AssignmentsContent: View {
     @State private var isNotificationSettingsPresented: Bool = false
 
     let courseGroups: [TodoAssignmentsData]?
@@ -38,7 +38,7 @@ struct TodoAssignmentsContent: View {
             if let courseGroups, !courseGroups.isEmpty {
                 CustomScrollView {
                     ForEach(courseGroups, id: \.course.id) { group in
-                        TodoAssignmentsCourseSection(group: group)
+                        AssignmentsCourseSection(group: group)
                     }
                     .padding()
                 }
@@ -53,7 +53,7 @@ struct TodoAssignmentsContent: View {
         .safeRefreshable { await onRefreshAssignments() }
         .errorToast($errorToast)
         .sheet(isPresented: $isNotificationSettingsPresented) {
-            TodoAssignmentsNotificationSettings(
+            AssignmentsNotificationSettings(
                 isEnabled: isNotificationEnabled,
                 selectedHour: notificationOffsetHour,
                 selectedMinute: notificationOffsetMinute,
@@ -188,12 +188,12 @@ enum TodoAssignmentsPreviewData {
     }
 }
 
-#Preview("TodoAssignmentsContent") {
+#Preview("AssignmentsContent") {
     @Previewable @State var errorToast = ToastState.errorTitle
     @Previewable @State var isNotificationDeniedAlertPresented = false
 
     NavigationStack {
-        TodoAssignmentsContent(
+        AssignmentsContent(
             courseGroups: TodoAssignmentsPreviewData.groups,
             isLoading: false,
             isNotificationEnabled: false,
@@ -208,12 +208,12 @@ enum TodoAssignmentsPreviewData {
     }
 }
 
-#Preview("TodoAssignmentsContent Empty") {
+#Preview("AssignmentsContent Empty") {
     @Previewable @State var errorToast = ToastState.errorTitle
     @Previewable @State var isNotificationDeniedAlertPresented = false
 
     NavigationStack {
-        TodoAssignmentsContent(
+        AssignmentsContent(
             courseGroups: [],
             isLoading: false,
             isNotificationEnabled: false,

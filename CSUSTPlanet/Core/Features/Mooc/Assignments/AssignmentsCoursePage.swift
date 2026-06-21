@@ -1,5 +1,5 @@
 //
-//  TodoAssignmentsCoursePage.swift
+//  AssignmentsCoursePage.swift
 //  CSUSTPlanet
 //
 //  Created by Codex on 2026/6/20.
@@ -8,7 +8,7 @@
 import CSUSTKit
 import SwiftUI
 
-struct TodoAssignmentsCoursePage: View {
+struct AssignmentsCoursePage: View {
     let courseID: String
     @State private var webViewController = WebViewController()
 

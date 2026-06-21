@@ -1,5 +1,5 @@
 //
-//  TodoAssignmentsCourseSection.swift
+//  AssignmentsCourseSection.swift
 //  CSUSTPlanet
 //
 //  Created by Codex on 2026/6/20.
@@ -8,7 +8,7 @@
 import CSUSTKit
 import SwiftUI
 
-struct TodoAssignmentsCourseSection: View {
+struct AssignmentsCourseSection: View {
     #if os(macOS)
     @Environment(\.openWindow) private var openWindow
     #elseif os(iOS)
@@ -107,7 +107,7 @@ struct TodoAssignmentsCourseSection: View {
         #if os(iOS)
         .sheet(isPresented: $isCoursePagePresented) {
             NavigationStack {
-                TodoAssignmentsCoursePage(courseID: group.course.id)
+                AssignmentsCoursePage(courseID: group.course.id)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("关闭") {
@@ -122,7 +122,7 @@ struct TodoAssignmentsCourseSection: View {
 
     private func openCoursePage() {
         #if os(macOS)
-        openWindow(id: TodoAssignmentsCoursePageScene.windowID, value: group.course.id)
+        openWindow(id: AssignmentsCoursePageScene.windowID, value: group.course.id)
         #elseif os(iOS)
         isCoursePagePresented = true
         #endif
@@ -135,10 +135,10 @@ extension MoocHelper.Assignment {
     }
 }
 
-#Preview("TodoAssignmentsCourseSection") {
+#Preview("AssignmentsCourseSection") {
     NavigationStack {
         CustomScrollView {
-            TodoAssignmentsCourseSection(
+            AssignmentsCourseSection(
                 group: TodoAssignmentsPreviewData.groups[0]
             )
             .padding()

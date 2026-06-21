@@ -1,5 +1,5 @@
 //
-//  TodoAssignmentsNotificationSettings.swift
+//  AssignmentsNotificationSettings.swift
 //  CSUSTPlanet
 //
 //  Created by OpenCode on 2026/4/4.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TodoAssignmentsNotificationSettings: View {
+struct AssignmentsNotificationSettings: View {
     @State var isEnabled: Bool
     @State var selectedHour: Int
     @State var selectedMinute: Int
@@ -102,8 +102,8 @@ struct TodoAssignmentsNotificationSettings: View {
     }
 }
 
-#Preview("TodoAssignmentsNotificationSettings") {
-    TodoAssignmentsNotificationSettings(
+#Preview("AssignmentsNotificationSettings") {
+    AssignmentsNotificationSettings(
         isEnabled: true,
         selectedHour: 2,
         selectedMinute: 30,
