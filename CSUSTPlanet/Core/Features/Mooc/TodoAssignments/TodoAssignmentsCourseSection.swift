@@ -9,8 +9,13 @@ import CSUSTKit
 import SwiftUI
 
 struct TodoAssignmentsCourseSection: View {
+    #if os(macOS)
+    @Environment(\.openWindow) private var openWindow
+    #elseif os(iOS)
+    @State private var isCoursePagePresented = false
+    #endif
+
     let group: TodoAssignmentsData
-    let onOpenCoursePage: (String) -> Void
 
     @State private var isExpanded = true
     @State private var isAllAssignmentsPresented = false
@@ -63,7 +68,7 @@ struct TodoAssignmentsCourseSection: View {
                     }
 
                     Button {
-                        onOpenCoursePage(group.course.id)
+                        openCoursePage()
                     } label: {
                         Text("前往课程")
                             .font(.caption)
@@ -99,6 +104,28 @@ struct TodoAssignmentsCourseSection: View {
                 }
             }
         }
+        #if os(iOS)
+        .sheet(isPresented: $isCoursePagePresented) {
+            NavigationStack {
+                TodoAssignmentsCoursePage(courseID: group.course.id)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("关闭") {
+                            isCoursePagePresented = false
+                        }
+                    }
+                }
+            }
+        }
+        #endif
+    }
+
+    private func openCoursePage() {
+        #if os(macOS)
+        openWindow(id: TodoAssignmentsCoursePageScene.windowID, value: group.course.id)
+        #elseif os(iOS)
+        isCoursePagePresented = true
+        #endif
     }
 }
 
@@ -112,8 +139,7 @@ extension MoocHelper.Assignment {
     NavigationStack {
         CustomScrollView {
             TodoAssignmentsCourseSection(
-                group: TodoAssignmentsPreviewData.groups[0],
-                onOpenCoursePage: { _ in }
+                group: TodoAssignmentsPreviewData.groups[0]
             )
             .padding()
         }

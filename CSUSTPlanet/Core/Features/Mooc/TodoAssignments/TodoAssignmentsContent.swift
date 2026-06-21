@@ -9,24 +9,27 @@ import CSUSTKit
 import SwiftUI
 
 struct TodoAssignmentsContent: View {
+    @State private var isNotificationSettingsPresented: Bool = false
+
     let courseGroups: [TodoAssignmentsData]?
 
-    let isLoadingAssignments: Bool
+    let isLoading: Bool
+
+    let isNotificationEnabled: Bool
+    let notificationOffsetHour: Int
+    let notificationOffsetMinute: Int
 
     @Binding var errorToast: ToastState
-    @Binding var selectedCourseID: String?
-    @Binding var isCoursePagePresented: Bool
-    @Binding var isNotificationSettingsPresented: Bool
     @Binding var isNotificationDeniedAlertPresented: Bool
 
     let onRefreshAssignments: () async -> Void
     let onSaveNotificationSettings: (Bool, Int, Int) async -> Void
-    let onOpenCoursePage: (String) -> Void
     let onOpenNotificationSettings: () -> Void
 
     private var submittableAssignmentsCount: Int {
+        let referenceDate = Date.now
         return (courseGroups ?? []).reduce(0) { count, group in
-            count + group.assignments.filter { $0.isSubmittable(referenceDate: .now) }.count
+            count + group.assignments.filter { $0.isSubmittable(referenceDate: referenceDate) }.count
         }
     }
 
@@ -35,10 +38,7 @@ struct TodoAssignmentsContent: View {
             if let courseGroups, !courseGroups.isEmpty {
                 CustomScrollView {
                     ForEach(courseGroups, id: \.course.id) { group in
-                        TodoAssignmentsCourseSection(
-                            group: group,
-                            onOpenCoursePage: onOpenCoursePage
-                        )
+                        TodoAssignmentsCourseSection(group: group)
                     }
                     .padding()
                 }
@@ -54,34 +54,13 @@ struct TodoAssignmentsContent: View {
         .errorToast($errorToast)
         .sheet(isPresented: $isNotificationSettingsPresented) {
             TodoAssignmentsNotificationSettings(
-                isEnabled: MMKVHelper.TodoAssignments.isNotificationEnabled,
-                reminderOffsetHour: MMKVHelper.TodoAssignments.notificationOffsetHour,
-                reminderOffsetMinute: MMKVHelper.TodoAssignments.notificationOffsetMinute,
-                onCancel: {
-                    isNotificationSettingsPresented = false
-                },
-                onSave: { enabled, hour, minute in
-                    await onSaveNotificationSettings(enabled, hour, minute)
-                    isNotificationSettingsPresented = false
-                }
+                isEnabled: isNotificationEnabled,
+                selectedHour: notificationOffsetHour,
+                selectedMinute: notificationOffsetMinute,
+                onSave: onSaveNotificationSettings
             )
+            .presentationDetents([.medium, .large])
         }
-        #if os(iOS)
-        .sheet(isPresented: $isCoursePagePresented) {
-            NavigationStack {
-                if let courseID = selectedCourseID {
-                    TodoAssignmentsCoursePage(courseID: courseID)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("关闭") {
-                                isCoursePagePresented = false
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        #endif
         .alert("通知权限被拒绝", isPresented: $isNotificationDeniedAlertPresented) {
             Button(action: { isNotificationDeniedAlertPresented = false }) {
                 Text("取消")
@@ -100,13 +79,13 @@ struct TodoAssignmentsContent: View {
             }
             ToolbarItem(placement: .primaryAction) {
                 Button(asyncAction: onRefreshAssignments) {
-                    if isLoadingAssignments {
+                    if isLoading {
                         ProgressView().smallControlSizeOnMac()
                     } else {
                         Label("刷新", systemImage: "arrow.clockwise")
                     }
                 }
-                .disabled(isLoadingAssignments)
+                .disabled(isLoading)
             }
         }
         .navigationTitle("待提交作业")
@@ -211,23 +190,19 @@ enum TodoAssignmentsPreviewData {
 
 #Preview("TodoAssignmentsContent") {
     @Previewable @State var errorToast = ToastState.errorTitle
-    @Previewable @State var selectedCourseID: String?
-    @Previewable @State var isCoursePagePresented = false
-    @Previewable @State var isNotificationSettingsPresented = false
     @Previewable @State var isNotificationDeniedAlertPresented = false
 
     NavigationStack {
         TodoAssignmentsContent(
             courseGroups: TodoAssignmentsPreviewData.groups,
-            isLoadingAssignments: false,
+            isLoading: false,
+            isNotificationEnabled: false,
+            notificationOffsetHour: 8,
+            notificationOffsetMinute: 20,
             errorToast: $errorToast,
-            selectedCourseID: $selectedCourseID,
-            isCoursePagePresented: $isCoursePagePresented,
-            isNotificationSettingsPresented: $isNotificationSettingsPresented,
             isNotificationDeniedAlertPresented: $isNotificationDeniedAlertPresented,
             onRefreshAssignments: {},
             onSaveNotificationSettings: { _, _, _ in },
-            onOpenCoursePage: { _ in },
             onOpenNotificationSettings: {}
         )
     }
@@ -235,23 +210,19 @@ enum TodoAssignmentsPreviewData {
 
 #Preview("TodoAssignmentsContent Empty") {
     @Previewable @State var errorToast = ToastState.errorTitle
-    @Previewable @State var selectedCourseID: String?
-    @Previewable @State var isCoursePagePresented = false
-    @Previewable @State var isNotificationSettingsPresented = false
     @Previewable @State var isNotificationDeniedAlertPresented = false
 
     NavigationStack {
         TodoAssignmentsContent(
             courseGroups: [],
-            isLoadingAssignments: false,
+            isLoading: false,
+            isNotificationEnabled: false,
+            notificationOffsetHour: 8,
+            notificationOffsetMinute: 20,
             errorToast: $errorToast,
-            selectedCourseID: $selectedCourseID,
-            isCoursePagePresented: $isCoursePagePresented,
-            isNotificationSettingsPresented: $isNotificationSettingsPresented,
             isNotificationDeniedAlertPresented: $isNotificationDeniedAlertPresented,
             onRefreshAssignments: {},
             onSaveNotificationSettings: { _, _, _ in },
-            onOpenCoursePage: { _ in },
             onOpenNotificationSettings: {}
         )
     }

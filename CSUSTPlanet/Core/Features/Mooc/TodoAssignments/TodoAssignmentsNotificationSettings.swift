@@ -8,39 +8,40 @@
 import SwiftUI
 
 struct TodoAssignmentsNotificationSettings: View {
-    let onCancel: () -> Void
+    @State var isEnabled: Bool
+    @State var selectedHour: Int
+    @State var selectedMinute: Int
+
     let onSave: (Bool, Int, Int) async -> Void
 
-    @State private var enabled: Bool
-    @State private var selectedHour: Int
-    @State private var selectedMinute: Int
+    @Environment(\.dismiss) private var dismiss
 
-    init(
-        isEnabled: Bool,
-        reminderOffsetHour: Int,
-        reminderOffsetMinute: Int,
-        onCancel: @escaping () -> Void,
-        onSave: @escaping (Bool, Int, Int) async -> Void
-    ) {
-        self.onCancel = onCancel
-        self.onSave = onSave
-        _enabled = State(initialValue: isEnabled)
-        _selectedHour = State(initialValue: reminderOffsetHour)
-        _selectedMinute = State(initialValue: reminderOffsetMinute)
+    private var previewText: String {
+        if selectedHour == 0 && selectedMinute == 0 {
+            return "在截止时提醒"
+        }
+        var components: [String] = []
+        if selectedHour > 0 {
+            components.append("\(selectedHour)小时")
+        }
+        if selectedMinute > 0 {
+            components.append("\(selectedMinute)分钟")
+        }
+        return "提前 \(components.joined(separator: " ")) 提醒"
     }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    Toggle("开启作业提醒", isOn: $enabled.withAnimation())
+                    Toggle("开启作业提醒", isOn: $isEnabled.withAnimation())
                 } header: {
                     Text("提醒开关")
                 } footer: {
                     Text("开启后，系统会在作业截止前按你设置的时间发送本地通知提醒。")
                 }
 
-                Section("提前时间") {
+                Section {
                     #if os(iOS)
                     HStack {
                         Picker("小时", selection: $selectedHour.withAnimation()) {
@@ -75,13 +76,10 @@ struct TodoAssignmentsNotificationSettings: View {
                     }
                     .pickerStyle(.menu)
                     #endif
-                }
-
-                Section {
-                    LabeledContent("提醒预览") {
-                        Text(previewText)
-                    }
-                    .contentTransition(.numericText())
+                } header: {
+                    Text("提前时间")
+                } footer: {
+                    Text(previewText).contentTransition(.numericText())
                 }
             }
             .formStyle(.grouped)
@@ -89,42 +87,26 @@ struct TodoAssignmentsNotificationSettings: View {
             .inlineToolbarTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消", action: onCancel)
+                    Button("取消") {
+                        dismiss()
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(
-                        "保存",
-                        asyncAction: {
-                            await onSave(enabled, selectedHour, selectedMinute)
-                        })
+                    Button("保存") {
+                        dismiss()
+                        await onSave(isEnabled, selectedHour, selectedMinute)
+                    }
                 }
             }
         }
     }
-
-    private var previewText: String {
-        if selectedHour == 0 && selectedMinute == 0 {
-            return "在截止时提醒"
-        }
-
-        var components: [String] = []
-        if selectedHour > 0 {
-            components.append("\(selectedHour)小时")
-        }
-        if selectedMinute > 0 {
-            components.append("\(selectedMinute)分钟")
-        }
-        return "提前 \(components.joined(separator: " ")) 提醒"
-    }
-
 }
 
 #Preview("TodoAssignmentsNotificationSettings") {
     TodoAssignmentsNotificationSettings(
         isEnabled: true,
-        reminderOffsetHour: 2,
-        reminderOffsetMinute: 30,
-        onCancel: {},
+        selectedHour: 2,
+        selectedMinute: 30,
         onSave: { _, _, _ in }
     )
 }

@@ -9,35 +9,26 @@ import CSUSTKit
 import SwiftUI
 
 struct TodoAssignmentsView: View {
-    #if os(macOS)
-    @Environment(\.openWindow) private var openWindow
-    #endif
-
     @State private var courseGroups: [TodoAssignmentsData]?
-
-    @State private var selectedCourseID: String?
-    @State private var isCoursePagePresented = false
 
     @State private var isLoading = false
     @State private var errorToast: ToastState = .errorTitle
 
     @State private var isNotificationDeniedAlertPresented = false
-    @State private var isNotificationSettingsPresented = false
 
     @State private var isInitial = true
 
     var body: some View {
         TodoAssignmentsContent(
             courseGroups: courseGroups,
-            isLoadingAssignments: isLoading,
+            isLoading: isLoading,
+            isNotificationEnabled: MMKVHelper.TodoAssignments.isNotificationEnabled,
+            notificationOffsetHour: MMKVHelper.TodoAssignments.notificationOffsetHour,
+            notificationOffsetMinute: MMKVHelper.TodoAssignments.notificationOffsetMinute,
             errorToast: $errorToast,
-            selectedCourseID: $selectedCourseID,
-            isCoursePagePresented: $isCoursePagePresented,
-            isNotificationSettingsPresented: $isNotificationSettingsPresented,
             isNotificationDeniedAlertPresented: $isNotificationDeniedAlertPresented,
             onRefreshAssignments: loadAssignments,
             onSaveNotificationSettings: saveNotificationSettings,
-            onOpenCoursePage: openCoursePage,
             onOpenNotificationSettings: openNotificationSettings
         )
         .onReceive(MMKVHelper.TodoAssignments.$cache.dropFirst().receive(on: RunLoop.main)) { data in
@@ -99,15 +90,6 @@ struct TodoAssignmentsView: View {
 
     private func applyData(_ data: Cached<[TodoAssignmentsData]>?) {
         courseGroups = data?.value
-    }
-
-    private func openCoursePage(courseID: String) {
-        #if os(macOS)
-        openWindow(id: TodoAssignmentsCoursePageScene.windowID, value: courseID)
-        #else
-        selectedCourseID = courseID
-        isCoursePagePresented = true
-        #endif
     }
 
     private func openNotificationSettings() {
