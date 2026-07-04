@@ -157,8 +157,6 @@ final class AuthManager {
         let profile = try await ssoHelper.getLoginUser()
         updateLocalProfile(with: profile)
 
-        await PlanetAuthService.shared.authenticate(with: profile.userAccount, session: self.session)
-
         ssoInfo = "统一身份认证登录成功"
         isSSOInfoPresented = true
 
@@ -170,8 +168,6 @@ final class AuthManager {
         Task {
             isSSOLoggingOut = true
             defer { isSSOLoggingOut = false }
-
-            PlanetAuthService.shared.clearToken()
 
             try? await eduHelper.authService.logout()
             try? await moocHelper.logout()
@@ -190,8 +186,6 @@ final class AuthManager {
 
         let profile = try await ssoHelper.getLoginUser()
         updateLocalProfile(with: profile)
-
-        await PlanetAuthService.shared.authenticate(with: profile.userAccount, session: self.session)
 
         ssoInfo = "统一身份认证登录成功"
         isSSOInfoPresented = true
@@ -216,8 +210,6 @@ final class AuthManager {
             if let ssoProfile = try? await ssoHelper.getLoginUser() {
                 Logger.authManager.debug("ssoRelogin: 统一身份认证已登录，无需再登录")
                 updateLocalProfile(with: ssoProfile)
-
-                await PlanetAuthService.shared.checkAndRefreshAuthToken(ssoAccount: ssoProfile.userAccount, session: self.session)
 
                 if !isSilent {
                     ssoInfo = "统一身份认证已登录"
@@ -253,8 +245,6 @@ final class AuthManager {
             if let ssoProfile = try? await ssoHelper.getLoginUser() {
                 Logger.authManager.debug("ssoRelogin: 验证统一身份认证登录成功")
                 updateLocalProfile(with: ssoProfile)
-
-                await PlanetAuthService.shared.checkAndRefreshAuthToken(ssoAccount: ssoProfile.userAccount, session: self.session)
 
                 if !isSilent {
                     ssoInfo = "统一身份认证登录成功"
