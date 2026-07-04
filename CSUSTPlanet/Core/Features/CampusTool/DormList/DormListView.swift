@@ -59,29 +59,6 @@ struct DormListView: View {
             }
             .presentationDetents([.medium, .large])
         }
-        .sheet(isPresented: scheduleConfigPresentedBinding) {
-            if let dorm = scheduleConfigTargetDorm {
-                DormScheduleConfigView(initialHour: dorm.scheduleHour ?? 20, initialMinute: dorm.scheduleMinute ?? 0) { hour, minute in
-                    Task {
-                        await viewModel.configureSchedule(for: dorm, hour: hour, minute: minute)
-                    }
-                }
-                .presentationDetents([.medium, .large])
-            }
-        }
-        .alert("通知权限被拒绝", isPresented: $viewModel.isNotificationDeniedAlertPresented) {
-            Button(action: { viewModel.isNotificationDeniedAlertPresented = false }) {
-                Text("取消")
-            }
-            Button(action: {
-                NotificationManager.shared.openAppNotificationSettings()
-                viewModel.isNotificationDeniedAlertPresented = false
-            }) {
-                Text("前往设置")
-            }
-        } message: {
-            Text("需要开启通知权限以使用定时查询功能，请前往系统设置开启通知权限")
-        }
         .alert(
             "删除宿舍",
             isPresented: .init(
@@ -156,23 +133,6 @@ struct DormListView: View {
                 Label("查询电量", systemImage: "bolt")
             }
             .disabled(viewModel.isQuerying(dorm))
-
-            Menu {
-                Button(action: {
-                    guard viewModel.canConfigureSchedule(for: dorm) else { return }
-                    scheduleConfigTargetDorm = dorm
-                }) {
-                    Label("配置定时通知任务", systemImage: "clock.badge")
-                }
-                .disabled(viewModel.isSchedulingDorm)
-
-                Button(role: .destructive, action: { Task { await viewModel.cancelSchedule(for: dorm) } }) {
-                    Label("取消定时通知任务", systemImage: "bell.slash")
-                }
-                .disabled(!dorm.scheduleEnabled || viewModel.isSchedulingDorm)
-            } label: {
-                Label("定时查询", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
-            }
 
             Button(role: .destructive, action: { viewModel.targetDeleteDorm = dorm }) {
                 Label("删除宿舍", systemImage: "trash")

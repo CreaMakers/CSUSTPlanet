@@ -96,12 +96,9 @@ struct OnboardingView: View {
             OnboardingDormSetupPage(viewModel: dormViewModel)
                 .transition(pageTransition)
         case 3:
-            OnboardingDormNotificationPage(viewModel: dormViewModel)
-                .transition(pageTransition)
-        case 4:
             OnboardingWidgetPage()
                 .transition(pageTransition)
-        case 5:
+        case 4:
             OnboardingSettingsPage()
                 .transition(pageTransition)
         default:
@@ -122,9 +119,8 @@ struct OnboardingView: View {
         case 0: return "长理星球"
         case 1: return "账号登录"
         case 2: return "宿舍配置"
-        case 3: return "通知设置"
-        case 4: return "桌面小组件"
-        case 5: return "偏好设置"
+        case 3: return "桌面小组件"
+        case 4: return "偏好设置"
         default: return "设置完成"
         }
     }

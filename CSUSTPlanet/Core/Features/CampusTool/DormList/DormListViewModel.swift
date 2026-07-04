@@ -14,11 +14,7 @@ import SwiftUI
 @MainActor
 @Observable
 final class DormListViewModel {
-    @ObservationIgnored let campusCardHelper = CampusCardHelper()
-
     var isAddDormSheetPresented: Bool = false
-    var isNotificationDeniedAlertPresented: Bool = false
-    var isSchedulingDorm: Bool = false
     var dorms: [DormGRDB] = []
     var errorToast: ToastState = .errorTitle
     var queryingDormIDs: Set<Int64> = []
@@ -186,79 +182,6 @@ final class DormListViewModel {
             )
             try await pool.write { db in try DormGRDB.updateElectricity(dormID: dormID, electricity: electricity, in: db) }
             WidgetTimelineRefreshHelper.reloadDormElectricity()
-        } catch {
-            errorToast.show(message: error.localizedDescription)
-        }
-    }
-
-    func canConfigureSchedule(for dorm: DormGRDB) -> Bool {
-        guard dorm.hasFetchedElectricity else {
-            errorToast.show(message: "请先成功查询一次宿舍电量后再配置定时通知")
-            return false
-        }
-        return true
-    }
-
-    func configureSchedule(for dorm: DormGRDB, hour: Int, minute: Int) async {
-        guard let dormID = dorm.id else { return }
-        guard canConfigureSchedule(for: dorm) else { return }
-
-        await performScheduleUpdate(requiresNotificationPermission: true) { db in
-            try DormGRDB.updateSchedule(dormID: dormID, hour: hour, minute: minute, in: db)
-        }
-    }
-
-    func cancelSchedule(for dorm: DormGRDB) async {
-        guard let dormID = dorm.id else { return }
-
-        await performScheduleUpdate(requiresNotificationPermission: false) { db in
-            try DormGRDB.clearSchedule(dormID: dormID, in: db)
-        }
-    }
-
-    private func performScheduleUpdate(requiresNotificationPermission: Bool, dbAction: @escaping (Database) throws -> Void) async {
-        guard let pool = DatabaseManager.shared.pool else { return }
-
-        guard !isSchedulingDorm else { return }
-        isSchedulingDorm = true
-        defer { isSchedulingDorm = false }
-
-        do {
-            guard let authToken = PlanetAuthService.shared.authToken else {
-                errorToast.show(message: "需要登录账号以设置宿舍电量定时通知")
-                return
-            }
-            guard let deviceToken = NotificationManager.shared.token else {
-                errorToast.show(message: "无法获取设备通知令牌")
-                return
-            }
-            let permissionStatus = NotificationManager.shared.permissionStatus ?? .requestable
-
-            let syncPermissionStatus: NotificationPermissionStatus
-            if requiresNotificationPermission {
-                switch permissionStatus {
-                case .authorized:
-                    syncPermissionStatus = .authorized
-                case .denied:
-                    isNotificationDeniedAlertPresented = true
-                    return
-                case .requestable:
-                    guard try await NotificationManager.shared.requestPermission() else {
-                        isNotificationDeniedAlertPresented = true
-                        return
-                    }
-                    syncPermissionStatus = NotificationManager.shared.permissionStatus ?? .denied
-                }
-            } else {
-                syncPermissionStatus = permissionStatus
-            }
-
-            try await pool.write { db in
-                try dbAction(db)
-            }
-
-            try await PlanetTaskService.shared.sync(permissionStatus: syncPermissionStatus, deviceToken: deviceToken, authToken: authToken)
-
         } catch {
             errorToast.show(message: error.localizedDescription)
         }
