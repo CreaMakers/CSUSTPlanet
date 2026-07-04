@@ -157,12 +157,6 @@ struct DormListView: View {
                             .font(.caption)
                             .foregroundStyle(.yellow)
                     }
-
-                    if dorm.scheduleEnabled {
-                        Image(systemName: "bell.badge.fill")
-                            .font(.caption)
-                            .foregroundStyle(.purple)
-                    }
                 }
 
                 if let electricity = dorm.lastFetchElectricity {

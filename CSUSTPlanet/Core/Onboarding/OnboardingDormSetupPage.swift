@@ -206,9 +206,7 @@ extension DormListViewModel {
                     campusName: campus.rawValue,
                     isFavorite: false,
                     lastFetchDate: nil,
-                    lastFetchElectricity: nil,
-                    scheduleHour: nil,
-                    scheduleMinute: nil
+                    lastFetchElectricity: nil
                 )
                 try dorm.insert(db)
 

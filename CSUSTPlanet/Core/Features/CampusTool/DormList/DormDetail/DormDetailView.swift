@@ -264,11 +264,4 @@ struct DormDetailView: View {
                 .foregroundStyle(.secondary)
         }
     }
-
-    private var scheduleTimeText: String {
-        guard let hour = viewModel.dorm.scheduleHour, let minute = viewModel.dorm.scheduleMinute else {
-            return "--:--"
-        }
-        return String(format: "%02d:%02d", hour, minute)
-    }
 }

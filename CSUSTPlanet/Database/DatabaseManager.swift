@@ -70,8 +70,8 @@ final class DatabaseManager {
                 t.column(DormGRDB.Columns.isFavorite.name, .boolean).notNull().defaults(to: false)
                 t.column(DormGRDB.Columns.lastFetchDate.name, .datetime)
                 t.column(DormGRDB.Columns.lastFetchElectricity.name, .double)
-                t.column(DormGRDB.Columns.scheduleHour.name, .integer)
-                t.column(DormGRDB.Columns.scheduleMinute.name, .integer)
+                t.column("scheduleHour", .integer)
+                t.column("scheduleMinute", .integer)
             }
 
             try db.create(index: "idx_dorm_isFavorite", on: DormGRDB.databaseTableName, columns: [DormGRDB.Columns.isFavorite.name])
@@ -110,6 +110,13 @@ final class DatabaseManager {
             try db.alter(table: DormGRDB.databaseTableName) { t in
                 t.drop(column: "buildingID")
                 t.drop(column: "campusID")
+            }
+        }
+
+        migrator.registerMigration("v5_drop_scheduleHour_scheduleMinute") { db in
+            try db.alter(table: DormGRDB.databaseTableName) { t in
+                t.drop(column: "scheduleHour")
+                t.drop(column: "scheduleMinute")
             }
         }
 

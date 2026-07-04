@@ -18,10 +18,6 @@ struct DormGRDB: Codable, FetchableRecord, MutablePersistableRecord, TableRecord
     var isFavorite: Bool
     var lastFetchDate: Date?
     var lastFetchElectricity: Double?
-    var scheduleHour: Int?
-    var scheduleMinute: Int?
-
-    var scheduleEnabled: Bool { return scheduleHour != nil && scheduleMinute != nil }
     var hasFetchedElectricity: Bool { return lastFetchDate != nil && lastFetchElectricity != nil }
 
     enum Columns: String, ColumnExpression {
@@ -29,7 +25,6 @@ struct DormGRDB: Codable, FetchableRecord, MutablePersistableRecord, TableRecord
         case campusName, buildingName, room
         case isFavorite
         case lastFetchDate, lastFetchElectricity
-        case scheduleHour, scheduleMinute
     }
 
     static let records = hasMany(ElectricityRecordGRDB.self)
@@ -91,27 +86,5 @@ extension DormGRDB {
 
         try DormGRDB.filter(id: dormID)
             .updateAll(db, [Columns.lastFetchDate.set(to: nil), Columns.lastFetchElectricity.set(to: nil)])
-    }
-
-    static func updateSchedule(dormID: Int64, hour: Int, minute: Int, in db: Database) throws {
-        try DormGRDB.filter(Columns.id == dormID)
-            .updateAll(
-                db,
-                [
-                    Columns.scheduleHour.set(to: hour),
-                    Columns.scheduleMinute.set(to: minute),
-                ]
-            )
-    }
-
-    static func clearSchedule(dormID: Int64, in db: Database) throws {
-        try DormGRDB.filter(Columns.id == dormID)
-            .updateAll(
-                db,
-                [
-                    Columns.scheduleHour.set(to: nil),
-                    Columns.scheduleMinute.set(to: nil),
-                ]
-            )
     }
 }
