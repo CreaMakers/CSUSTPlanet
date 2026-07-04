@@ -40,6 +40,7 @@ struct OnboardingDormSetupPage: View {
             AddDormView { room in
                 viewModel.addDormAndQuery(room: room)
             }
+            .presentationDetents([.medium, .large])
         }
         .errorToast($viewModel.errorToast)
     }
@@ -57,8 +58,8 @@ struct OnboardingDormSetupPage: View {
 
             Text(
                 primaryDorm == nil
-                    ? "绑定宿舍后，您可以查询宿舍电量，并继续配置后续的定时提醒。"
-                    : "您已经完成宿舍添加，接下来可以继续配置宿舍定时通知。"
+                    ? "绑定宿舍后，您可以查询宿舍电量。"
+                    : "您已经完成宿舍添加。"
             )
             .font(.body)
             .foregroundStyle(.secondary)

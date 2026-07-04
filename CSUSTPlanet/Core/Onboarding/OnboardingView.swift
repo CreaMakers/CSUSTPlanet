@@ -15,7 +15,7 @@ struct OnboardingView: View {
     @State private var currentPage = 0
     @State private var dormViewModel = DormListViewModel()
 
-    private let totalPages = 7
+    private let totalPages = 6
 
     var body: some View {
         NavigationStack {

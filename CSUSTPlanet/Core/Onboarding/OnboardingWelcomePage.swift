@@ -54,8 +54,8 @@ struct OnboardingWelcomePage: View {
                 Divider()
 
                 featureRow(
-                    title: "宿舍电量查询与通知",
-                    description: "查询宿舍剩余电量并计算预计耗尽时间，支持配置电量查询推送通知。"
+                    title: "宿舍电量查询",
+                    description: "查询宿舍剩余电量并计算预计耗尽时间。"
                 )
 
                 Divider()

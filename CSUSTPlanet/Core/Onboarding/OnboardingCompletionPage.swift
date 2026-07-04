@@ -47,7 +47,7 @@ struct OnboardingCompletionPage: View {
                 Text("已完成基础引导")
                     .font(.headline)
 
-                Text("后续如需调整账号、宿舍、通知或外观设置，都可以在 App 内继续修改。")
+                Text("后续如需调整账号、宿舍或外观设置，都可以在 App 内继续修改。")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
