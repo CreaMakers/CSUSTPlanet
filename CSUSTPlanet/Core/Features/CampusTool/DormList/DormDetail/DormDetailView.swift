@@ -47,34 +47,6 @@ struct DormDetailView: View {
         } message: {
             Text("此操作将删除该宿舍所有的历史电量记录且无法恢复，确定要继续吗？")
         }
-        .alert("取消定时任务", isPresented: $viewModel.isCancelScheduleAlertPresented) {
-            Button("保留", role: .cancel) {}
-            Button("取消定时任务", role: .destructive) {
-                Task { await viewModel.cancelSchedule() }
-            }
-            .disabled(viewModel.isSchedulingDorm)
-        } message: {
-            Text("确认取消每天 \(scheduleTimeText) 的宿舍电量提醒吗？")
-        }
-        .alert("通知权限被拒绝", isPresented: $viewModel.isNotificationDeniedAlertPresented) {
-            Button("取消", role: .cancel) {
-                viewModel.isNotificationDeniedAlertPresented = false
-            }
-            Button("前往设置") {
-                NotificationManager.shared.openAppNotificationSettings()
-                viewModel.isNotificationDeniedAlertPresented = false
-            }
-        } message: {
-            Text("需要开启通知权限以使用定时查询功能，请前往系统设置开启通知权限")
-        }
-        .sheet(isPresented: $viewModel.isScheduleConfigSheetPresented) {
-            DormScheduleConfigView(initialHour: viewModel.dorm.scheduleHour ?? 20, initialMinute: viewModel.dorm.scheduleMinute ?? 0) { hour, minute in
-                Task {
-                    await viewModel.configureSchedule(hour: hour, minute: minute)
-                }
-            }
-            .presentationDetents([.medium, .large])
-        }
         .errorToast($viewModel.errorToast)
     }
 
@@ -151,22 +123,6 @@ struct DormDetailView: View {
                 asyncAction: { viewModel.toggleFavorite() }
             )
             .symbolEffect(.bounce.byLayer, value: viewModel.dorm.isFavorite)
-
-            actionButton(
-                icon: viewModel.dorm.scheduleEnabled ? "bell.badge.fill" : "bell",
-                title: viewModel.dorm.scheduleEnabled ? "定时 \(scheduleTimeText)" : "定时查询",
-                titleColor: .primary,
-                iconColor: viewModel.dorm.scheduleEnabled ? .purple : .primary,
-                asyncAction: {
-                    if viewModel.dorm.scheduleEnabled {
-                        viewModel.isCancelScheduleAlertPresented = true
-                    } else {
-                        guard viewModel.canConfigureSchedule() else { return }
-                        viewModel.isScheduleConfigSheetPresented = true
-                    }
-                }
-            )
-            .disabled(viewModel.isSchedulingDorm)
         }
     }
 

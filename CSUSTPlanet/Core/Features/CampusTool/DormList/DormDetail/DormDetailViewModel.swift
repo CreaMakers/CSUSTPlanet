@@ -14,8 +14,6 @@ import SwiftUI
 @MainActor
 @Observable
 final class DormDetailViewModel: Hashable {
-    @ObservationIgnored let campusCardHelper = CampusCardHelper()
-
     var dorm: DormGRDB
     var sortedRecords: [ElectricityRecordGRDB] = []
     var chartRecords: [ElectricityRecordGRDB] = []
@@ -24,10 +22,6 @@ final class DormDetailViewModel: Hashable {
     var errorToast: ToastState = .errorTitle
     var isQueryingElectricity: Bool = false
     var isDeleteAllRecordsAlertPresented: Bool = false
-    var isScheduleConfigSheetPresented: Bool = false
-    var isCancelScheduleAlertPresented: Bool = false
-    var isNotificationDeniedAlertPresented: Bool = false
-    var isSchedulingDorm: Bool = false
 
     @ObservationIgnored private var dormObserver: (any DatabaseCancellable)?
     @ObservationIgnored private var recordsObserver: (any DatabaseCancellable)?
@@ -101,31 +95,6 @@ final class DormDetailViewModel: Hashable {
             WidgetTimelineRefreshHelper.reloadDormElectricity()
         } catch {
             errorToast.show(message: error.localizedDescription)
-        }
-    }
-
-    func canConfigureSchedule() -> Bool {
-        guard dorm.hasFetchedElectricity else {
-            errorToast.show(message: "请先成功查询一次宿舍电量后再配置定时通知")
-            return false
-        }
-        return true
-    }
-
-    func configureSchedule(hour: Int, minute: Int) async {
-        guard let dormID = dorm.id else { return }
-        guard canConfigureSchedule() else { return }
-
-        await performScheduleUpdate(requiresNotificationPermission: true) { db in
-            try DormGRDB.updateSchedule(dormID: dormID, hour: hour, minute: minute, in: db)
-        }
-    }
-
-    func cancelSchedule() async {
-        guard let dormID = dorm.id else { return }
-
-        await performScheduleUpdate(requiresNotificationPermission: false) { db in
-            try DormGRDB.clearSchedule(dormID: dormID, in: db)
         }
     }
 
@@ -223,54 +192,6 @@ final class DormDetailViewModel: Hashable {
                 }
             }
         )
-    }
-
-    private func performScheduleUpdate(requiresNotificationPermission: Bool, dbAction: @escaping (Database) throws -> Void) async {
-        guard let pool = DatabaseManager.shared.pool else { return }
-
-        guard !isSchedulingDorm else { return }
-        isSchedulingDorm = true
-        defer { isSchedulingDorm = false }
-
-        do {
-            guard let authToken = PlanetAuthService.shared.authToken else {
-                errorToast.show(message: "需要登录账号以设置宿舍电量定时通知")
-                return
-            }
-            guard let deviceToken = NotificationManager.shared.token else {
-                errorToast.show(message: "无法获取设备通知令牌")
-                return
-            }
-            let permissionStatus = NotificationManager.shared.permissionStatus ?? .requestable
-
-            let syncPermissionStatus: NotificationPermissionStatus
-            if requiresNotificationPermission {
-                switch permissionStatus {
-                case .authorized:
-                    syncPermissionStatus = .authorized
-                case .denied:
-                    isNotificationDeniedAlertPresented = true
-                    return
-                case .requestable:
-                    guard try await NotificationManager.shared.requestPermission() else {
-                        isNotificationDeniedAlertPresented = true
-                        return
-                    }
-                    syncPermissionStatus = NotificationManager.shared.permissionStatus ?? .denied
-                }
-            } else {
-                syncPermissionStatus = permissionStatus
-            }
-
-            try await pool.write { db in
-                try dbAction(db)
-            }
-
-            try await PlanetTaskService.shared.sync(permissionStatus: syncPermissionStatus, deviceToken: deviceToken, authToken: authToken)
-
-        } catch {
-            errorToast.show(message: error.localizedDescription)
-        }
     }
 
     nonisolated static func == (lhs: DormDetailViewModel, rhs: DormDetailViewModel) -> Bool {
