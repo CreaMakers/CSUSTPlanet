@@ -16,11 +16,6 @@ import UIKit
 import AppKit
 #endif
 
-enum NotificationManagerError: Error {
-    case tokenTimeout
-    case registrationFailed(Error)
-}
-
 enum NotificationPermissionStatus: String {
     case authorized = "已开启"
     case denied = "已关闭"
@@ -46,17 +41,6 @@ final class NotificationManager {
 
     private var cancellables = Set<AnyCancellable>()
 
-    private var tokenContinuation: CheckedContinuation<Void, Error>?
-    private var tokenSubject = CurrentValueSubject<String?, Never>(nil)
-    private(set) var token: String? {
-        didSet {
-            tokenSubject.send(token)
-        }
-    }
-    var tokenPublisher: AnyPublisher<String?, Never> {
-        tokenSubject.eraseToAnyPublisher()
-    }
-
     private var permissionStatusSubject = CurrentValueSubject<NotificationPermissionStatus?, Never>(nil)
     private(set) var permissionStatus: NotificationPermissionStatus? {
         didSet {
@@ -67,16 +51,11 @@ final class NotificationManager {
         permissionStatusSubject.eraseToAnyPublisher()
     }
 
-    private var isUpdatingToken = false
-
     private init() {
         startObservingLifecycle()
 
         Task {
             await updatePermissionStatus()
-        }
-        Task {
-            try? await updateToken()
         }
     }
 
@@ -121,31 +100,6 @@ final class NotificationManager {
         withAnimation { permissionStatus = status }
     }
 
-    func updateToken() async throws {
-        guard self.token == nil else { return }
-
-        guard !isUpdatingToken else { return }
-        isUpdatingToken = true
-        defer { isUpdatingToken = false }
-
-        PlatformApplication.shared.registerForRemoteNotifications()
-
-        return try await withCheckedThrowingContinuation { continuation in
-            Task { @MainActor in
-                self.tokenContinuation = continuation
-
-                Task {
-                    try? await Task.sleep(for: .seconds(10))
-
-                    if let pendingContinuation = self.tokenContinuation {
-                        pendingContinuation.resume(throwing: NotificationManagerError.tokenTimeout)
-                        self.tokenContinuation = nil
-                    }
-                }
-            }
-        }
-    }
-
     func openAppNotificationSettings() {
         #if os(iOS)
         if let url = URL(string: PlatformApplication.openNotificationSettingsURLString),
@@ -159,21 +113,6 @@ final class NotificationManager {
             NSWorkspace.shared.open(url)
         }
         #endif
-    }
-}
-
-// MARK: - Delegate Callback
-
-extension NotificationManager {
-    func didRegisterForRemoteNotifications(with token: Data) {
-        self.token = token.hexString
-        tokenContinuation?.resume(returning: ())
-        tokenContinuation = nil
-    }
-
-    func didFailToRegisterForRemoteNotifications(with error: Error) {
-        tokenContinuation?.resume(throwing: NotificationManagerError.registrationFailed(error))
-        tokenContinuation = nil
     }
 }
 

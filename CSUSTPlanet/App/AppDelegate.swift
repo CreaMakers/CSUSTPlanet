@@ -18,14 +18,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         UNUserNotificationCenter.current().setBadgeCount(0)
         return true
     }
-
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        NotificationManager.shared.didRegisterForRemoteNotifications(with: deviceToken)
-    }
-
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: any Error) {
-        NotificationManager.shared.didFailToRegisterForRemoteNotifications(with: error)
-    }
 }
 
 #elseif os(macOS)
@@ -35,14 +27,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().setBadgeCount(0)
-    }
-
-    func application(_ application: NSApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        NotificationManager.shared.didRegisterForRemoteNotifications(with: deviceToken)
-    }
-
-    func application(_ application: NSApplication, didFailToRegisterForRemoteNotificationsWithError error: any Error) {
-        NotificationManager.shared.didFailToRegisterForRemoteNotifications(with: error)
     }
 }
 #endif
