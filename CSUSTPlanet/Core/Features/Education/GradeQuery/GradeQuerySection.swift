@@ -11,7 +11,7 @@ import SwiftUI
 struct GradeQuerySection: View {
     let semester: String
     let grades: [EduHelper.CourseGrade]
-    @Binding var isExpanded: Bool
+    @State private var isExpanded: Bool = true
     let semesterGPA: Double
     let isSelectionMode: Bool
     @Binding var selectedCourseIDs: Set<String>
@@ -41,7 +41,9 @@ struct GradeQuerySection: View {
                 }
                 .contentShape(.rect)
                 .onTapGesture {
-                    isExpanded.toggle()
+                    withAnimation {
+                        isExpanded.toggle()
+                    }
                 }
 
                 if isExpanded {
@@ -69,14 +71,12 @@ struct GradeQuerySection: View {
 }
 
 #Preview("GradeQuerySection") {
-    @Previewable @State var isExpanded = true
     @Previewable @State var selectedCourseIDs: Set<String> = []
 
     NavigationStack {
         GradeQuerySection(
             semester: GradeQueryPreviewData.groupedGrades[0].semester,
             grades: GradeQueryPreviewData.groupedGrades[0].grades,
-            isExpanded: $isExpanded.withAnimation(),
             semesterGPA: GradeQueryPreviewData.semesterGPAs[GradeQueryPreviewData.groupedGrades[0].semester] ?? 0.0,
             isSelectionMode: false,
             selectedCourseIDs: $selectedCourseIDs
@@ -86,13 +86,11 @@ struct GradeQuerySection: View {
 }
 
 #Preview("GradeQuerySection Selection") {
-    @Previewable @State var isExpanded = true
     @Previewable @State var selectedCourseIDs: Set<String> = [GradeQueryPreviewData.grades[0].courseID]
 
     GradeQuerySection(
         semester: GradeQueryPreviewData.groupedGrades[0].semester,
         grades: GradeQueryPreviewData.groupedGrades[0].grades,
-        isExpanded: $isExpanded.withAnimation(),
         semesterGPA: GradeQueryPreviewData.semesterGPAs[GradeQueryPreviewData.groupedGrades[0].semester] ?? 0.0,
         isSelectionMode: true,
         selectedCourseIDs: $selectedCourseIDs

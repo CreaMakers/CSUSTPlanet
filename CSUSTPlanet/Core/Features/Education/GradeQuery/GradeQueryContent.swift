@@ -46,8 +46,6 @@ struct GradeQueryContent: View {
 
     @Binding var searchText: String
 
-    @Binding var expandedSemesters: Set<String>
-
     @Binding var isSelectionMode: Bool
     @Binding var selectedCourseIDs: Set<String>
 
@@ -69,16 +67,6 @@ struct GradeQueryContent: View {
                         GradeQuerySection(
                             semester: group.semester,
                             grades: group.grades,
-                            isExpanded: Binding(
-                                get: { expandedSemesters.contains(group.semester) },
-                                set: { isExpanded in
-                                    if isExpanded {
-                                        expandedSemesters.insert(group.semester)
-                                    } else {
-                                        expandedSemesters.remove(group.semester)
-                                    }
-                                }
-                            ).withAnimation(),
                             semesterGPA: semesterGPAs[group.semester] ?? 0.0,
                             isSelectionMode: isSelectionMode,
                             selectedCourseIDs: $selectedCourseIDs
@@ -179,7 +167,6 @@ struct GradeQueryContent: View {
 
 #Preview("GradeQueryContent") {
     @Previewable @State var searchText = ""
-    @Previewable @State var expandedSemesters = Set(GradeQueryPreviewData.grades.map { $0.semester })
     @Previewable @State var isSelectionMode = false
     @Previewable @State var selectedCourseIDs: Set<String> = []
     @Previewable @State var errorToast = ToastState.errorTitle
@@ -189,7 +176,6 @@ struct GradeQueryContent: View {
         GradeQueryContent(
             grades: GradeQueryPreviewData.grades,
             searchText: $searchText,
-            expandedSemesters: $expandedSemesters,
             isSelectionMode: $isSelectionMode,
             selectedCourseIDs: $selectedCourseIDs,
             isLoading: false,
@@ -204,7 +190,6 @@ struct GradeQueryContent: View {
 
 #Preview("GradeQueryContent Selection") {
     @Previewable @State var searchText = ""
-    @Previewable @State var expandedSemesters = Set(GradeQueryPreviewData.grades.map { $0.semester })
     @Previewable @State var isSelectionMode = true
     @Previewable @State var selectedCourseIDs: Set<String> = [GradeQueryPreviewData.grades[0].courseID]
     @Previewable @State var errorToast = ToastState.errorTitle
@@ -214,7 +199,6 @@ struct GradeQueryContent: View {
         GradeQueryContent(
             grades: GradeQueryPreviewData.grades,
             searchText: $searchText,
-            expandedSemesters: $expandedSemesters,
             isSelectionMode: $isSelectionMode,
             selectedCourseIDs: $selectedCourseIDs,
             isLoading: false,

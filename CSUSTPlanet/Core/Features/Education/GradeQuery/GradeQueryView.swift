@@ -18,8 +18,6 @@ struct GradeQueryView: View {
 
     @State private var searchText = ""
 
-    @State private var expandedSemesters: Set<String> = []
-
     @State private var isSelectionMode = false
     @State private var selectedCourseIDs: Set<String> = []
 
@@ -36,7 +34,6 @@ struct GradeQueryView: View {
         GradeQueryContent(
             grades: grades,
             searchText: $searchText,
-            expandedSemesters: $expandedSemesters,
             isSelectionMode: $isSelectionMode,
             selectedCourseIDs: $selectedCourseIDs,
             isLoading: isLoading,
@@ -80,14 +77,8 @@ struct GradeQueryView: View {
     private func applyData(_ data: Cached<[EduHelper.CourseGrade]>?) {
         grades = data?.value
 
-        guard let data else {
-            expandedSemesters = []
-            selectedCourseIDs = []
-            isSelectionMode = false
-            return
-        }
-
-        expandedSemesters = Set(data.value.map { $0.semester })
+        selectedCourseIDs = []
+        isSelectionMode = false
     }
 
     private func exportGradesAsCSV() {
