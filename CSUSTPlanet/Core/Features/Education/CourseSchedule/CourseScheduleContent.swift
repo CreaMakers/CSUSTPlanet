@@ -8,11 +8,10 @@
 import SwiftUI
 
 struct CourseScheduleContent: View {
-    @Binding var isSemestersSheetPresented: Bool
-    @Binding var isCalendarSettingsSheetPresented: Bool
-
-    @Binding var isCourseDetailPresented: Bool
-    @Binding var selectedCourseInfo: CourseDisplayInfo?
+    @State private var isSemestersSheetPresented: Bool = false
+    @State private var isCalendarSettingsSheetPresented = false
+    @State private var isCourseDetailPresented = false
+    @State private var selectedCourseInfo: CourseDisplayInfo?
 
     let weeklyCourses: [Int: [CourseDisplayInfo]]?
     let courseColors: [String: Color]
@@ -21,7 +20,6 @@ struct CourseScheduleContent: View {
 
     let selectedSemester: String?
 
-    let isSemestersLoading: Bool
     let isCourseScheduleLoading: Bool
 
     @Binding var currentWeek: Int
@@ -150,12 +148,10 @@ struct CourseScheduleContent: View {
                 Button(action: { isSemestersSheetPresented = true }) {
                     Label("学期选择", systemImage: "gearshape")
                 }
-                .disabled(isSemestersLoading)
 
                 Button(action: { isCalendarSettingsSheetPresented = true }) {
                     Label("添加课表到系统日历", systemImage: "calendar.badge.plus")
                 }
-                .disabled(isSemestersLoading)
             }
 
             ToolbarItem(placement: .primaryAction) {
@@ -204,16 +200,11 @@ struct CourseScheduleContent: View {
 #Preview("CourseScheduleContent") {
     NavigationStack {
         CourseScheduleContent(
-            isSemestersSheetPresented: .constant(false),
-            isCalendarSettingsSheetPresented: .constant(false),
-            isCourseDetailPresented: .constant(false),
-            selectedCourseInfo: .constant(nil),
             weeklyCourses: [:],
             courseColors: [:],
             semesterStartDate: nil,
             remarks: [],
             selectedSemester: nil,
-            isSemestersLoading: false,
             isCourseScheduleLoading: false,
             currentWeek: .constant(1),
             realCurrentWeek: 1,

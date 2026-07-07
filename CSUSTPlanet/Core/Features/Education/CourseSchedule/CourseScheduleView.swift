@@ -11,12 +11,6 @@ import EventKit
 import SwiftUI
 
 struct CourseScheduleView: View {
-    @State private var isSemestersSheetPresented = false
-    @State private var isCalendarSettingsSheetPresented = false
-
-    @State private var isCourseDetailPresented = false
-    @State private var selectedCourseInfo: CourseDisplayInfo?
-
     @State private var courses: [EduHelper.Course]? = nil
     @State private var weeklyCourses: [Int: [CourseDisplayInfo]]? = nil
     @State private var courseColors: [String: Color] = [:]
@@ -26,7 +20,6 @@ struct CourseScheduleView: View {
     @State private var selectedSemester: String? = nil
 
     @State private var isCourseScheduleLoading: Bool = false
-    @State private var isSemestersLoading: Bool = false
 
     @State private var currentWeek: Int = 1
     @State private var realCurrentWeek: Int? = nil
@@ -41,16 +34,11 @@ struct CourseScheduleView: View {
 
     var body: some View {
         CourseScheduleContent(
-            isSemestersSheetPresented: $isSemestersSheetPresented,
-            isCalendarSettingsSheetPresented: $isCalendarSettingsSheetPresented,
-            isCourseDetailPresented: $isCourseDetailPresented,
-            selectedCourseInfo: $selectedCourseInfo,
             weeklyCourses: weeklyCourses,
             courseColors: courseColors,
             semesterStartDate: semesterStartDate,
             remarks: remarks,
             selectedSemester: selectedSemester,
-            isSemestersLoading: isSemestersLoading,
             isCourseScheduleLoading: isCourseScheduleLoading,
             currentWeek: $currentWeek,
             realCurrentWeek: realCurrentWeek,
