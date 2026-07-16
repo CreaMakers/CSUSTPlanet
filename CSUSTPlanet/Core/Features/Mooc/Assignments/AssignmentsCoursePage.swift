@@ -44,27 +44,7 @@ struct AssignmentsCoursePage: View {
         .navigationTitle("课程页面")
         .inlineToolbarTitle()
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button(action: { webViewController.goBack() }) {
-                    Label("上一页", systemImage: "chevron.left")
-                }
-                .disabled(!webViewController.canGoBack)
-
-                Button(action: { webViewController.goForward() }) {
-                    Label("下一页", systemImage: "chevron.right")
-                }
-                .disabled(!webViewController.canGoForward)
-            }
-
-            ToolbarItem(placement: .primaryAction) {
-                Button(action: { webViewController.reload() }) {
-                    if webViewController.isLoading {
-                        ProgressView().smallControlSizeOnMac()
-                    } else {
-                        Label("刷新", systemImage: "arrow.clockwise")
-                    }
-                }
-            }
+            WebViewControlsToolbar(controller: webViewController)
         }
     }
 }
