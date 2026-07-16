@@ -10,23 +10,74 @@ import SwiftUI
 import WebKit
 
 struct EvalView: View {
+    @State private var webViewController = WebViewController()
+
     var body: some View {
         HStack {
-            EvalBrowserView()
+            EvalBrowserView(controller: webViewController)
         }
         .inlineToolbarTitle()
         .navigationTitle("评教系统")
+        .toolbar {
+            ToolbarItemGroup(placement: .secondaryAction) {
+                Button(action: { webViewController.goBack() }) {
+                    Label("上一页", systemImage: "chevron.left")
+                }
+                .disabled(!webViewController.canGoBack)
+
+                Button(action: { webViewController.goForward() }) {
+                    Label("下一页", systemImage: "chevron.right")
+                }
+                .disabled(!webViewController.canGoForward)
+            }
+
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: { webViewController.reload() }) {
+                    if webViewController.isLoading {
+                        ProgressView().smallControlSizeOnMac()
+                    } else {
+                        Label("刷新", systemImage: "arrow.clockwise")
+                    }
+                }
+            }
+        }
     }
 }
 
 struct EvalBrowserView: PlatformViewRepresentable {
     static let factory = URLFactory(mode: AuthManager.shared.mode)
+    let controller: WebViewController
 
-    class Coordinator: NSObject {
+    class Coordinator: NSObject, WKNavigationDelegate {
+        weak var controller: WebViewController?
+
+        init(controller: WebViewController) {
+            self.controller = controller
+        }
+
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            controller?.syncState()
+        }
+
+        func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+            controller?.syncState()
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            controller?.syncState()
+        }
+
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
+            controller?.syncState()
+        }
+
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: any Error) {
+            controller?.syncState()
+        }
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator()
+        Coordinator(controller: controller)
     }
 
     private func makeWebView(coordinator: Coordinator) -> WKWebView {
@@ -50,6 +101,11 @@ struct EvalBrowserView: PlatformViewRepresentable {
         )
 
         configuration.userContentController.addUserScript(script)
+
+        webView.navigationDelegate = coordinator
+
+        controller.webView = webView
+        controller.syncState()
 
         if let cookies = CookieHelper.shared.session.sessionConfiguration.httpCookieStorage?.cookies {
             let cookieStore = dataStore.httpCookieStore
