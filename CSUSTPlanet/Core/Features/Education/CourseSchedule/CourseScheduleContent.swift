@@ -119,8 +119,12 @@ struct CourseScheduleContent: View {
         .environment(\.courseScheduleLayoutConfig, layoutConfig)
         .apply { view in
             if !isWideSize {
-                view.sheet(isPresented: $isCourseDetailPresented) {
-                    sheetContent
+                view.sheet(item: $selectedCourseInfo) { courseInfo in
+                    CourseScheduleDetailView(
+                        course: courseInfo.course,
+                        session: courseInfo.session,
+                        isToolbarPresented: sizeClass == .compact,
+                    )
                 }
             } else {
                 view.inspector(isPresented: $isCourseDetailPresented) {
