@@ -13,7 +13,7 @@ struct CourseScheduleScrollTable: View {
     let courseColors: [String: Color]
 
     @Binding var currentWeek: Int
-    @Binding var isCourseDetailPresented: Bool
+    @Binding var isCourseDetailInspectorPresented: Bool
     @Binding var selectedCourseInfo: CourseDisplayInfo?
 
     var body: some View {
@@ -25,7 +25,7 @@ struct CourseScheduleScrollTable: View {
                         targetWeek: week,
                         weeklyCourses: weeklyCourses,
                         courseColors: courseColors,
-                        isCourseDetailPresented: $isCourseDetailPresented,
+                        isCourseDetailInspectorPresented: $isCourseDetailInspectorPresented,
                         selectedCourseInfo: $selectedCourseInfo
                     )
                     .containerRelativeFrame(.horizontal)
@@ -49,7 +49,7 @@ struct CourseScheduleScrollTable: View {
         weeklyCourses: [:],
         courseColors: [:],
         currentWeek: .constant(1),
-        isCourseDetailPresented: .constant(false),
+        isCourseDetailInspectorPresented: .constant(false),
         selectedCourseInfo: .constant(nil)
     )
 }

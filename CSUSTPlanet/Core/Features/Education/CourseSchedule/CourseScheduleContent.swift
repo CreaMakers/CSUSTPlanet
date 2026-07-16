@@ -10,7 +10,8 @@ import SwiftUI
 struct CourseScheduleContent: View {
     @State private var isSemestersSheetPresented: Bool = false
     @State private var isCalendarSettingsSheetPresented = false
-    @State private var isCourseDetailPresented = false
+    // 仅控制宽屏课程详情 inspector
+    @State private var isCourseDetailInspectorPresented = false
     @State private var selectedCourseInfo: CourseDisplayInfo?
 
     let weeklyCourses: [Int: [CourseDisplayInfo]]?
@@ -85,7 +86,7 @@ struct CourseScheduleContent: View {
                         weeklyCourses: weeklyCourses,
                         courseColors: courseColors,
                         currentWeek: $currentWeek,
-                        isCourseDetailPresented: $isCourseDetailPresented,
+                        isCourseDetailInspectorPresented: $isCourseDetailInspectorPresented,
                         selectedCourseInfo: $selectedCourseInfo
                     )
 
@@ -127,7 +128,7 @@ struct CourseScheduleContent: View {
                     )
                 }
             } else {
-                view.inspector(isPresented: $isCourseDetailPresented) {
+                view.inspector(isPresented: $isCourseDetailInspectorPresented) {
                     sheetContent
                         #if os(macOS)
                     .inspectorColumnWidth(min: 200, ideal: 250, max: 300)
@@ -140,7 +141,7 @@ struct CourseScheduleContent: View {
         .onChange(of: isWideSize) { _, isWideSize in
             if isWideSize {
                 Task { @MainActor in
-                    isCourseDetailPresented = true
+                    isCourseDetailInspectorPresented = true
                 }
             }
         }
@@ -171,7 +172,7 @@ struct CourseScheduleContent: View {
         }
         .onAppear {
             if isWideSize {
-                isCourseDetailPresented = true
+                isCourseDetailInspectorPresented = true
             }
         }
         .errorToast($errorToast)

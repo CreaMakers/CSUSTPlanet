@@ -15,7 +15,7 @@ struct CourseScheduleOverlay: View {
     let weeklyCourses: [Int: [CourseDisplayInfo]]
     let courseColors: [String: Color]
 
-    @Binding var isCourseDetailPresented: Bool
+    @Binding var isCourseDetailInspectorPresented: Bool
     @Binding var selectedCourseInfo: CourseDisplayInfo?
 
     var body: some View {
@@ -76,7 +76,7 @@ struct CourseScheduleOverlay: View {
 
     private func presentCourseDetail(_ courseInfo: CourseDisplayInfo) {
         selectedCourseInfo = courseInfo
-        isCourseDetailPresented = true
+        isCourseDetailInspectorPresented = true
     }
 }
 
@@ -111,7 +111,7 @@ struct CourseScheduleOverlay: View {
         targetWeek: 1,
         weeklyCourses: weeklyCourses,
         courseColors: courseColors,
-        isCourseDetailPresented: .constant(false),
+        isCourseDetailInspectorPresented: .constant(false),
         selectedCourseInfo: .constant(nil)
     )
 }

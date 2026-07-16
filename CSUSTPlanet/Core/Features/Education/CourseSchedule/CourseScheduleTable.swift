@@ -14,7 +14,7 @@ struct CourseScheduleTable: View {
     let weeklyCourses: [Int: [CourseDisplayInfo]]
     let courseColors: [String: Color]
 
-    @Binding var isCourseDetailPresented: Bool
+    @Binding var isCourseDetailInspectorPresented: Bool
     @Binding var selectedCourseInfo: CourseDisplayInfo?
 
     @Environment(\.courseScheduleLayoutConfig) private var layoutConfig
@@ -28,7 +28,7 @@ struct CourseScheduleTable: View {
                     targetWeek: targetWeek,
                     weeklyCourses: weeklyCourses,
                     courseColors: courseColors,
-                    isCourseDetailPresented: $isCourseDetailPresented,
+                    isCourseDetailInspectorPresented: $isCourseDetailInspectorPresented,
                     selectedCourseInfo: $selectedCourseInfo,
                 )
             }
@@ -142,7 +142,7 @@ struct CourseScheduleTable: View {
         targetWeek: 1,
         weeklyCourses: [:],
         courseColors: [:],
-        isCourseDetailPresented: .constant(false),
+        isCourseDetailInspectorPresented: .constant(false),
         selectedCourseInfo: .constant(nil)
     )
 }
