@@ -107,20 +107,19 @@ struct EvalBrowserView: PlatformViewRepresentable {
         controller.webView = webView
         controller.syncState()
 
-        if let cookies = CookieHelper.shared.session.sessionConfiguration.httpCookieStorage?.cookies {
-            let cookieStore = dataStore.httpCookieStore
-            let group = DispatchGroup()
+        let cookies = CookieHelper.shared.session.sessionConfiguration.httpCookieStorage?.cookies ?? []
+        let cookieStore = dataStore.httpCookieStore
+        let group = DispatchGroup()
 
-            for cookie in cookies {
-                group.enter()
-                cookieStore.setCookie(cookie) {
-                    group.leave()
-                }
+        for cookie in cookies {
+            group.enter()
+            cookieStore.setCookie(cookie) {
+                group.leave()
             }
+        }
 
-            group.notify(queue: .main) {
-                webView.load(URLRequest(url: URL(string: Self.factory.make(.eval, "/api/manage/cas/toUrl?type=pc"))!))
-            }
+        group.notify(queue: .main) {
+            webView.load(URLRequest(url: URL(string: Self.factory.make(.eval, "/api/manage/cas/toUrl?type=pc"))!))
         }
 
         return webView
