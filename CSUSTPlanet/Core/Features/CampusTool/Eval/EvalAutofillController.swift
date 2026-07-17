@@ -45,20 +45,11 @@ final class EvalAutofillController {
     }
 
     func fillCustomScore() async {
-        guard let targetCents = customTargetCents else { return }
-
-        if await fill(targetCents: targetCents) {
-            isCustomScoreSheetPresented = false
-        }
-    }
-
-    @discardableResult
-    private func fill(targetCents: Int) async -> Bool {
-        guard !isFilling, (1...9_999).contains(targetCents) else { return false }
+        guard !isFilling, let targetCents = customTargetCents else { return }
 
         guard let webView else {
             alertMessage = "评教页面尚未准备完成，请稍后重试。"
-            return false
+            return
         }
 
         isFilling = true
@@ -77,19 +68,17 @@ final class EvalAutofillController {
                 let message = result["message"] as? String
             else {
                 alertMessage = "页面未返回有效的填写结果，请重新打开评教弹窗后重试。"
-                return false
+                return
             }
 
             if success {
                 successToast.show(message: message)
-                return true
+                isCustomScoreSheetPresented = false
             } else {
                 alertMessage = message
-                return false
             }
         } catch {
             alertMessage = "调用页面填写功能失败：\(error.localizedDescription)"
-            return false
         }
     }
 
