@@ -13,16 +13,30 @@ struct AboutView: View {
 
     var body: some View {
         Form {
+            Section {
+                HStack {
+                    AboutAppIconView()
+                        .frame(width: 158, height: 158)
+
+                    VStack {
+                        Text("长理星球")
+                            .font(.title2.weight(.semibold))
+
+                        Group {
+                            Text("\(viewModel.appVersion)（\(viewModel.buildNumber))")
+                            Text(viewModel.environment)
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+            }
+
             if let aboutMarkdown = viewModel.aboutMarkdown {
                 Markdown(aboutMarkdown)
             } else {
                 Text("无法加载关于信息")
-            }
-
-            Section("应用信息") {
-                FormRow(label: "版本号", value: viewModel.appVersion)
-                FormRow(label: "构建号", value: viewModel.buildNumber)
-                FormRow(label: "运行环境", value: viewModel.environment)
             }
 
             Section("更多信息") {
