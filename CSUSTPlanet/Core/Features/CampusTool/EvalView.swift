@@ -12,12 +12,12 @@ import WebKit
 struct EvalView: View {
     @State private var webViewController = WebViewController()
     @State private var autofillController = EvalAutofillController()
+    @State private var isAutofillActionsPresented = false
 
     private var isShowingAutofillAlert: Binding<Bool> {
         Binding(
             get: {
-                autofillController.alertMessage != nil
-                    && !autofillController.isCustomScoreSheetPresented
+                autofillController.alertMessage != nil && !autofillController.isCustomScoreSheetPresented
             },
             set: { isPresented in
                 if !isPresented {
@@ -28,46 +28,60 @@ struct EvalView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack(alignment: .bottomTrailing) {
             EvalBrowserView(
                 controller: webViewController,
                 autofillController: autofillController
             )
 
             if autofillController.isAvailable {
-                HStack(spacing: 8) {
-                    Button(asyncAction: autofillController.fill99_99) {
-                        HStack(spacing: 8) {
-                            if autofillController.isFilling {
-                                ProgressView()
-                                    .controlSize(.small)
-                            } else {
-                                Image(systemName: "wand.and.stars")
-                            }
-
-                            Text("一键填写 99.99")
+                Button {
+                    isAutofillActionsPresented = true
+                } label: {
+                    HStack(spacing: 8) {
+                        if autofillController.isFilling {
+                            ProgressView()
+                        } else {
+                            Image(systemName: "wand.and.stars")
                         }
+
+                        Text("辅助填写")
                     }
-                    .buttonStyle(.borderedProminent)
+                }
+                .controlSize(.large)
+                .apply { view in
+                    if #available(iOS 26.0, macOS 26.0, *) {
+                        view.buttonStyle(.glassProminent)
+                    } else {
+                        view.buttonStyle(.borderedProminent)
+                    }
+                }
+                .disabled(autofillController.isFilling)
+                .padding(.trailing, 16)
+                .padding(.bottom, 16)
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+                .confirmationDialog("辅助填写", isPresented: $isAutofillActionsPresented, titleVisibility: .visible) {
+                    Button(asyncAction: autofillController.fill99_99) {
+                        Label("填写 99.99 分", systemImage: "wand.and.stars")
+                    }
 
                     Button {
                         autofillController.presentCustomScoreSheet()
                     } label: {
-                        Label("自定义分数", systemImage: "number")
+                        Label("填写自定义分数", systemImage: "number")
                     }
-                    .buttonStyle(.bordered)
+
+                    Button("取消", role: .cancel) {}
                 }
-                .disabled(autofillController.isFilling)
-                .padding()
-                .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
         .animation(.default, value: autofillController.isAvailable)
-        .alert(
-            "一键填写失败",
-            isPresented: isShowingAutofillAlert,
-            presenting: autofillController.alertMessage
-        ) { _ in
+        .onChange(of: autofillController.isAvailable) { _, isAvailable in
+            if !isAvailable {
+                isAutofillActionsPresented = false
+            }
+        }
+        .alert("一键填写失败", isPresented: isShowingAutofillAlert, presenting: autofillController.alertMessage) { _ in
             Button("确定", role: .cancel) {
                 autofillController.dismissAlert()
             }
@@ -259,7 +273,7 @@ private struct EvalCustomScoreSheet: View {
                 }
 
                 Section {
-                    Text("系统会按每道题的满分权重分配分值，并校验最终总分；填写完成后仍需手动提交。")
+                    Text("系统会按每道题的满分权重分配分值。")
                         .foregroundStyle(.secondary)
                 }
             }
@@ -556,7 +570,7 @@ private struct EvalBrowserView: PlatformViewRepresentable {
               });
               return {
                 success: true,
-                message: `已填写并校验为 ${formatCents(targetCents)} 分；尚未提交。`,
+                message: `已填写 ${formatCents(targetCents)} 分。`,
               };
             } catch (error) {
               console.error(LOG_PREFIX, '填写或校验失败；未执行提交。', error);
