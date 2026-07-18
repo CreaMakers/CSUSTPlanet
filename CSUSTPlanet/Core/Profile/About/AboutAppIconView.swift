@@ -22,10 +22,34 @@ private typealias AboutAppIconPlatformImageView = UIImageView
 
 struct AboutAppIconView: View {
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
+    @State private var showsHDRInfo = false
 
     private static let resources = AboutAppIconResources.load()
 
     var body: some View {
+        Button {
+            showsHDRInfo = true
+        } label: {
+            icon
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $showsHDRInfo) {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("HDR 效果", systemImage: "sparkles.tv")
+                    .font(.headline)
+
+                Text("这是一个支持 HDR 高动态范围的图片。兼容的显示设备会展现出更具表现力的明亮高光；在其他设备上则会以 SDR 标准平滑显示。")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
+            .frame(width: 280, alignment: .leading)
+            .presentationCompactAdaptation(.popover)
+        }
+    }
+
+    @ViewBuilder
+    private var icon: some View {
         if let videoURL = Self.resources.videoURL,
             let sdrImage = Self.resources.sdrImage
         {
