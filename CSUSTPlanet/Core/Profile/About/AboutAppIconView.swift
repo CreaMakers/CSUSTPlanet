@@ -12,38 +12,32 @@ import SwiftUI
 
 #if os(macOS)
 import AppKit
-private typealias AboutAppIconPlatformImage = NSImage
+private typealias AboutAppIconPlatformView = NSView
+private typealias AboutAppIconPlatformImageView = NSImageView
 #else
 import UIKit
-private typealias AboutAppIconPlatformImage = UIImage
+private typealias AboutAppIconPlatformView = UIView
+private typealias AboutAppIconPlatformImageView = UIImageView
 #endif
 
 struct AboutAppIconView: View {
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
 
-    private let images = AboutAppIconImages.load()
+    private static let resources = AboutAppIconResources.load()
 
     var body: some View {
-        if let hdrVideoURL = images.hdrVideoURL,
-            let sdrImage = images.sdrImage,
-            let sdrAlphaMask = images.sdrAlphaMask
+        if let videoURL = Self.resources.videoURL,
+            let sdrImage = Self.resources.sdrImage
         {
             AboutAppIconVideoView(
-                videoURL: hdrVideoURL,
+                videoURL: videoURL,
                 sdrImage: sdrImage,
-                alphaMask: sdrAlphaMask,
                 showsSweep: !accessibilityReduceMotion
             )
-        } else if let hdrImage = images.hdrImage,
-            let sdrImage = images.sdrImage
-        {
-            if accessibilityReduceMotion {
-                AboutAppIconStaticView(image: hdrImage, dynamicRange: .high)
-            } else {
-                AboutAppIconSweepView(hdrImage: hdrImage, sdrImage: sdrImage)
-            }
-        } else if let sdrImage = images.sdrImage {
-            AboutAppIconStaticView(image: sdrImage, dynamicRange: .standard)
+        } else if let sdrImage = Self.resources.sdrImage {
+            Image(decorative: sdrImage, scale: 1)
+                .resizable()
+                .scaledToFit()
         } else {
             Image(systemName: "app.dashed")
                 .resizable()
@@ -55,435 +49,46 @@ struct AboutAppIconView: View {
 }
 
 #if os(macOS)
-private struct AboutAppIconStaticView: NSViewRepresentable {
-    let image: NSImage
-    let dynamicRange: NSImage.DynamicRange
-
-    func makeNSView(context: Context) -> AboutAppIconStaticNSView {
-        AboutAppIconStaticNSView(image: image, dynamicRange: dynamicRange)
-    }
-
-    func updateNSView(_ nsView: AboutAppIconStaticNSView, context: Context) {
-        nsView.updateImage(image, dynamicRange: dynamicRange)
-    }
-}
-
-private final class AboutAppIconStaticNSView: NSView {
-    private let imageView = NSImageView()
-
-    override var intrinsicContentSize: NSSize {
-        NSSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric)
-    }
-
-    init(image: NSImage, dynamicRange: NSImage.DynamicRange) {
-        super.init(frame: .zero)
-
-        configureImageView(imageView, image: image, dynamicRange: dynamicRange)
-        addSubview(imageView)
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layout() {
-        super.layout()
-        imageView.frame = bounds
-    }
-
-    func updateImage(_ image: NSImage, dynamicRange: NSImage.DynamicRange) {
-        configureImageView(imageView, image: image, dynamicRange: dynamicRange)
-    }
-}
-
-private struct AboutAppIconSweepView: NSViewRepresentable {
-    let hdrImage: NSImage
-    let sdrImage: NSImage
-
-    func makeNSView(context: Context) -> AboutAppIconSweepNSView {
-        AboutAppIconSweepNSView(hdrImage: hdrImage, sdrImage: sdrImage)
-    }
-
-    func updateNSView(_ nsView: AboutAppIconSweepNSView, context: Context) {
-        nsView.updateImages(hdrImage: hdrImage, sdrImage: sdrImage)
-    }
-}
-
-private func configureImageView(
-    _ imageView: NSImageView,
-    image: NSImage,
-    dynamicRange: NSImage.DynamicRange
-) {
-    imageView.image = image
-    imageView.imageAlignment = .alignCenter
-    imageView.imageScaling = .scaleProportionallyUpOrDown
-    imageView.preferredImageDynamicRange = dynamicRange
-}
-
-private final class AboutAppIconSweepNSView: NSView {
-    private let sdrImageView = NSImageView()
-    private let hdrImageView = NSImageView()
-    private let sweepMask = CAGradientLayer()
-    private var animatedSize: CGSize = .zero
-
-    init(hdrImage: NSImage, sdrImage: NSImage) {
-        super.init(frame: .zero)
-
-        wantsLayer = true
-        layer?.masksToBounds = true
-        configure(sdrImageView, image: sdrImage, dynamicRange: .standard)
-        configure(hdrImageView, image: hdrImage, dynamicRange: .high)
-
-        addSubview(sdrImageView)
-        addSubview(hdrImageView)
-
-        AboutAppIconSweepAnimation.configure(sweepMask)
-        hdrImageView.wantsLayer = true
-        hdrImageView.layer?.mask = sweepMask
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layout() {
-        super.layout()
-
-        sdrImageView.frame = bounds
-        hdrImageView.frame = bounds
-
-        guard bounds.width > 0,
-            bounds.height > 0,
-            animatedSize != bounds.size
-        else {
-            return
-        }
-
-        animatedSize = bounds.size
-        AboutAppIconSweepAnimation.restart(sweepMask, in: bounds)
-    }
-
-    override func viewDidMoveToWindow() {
-        super.viewDidMoveToWindow()
-
-        if window != nil, bounds.width > 0, bounds.height > 0 {
-            AboutAppIconSweepAnimation.restart(sweepMask, in: bounds)
-        }
-    }
-
-    func updateImages(hdrImage: NSImage, sdrImage: NSImage) {
-        hdrImageView.image = hdrImage
-        sdrImageView.image = sdrImage
-    }
-
-    private func configure(
-        _ imageView: NSImageView,
-        image: NSImage,
-        dynamicRange: NSImage.DynamicRange
-    ) {
-        configureImageView(imageView, image: image, dynamicRange: dynamicRange)
-    }
-}
-
 private struct AboutAppIconVideoView: NSViewRepresentable {
     let videoURL: URL
-    let sdrImage: NSImage
-    let alphaMask: CGImage
+    let sdrImage: CGImage
     let showsSweep: Bool
 
-    func makeNSView(context: Context) -> AboutAppIconVideoNSView {
-        AboutAppIconVideoNSView(
+    func makeNSView(context: Context) -> AboutAppIconVideoPlatformView {
+        AboutAppIconVideoPlatformView(
             videoURL: videoURL,
             sdrImage: sdrImage,
-            alphaMask: alphaMask,
             showsSweep: showsSweep
         )
     }
 
-    func updateNSView(_ nsView: AboutAppIconVideoNSView, context: Context) {
-        nsView.update(sdrImage: sdrImage, showsSweep: showsSweep)
-    }
-}
-
-private final class AboutAppIconVideoNSView: NSView {
-    private let sdrImageView = NSImageView()
-    private let videoOverlayView = NSView()
-    private let player: AVPlayer
-    private let playerLayer: AVPlayerLayer
-    private let alphaMaskLayer = CALayer()
-    private let sweepMask = CAGradientLayer()
-    private var playerItemStatusObservation: NSKeyValueObservation?
-    private var animatedSize: CGSize = .zero
-    private var hasRequestedStillFrame = false
-    private var showsSweep: Bool
-
-    init(
-        videoURL: URL,
-        sdrImage: NSImage,
-        alphaMask: CGImage,
-        showsSweep: Bool
-    ) {
-        let player = AVPlayer(url: videoURL)
-        self.player = player
-        playerLayer = AVPlayerLayer(player: player)
-        self.showsSweep = showsSweep
-        super.init(frame: .zero)
-
-        wantsLayer = true
-        layer?.masksToBounds = true
-        configureImageView(sdrImageView, image: sdrImage, dynamicRange: .standard)
-
-        videoOverlayView.wantsLayer = true
-        videoOverlayView.layer?.masksToBounds = true
-        videoOverlayView.layer?.wantsExtendedDynamicRangeContent = true
-        playerLayer.wantsExtendedDynamicRangeContent = true
-        playerLayer.videoGravity = .resizeAspect
-
-        alphaMaskLayer.contents = alphaMask
-        alphaMaskLayer.contentsGravity = .resize
-        playerLayer.mask = alphaMaskLayer
-        videoOverlayView.layer?.addSublayer(playerLayer)
-
-        AboutAppIconSweepAnimation.configure(sweepMask)
-        updateSweepMask()
-
-        addSubview(sdrImageView)
-        addSubview(videoOverlayView)
-
-        player.isMuted = true
-        observePlaybackReadiness()
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    deinit {
-        player.pause()
-        playerItemStatusObservation?.invalidate()
-    }
-
-    override func layout() {
-        super.layout()
-
-        sdrImageView.frame = bounds
-        videoOverlayView.frame = bounds
-        playerLayer.frame = videoOverlayView.bounds
-        alphaMaskLayer.frame = playerLayer.bounds
-
-        restartSweepIfNeeded()
-    }
-
-    override func viewDidMoveToWindow() {
-        super.viewDidMoveToWindow()
-
-        if window != nil {
-            restartSweepIfNeeded(force: true)
-        }
-    }
-
-    func update(sdrImage: NSImage, showsSweep: Bool) {
-        sdrImageView.image = sdrImage
-
-        guard self.showsSweep != showsSweep else {
-            return
-        }
-
-        self.showsSweep = showsSweep
-        animatedSize = .zero
-        updateSweepMask()
-        restartSweepIfNeeded(force: true)
-    }
-
-    private func observePlaybackReadiness() {
-        playerItemStatusObservation = player.currentItem?.observe(
-            \.status,
-            options: [.initial, .new]
-        ) { [weak self] item, _ in
-            guard item.status == .readyToPlay else {
-                return
-            }
-
-            DispatchQueue.main.async {
-                self?.displayStillFrame()
-            }
-        }
-    }
-
-    private func displayStillFrame() {
-        guard !hasRequestedStillFrame else {
-            return
-        }
-
-        hasRequestedStillFrame = true
-        player.seek(
-            to: .zero,
-            toleranceBefore: .zero,
-            toleranceAfter: .zero
-        ) { [weak player] _ in
-            player?.pause()
-        }
-    }
-
-    private func updateSweepMask() {
-        guard let overlayLayer = videoOverlayView.layer else {
-            return
-        }
-
-        if showsSweep {
-            overlayLayer.mask = sweepMask
-        } else {
-            overlayLayer.mask = nil
-            sweepMask.removeAnimation(forKey: AboutAppIconSweepAnimation.animationKey)
-        }
-    }
-
-    private func restartSweepIfNeeded(force: Bool = false) {
-        guard showsSweep,
-            bounds.width > 0,
-            bounds.height > 0,
-            force || animatedSize != bounds.size
-        else {
-            return
-        }
-
-        animatedSize = bounds.size
-        AboutAppIconSweepAnimation.restart(sweepMask, in: bounds)
+    func updateNSView(_ nsView: AboutAppIconVideoPlatformView, context: Context) {
+        nsView.update(showsSweep: showsSweep)
     }
 }
 #else
-private struct AboutAppIconStaticView: UIViewRepresentable {
-    let image: UIImage
-    let dynamicRange: UIImage.DynamicRange
-
-    func makeUIView(context: Context) -> UIImageView {
-        makeImageView(image: image, dynamicRange: dynamicRange)
-    }
-
-    func updateUIView(_ uiView: UIImageView, context: Context) {
-        uiView.image = image
-        uiView.preferredImageDynamicRange = dynamicRange
-    }
-}
-
-private func makeImageView(
-    image: UIImage,
-    dynamicRange: UIImage.DynamicRange
-) -> UIImageView {
-    let imageView = UIImageView()
-    imageView.image = image
-    imageView.contentMode = .scaleAspectFit
-    imageView.preferredImageDynamicRange = dynamicRange
-    return imageView
-}
-
-private struct AboutAppIconSweepView: UIViewRepresentable {
-    let hdrImage: UIImage
-    let sdrImage: UIImage
-
-    func makeUIView(context: Context) -> AboutAppIconSweepUIView {
-        AboutAppIconSweepUIView(hdrImage: hdrImage, sdrImage: sdrImage)
-    }
-
-    func updateUIView(_ uiView: AboutAppIconSweepUIView, context: Context) {
-        uiView.updateImages(hdrImage: hdrImage, sdrImage: sdrImage)
-    }
-}
-
-private final class AboutAppIconSweepUIView: UIView {
-    private let sdrImageView = UIImageView()
-    private let hdrImageView = UIImageView()
-    private let sweepMask = CAGradientLayer()
-    private var animatedSize: CGSize = .zero
-
-    init(hdrImage: UIImage, sdrImage: UIImage) {
-        super.init(frame: .zero)
-
-        clipsToBounds = true
-        sdrImageView.image = sdrImage
-        sdrImageView.contentMode = .scaleAspectFit
-        sdrImageView.preferredImageDynamicRange = .standard
-        configure(hdrImageView, image: hdrImage, dynamicRange: .high)
-
-        addSubview(sdrImageView)
-        addSubview(hdrImageView)
-
-        AboutAppIconSweepAnimation.configure(sweepMask)
-        hdrImageView.layer.mask = sweepMask
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        sdrImageView.frame = bounds
-        hdrImageView.frame = bounds
-
-        guard bounds.width > 0,
-            bounds.height > 0,
-            animatedSize != bounds.size
-        else {
-            return
-        }
-
-        animatedSize = bounds.size
-        AboutAppIconSweepAnimation.restart(sweepMask, in: bounds)
-    }
-
-    override func didMoveToWindow() {
-        super.didMoveToWindow()
-
-        if window != nil, bounds.width > 0, bounds.height > 0 {
-            AboutAppIconSweepAnimation.restart(sweepMask, in: bounds)
-        }
-    }
-
-    func updateImages(hdrImage: UIImage, sdrImage: UIImage) {
-        hdrImageView.image = hdrImage
-        sdrImageView.image = sdrImage
-    }
-
-    private func configure(
-        _ imageView: UIImageView,
-        image: UIImage,
-        dynamicRange: UIImage.DynamicRange
-    ) {
-        imageView.image = image
-        imageView.contentMode = .scaleAspectFit
-        imageView.preferredImageDynamicRange = dynamicRange
-    }
-}
-
 private struct AboutAppIconVideoView: UIViewRepresentable {
     let videoURL: URL
-    let sdrImage: UIImage
-    let alphaMask: CGImage
+    let sdrImage: CGImage
     let showsSweep: Bool
 
-    func makeUIView(context: Context) -> AboutAppIconVideoUIView {
-        AboutAppIconVideoUIView(
+    func makeUIView(context: Context) -> AboutAppIconVideoPlatformView {
+        AboutAppIconVideoPlatformView(
             videoURL: videoURL,
             sdrImage: sdrImage,
-            alphaMask: alphaMask,
             showsSweep: showsSweep
         )
     }
 
-    func updateUIView(_ uiView: AboutAppIconVideoUIView, context: Context) {
-        uiView.update(sdrImage: sdrImage, showsSweep: showsSweep)
+    func updateUIView(_ uiView: AboutAppIconVideoPlatformView, context: Context) {
+        uiView.update(showsSweep: showsSweep)
     }
 }
+#endif
 
-private final class AboutAppIconVideoUIView: UIView {
-    private let sdrImageView = UIImageView()
-    private let videoOverlayView = UIView()
+private final class AboutAppIconVideoPlatformView: AboutAppIconPlatformView {
+    private let sdrImageView = AboutAppIconPlatformImageView()
+    private let videoOverlayView = AboutAppIconPlatformView()
     private let player: AVPlayer
     private let playerLayer: AVPlayerLayer
     private let alphaMaskLayer = CALayer()
@@ -493,33 +98,15 @@ private final class AboutAppIconVideoUIView: UIView {
     private var hasRequestedStillFrame = false
     private var showsSweep: Bool
 
-    init(
-        videoURL: URL,
-        sdrImage: UIImage,
-        alphaMask: CGImage,
-        showsSweep: Bool
-    ) {
+    init(videoURL: URL, sdrImage: CGImage, showsSweep: Bool) {
         let player = AVPlayer(url: videoURL)
         self.player = player
         playerLayer = AVPlayerLayer(player: player)
         self.showsSweep = showsSweep
         super.init(frame: .zero)
 
-        clipsToBounds = true
-        sdrImageView.image = sdrImage
-        sdrImageView.contentMode = .scaleAspectFit
-        sdrImageView.preferredImageDynamicRange = .standard
-
-        videoOverlayView.layer.masksToBounds = true
-        videoOverlayView.layer.wantsExtendedDynamicRangeContent = true
-        playerLayer.wantsExtendedDynamicRangeContent = true
-        playerLayer.videoGravity = .resizeAspect
-
-        alphaMaskLayer.contents = alphaMask
-        alphaMaskLayer.contentsGravity = .resize
-        playerLayer.mask = alphaMaskLayer
-        videoOverlayView.layer.addSublayer(playerLayer)
-
+        configureViews(sdrImage: sdrImage)
+        configureVideoLayer(alphaMask: sdrImage)
         AboutAppIconSweepAnimation.configure(sweepMask)
         updateSweepMask()
 
@@ -535,33 +122,29 @@ private final class AboutAppIconVideoUIView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    deinit {
-        player.pause()
-        playerItemStatusObservation?.invalidate()
+    #if os(macOS)
+    override func layout() {
+        super.layout()
+        layoutContent()
     }
 
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        restartSweepIfNeeded(force: true)
+    }
+    #else
     override func layoutSubviews() {
         super.layoutSubviews()
-
-        sdrImageView.frame = bounds
-        videoOverlayView.frame = bounds
-        playerLayer.frame = videoOverlayView.bounds
-        alphaMaskLayer.frame = playerLayer.bounds
-
-        restartSweepIfNeeded()
+        layoutContent()
     }
 
     override func didMoveToWindow() {
         super.didMoveToWindow()
-
-        if window != nil {
-            restartSweepIfNeeded(force: true)
-        }
+        restartSweepIfNeeded(force: true)
     }
+    #endif
 
-    func update(sdrImage: UIImage, showsSweep: Bool) {
-        sdrImageView.image = sdrImage
-
+    func update(showsSweep: Bool) {
         guard self.showsSweep != showsSweep else {
             return
         }
@@ -570,6 +153,53 @@ private final class AboutAppIconVideoUIView: UIView {
         animatedSize = .zero
         updateSweepMask()
         restartSweepIfNeeded(force: true)
+    }
+
+    private var videoOverlayLayer: CALayer {
+        #if os(macOS)
+        videoOverlayView.layer!
+        #else
+        videoOverlayView.layer
+        #endif
+    }
+
+    private func configureViews(sdrImage: CGImage) {
+        #if os(macOS)
+        wantsLayer = true
+        layer?.masksToBounds = true
+        sdrImageView.imageAlignment = .alignCenter
+        sdrImageView.imageScaling = .scaleProportionallyUpOrDown
+        sdrImageView.image = NSImage(
+            cgImage: sdrImage,
+            size: NSSize(width: sdrImage.width, height: sdrImage.height)
+        )
+        videoOverlayView.wantsLayer = true
+        #else
+        clipsToBounds = true
+        sdrImageView.contentMode = .scaleAspectFit
+        sdrImageView.preferredImageDynamicRange = .standard
+        sdrImageView.image = UIImage(cgImage: sdrImage)
+        #endif
+    }
+
+    private func configureVideoLayer(alphaMask: CGImage) {
+        videoOverlayLayer.masksToBounds = true
+        videoOverlayLayer.wantsExtendedDynamicRangeContent = true
+        playerLayer.wantsExtendedDynamicRangeContent = true
+        playerLayer.videoGravity = .resizeAspect
+
+        alphaMaskLayer.contents = alphaMask
+        alphaMaskLayer.contentsGravity = .resize
+        playerLayer.mask = alphaMaskLayer
+        videoOverlayLayer.addSublayer(playerLayer)
+    }
+
+    private func layoutContent() {
+        sdrImageView.frame = bounds
+        videoOverlayView.frame = bounds
+        playerLayer.frame = videoOverlayView.bounds
+        alphaMaskLayer.frame = playerLayer.bounds
+        restartSweepIfNeeded()
     }
 
     private func observePlaybackReadiness() {
@@ -604,15 +234,16 @@ private final class AboutAppIconVideoUIView: UIView {
 
     private func updateSweepMask() {
         if showsSweep {
-            videoOverlayView.layer.mask = sweepMask
+            videoOverlayLayer.mask = sweepMask
         } else {
-            videoOverlayView.layer.mask = nil
+            videoOverlayLayer.mask = nil
             sweepMask.removeAnimation(forKey: AboutAppIconSweepAnimation.animationKey)
         }
     }
 
     private func restartSweepIfNeeded(force: Bool = false) {
         guard showsSweep,
+            window != nil,
             bounds.width > 0,
             bounds.height > 0,
             force || animatedSize != bounds.size
@@ -624,7 +255,6 @@ private final class AboutAppIconVideoUIView: UIView {
         AboutAppIconSweepAnimation.restart(sweepMask, in: bounds)
     }
 }
-#endif
 
 private enum AboutAppIconSweepAnimation {
     static let stripWidthRatio: CGFloat = 0.6
@@ -634,7 +264,7 @@ private enum AboutAppIconSweepAnimation {
     static let stripAngle: CGFloat = -32 * .pi / 180
     #endif
     static let sweepDuration: CFTimeInterval = 3.8
-    static let pauseDuration: CFTimeInterval = 1.2
+    static let pauseDuration: CFTimeInterval = 0.4
     static let loopDuration = sweepDuration + pauseDuration
     static let animationKey = "aboutAppIconSweep"
 
@@ -684,39 +314,28 @@ private enum AboutAppIconSweepAnimation {
     }
 }
 
-private struct AboutAppIconImages {
-    let hdrImage: AboutAppIconPlatformImage?
-    let hdrVideoURL: URL?
-    let sdrImage: AboutAppIconPlatformImage?
-    let sdrAlphaMask: CGImage?
+private struct AboutAppIconResources {
+    let videoURL: URL?
+    let sdrImage: CGImage?
 
-    static func load() -> AboutAppIconImages {
-        let hdrImage = loadBundleCGImage(
-            resource: "AboutAppIcon-HDR",
-            extension: "heic",
-            decodeRequest: kCGImageSourceDecodeToHDR
-        )
+    static func load() -> AboutAppIconResources {
         let sdrImage = loadBundleCGImage(
             resource: "AboutAppIcon-SDR",
-            extension: "png",
-            decodeRequest: kCGImageSourceDecodeToSDR
+            extension: "png"
         )
 
-        return AboutAppIconImages(
-            hdrImage: hdrImage.map(platformImage),
-            hdrVideoURL: Bundle.main.url(
+        return AboutAppIconResources(
+            videoURL: Bundle.main.url(
                 forResource: "AboutAppIcon-HDR",
                 withExtension: "mov"
             ),
-            sdrImage: sdrImage.map(platformImage),
-            sdrAlphaMask: sdrImage
+            sdrImage: sdrImage
         )
     }
 
     private static func loadBundleCGImage(
         resource: String,
-        extension fileExtension: String,
-        decodeRequest: CFString
+        extension fileExtension: String
     ) -> CGImage? {
         guard
             let url = Bundle.main.url(
@@ -728,23 +347,6 @@ private struct AboutAppIconImages {
             return nil
         }
 
-        let options = [kCGImageSourceDecodeRequest: decodeRequest] as CFDictionary
-
-        guard let image = CGImageSourceCreateImageAtIndex(source, 0, options) else {
-            return nil
-        }
-
-        return image
-    }
-
-    private static func platformImage(_ image: CGImage) -> AboutAppIconPlatformImage {
-        #if os(macOS)
-        return NSImage(
-            cgImage: image,
-            size: NSSize(width: image.width, height: image.height)
-        )
-        #else
-        return UIImage(cgImage: image)
-        #endif
+        return CGImageSourceCreateImageAtIndex(source, 0, nil)
     }
 }
