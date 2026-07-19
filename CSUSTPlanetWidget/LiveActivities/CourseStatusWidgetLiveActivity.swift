@@ -35,12 +35,14 @@ struct CourseStatusWidgetLiveActivity: Widget {
                     Text(context.attributes.teacher)
                         .font(.caption)
                         .padding(.top, 4)
+                        .padding(.leading, 4)
                 }
 
                 DynamicIslandExpandedRegion(.trailing) {
                     Text(context.attributes.classroom ?? "无教室")
                         .font(.caption)
                         .padding(.top, 4)
+                        .padding(.trailing, 4)
                 }
 
                 DynamicIslandExpandedRegion(.bottom) {
