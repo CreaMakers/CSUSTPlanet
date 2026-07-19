@@ -9,7 +9,19 @@ import MarkdownUI
 import SwiftUI
 
 struct AboutView: View {
-    @State private var viewModel = AboutViewModel()
+    private let aboutMarkdown = AssetUtil.loadMarkdownFile(named: "About")
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "未知版本"
+    }
+
+    private var buildNumber: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "未知构建"
+    }
+
+    private var environment: String {
+        EnvironmentUtil.environment.rawValue
+    }
 
     var body: some View {
         Form {
@@ -23,8 +35,8 @@ struct AboutView: View {
                             .font(.title2.weight(.semibold))
 
                         Group {
-                            Text("\(viewModel.appVersion)（\(viewModel.buildNumber))")
-                            Text(viewModel.environment)
+                            Text("\(appVersion)（\(buildNumber))")
+                            Text(environment)
                         }
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -33,7 +45,7 @@ struct AboutView: View {
                 }
             }
 
-            if let aboutMarkdown = viewModel.aboutMarkdown {
+            if let aboutMarkdown {
                 Markdown(aboutMarkdown)
             } else {
                 Text("无法加载关于信息")

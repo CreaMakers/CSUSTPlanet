@@ -48,7 +48,7 @@ struct FeedbackView: View {
             } header: {
                 Text("推荐方式")
             } footer: {
-                Text("您的反馈对我们非常重要！无论是功能建议、BUG 报告，还是使用体验上的优化，我们都会认真阅读并持续改进。🚀")
+                Text("您的反馈对我们非常重要！无论是功能建议、BUG 报告，还是使用体验上的优化，我们都会认真阅读并持续改进。")
             }
 
             Section {
@@ -73,14 +73,6 @@ struct FeedbackView: View {
                 }
             } header: {
                 Text("其他联系方式")
-            }
-
-            Section {
-                Text("感谢您对 **长理星球** 的支持！")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .listRowBackground(Color.clear)
             }
         }
         .formStyle(.grouped)
