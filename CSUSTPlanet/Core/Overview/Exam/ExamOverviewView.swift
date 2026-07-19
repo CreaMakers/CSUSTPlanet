@@ -154,16 +154,10 @@ private struct ExamRowView: View {
 
 private struct EmptyExamContentView: View {
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "calendar.badge.checkmark")
-                .font(.title3)
-                .foregroundStyle(.green)
-
-            Text("暂无考试安排")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
+        Text("暂无考试安排")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
     }
 }
