@@ -12,12 +12,12 @@ import SwiftUI
 @MainActor
 @Observable
 class SSOLoginViewModel {
-    enum LoginTab {
+    enum LoginTab: Hashable {
         case account
         case web
     }
 
-    var selectedTab: LoginTab = .account
+    var selectedTab: LoginTab? = .account
 
     var username: String = KeychainUtil.ssoUsername ?? ""
     var password: String = KeychainUtil.ssoPassword ?? ""
