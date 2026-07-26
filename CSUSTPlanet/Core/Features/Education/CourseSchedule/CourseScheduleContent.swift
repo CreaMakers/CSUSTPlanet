@@ -22,6 +22,7 @@ struct CourseScheduleContent: View {
     let selectedSemester: String?
 
     let isCourseScheduleLoading: Bool
+    let isCalendarExporting: Bool
 
     @Binding var currentWeek: Int
     let realCurrentWeek: Int?
@@ -153,10 +154,12 @@ struct CourseScheduleContent: View {
                 Button(action: { isSemestersSheetPresented = true }) {
                     Label("学期选择", systemImage: "gearshape")
                 }
+                .disabled(isCourseScheduleLoading || isCalendarExporting)
 
                 Button(action: { isCalendarSettingsSheetPresented = true }) {
                     Label("添加课表到系统日历", systemImage: "calendar.badge.plus")
                 }
+                .disabled(isCourseScheduleLoading || isCalendarExporting)
             }
 
             ToolbarItem(placement: .primaryAction) {
@@ -167,7 +170,7 @@ struct CourseScheduleContent: View {
                         Label("刷新", systemImage: "arrow.clockwise")
                     }
                 }
-                .disabled(isCourseScheduleLoading)
+                .disabled(isCourseScheduleLoading || isCalendarExporting)
             }
         }
         .onAppear {
@@ -211,6 +214,7 @@ struct CourseScheduleContent: View {
             remarks: [],
             selectedSemester: nil,
             isCourseScheduleLoading: false,
+            isCalendarExporting: false,
             currentWeek: .constant(1),
             realCurrentWeek: 1,
             errorToast: .constant(.errorTitle),

@@ -51,6 +51,9 @@ enum CourseScheduleUtil {
     /// 学期总周数，基本上不会超过20周，固定为20周即可
     static let weekCount: Int = 20
 
+    /// 课程均以长沙当地时间为准
+    static let courseTimeZone = TimeZone(identifier: "Asia/Shanghai")!
+
     /// 课程节次时间表
     static let sectionTimeString: [(String, String)] = [
         ("08:00", "08:45"),
@@ -69,6 +72,7 @@ enum CourseScheduleUtil {
     static var monthFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "M"
+        formatter.timeZone = courseTimeZone
         return formatter
     }()
 
@@ -76,6 +80,7 @@ enum CourseScheduleUtil {
     static var dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "d"
+        formatter.timeZone = courseTimeZone
         return formatter
     }()
 
@@ -83,6 +88,7 @@ enum CourseScheduleUtil {
     static var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = courseTimeZone
         return formatter
     }()
 
@@ -122,9 +128,26 @@ enum CourseScheduleUtil {
     static let tomorrowCoursesTitleText: String = "以下为明日课程"
     static let noScheduledCoursesTomorrowText: String = "明天也没课哦"
 
-    private static let calendar = Calendar.current
+    private static let calendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = courseTimeZone
+        return calendar
+    }()
 
     // MARK: - Methods
+
+    /// 将教务系统按设备时区解析的日期规范化为上海时区下的同一自然日
+    static func normalizeSemesterStartDate(_ date: Date, sourceCalendar: Calendar = .current) -> Date {
+        let components = sourceCalendar.dateComponents([.year, .month, .day], from: date)
+        return calendar.date(from: components)!
+    }
+
+    /// 获取学期覆盖的半开时间区间 `[开学日, 开学日 + 20周)`
+    static func getSemesterDateRange(semesterStartDate: Date) -> (startDate: Date, endDate: Date) {
+        let startDate = calendar.startOfDay(for: semesterStartDate)
+        let endDate = calendar.date(byAdding: .weekOfYear, value: weekCount, to: startDate)!
+        return (startDate, endDate)
+    }
 
     /// 计算周到课程列表的字典 用于显示整个课表
     /// - Returns: 周到课程列表的字典
@@ -172,20 +195,14 @@ enum CourseScheduleUtil {
     ///   - week: 第几周
     /// - Returns: 该周的所有日期数组
     static func getDatesForWeek(semesterStartDate: Date, week: Int) -> [Date] {
-        var dates: [Date] = []
-        guard let calendar = Calendar(identifier: .gregorian) as Calendar? else { return [] }
-
         // 计算该周的周日是哪一天
         let daysToAdd = (week - 1) * 7
-        guard let firstDayOfWeek = calendar.date(byAdding: .day, value: daysToAdd, to: semesterStartDate) else { return [] }
+        let firstDayOfWeek = calendar.date(byAdding: .day, value: daysToAdd, to: semesterStartDate)!
 
         // 从周日开始，生成7天的日期
-        for i in 0..<7 {
-            if let date = calendar.date(byAdding: .day, value: i, to: firstDayOfWeek) {
-                dates.append(date)
-            }
+        return (0..<7).map { dayOffset in
+            calendar.date(byAdding: .day, value: dayOffset, to: firstDayOfWeek)!
         }
-        return dates
     }
 
     /// 根据给定的学期开始时间、周次和课程小节信息，计算课程具体的开始和结束日期时间
@@ -193,39 +210,37 @@ enum CourseScheduleUtil {
     ///   - session: 课程小节信息
     ///   - week: 第几周
     ///   - semesterStartDate: 学期开始日期
-    /// - Returns: 课程的开始日期时间和结束日期时间，如果时间数据异常则返回 nil
+    /// - Returns: 课程的开始日期时间和结束日期时间
     static func getCourseEventDates(
         session: EduHelper.ScheduleSession,
         week: Int,
         semesterStartDate: Date
-    ) -> (startDate: Date, endDate: Date)? {
+    ) -> (startDate: Date, endDate: Date) {
         let datesOfWeek = getDatesForWeek(semesterStartDate: semesterStartDate, week: week)
-        let targetDateIndex = session.dayOfWeek.rawValue
-        guard targetDateIndex < datesOfWeek.count else { return nil }
 
         // 通过这一周的每一天的时间和这一节课在周几，定位到当前课程课时的具体日期
-        let targetDate = datesOfWeek[targetDateIndex]
+        let targetDate = datesOfWeek[session.dayOfWeek.rawValue]
 
         // 找到这节课在这一天的具体时间
         let startSectionIndex = session.startSection - 1
         let endSectionIndex = session.endSection - 1
-        guard startSectionIndex >= 0, startSectionIndex < sectionTimeString.count,
-            endSectionIndex >= 0, endSectionIndex < sectionTimeString.count
-        else {
-            return nil
-        }
-
         let startTimeString = sectionTimeString[startSectionIndex].0
         let endTimeString = sectionTimeString[endSectionIndex].1
-        let startComponents = startTimeString.split(separator: ":").compactMap { Int($0) }
-        let endComponents = endTimeString.split(separator: ":").compactMap { Int($0) }
+        let startComponents = startTimeString.split(separator: ":").map { Int($0)! }
+        let endComponents = endTimeString.split(separator: ":").map { Int($0)! }
 
-        guard startComponents.count == 2, endComponents.count == 2,
-            let eventStartDate = calendar.date(bySettingHour: startComponents[0], minute: startComponents[1], second: 0, of: targetDate),
-            let eventEndDate = calendar.date(bySettingHour: endComponents[0], minute: endComponents[1], second: 0, of: targetDate)
-        else {
-            return nil
-        }
+        let eventStartDate = calendar.date(
+            bySettingHour: startComponents[0],
+            minute: startComponents[1],
+            second: 0,
+            of: targetDate
+        )!
+        let eventEndDate = calendar.date(
+            bySettingHour: endComponents[0],
+            minute: endComponents[1],
+            second: 0,
+            of: targetDate
+        )!
 
         return (startDate: eventStartDate, endDate: eventEndDate)
     }

@@ -61,6 +61,7 @@ struct CourseScheduleCalendarSettings: View {
                             secondReminderOffset
                         )
                     }
+                    .disabled(isFirstReminderEnabled && isSecondReminderEnabled && firstReminderOffset == secondReminderOffset)
                 }
             }
         }

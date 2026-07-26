@@ -7,7 +7,7 @@
 
 import AlertToast
 import CSUSTKit
-import EventKit
+import Foundation
 import SwiftUI
 
 struct CourseScheduleView: View {
@@ -20,6 +20,7 @@ struct CourseScheduleView: View {
     @State private var selectedSemester: String? = nil
 
     @State private var isCourseScheduleLoading: Bool = false
+    @State private var isCalendarExporting: Bool = false
 
     @State private var currentWeek: Int = 1
     @State private var realCurrentWeek: Int? = nil
@@ -40,6 +41,7 @@ struct CourseScheduleView: View {
             remarks: remarks,
             selectedSemester: selectedSemester,
             isCourseScheduleLoading: isCourseScheduleLoading,
+            isCalendarExporting: isCalendarExporting,
             currentWeek: $currentWeek,
             realCurrentWeek: realCurrentWeek,
             errorToast: $errorToast,
@@ -77,9 +79,10 @@ struct CourseScheduleView: View {
             let (courses, remarks) = try await AuthManager.shared.withAuthRetry(system: .edu) {
                 try await AuthManager.shared.eduHelper.courseService.getCourseSchedule(academicYearSemester: selectedSemester)
             }
-            let semesterStartDate = try await AuthManager.shared.withAuthRetry(system: .edu) {
+            let rawSemesterStartDate = try await AuthManager.shared.withAuthRetry(system: .edu) {
                 try await AuthManager.shared.eduHelper.semesterService.getSemesterStartDate(academicYearSemester: selectedSemester)
             }
+            let semesterStartDate = CourseScheduleUtil.normalizeSemesterStartDate(rawSemesterStartDate)
 
             let data = Cached<CourseScheduleData>(
                 cachedAt: .now,
@@ -130,65 +133,88 @@ struct CourseScheduleView: View {
         isSecondReminderEnabled: Bool,
         secondReminderOffset: CourseScheduleReminderOffset
     ) async {
+        guard !isCalendarExporting else { return }
         guard let courses, let semesterStartDate else {
             errorToast.show(message: "课表数据未加载，无法导出")
             return
         }
 
+        isCalendarExporting = true
         loadingToast.show(message: "正在将课表添加到日历")
-        defer { loadingToast.hide() }
+        defer {
+            isCalendarExporting = false
+            loadingToast.hide()
+        }
 
         do {
-            let currentCalendar = Calendar.current
+            let dateRange = CourseScheduleUtil.getSemesterDateRange(semesterStartDate: semesterStartDate)
+            let drafts = makeCalendarEventDrafts(
+                courses: courses,
+                semesterStartDate: semesterStartDate,
+                isFirstReminderEnabled: isFirstReminderEnabled,
+                firstReminderOffset: firstReminderOffset,
+                isSecondReminderEnabled: isSecondReminderEnabled,
+                secondReminderOffset: secondReminderOffset
+            )
 
             let calendar = try await CalendarUtil.getOrCreateEventCalendar(named: "长理星球 - 课表")
-            let clearStartDate = currentCalendar.date(byAdding: .year, value: -1, to: Date())!
-            let clearEndDate = currentCalendar.date(byAdding: .year, value: 1, to: Date())!
-
-            try await CalendarUtil.clearCalendar(calendar: calendar, from: clearStartDate, to: clearEndDate)
-
-            for course in courses {
-                for session in course.sessions {
-                    for week in session.weeks {
-                        guard let dates = CourseScheduleUtil.getCourseEventDates(session: session, week: week, semesterStartDate: semesterStartDate) else { continue }
-                        let eventStartDate = dates.startDate
-                        let eventEndDate = dates.endDate
-
-                        // 与课程相关的备注信息
-                        var notes = "教师: \(course.teacher ?? "未知")"
-                        if let groupName = course.groupName { notes += "\n组名: \(groupName)" }
-                        notes += "\n周次: 第\(week)周"
-
-                        var eventAlarms: [EKAlarm] = []
-                        if isFirstReminderEnabled {
-                            eventAlarms.append(EKAlarm(relativeOffset: -firstReminderOffset.rawValue))
-                        }
-                        if isSecondReminderEnabled {
-                            eventAlarms.append(EKAlarm(relativeOffset: -secondReminderOffset.rawValue))
-                        }
-
-                        try await CalendarUtil.addEvent(
-                            calendar: calendar,
-                            title: course.courseName,
-                            startDate: eventStartDate,
-                            endDate: eventEndDate,
-                            notes: notes,
-                            location: session.classroom,
-                            alarms: eventAlarms.isEmpty ? nil : eventAlarms,
-                            // 这里连续提交会有性能问题，所以这里不提交改变
-                            commit: false,
-                            skipDuplicateCheck: true
-                        )
-                    }
-                }
-            }
-
-            // 最后统一提交改变
-            try CalendarUtil.commitChanges()
+            try await CalendarUtil.replaceEvents(
+                calendar: calendar,
+                from: dateRange.startDate,
+                to: dateRange.endDate,
+                with: drafts
+            )
 
             successToast.show(message: "课表已成功添加到日历")
         } catch {
             errorToast.show(message: "导出失败: \(error.localizedDescription)")
         }
+    }
+
+    private func makeCalendarEventDrafts(
+        courses: [EduHelper.Course],
+        semesterStartDate: Date,
+        isFirstReminderEnabled: Bool,
+        firstReminderOffset: CourseScheduleReminderOffset,
+        isSecondReminderEnabled: Bool,
+        secondReminderOffset: CourseScheduleReminderOffset
+    ) -> [CalendarEventDraft] {
+        var alarmRelativeOffsets: [TimeInterval] = []
+        if isFirstReminderEnabled {
+            alarmRelativeOffsets.append(-firstReminderOffset.rawValue)
+        }
+        if isSecondReminderEnabled {
+            alarmRelativeOffsets.append(-secondReminderOffset.rawValue)
+        }
+
+        var drafts: [CalendarEventDraft] = []
+        for course in courses {
+            for session in course.sessions {
+                for week in session.weeks {
+                    let dates = CourseScheduleUtil.getCourseEventDates(
+                        session: session,
+                        week: week,
+                        semesterStartDate: semesterStartDate
+                    )
+
+                    var notes = "教师: \(course.teacher ?? "未知")"
+                    if let groupName = course.groupName { notes += "\n组名: \(groupName)" }
+                    notes += "\n周次: 第\(week)周"
+
+                    drafts.append(
+                        CalendarEventDraft(
+                            title: course.courseName,
+                            startDate: dates.startDate,
+                            endDate: dates.endDate,
+                            notes: notes,
+                            location: session.classroom,
+                            timeZone: CourseScheduleUtil.courseTimeZone,
+                            alarmRelativeOffsets: alarmRelativeOffsets
+                        )
+                    )
+                }
+            }
+        }
+        return drafts
     }
 }
