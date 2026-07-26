@@ -2,3 +2,5 @@ interface:
   display_name: "长理星球编译验证"
   short_description: "按固定 xcodebuild 流程检查项目编译错误"
   default_prompt: "编译长理星球，检查当前代码是否存在编译期错误。"
+policy:
+  allow_implicit_invocation: false
