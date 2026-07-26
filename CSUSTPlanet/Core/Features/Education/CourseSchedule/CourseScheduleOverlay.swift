@@ -26,31 +26,26 @@ struct CourseScheduleOverlay: View {
 
             ZStack(alignment: .topLeading) {
                 if let coursesForWeek = weeklyCourses[targetWeek] {
-                    let groupedCourses = Dictionary(grouping: coursesForWeek) { info in
-                        "\(info.session.dayOfWeek.rawValue)-\(info.session.startSection)"
-                    }
+                    ForEach(groupCourses(coursesForWeek), id: \.first!.id) { group in
+                        let firstCourseInfo = group[0]
+                        let startSection = firstCourseInfo.session.startSection
+                        let endSection = group.map(\.session.endSection).max()!
+                        let courseHeight = calculateHeight(startSection: startSection, endSection: endSection)
+                        let xOffset = layoutConfig.horizontalPadding + calculateXOffset(for: firstCourseInfo.session.dayOfWeek, columnWidth: dayColumnWidth)
+                        let yOffset = calculateYOffset(startSection: startSection)
 
-                    ForEach(Array(groupedCourses.values), id: \.first!.id) { group in
-                        if let firstCourseInfo = group.first {
-                            let courseHeight = calculateHeight(for: firstCourseInfo.session)
-                            let xOffset = layoutConfig.horizontalPadding + calculateXOffset(for: firstCourseInfo.session.dayOfWeek, columnWidth: dayColumnWidth)
-                            let yOffset = calculateYOffset(for: firstCourseInfo.session)
-
-                            if group.count == 1 {
-                                // 正常课程
-                                CourseScheduleCard(course: firstCourseInfo.course, session: firstCourseInfo.session, color: courseColors[firstCourseInfo.course.courseName] ?? .gray) {
-                                    presentCourseDetail(firstCourseInfo)
-                                }
-                                .frame(width: dayColumnWidth, height: courseHeight)
-                                .offset(x: xOffset, y: yOffset)
-                            } else {
-                                // 冲突课程
-                                CourseScheduleConflictCard(courses: group) {
-                                    presentCourseDetail($0)
-                                }
-                                .frame(width: dayColumnWidth, height: courseHeight)
-                                .offset(x: xOffset, y: yOffset)
+                        if group.count > 1 {
+                            CourseScheduleConflictCard(courses: group) {
+                                presentCourseDetail($0)
                             }
+                            .frame(width: dayColumnWidth, height: courseHeight)
+                            .offset(x: xOffset, y: yOffset)
+                        } else {
+                            CourseScheduleCard(course: firstCourseInfo.course, session: firstCourseInfo.session, color: courseColors[firstCourseInfo.course.courseName] ?? .gray) {
+                                presentCourseDetail(firstCourseInfo)
+                            }
+                            .frame(width: dayColumnWidth, height: courseHeight)
+                            .offset(x: xOffset, y: yOffset)
                         }
                     }
                 }
@@ -59,13 +54,41 @@ struct CourseScheduleOverlay: View {
         .padding(.vertical)
     }
 
-    private func calculateHeight(for session: EduHelper.ScheduleSession) -> CGFloat {
-        let sections = CGFloat(session.endSection - session.startSection + 1)
+    private func groupCourses(_ courses: [CourseDisplayInfo]) -> [[CourseDisplayInfo]] {
+        let sortedCourses = courses.sorted {
+            let lhs = $0.session
+            let rhs = $1.session
+
+            if lhs.dayOfWeek != rhs.dayOfWeek { return lhs.dayOfWeek.rawValue < rhs.dayOfWeek.rawValue }
+            if lhs.startSection != rhs.startSection { return lhs.startSection < rhs.startSection }
+            if lhs.endSection != rhs.endSection { return lhs.endSection < rhs.endSection }
+            return $0.course.courseName < $1.course.courseName
+        }
+
+        return sortedCourses.reduce(into: [[CourseDisplayInfo]]()) { groups, courseInfo in
+            if let lastIndex = groups.indices.last {
+                let currentGroup = groups[lastIndex]
+                let currentEndSection = currentGroup.map(\.session.endSection).max()!
+
+                if currentGroup[0].session.dayOfWeek == courseInfo.session.dayOfWeek,
+                    courseInfo.session.startSection <= currentEndSection
+                {
+                    groups[lastIndex].append(courseInfo)
+                    return
+                }
+            }
+
+            groups.append([courseInfo])
+        }
+    }
+
+    private func calculateHeight(startSection: Int, endSection: Int) -> CGFloat {
+        let sections = CGFloat(endSection - startSection + 1)
         return sections * layoutConfig.sectionHeight + (sections - 1) * layoutConfig.rowSpacing
     }
 
-    private func calculateYOffset(for session: EduHelper.ScheduleSession) -> CGFloat {
-        let y = CGFloat(session.startSection - 1)
+    private func calculateYOffset(startSection: Int) -> CGFloat {
+        let y = CGFloat(startSection - 1)
         return y * layoutConfig.sectionHeight + y * layoutConfig.rowSpacing
     }
 
@@ -81,31 +104,25 @@ struct CourseScheduleOverlay: View {
 }
 
 #Preview("CourseScheduleOverlay") {
-    let sessionA1 = EduHelper.ScheduleSession(weeks: [1], startSection: 1, endSection: 2, dayOfWeek: .monday, classroom: "教室A1")
-    let sessionA2 = EduHelper.ScheduleSession(weeks: [1], startSection: 5, endSection: 8, dayOfWeek: .tuesday, classroom: "教室A2")
-    let sessionA3 = EduHelper.ScheduleSession(weeks: [1], startSection: 3, endSection: 4, dayOfWeek: .wednesday, classroom: "教室A3")
-    let courseA = EduHelper.Course(courseName: "课程A", groupName: nil, teacher: "老师A", sessions: [sessionA1, sessionA2, sessionA3])
+    let sessions = [
+        EduHelper.ScheduleSession(weeks: [1], startSection: 1, endSection: 2, dayOfWeek: .monday, classroom: "教室A"),
+        EduHelper.ScheduleSession(weeks: [1], startSection: 1, endSection: 4, dayOfWeek: .monday, classroom: "教室B"),
+        EduHelper.ScheduleSession(weeks: [1], startSection: 5, endSection: 8, dayOfWeek: .tuesday, classroom: "教室C"),
+        EduHelper.ScheduleSession(weeks: [1], startSection: 7, endSection: 9, dayOfWeek: .tuesday, classroom: "教室D"),
+        EduHelper.ScheduleSession(weeks: [1], startSection: 9, endSection: 10, dayOfWeek: .tuesday, classroom: "教室E"),
+        EduHelper.ScheduleSession(weeks: [1], startSection: 3, endSection: 4, dayOfWeek: .wednesday, classroom: "教室F"),
+        EduHelper.ScheduleSession(weeks: [1], startSection: 5, endSection: 6, dayOfWeek: .wednesday, classroom: "教室G"),
+    ]
 
-    let sessionB = EduHelper.ScheduleSession(weeks: [1], startSection: 5, endSection: 6, dayOfWeek: .wednesday, classroom: "教室B")
-    let courseB = EduHelper.Course(courseName: "课程B", groupName: nil, teacher: "老师B", sessions: [sessionB])
-
-    let courseC = EduHelper.Course(courseName: "课程C", groupName: nil, teacher: "老师C", sessions: [sessionA3])
+    let courses = sessions.enumerated().map { index, session in
+        EduHelper.Course(courseName: "课程\(index + 1)", groupName: nil, teacher: "老师\(index + 1)", sessions: [session])
+    }
 
     let weeklyCourses: [Int: [CourseDisplayInfo]] = [
-        1: [
-            CourseDisplayInfo(course: courseA, session: courseA.sessions[0]),
-            CourseDisplayInfo(course: courseA, session: courseA.sessions[1]),
-            CourseDisplayInfo(course: courseA, session: courseA.sessions[2]),
-            CourseDisplayInfo(course: courseB, session: courseB.sessions[0]),
-            CourseDisplayInfo(course: courseC, session: courseC.sessions[0]),  // 冲突
-        ]
+        1: courses.map { CourseDisplayInfo(course: $0, session: $0.sessions[0]) }
     ]
 
-    let courseColors: [String: Color] = [
-        "课程A": .blue,
-        "课程B": .green,
-        "课程C": .yellow,
-    ]
+    let courseColors = ColorUtil.getCourseColors(courses)
 
     CourseScheduleOverlay(
         targetWeek: 1,

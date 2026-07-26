@@ -358,7 +358,7 @@ private enum MockCourseScheduleFactory {
                 groupName: "计算机类 2301",
                 teacher: "周晓燕",
                 sessions: [
-                    .init(weeks: weeks, startSection: 1, endSection: 2, dayOfWeek: today, classroom: "云塘校区 文科楼 B-104")
+                    .init(weeks: weeks, startSection: 1, endSection: 4, dayOfWeek: today, classroom: "云塘校区 文科楼 B-104")
                 ]
             ),
             .init(
@@ -374,7 +374,15 @@ private enum MockCourseScheduleFactory {
                 groupName: "计算机类 2301",
                 teacher: "王丽",
                 sessions: [
-                    .init(weeks: weeks, startSection: 5, endSection: 6, dayOfWeek: today, classroom: "云塘校区 综合教学楼 C-502")
+                    .init(weeks: weeks, startSection: 7, endSection: 9, dayOfWeek: today, classroom: "云塘校区 综合教学楼 C-502")
+                ]
+            ),
+            .init(
+                courseName: "操作系统",
+                groupName: "计算机科学与技术 2302",
+                teacher: "赵敏",
+                sessions: [
+                    .init(weeks: weeks, startSection: 9, endSection: 10, dayOfWeek: today, classroom: "云塘校区 理科楼 A-210")
                 ]
             ),
         ]
