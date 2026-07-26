@@ -1,6 +1,7 @@
 ---
 name: csustplanet-build
 description: 使用固定 xcodebuild 流程验证长理星球项目代码是否存在编译期错误。
+disable-model-invocation: true
 ---
 
 # 长理星球编译
