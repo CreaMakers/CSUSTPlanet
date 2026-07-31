@@ -157,7 +157,7 @@ struct CourseScheduleView: View {
                 secondReminderOffset: secondReminderOffset
             )
 
-            let calendar = try await CalendarUtil.getOrCreateEventCalendar(named: "长理星球 - 课表")
+            let calendar = try await CalendarUtil.getOrCreateEventCalendar(suffix: "课表")
             try await CalendarUtil.replaceEvents(
                 calendar: calendar,
                 from: dateRange.startDate,

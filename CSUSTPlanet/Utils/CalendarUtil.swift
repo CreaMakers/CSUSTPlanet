@@ -35,6 +35,7 @@ enum CalendarUtilError: Error, LocalizedError {
 
 enum CalendarUtil {
     private static let eventStore = EKEventStore()
+    private static let calendarTitlePrefix = "云岭星球 - "
 }
 
 struct CalendarEventDraft {
@@ -62,7 +63,8 @@ extension CalendarUtil {
 // MARK: - Event
 
 extension CalendarUtil {
-    static func getOrCreateEventCalendar(named title: String) async throws -> EKCalendar {
+    static func getOrCreateEventCalendar(suffix: String) async throws -> EKCalendar {
+        let title = calendarTitlePrefix + suffix
         guard try await requestEventAccess() else { throw CalendarUtilError.eventPermissionDenied }
 
         if let existingCalendar = eventStore.calendars(for: .event).first(where: { $0.title == title }) {
@@ -164,7 +166,8 @@ extension CalendarUtil {
 // MARK: - Reminder
 
 extension CalendarUtil {
-    static func getOrCreateReminderCalendar(named title: String) async throws -> EKCalendar {
+    static func getOrCreateReminderCalendar(suffix: String) async throws -> EKCalendar {
+        let title = calendarTitlePrefix + suffix
         guard try await requestReminderAccess() else { throw CalendarUtilError.reminderPermissionDenied }
 
         if let existingCalendar = eventStore.calendars(for: .reminder).first(where: { $0.title == title }) {

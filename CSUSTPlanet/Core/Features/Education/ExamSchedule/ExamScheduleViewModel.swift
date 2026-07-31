@@ -106,7 +106,7 @@ class ExamScheduleViewModel {
         loadingToast.show(message: "正在添加到日历...")
         defer { loadingToast.hide() }
         do {
-            let calendar = try await CalendarUtil.getOrCreateEventCalendar(named: "长理星球 - 考试")
+            let calendar = try await CalendarUtil.getOrCreateEventCalendar(suffix: "考试")
             for exam in exams {
                 try await CalendarUtil.addEvent(
                     calendar: calendar,
