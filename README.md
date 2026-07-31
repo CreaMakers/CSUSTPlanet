@@ -1,22 +1,22 @@
-<img src="CSUSTPlanet/Resources/Assets.xcassets/MinimalLogo.imageset/logo_minimal.png" alt="长理星球" height="64">
+<img src="CSUSTPlanet/Resources/Assets.xcassets/MinimalLogo.imageset/logo_minimal.png" alt="云岭星球" height="64">
 
-# 长理星球
+# 云岭星球
 
-长理星球是为大学生打造的校园服务助手，让您的校园生活更便捷高效。通过本应用，您可以随时查询课表、考试成绩和考试安排，实时掌握宿舍电量情况并接收低电量提醒，快速查看课程作业和作业截止日期
+云岭星球是为大学生打造的校园服务助手，让您的校园生活更便捷高效。通过本应用，您可以随时查询课表、考试成绩和考试安排，实时掌握宿舍电量情况并接收低电量提醒，快速查看课程作业和作业截止日期
 
-长理星球的校园网络库由[CSUSTKit](https://github.com/zHElEARN/CSUSTKit)提供支持
+云岭星球的校园网络库由[CSUSTKit](https://github.com/zHElEARN/CSUSTKit)提供支持
 
 支持iOS及iPadOS最低17.0版本，macOS最低14.0版本
 
 ## 安装
 
-- 通过[App Store](https://apps.apple.com/cn/app/%E9%95%BF%E7%90%86%E6%98%9F%E7%90%83/id6748840801)下载安装
+- 通过[App Store](https://apps.apple.com/cn/app/id6748840801)下载安装
 - 通过[TestFlight](https://testflight.apple.com/join/xMbzN8aU)加入测试
 
 ## 构建
 
 > [!IMPORTANT]
-> **构建要求**：由于长理星球集成了一些特定的 **App Capabilities**，构建本项目需要具备 **Apple Developer Program** 会员资格。使用免费开发者账号可能导致签名失败或无法正常编译
+> **构建要求**：由于云岭星球集成了一些特定的 **App Capabilities**，构建本项目需要具备 **Apple Developer Program** 会员资格。使用免费开发者账号可能导致签名失败或无法正常编译
 
 ### 步骤
 
@@ -29,7 +29,7 @@
 
 2. 项目配置
 
-   长理星球使用了 `.xcconfig` 文件和环境变量来管理构建配置和敏感信息。在构建前，你需要完成以下两个配置文件的设置：
+   云岭星球使用了 `.xcconfig` 文件和环境变量来管理构建配置和敏感信息。在构建前，你需要完成以下两个配置文件的设置：
    - 构建配置 (User.xcconfig)
 
      复制构建配置模板文件，并填入你的开发者团队信息：
@@ -87,9 +87,9 @@
 
 ## 贡献
 
-欢迎并鼓励大家为 **长理星球** 做出贡献，您可以 Fork 项目，进行修改并提交 Pull Request。
+欢迎并鼓励大家为 **云岭星球** 做出贡献，您可以 Fork 项目，进行修改并提交 Pull Request。
 
-如果您在使用过程中遇到问题，或对 **长理星球** 有任何建议，也欢迎提交 Issue 来告知我们！
+如果您在使用过程中遇到问题，或对 **云岭星球** 有任何建议，也欢迎提交 Issue 来告知我们！
 
 ---
 

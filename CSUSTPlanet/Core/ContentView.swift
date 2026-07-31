@@ -358,7 +358,7 @@ struct ContentView: View {
                         }
                     }
                 }
-                .navigationTitle("长理星球")
+                .navigationTitle("云岭星球")
                 #if os(macOS)
                 .navigationSplitViewColumnWidth(min: 150, ideal: 200, max: 250)
                 #endif

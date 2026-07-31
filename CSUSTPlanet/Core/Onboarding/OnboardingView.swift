@@ -116,7 +116,7 @@ struct OnboardingView: View {
 
     private var currentNavigationTitle: String {
         switch currentPage {
-        case 0: return "长理星球"
+        case 0: return "云岭星球"
         case 1: return "账号登录"
         case 2: return "宿舍配置"
         case 3: return "桌面小组件"

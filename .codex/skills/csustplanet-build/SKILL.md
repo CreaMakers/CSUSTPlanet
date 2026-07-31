@@ -1,10 +1,10 @@
 ---
 name: csustplanet-build
-description: 使用固定 xcodebuild 流程验证长理星球项目代码是否存在编译期错误。
+description: 使用固定 xcodebuild 流程验证云岭星球项目代码是否存在编译期错误。
 disable-model-invocation: true
 ---
 
-# 长理星球编译
+# 云岭星球编译
 
 使用此 Skill 时，在项目根目录下直接运行固定编译命令，用于确认代码是否存在编译期错误。
 

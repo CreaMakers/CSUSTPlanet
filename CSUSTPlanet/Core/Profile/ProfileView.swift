@@ -145,7 +145,7 @@ struct ProfileView: View {
 
             Section {
                 NavigationLink(value: AppRoute.profile(.about(.main))) {
-                    Text("关于 长理星球")
+                    Text("关于 云岭星球")
                 }
 
                 NavigationLink(value: AppRoute.profile(.feedback)) {
@@ -153,7 +153,7 @@ struct ProfileView: View {
                 }
 
                 NavigationLink(value: AppRoute.profile(.userAgreement)) {
-                    Text("长理星球 用户协议")
+                    Text("云岭星球 用户协议")
                 }
             } header: {
                 Text("帮助与支持")

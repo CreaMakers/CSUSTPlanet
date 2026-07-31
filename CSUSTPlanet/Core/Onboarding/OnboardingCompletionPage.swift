@@ -32,7 +32,7 @@ struct OnboardingCompletionPage: View {
                 .font(.largeTitle.weight(.bold))
                 .multilineTextAlignment(.center)
 
-            Text("常用功能已经准备就绪，现在就可以开始使用长理星球了。")
+            Text("常用功能已经准备就绪，现在就可以开始使用云岭星球了。")
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

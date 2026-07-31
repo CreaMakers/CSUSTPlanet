@@ -30,7 +30,7 @@ struct OnboardingWelcomePage: View {
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .padding(.top, 16)
 
-            Text("欢迎使用长理星球")
+            Text("欢迎使用云岭星球")
                 .font(.largeTitle.weight(.bold))
                 .multilineTextAlignment(.center)
 

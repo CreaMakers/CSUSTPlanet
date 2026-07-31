@@ -43,7 +43,7 @@ struct CSUSTPlanetApp: App {
     var body: some Scene {
         Group {
             #if os(macOS)
-            Window("长理星球", id: "main") {
+            Window("云岭星球", id: "main") {
                 ContentView()
                     .frame(minWidth: WindowSize.minWidth, minHeight: WindowSize.minHeight)
             }

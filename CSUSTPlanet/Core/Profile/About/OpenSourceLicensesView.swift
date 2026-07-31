@@ -38,7 +38,7 @@ struct OpenSourceLicensesView: View {
             } header: {
                 Text("说明")
             } footer: {
-                Text("以下是长理星球中使用的开源项目及其许可证信息。点击每个项目可以查看详细的许可证内容。")
+                Text("以下是云岭星球中使用的开源项目及其许可证信息。点击每个项目可以查看详细的许可证内容。")
             }
 
             if let errorMessage = viewModel.errorMessage {
