@@ -18,6 +18,7 @@ struct CourseScheduleControlBar: View {
     let realCurrentWeek: Int?
 
     @Binding var currentWeek: Int
+    let weekCount: Int
 
     var body: some View {
         HStack {
@@ -38,7 +39,7 @@ struct CourseScheduleControlBar: View {
 
             HStack(spacing: 12) {
                 Picker("选择周数", selection: $currentWeek.withAnimation()) {
-                    ForEach(1...CourseScheduleUtil.weekCount, id: \.self) { week in
+                    ForEach(1...weekCount, id: \.self) { week in
                         Text("第 \(week) 周").tag(week)
                     }
                 }
@@ -46,7 +47,7 @@ struct CourseScheduleControlBar: View {
 
                 Button(action: {
                     withAnimation {
-                        if let realWeek = realCurrentWeek, realWeek > 0 && realWeek <= CourseScheduleUtil.weekCount {
+                        if let realWeek = realCurrentWeek, realWeek > 0 && realWeek <= weekCount {
                             self.currentWeek = realWeek
                         } else {
                             self.currentWeek = 1
@@ -111,6 +112,7 @@ struct CourseScheduleControlBar: View {
         ],
         selectedSemester: "2024-2025-1",
         realCurrentWeek: 16,
-        currentWeek: $currentWeek
+        currentWeek: $currentWeek,
+        weekCount: 20
     )
 }

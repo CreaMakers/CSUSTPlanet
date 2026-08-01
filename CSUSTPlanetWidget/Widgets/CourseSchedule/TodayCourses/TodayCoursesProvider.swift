@@ -50,7 +50,7 @@ struct TodayCoursesProvider: TimelineProvider {
         }
 
         // 放假或未开学时：12小时刷新一次
-        let semesterStatus = CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.value.semesterStartDate, date: currentDate)
+        let semesterStatus = CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.value.semesterStartDate, date: currentDate, weekCount: data.value.weekCount)
         guard semesterStatus == .inSemester else {
             let entry = TodayCoursesEntry(date: currentDate, data: data.value)
             let refreshDate = calendar.date(byAdding: .hour, value: 12, to: currentDate) ?? currentDate.addingTimeInterval(12 * 3600)

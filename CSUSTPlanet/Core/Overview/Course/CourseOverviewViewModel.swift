@@ -35,7 +35,7 @@ final class CourseOverviewViewModel {
     func courseDisplayState(at now: Date) -> CourseDisplayState {
         guard let data = courseScheduleData?.value else { return .loading }
 
-        let status = CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: now)
+        let status = CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: now, weekCount: data.weekCount)
 
         switch status {
         case .beforeSemester:
@@ -47,7 +47,8 @@ final class CourseOverviewViewModel {
             let dailyCourseState = CourseScheduleUtil.getDailyCourseDisplayState(
                 semesterStartDate: data.semesterStartDate,
                 now: now,
-                courses: data.courses
+                courses: data.courses,
+                weekCount: data.weekCount
             )
             return .inSemester(dailyCourseState: dailyCourseState)
         }

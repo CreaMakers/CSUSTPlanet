@@ -25,11 +25,20 @@ struct CourseScheduleData: Codable {
     var semesterStartDate: Date
     var courses: [EduHelper.Course]
     var remarks: [String]
+    /// 课表总周数，nil 表示默认 20 周（学校课表）
+    var weekCount: Int?
 
-    init(semester: String?, semesterStartDate: Date, courses: [EduHelper.Course], remarks: [String]) {
+    init(
+        semester: String?,
+        semesterStartDate: Date,
+        courses: [EduHelper.Course],
+        remarks: [String],
+        weekCount: Int? = nil
+    ) {
         self.semester = semester
         self.semesterStartDate = semesterStartDate
         self.courses = courses
         self.remarks = remarks
+        self.weekCount = weekCount
     }
 }

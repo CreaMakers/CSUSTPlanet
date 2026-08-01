@@ -24,6 +24,7 @@ struct CourseScheduleView: View {
 
     @State private var currentWeek: Int = 1
     @State private var realCurrentWeek: Int? = nil
+    @State private var weekCount: Int = CourseScheduleUtil.weekCount
 
     @State private var errorToast: ToastState = .errorTitle
     @State private var loadingToast: ToastState = .loadingTitle
@@ -44,6 +45,7 @@ struct CourseScheduleView: View {
             isCalendarExporting: isCalendarExporting,
             currentWeek: $currentWeek,
             realCurrentWeek: realCurrentWeek,
+            weekCount: weekCount,
             errorToast: $errorToast,
             loadingToast: $loadingToast,
             successToast: $successToast,
@@ -108,6 +110,7 @@ struct CourseScheduleView: View {
             weeklyCourses = nil
             semesterStartDate = nil
             realCurrentWeek = nil
+            weekCount = CourseScheduleUtil.weekCount
             courseColors = [:]
             remarks = []
             return
@@ -116,7 +119,12 @@ struct CourseScheduleView: View {
         courses = data.value.courses
         weeklyCourses = CourseScheduleUtil.getWeeklyCourses(data.value.courses)
         semesterStartDate = data.value.semesterStartDate
-        realCurrentWeek = CourseScheduleUtil.getCurrentWeek(semesterStartDate: data.value.semesterStartDate, now: .now)
+        weekCount = CourseScheduleUtil.resolveWeekCount(data.value.weekCount)
+        realCurrentWeek = CourseScheduleUtil.getCurrentWeek(
+            semesterStartDate: data.value.semesterStartDate,
+            now: .now,
+            weekCount: weekCount
+        )
         courseColors = ColorUtil.getCourseColors(data.value.courses)
         remarks = data.value.remarks
 
@@ -124,6 +132,9 @@ struct CourseScheduleView: View {
             withAnimation {
                 currentWeek = week
             }
+        } else if currentWeek > weekCount {
+            // 切换到周数更少的课表时，钳制当前周数避免越界
+            currentWeek = weekCount
         }
     }
 
@@ -147,7 +158,7 @@ struct CourseScheduleView: View {
         }
 
         do {
-            let dateRange = CourseScheduleUtil.getSemesterDateRange(semesterStartDate: semesterStartDate)
+            let dateRange = CourseScheduleUtil.getSemesterDateRange(semesterStartDate: semesterStartDate, weekCount: weekCount)
             let drafts = makeCalendarEventDrafts(
                 courses: courses,
                 semesterStartDate: semesterStartDate,

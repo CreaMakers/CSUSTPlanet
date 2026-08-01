@@ -26,6 +26,7 @@ struct CourseScheduleContent: View {
 
     @Binding var currentWeek: Int
     let realCurrentWeek: Int?
+    let weekCount: Int
 
     @Binding var errorToast: ToastState
     @Binding var loadingToast: ToastState
@@ -53,7 +54,8 @@ struct CourseScheduleContent: View {
                 remarks: remarks,
                 selectedSemester: selectedSemester,
                 realCurrentWeek: realCurrentWeek,
-                currentWeek: $currentWeek
+                currentWeek: $currentWeek,
+                weekCount: weekCount
             )
 
             if let weeklyCourses = weeklyCourses,
@@ -63,7 +65,7 @@ struct CourseScheduleContent: View {
                     #if os(macOS)
                     Button {
                         let newWeek = currentWeek - 1
-                        if newWeek >= 1 && newWeek <= CourseScheduleUtil.weekCount {
+                        if newWeek >= 1 && newWeek <= weekCount {
                             withAnimation {
                                 currentWeek = newWeek
                             }
@@ -87,6 +89,7 @@ struct CourseScheduleContent: View {
                         weeklyCourses: weeklyCourses,
                         courseColors: courseColors,
                         currentWeek: $currentWeek,
+                        weekCount: weekCount,
                         isCourseDetailInspectorPresented: $isCourseDetailInspectorPresented,
                         selectedCourseInfo: $selectedCourseInfo
                     )
@@ -94,7 +97,7 @@ struct CourseScheduleContent: View {
                     #if os(macOS)
                     Button {
                         let newWeek = currentWeek + 1
-                        if newWeek >= 1 && newWeek <= CourseScheduleUtil.weekCount {
+                        if newWeek >= 1 && newWeek <= weekCount {
                             withAnimation {
                                 currentWeek = newWeek
                             }
@@ -109,7 +112,7 @@ struct CourseScheduleContent: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    .disabled(currentWeek >= CourseScheduleUtil.weekCount)
+                    .disabled(currentWeek >= weekCount)
                     .keyboardShortcut(.rightArrow, modifiers: [])
                     #endif
                 }
@@ -217,6 +220,7 @@ struct CourseScheduleContent: View {
             isCalendarExporting: false,
             currentWeek: .constant(1),
             realCurrentWeek: 1,
+            weekCount: 20,
             errorToast: .constant(.errorTitle),
             loadingToast: .constant(.loadingTitle),
             successToast: .constant(.successTitle),

@@ -40,7 +40,7 @@ struct TodayCoursesEntryView: View {
 
     @ViewBuilder
     func contentView(date: Date, data: CourseScheduleData, dailyCourseDisplayState: DailyCourseDisplayState?) -> some View {
-        switch CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date) {
+        switch CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date, weekCount: data.weekCount) {
         case .beforeSemester:
             CourseWidgetBeforeSemesterView(date: date, data: data)
         case .afterSemester:
@@ -161,14 +161,15 @@ struct TodayCoursesEntryView: View {
     }
 
     private func resolvedDailyCourseDisplayState(date: Date, data: CourseScheduleData) -> DailyCourseDisplayState? {
-        guard CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date) == .inSemester else {
+        guard CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date, weekCount: data.weekCount) == .inSemester else {
             return nil
         }
 
         return CourseScheduleUtil.getDailyCourseDisplayState(
             semesterStartDate: data.semesterStartDate,
             now: date,
-            courses: data.courses
+            courses: data.courses,
+            weekCount: data.weekCount
         )
     }
 

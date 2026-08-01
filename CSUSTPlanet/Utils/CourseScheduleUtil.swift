@@ -48,8 +48,13 @@ enum CourseScheduleUtil {
 
     // MARK: - Properties
 
-    /// 学期总周数，基本上不会超过20周，固定为20周即可
+    /// 默认学期总周数，学校课表固定为 20 周，也是自定义课表周数为 nil 时的兜底值
     static let weekCount: Int = 20
+
+    /// 解析课表总周数，传入 nil 时使用默认值
+    static func resolveWeekCount(_ weekCount: Int?) -> Int {
+        weekCount ?? Self.weekCount
+    }
 
     /// 课程均以长沙当地时间为准
     static let courseTimeZone = TimeZone(identifier: "Asia/Shanghai")!
@@ -142,10 +147,13 @@ enum CourseScheduleUtil {
         return calendar.date(from: components)!
     }
 
-    /// 获取学期覆盖的半开时间区间 `[开学日, 开学日 + 20周)`
-    static func getSemesterDateRange(semesterStartDate: Date) -> (startDate: Date, endDate: Date) {
+    /// 获取学期覆盖的半开时间区间 `[开学日, 开学日 + weekCount周)`
+    /// - Parameters:
+    ///   - semesterStartDate: 学期开始日期
+    ///   - weekCount: 课表总周数，nil 时使用默认值 20
+    static func getSemesterDateRange(semesterStartDate: Date, weekCount: Int? = nil) -> (startDate: Date, endDate: Date) {
         let startDate = calendar.startOfDay(for: semesterStartDate)
-        let endDate = calendar.date(byAdding: .weekOfYear, value: weekCount, to: startDate)!
+        let endDate = calendar.date(byAdding: .weekOfYear, value: resolveWeekCount(weekCount), to: startDate)!
         return (startDate, endDate)
     }
 
@@ -168,8 +176,9 @@ enum CourseScheduleUtil {
     /// - Parameters:
     ///   - semesterStartDate: 学期开始日期
     ///   - now: 当前时间
+    ///   - weekCount: 课表总周数，nil 时使用默认值
     /// - Returns: 当前周数，若当前日期在学期开始前或学期结束后则返回nil
-    static func getCurrentWeek(semesterStartDate: Date, now: Date) -> Int? {
+    static func getCurrentWeek(semesterStartDate: Date, now: Date, weekCount: Int? = nil) -> Int? {
         let startDate = calendar.startOfDay(for: semesterStartDate)
         let todayDate = calendar.startOfDay(for: now)
 
@@ -182,7 +191,7 @@ enum CourseScheduleUtil {
         // 天数除以7，结果加1就是周数
         let weekNumber = Int(floor(Double(days) / 7.0)) + 1
 
-        if weekNumber < 1 || weekNumber > weekCount {
+        if weekNumber < 1 || weekNumber > resolveWeekCount(weekCount) {
             return nil
         }
 
@@ -256,12 +265,13 @@ enum CourseScheduleUtil {
     /// - Parameters:
     ///   - semesterStartDate: 学期开始日期
     ///   - date: 目标日期
+    ///   - weekCount: 课表总周数，nil 时使用默认值
     /// - Returns: 当前学期状态
-    static func getSemesterStatus(semesterStartDate: Date, date: Date) -> SemesterStatus {
+    static func getSemesterStatus(semesterStartDate: Date, date: Date, weekCount: Int? = nil) -> SemesterStatus {
         let targetDate = calendar.startOfDay(for: date)
         let startDate = calendar.startOfDay(for: semesterStartDate)
 
-        guard let endDate = calendar.date(byAdding: .weekOfYear, value: weekCount, to: startDate) else {
+        guard let endDate = calendar.date(byAdding: .weekOfYear, value: resolveWeekCount(weekCount), to: startDate) else {
             return .afterSemester
         }
 
@@ -312,21 +322,24 @@ enum CourseScheduleUtil {
     static func getCoursesForDate(
         semesterStartDate: Date,
         targetDate: Date,
-        courses: [EduHelper.Course]
+        courses: [EduHelper.Course],
+        weekCount: Int? = nil
     ) -> [CourseDisplayInfo] {
         return getCoursesForTargetDate(
             semesterStartDate: semesterStartDate,
             targetDate: targetDate,
-            courses: courses
+            courses: courses,
+            weekCount: weekCount
         )
     }
 
     private static func getCoursesForTargetDate(
         semesterStartDate: Date,
         targetDate: Date,
-        courses: [EduHelper.Course]
+        courses: [EduHelper.Course],
+        weekCount: Int? = nil
     ) -> [CourseDisplayInfo] {
-        guard let currentWeek = getCurrentWeek(semesterStartDate: semesterStartDate, now: targetDate) else {
+        guard let currentWeek = getCurrentWeek(semesterStartDate: semesterStartDate, now: targetDate, weekCount: weekCount) else {
             return []
         }
 
@@ -379,7 +392,8 @@ enum CourseScheduleUtil {
     static func getTomorrowCoursePreview(
         semesterStartDate: Date,
         now: Date,
-        courses: [EduHelper.Course]
+        courses: [EduHelper.Course],
+        weekCount: Int? = nil
     ) -> TomorrowCoursePreview? {
         guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)) else {
             return nil
@@ -388,7 +402,8 @@ enum CourseScheduleUtil {
         let tomorrowCourses = getCoursesForDate(
             semesterStartDate: semesterStartDate,
             targetDate: tomorrow,
-            courses: courses
+            courses: courses,
+            weekCount: weekCount
         )
         guard !tomorrowCourses.isEmpty else {
             return nil
@@ -397,11 +412,17 @@ enum CourseScheduleUtil {
         return TomorrowCoursePreview(date: tomorrow, courses: tomorrowCourses)
     }
 
-    static func getTodayCourseState(semesterStartDate: Date, now: Date, courses: [EduHelper.Course]) -> TodayCourseState {
+    static func getTodayCourseState(
+        semesterStartDate: Date,
+        now: Date,
+        courses: [EduHelper.Course],
+        weekCount: Int? = nil
+    ) -> TodayCourseState {
         let dailyCourses = getCoursesForTargetDate(
             semesterStartDate: semesterStartDate,
             targetDate: now,
-            courses: courses
+            courses: courses,
+            weekCount: weekCount
         )
 
         guard !dailyCourses.isEmpty else {
@@ -419,20 +440,21 @@ enum CourseScheduleUtil {
     static func getDailyCourseDisplayState(
         semesterStartDate: Date,
         now: Date,
-        courses: [EduHelper.Course]
+        courses: [EduHelper.Course],
+        weekCount: Int? = nil
     ) -> DailyCourseDisplayState {
-        switch getTodayCourseState(semesterStartDate: semesterStartDate, now: now, courses: courses) {
+        switch getTodayCourseState(semesterStartDate: semesterStartDate, now: now, courses: courses, weekCount: weekCount) {
         case .unfinishedCourses(let courses):
             return .today(courses: courses)
         case .noScheduledCourses:
             return .tomorrowPreview(
                 reason: .noScheduledCourses,
-                preview: getTomorrowCoursePreview(semesterStartDate: semesterStartDate, now: now, courses: courses)
+                preview: getTomorrowCoursePreview(semesterStartDate: semesterStartDate, now: now, courses: courses, weekCount: weekCount)
             )
         case .finishedAllCourses:
             return .tomorrowPreview(
                 reason: .finishedAllCourses,
-                preview: getTomorrowCoursePreview(semesterStartDate: semesterStartDate, now: now, courses: courses)
+                preview: getTomorrowCoursePreview(semesterStartDate: semesterStartDate, now: now, courses: courses, weekCount: weekCount)
             )
         }
     }
@@ -442,12 +464,14 @@ enum CourseScheduleUtil {
     ///   - semesterStartDate: 学期开始日期
     ///   - now: 当前时间
     ///   - courses: 课程列表
+    ///   - weekCount: 课表总周数，nil 时使用默认值
     /// - Returns: 一个包含未结束课程信息和是否为当前课程的元组数组
-    static func getUnfinishedCourses(semesterStartDate: Date, now: Date, courses: [EduHelper.Course]) -> [(course: CourseDisplayInfo, isCurrent: Bool)] {
+    static func getUnfinishedCourses(semesterStartDate: Date, now: Date, courses: [EduHelper.Course], weekCount: Int? = nil) -> [(course: CourseDisplayInfo, isCurrent: Bool)] {
         let dailyCourses = getCoursesForTargetDate(
             semesterStartDate: semesterStartDate,
             targetDate: now,
-            courses: courses
+            courses: courses,
+            weekCount: weekCount
         )
         return getUnfinishedCoursesForTargetDate(dailyCourses, now: now)
     }
@@ -463,9 +487,10 @@ enum CourseScheduleUtil {
     ///   - semesterStartDate: 学期开始日期
     ///   - now: 当前时间
     ///   - courses: 课程列表
+    ///   - weekCount: 课表总周数，nil 时使用默认值
     /// - Returns: 符合要求的、最相关的课程信息，若无则返回nil
-    static func getRelevantCourseForStatus(semesterStartDate: Date, now: Date, courses: [EduHelper.Course]) -> CourseDisplayInfo? {
-        guard let currentWeek = getCurrentWeek(semesterStartDate: semesterStartDate, now: now) else {
+    static func getRelevantCourseForStatus(semesterStartDate: Date, now: Date, courses: [EduHelper.Course], weekCount: Int? = nil) -> CourseDisplayInfo? {
+        guard let currentWeek = getCurrentWeek(semesterStartDate: semesterStartDate, now: now, weekCount: weekCount) else {
             return nil
         }
 

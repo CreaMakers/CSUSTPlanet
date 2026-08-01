@@ -69,7 +69,8 @@ final class ActivityManager {
         if let courseDisplayInfo = CourseScheduleUtil.getRelevantCourseForStatus(
             semesterStartDate: data.value.semesterStartDate,
             now: currentDate,
-            courses: data.value.courses
+            courses: data.value.courses,
+            weekCount: data.value.weekCount
         ), let courseDates = getCourseDates(from: courseDisplayInfo.session.startSection, to: courseDisplayInfo.session.endSection, now: currentDate) {
 
             let attributes = CourseStatusWidgetAttributes(
