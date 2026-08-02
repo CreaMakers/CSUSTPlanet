@@ -19,8 +19,11 @@ struct CourseScheduleSettingsContent: View {
     let hasSchoolSchedule: Bool
 
     let onActivateDefault: () -> Void
+    let onActivateSchedule: (CustomCourseScheduleGRDB) -> Void
+    let onDeleteSchedule: (CustomCourseScheduleGRDB) -> Void
 
     @State private var createModeIsImport: Bool?
+    @State private var schedulePendingDelete: CustomCourseScheduleGRDB?
 
     var body: some View {
         List {
@@ -33,6 +36,7 @@ struct CourseScheduleSettingsContent: View {
                         subtitle: defaultScheduleStartDate.map { CourseScheduleUtil.dateFormatter.string(from: $0) } ?? CourseScheduleUtil.emptyCourseScheduleText,
                         isCurrent: currentScheduleID == nil
                     )
+                    .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
             } footer: {
@@ -51,6 +55,21 @@ struct CourseScheduleSettingsContent: View {
                             subtitle: CourseScheduleUtil.dateFormatter.string(from: schedule.semesterStartDate),
                             isCurrent: currentScheduleID == schedule.id
                         )
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        if currentScheduleID != schedule.id {
+                            Button {
+                                onActivateSchedule(schedule)
+                            } label: {
+                                Label("设为当前", systemImage: "checkmark.circle")
+                            }
+                            .tint(.blue)
+                        }
+                        Button(role: .destructive) {
+                            schedulePendingDelete = schedule
+                        } label: {
+                            Label("删除", systemImage: "trash")
+                        }
                     }
                 }
             }
@@ -75,6 +94,18 @@ struct CourseScheduleSettingsContent: View {
                     Label("新建课表", systemImage: "plus")
                 }
             }
+        }
+        .alert(
+            "删除课表",
+            isPresented: Binding(get: { schedulePendingDelete != nil }, set: { if !$0 { schedulePendingDelete = nil } }),
+            presenting: schedulePendingDelete
+        ) { schedule in
+            Button("删除", role: .destructive) {
+                onDeleteSchedule(schedule)
+            }
+            Button("取消", role: .cancel) {}
+        } message: { schedule in
+            Text("确定要删除「\(schedule.name)」吗？删除后不可恢复")
         }
         .sheet(isPresented: Binding(get: { createModeIsImport != nil }, set: { if !$0 { createModeIsImport = nil } })) {
             CourseScheduleCreateSheet(
@@ -115,7 +146,6 @@ struct CourseScheduleSettingsView: View {
     @State private var schoolCache: Cached<CourseScheduleData>?
 
     @State private var errorToast: ToastState = .errorTitle
-    @State private var successToast: ToastState = .successTitle
 
     @State private var listObserver: (any DatabaseCancellable)?
     @State private var ipcCancellable: AnyCancellable?
@@ -129,13 +159,14 @@ struct CourseScheduleSettingsView: View {
             currentScheduleID: currentScheduleID,
             defaultScheduleStartDate: schoolCache?.value.semesterStartDate,
             hasSchoolSchedule: schoolCache != nil,
-            onActivateDefault: activateDefaultSchedule
+            onActivateDefault: activateDefaultSchedule,
+            onActivateSchedule: activateSchedule,
+            onDeleteSchedule: deleteSchedule
         )
         .task {
             await loadInitial()
         }
         .errorToast($errorToast)
-        .successToast($successToast)
     }
 
     // MARK: - 切换当前课表
@@ -143,7 +174,31 @@ struct CourseScheduleSettingsView: View {
     private func activateDefaultSchedule() {
         guard currentScheduleID != nil else { return }
         MMKVHelper.CourseSchedule.currentScheduleID = nil
-        successToast.show(message: "已切换到默认课表")
+    }
+
+    private func activateSchedule(_ schedule: CustomCourseScheduleGRDB) {
+        MMKVHelper.CourseSchedule.currentScheduleID = schedule.id
+    }
+
+    // MARK: - 删除课表
+
+    private func deleteSchedule(_ schedule: CustomCourseScheduleGRDB) {
+        guard schedule.id != currentScheduleID else {
+            errorToast.show(message: "此课表为当前选择课表，不能删除，请先切换到其他课表再删除")
+            return
+        }
+        guard let pool = DatabaseManager.shared.pool else {
+            errorToast.show(message: DatabaseManagerError.databaseUnavailable.localizedDescription)
+            return
+        }
+
+        do {
+            try pool.write { db in
+                _ = try CustomCourseScheduleGRDB.deleteOne(db, key: schedule.id)
+            }
+        } catch {
+            errorToast.show(message: "删除失败：\(error.localizedDescription)")
+        }
     }
 
     // MARK: - 观察
@@ -236,7 +291,9 @@ struct CourseScheduleSettingsView: View {
             currentScheduleID: "2",
             defaultScheduleStartDate: .now,
             hasSchoolSchedule: true,
-            onActivateDefault: {}
+            onActivateDefault: {},
+            onActivateSchedule: { _ in },
+            onDeleteSchedule: { _ in }
         )
     }
 }

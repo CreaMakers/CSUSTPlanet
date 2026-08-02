@@ -14,6 +14,9 @@ struct CourseScheduleEditContent: View {
     let isCurrentSchedule: Bool
 
     let onActivate: () -> Void
+    let onDelete: () -> Void
+
+    @State private var isDeleteConfirmPresented: Bool = false
 
     var body: some View {
         Form {
@@ -39,6 +42,26 @@ struct CourseScheduleEditContent: View {
             } footer: {
                 Text("点击后该课表将成为当前课表")
             }
+
+            Section {
+                Button(role: .destructive) {
+                    isDeleteConfirmPresented = true
+                } label: {
+                    Text("删除课表")
+                }
+            }
+        }
+        .alert(
+            "删除课表",
+            isPresented: $isDeleteConfirmPresented,
+            presenting: schedule
+        ) { schedule in
+            Button("删除", role: .destructive) {
+                onDelete()
+            }
+            Button("取消", role: .cancel) {}
+        } message: { schedule in
+            Text("确定要删除「\(schedule.name)」吗？删除后不可恢复")
         }
         .formStyle(.grouped)
         .navigationTitle(schedule.name)
@@ -50,14 +73,17 @@ struct CourseScheduleEditContent: View {
 struct CourseScheduleEditView: View {
     let schedule: CustomCourseScheduleGRDB
 
+    @Environment(\.dismiss) private var dismiss
+
     @State private var isCurrentSchedule: Bool = false
-    @State private var successToast: ToastState = .successTitle
+    @State private var errorToast: ToastState = .errorTitle
 
     var body: some View {
         CourseScheduleEditContent(
             schedule: schedule,
             isCurrentSchedule: isCurrentSchedule,
-            onActivate: activate
+            onActivate: activate,
+            onDelete: deleteSchedule
         )
         .onAppear {
             isCurrentSchedule = (MMKVHelper.CourseSchedule.currentScheduleID == schedule.id)
@@ -65,7 +91,7 @@ struct CourseScheduleEditView: View {
         .onReceive(MMKVHelper.CourseSchedule.$currentScheduleID) { scheduleID in
             isCurrentSchedule = (scheduleID == schedule.id)
         }
-        .successToast($successToast)
+        .errorToast($errorToast)
     }
 
     // MARK: - 切换当前课表
@@ -73,7 +99,28 @@ struct CourseScheduleEditView: View {
     private func activate() {
         MMKVHelper.CourseSchedule.currentScheduleID = schedule.id
         isCurrentSchedule = true
-        successToast.show(message: "已激活「\(schedule.name)」")
+    }
+
+    // MARK: - 删除课表
+
+    private func deleteSchedule() {
+        guard !isCurrentSchedule else {
+            errorToast.show(message: "此课表为当前选择课表，不能删除，请先切换到其他课表再删除")
+            return
+        }
+        guard let pool = DatabaseManager.shared.pool else {
+            errorToast.show(message: DatabaseManagerError.databaseUnavailable.localizedDescription)
+            return
+        }
+
+        do {
+            try pool.write { db in
+                _ = try CustomCourseScheduleGRDB.deleteOne(db, key: schedule.id)
+            }
+            dismiss()
+        } catch {
+            errorToast.show(message: "删除失败：\(error.localizedDescription)")
+        }
     }
 }
 
@@ -89,7 +136,8 @@ struct CourseScheduleEditView: View {
                 createdAt: .now
             ),
             isCurrentSchedule: false,
-            onActivate: {}
+            onActivate: {},
+            onDelete: {}
         )
     }
 }
