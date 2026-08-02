@@ -155,11 +155,11 @@ struct CourseScheduleContent: View {
         .toolbar {
             ToolbarItemGroup(placement: .secondaryAction) {
                 NavigationLink(value: AppRoute.features(.education(.courseScheduleSettings))) {
-                    Label("课表设置", systemImage: "slider.horizontal.3")
+                    Label("课表设置", systemImage: "gearshape")
                 }
 
                 Button(action: { isSemestersSheetPresented = true }) {
-                    Label("学期选择", systemImage: "gearshape")
+                    Label("学期选择", systemImage: "slider.horizontal.3")
                 }
                 .disabled(isCourseScheduleLoading || isCalendarExporting)
 
