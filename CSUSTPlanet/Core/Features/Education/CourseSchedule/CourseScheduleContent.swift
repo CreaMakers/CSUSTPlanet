@@ -154,6 +154,10 @@ struct CourseScheduleContent: View {
         .inlineToolbarTitle()
         .toolbar {
             ToolbarItemGroup(placement: .secondaryAction) {
+                NavigationLink(value: AppRoute.features(.education(.courseScheduleSettings))) {
+                    Label("课表设置", systemImage: "slider.horizontal.3")
+                }
+
                 Button(action: { isSemestersSheetPresented = true }) {
                     Label("学期选择", systemImage: "gearshape")
                 }

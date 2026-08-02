@@ -100,6 +100,8 @@ enum AppRoute: Hashable {
 
         enum EducationRoute: Hashable {
             case courseSchedule
+            case courseScheduleSettings
+            case courseScheduleEdit(CustomCourseScheduleGRDB)
             case gradeQuery(GradeQueryRoute)
             case examSchedule
             case gradeAnalysis
@@ -108,6 +110,10 @@ enum AppRoute: Hashable {
                 switch self {
                 case .courseSchedule:
                     return "CourseSchedule"
+                case .courseScheduleSettings:
+                    return "CourseScheduleSettings"
+                case .courseScheduleEdit:
+                    return "CourseScheduleEdit"
                 case .gradeQuery(let route):
                     return route.trackSegment
                 case .examSchedule:
@@ -122,6 +128,10 @@ enum AppRoute: Hashable {
                 switch self {
                 case .courseSchedule:
                     CourseScheduleView()
+                case .courseScheduleSettings:
+                    CourseScheduleSettingsView()
+                case .courseScheduleEdit(let schedule):
+                    CourseScheduleEditView(schedule: schedule)
                 case .gradeQuery(let route):
                     route.destinationView
                 case .examSchedule:

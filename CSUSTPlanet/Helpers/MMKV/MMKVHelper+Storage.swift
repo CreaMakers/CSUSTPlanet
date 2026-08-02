@@ -21,6 +21,10 @@ extension MMKVHelper {
     enum CourseSchedule {
         @MMKVOptionalStorage(key: "Cached.courseScheduleCache")
         static var cache: Cached<CourseScheduleData>?
+
+        /// 当前选择的课表 ID，nil 表示默认课表（学校课表）
+        @MMKVOptionalStorage(key: "CourseSchedule.currentScheduleID")
+        static var currentScheduleID: String?
     }
 
     enum PhysicsExperiment {
