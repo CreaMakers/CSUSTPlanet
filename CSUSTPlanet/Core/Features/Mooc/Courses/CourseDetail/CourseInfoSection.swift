@@ -48,13 +48,13 @@ struct CourseInfoSection: View {
         .sheet(isPresented: $isCoursePagePresented) {
             NavigationStack {
                 AssignmentsCoursePage(courseID: course.id)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("关闭") {
-                                isCoursePagePresented = false
-                            }
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("关闭") {
+                            isCoursePagePresented = false
                         }
                     }
+                }
             }
         }
         #endif
