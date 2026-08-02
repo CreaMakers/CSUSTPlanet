@@ -31,14 +31,14 @@ struct JSONIntArray: Codable, Equatable, Hashable, DatabaseValueConvertible {
         self.values = values
     }
 
-    init?(databaseValue: DatabaseValue) {
-        guard let json = String.fromDatabaseValue(databaseValue),
+    static func fromDatabaseValue(_ dbValue: DatabaseValue) -> JSONIntArray? {
+        guard let json = String.fromDatabaseValue(dbValue),
             let data = json.data(using: .utf8),
             let values = try? JSONDecoder().decode([Int].self, from: data)
         else {
             return nil
         }
-        self.values = values
+        return JSONIntArray(values)
     }
 
     var databaseValue: DatabaseValue {

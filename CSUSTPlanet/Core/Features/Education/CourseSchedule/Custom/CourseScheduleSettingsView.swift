@@ -172,32 +172,20 @@ struct CourseScheduleSettingsView: View {
     // MARK: - 切换当前课表
 
     private func activateDefaultSchedule() {
-        guard currentScheduleID != nil else { return }
-        MMKVHelper.CourseSchedule.currentScheduleID = nil
+        CustomCourseScheduleHelper.activateSchedule(id: nil)
     }
 
     private func activateSchedule(_ schedule: CustomCourseScheduleGRDB) {
-        MMKVHelper.CourseSchedule.currentScheduleID = schedule.id
+        CustomCourseScheduleHelper.activateSchedule(id: schedule.id)
     }
 
     // MARK: - 删除课表
 
     private func deleteSchedule(_ schedule: CustomCourseScheduleGRDB) {
-        guard schedule.id != currentScheduleID else {
-            errorToast.show(message: "此课表为当前选择课表，不能删除，请先切换到其他课表再删除")
-            return
-        }
-        guard let pool = DatabaseManager.shared.pool else {
-            errorToast.show(message: DatabaseManagerError.databaseUnavailable.localizedDescription)
-            return
-        }
-
         do {
-            try pool.write { db in
-                _ = try CustomCourseScheduleGRDB.deleteOne(db, key: schedule.id)
-            }
+            try CustomCourseScheduleHelper.deleteSchedule(id: schedule.id)
         } catch {
-            errorToast.show(message: "删除失败：\(error.localizedDescription)")
+            errorToast.show(message: error.localizedDescription)
         }
     }
 

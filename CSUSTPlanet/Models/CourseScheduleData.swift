@@ -42,3 +42,13 @@ struct CourseScheduleData: Codable {
         self.weekCount = weekCount
     }
 }
+
+/// 当前生效课表：数据、模式与名称的聚合
+struct ActiveCourseSchedule: Codable {
+    /// 当前生效的课表数据（默认课表取学校缓存，自定义课表读 GRDB）
+    var data: CourseScheduleData?
+    /// 是否为自定义课表模式
+    var isCustomSchedule: Bool = false
+    /// 课表名称：自定义课表为课表名，默认课表为学期名
+    var scheduleName: String?
+}

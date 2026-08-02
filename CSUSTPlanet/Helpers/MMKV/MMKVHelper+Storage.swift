@@ -25,6 +25,10 @@ extension MMKVHelper {
         /// 当前选择的课表 ID，nil 表示默认课表（学校课表）
         @MMKVOptionalStorage(key: "CourseSchedule.currentScheduleID")
         static var currentScheduleID: String?
+
+        /// 当前生效课表镜像（数据 + 模式 + 名称）
+        @MMKVOptionalStorage(key: "CourseSchedule.activeCourseSchedule")
+        static var activeCourseSchedule: Cached<ActiveCourseSchedule>?
     }
 
     enum PhysicsExperiment {

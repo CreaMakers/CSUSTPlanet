@@ -14,7 +14,7 @@ struct CourseScheduleControlBar: View {
 
     let remarks: [String]
 
-    let selectedSemester: String?
+    let subtitle: String?
     let realCurrentWeek: Int?
 
     @Binding var currentWeek: Int
@@ -29,7 +29,7 @@ struct CourseScheduleControlBar: View {
                     .foregroundColor(.primary)
 
                 if #unavailable(iOS 26.0) {
-                    Text(selectedSemester ?? "默认学期")
+                    Text(subtitle ?? "默认学期")
                         .font(layoutConfig.isWideSize ? .subheadline : .caption)
                         .foregroundColor(.secondary)
                 }
@@ -110,7 +110,7 @@ struct CourseScheduleControlBar: View {
             "习近平新时代中国特色社会主义思想概论课外实践 刘绍云 27周",
             "毛泽东思想和中国特色社会主义理论体系概论课外实践 张慧娟 25周",
         ],
-        selectedSemester: "2024-2025-1",
+        subtitle: "2024-2025-1",
         realCurrentWeek: 16,
         currentWeek: $currentWeek,
         weekCount: 20

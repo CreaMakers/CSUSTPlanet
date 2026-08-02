@@ -20,6 +20,8 @@ struct CourseScheduleContent: View {
     let remarks: [String]
 
     let selectedSemester: String?
+    let isCustomSchedule: Bool
+    let scheduleName: String?
 
     let isCourseScheduleLoading: Bool
     let isCalendarExporting: Bool
@@ -52,7 +54,7 @@ struct CourseScheduleContent: View {
         VStack(spacing: 0) {
             CourseScheduleControlBar(
                 remarks: remarks,
-                selectedSemester: selectedSemester,
+                subtitle: isCustomSchedule ? scheduleName : selectedSemester,
                 realCurrentWeek: realCurrentWeek,
                 currentWeek: $currentWeek,
                 weekCount: weekCount
@@ -150,34 +152,41 @@ struct CourseScheduleContent: View {
             }
         }
         .navigationTitle("我的课表")
-        .navigationSubtitleCompat(selectedSemester.map { "学期\($0)" } ?? "默认学期")
+        .navigationSubtitleCompat(
+            isCustomSchedule
+                ? (scheduleName ?? "")
+                : (selectedSemester.map { "学期\($0)" } ?? "默认学期")
+        )
         .inlineToolbarTitle()
         .toolbar {
-            ToolbarItemGroup(placement: .secondaryAction) {
+            ToolbarItem(placement: .secondaryAction) {
                 NavigationLink(value: AppRoute.features(.education(.courseScheduleSettings))) {
                     Label("课表设置", systemImage: "gearshape")
                 }
-
-                Button(action: { isSemestersSheetPresented = true }) {
-                    Label("学期选择", systemImage: "slider.horizontal.3")
-                }
-                .disabled(isCourseScheduleLoading || isCalendarExporting)
-
-                Button(action: { isCalendarSettingsSheetPresented = true }) {
-                    Label("添加课表到系统日历", systemImage: "calendar.badge.plus")
-                }
-                .disabled(isCourseScheduleLoading || isCalendarExporting)
             }
-
-            ToolbarItem(placement: .primaryAction) {
-                Button(asyncAction: onRefreshCourses) {
-                    if isCourseScheduleLoading {
-                        ProgressView().smallControlSizeOnMac()
-                    } else {
-                        Label("刷新", systemImage: "arrow.clockwise")
+            if !isCustomSchedule {
+                ToolbarItemGroup(placement: .secondaryAction) {
+                    Button(action: { isSemestersSheetPresented = true }) {
+                        Label("学期选择", systemImage: "slider.horizontal.3")
                     }
+                    .disabled(isCourseScheduleLoading || isCalendarExporting)
+
+                    Button(action: { isCalendarSettingsSheetPresented = true }) {
+                        Label("添加课表到系统日历", systemImage: "calendar.badge.plus")
+                    }
+                    .disabled(isCourseScheduleLoading || isCalendarExporting)
                 }
-                .disabled(isCourseScheduleLoading || isCalendarExporting)
+
+                ToolbarItem(placement: .primaryAction) {
+                    Button(asyncAction: onRefreshCourses) {
+                        if isCourseScheduleLoading {
+                            ProgressView().smallControlSizeOnMac()
+                        } else {
+                            Label("刷新", systemImage: "arrow.clockwise")
+                        }
+                    }
+                    .disabled(isCourseScheduleLoading || isCalendarExporting)
+                }
             }
         }
         .onAppear {
@@ -220,6 +229,8 @@ struct CourseScheduleContent: View {
             semesterStartDate: nil,
             remarks: [],
             selectedSemester: nil,
+            isCustomSchedule: false,
+            scheduleName: nil,
             isCourseScheduleLoading: false,
             isCalendarExporting: false,
             currentWeek: .constant(1),

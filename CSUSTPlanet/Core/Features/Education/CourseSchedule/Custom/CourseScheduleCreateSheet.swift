@@ -103,27 +103,8 @@ struct CourseScheduleCreateSheet: View {
 
     /// 从空白创建
     private func createEmptySchedule(name: String, semesterStartDate: Date) {
-        guard CourseScheduleUtil.getDayOfWeek(semesterStartDate) == .sunday else {
-            errorToast.show(message: "开学日期必须是周日")
-            return
-        }
-        guard let pool = DatabaseManager.shared.pool else {
-            errorToast.show(message: DatabaseManagerError.databaseUnavailable.localizedDescription)
-            return
-        }
-
         do {
-            var schedule = CustomCourseScheduleGRDB(
-                id: UUID().uuidString,
-                name: name,
-                semesterStartDate: semesterStartDate,
-                weekCount: CourseScheduleUtil.weekCount,
-                remarks: "",
-                createdAt: .now
-            )
-            try pool.write { db in
-                try schedule.insert(db)
-            }
+            try CustomCourseScheduleHelper.insertEmptySchedule(name: name, semesterStartDate: semesterStartDate)
             dismiss()
         } catch {
             errorToast.show(message: "创建失败：\(error.localizedDescription)")
@@ -132,67 +113,8 @@ struct CourseScheduleCreateSheet: View {
 
     /// 从学校课表导入
     private func importFromSchool(name: String) {
-        guard let schoolCache = MMKVHelper.CourseSchedule.cache else {
-            errorToast.show(message: "暂无学校课表数据，请先在「我的课表」页面刷新")
-            return
-        }
-        guard let pool = DatabaseManager.shared.pool else {
-            errorToast.show(message: DatabaseManagerError.databaseUnavailable.localizedDescription)
-            return
-        }
-
-        let data = schoolCache.value
-        let scheduleID = UUID().uuidString
-        let schedule = CustomCourseScheduleGRDB(
-            id: scheduleID,
-            name: name,
-            semesterStartDate: data.semesterStartDate,
-            weekCount: CourseScheduleUtil.resolveWeekCount(data.weekCount),
-            remarks: data.remarks.joined(separator: "\n"),
-            createdAt: .now
-        )
-
-        var courses: [CustomCourseGRDB] = []
-        var sessions: [CustomSessionGRDB] = []
-        for course in data.courses {
-            let courseID = UUID().uuidString
-            courses.append(
-                CustomCourseGRDB(
-                    id: courseID,
-                    scheduleId: scheduleID,
-                    courseName: course.courseName,
-                    teacher: course.teacher,
-                    groupName: course.groupName
-                )
-            )
-            for session in course.sessions {
-                sessions.append(
-                    CustomSessionGRDB(
-                        id: UUID().uuidString,
-                        courseId: courseID,
-                        dayOfWeek: session.dayOfWeek.rawValue,
-                        startSection: session.startSection,
-                        endSection: session.endSection,
-                        classroom: session.classroom,
-                        weeks: JSONIntArray(session.weeks)
-                    )
-                )
-            }
-        }
-
         do {
-            try pool.write { db in
-                var schedule = schedule
-                try schedule.insert(db)
-                for course in courses {
-                    var course = course
-                    try course.insert(db)
-                }
-                for session in sessions {
-                    var session = session
-                    try session.insert(db)
-                }
-            }
+            try CustomCourseScheduleHelper.importSchoolSchedule(name: name)
             dismiss()
         } catch {
             errorToast.show(message: "导入失败：\(error.localizedDescription)")
