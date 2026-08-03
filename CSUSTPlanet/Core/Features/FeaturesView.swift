@@ -67,7 +67,7 @@ struct FeaturesView: View {
             sectionHeader(title: "教务系统", color: .blue)
 
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(minimum: 150), spacing: spacing), count: 2), spacing: spacing) {
-                HeroCard(route: .features(.education(.courseSchedule)), title: "我的课表", icon: "calendar", color: .purple)
+                HeroCard(route: .features(.education(.courseSchedule(.main))), title: "我的课表", icon: "calendar", color: .purple)
                 HeroCard(route: .features(.education(.gradeQuery(.main))), title: "成绩查询", icon: "doc.text.magnifyingglass", color: .blue)
                 HeroCard(route: .features(.education(.examSchedule)), title: "考试安排", icon: "pencil.and.outline", color: .orange)
                 HeroCard(route: .features(.education(.gradeAnalysis)), title: "成绩分析", icon: "chart.bar.xaxis", color: .green)
