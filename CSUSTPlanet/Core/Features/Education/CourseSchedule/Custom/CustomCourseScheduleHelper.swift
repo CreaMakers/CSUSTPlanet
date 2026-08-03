@@ -21,6 +21,10 @@ enum CustomCourseScheduleError: LocalizedError {
     case invalidScheduleName
     /// 课程名称不能为空
     case invalidCourseName
+    /// 开始节次不能大于结束节次
+    case invalidSectionRange
+    /// 周次不能为空
+    case emptyWeeks
 
     var errorDescription: String? {
         switch self {
@@ -34,6 +38,10 @@ enum CustomCourseScheduleError: LocalizedError {
             return "名称不能为空"
         case .invalidCourseName:
             return "课程名称不能为空"
+        case .invalidSectionRange:
+            return "开始节次不能大于结束节次"
+        case .emptyWeeks:
+            return "请至少选择一周"
         }
     }
 }
@@ -172,6 +180,38 @@ enum CustomCourseScheduleHelper {
     static func deleteCourse(id courseID: String) throws {
         try DatabaseManager.shared.poolThrows.write { db in
             _ = try CustomCourseGRDB.deleteOne(db, key: courseID)
+        }
+        syncActiveCourseSchedule()
+    }
+
+    /// 更新时间安排（星期/节次/教室/周次）
+    static func updateSession(id sessionID: String, dayOfWeek: Int, startSection: Int, endSection: Int, classroom: String?, weeks: JSONIntArray) throws {
+        guard startSection <= endSection else {
+            throw CustomCourseScheduleError.invalidSectionRange
+        }
+        guard !weeks.values.isEmpty else {
+            throw CustomCourseScheduleError.emptyWeeks
+        }
+        let trimmedClassroom = classroom?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+
+        try DatabaseManager.shared.poolThrows.write { db in
+            guard var session = try CustomSessionGRDB.fetchOne(db, key: sessionID) else {
+                return
+            }
+            session.dayOfWeek = dayOfWeek
+            session.startSection = startSection
+            session.endSection = endSection
+            session.classroom = trimmedClassroom
+            session.weeks = weeks
+            try session.update(db)
+        }
+        syncActiveCourseSchedule()
+    }
+
+    /// 删除时间安排
+    static func deleteSession(id sessionID: String) throws {
+        try DatabaseManager.shared.poolThrows.write { db in
+            _ = try CustomSessionGRDB.deleteOne(db, key: sessionID)
         }
         syncActiveCourseSchedule()
     }
