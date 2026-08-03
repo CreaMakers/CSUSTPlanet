@@ -19,6 +19,8 @@ enum CustomCourseScheduleError: LocalizedError {
     case invalidSemesterStartDate
     /// 课表名称不能为空
     case invalidScheduleName
+    /// 课程名称不能为空
+    case invalidCourseName
 
     var errorDescription: String? {
         switch self {
@@ -30,6 +32,8 @@ enum CustomCourseScheduleError: LocalizedError {
             return "开学日期必须是周日"
         case .invalidScheduleName:
             return "名称不能为空"
+        case .invalidCourseName:
+            return "课程名称不能为空"
         }
     }
 }
@@ -120,9 +124,8 @@ enum CustomCourseScheduleHelper {
         syncActiveCourseSchedule()
     }
 
-    /// 更新课表信息（名称/开学日期/总周数/备注），返回 trim 后的名称
-    @discardableResult
-    static func updateSchedule(id scheduleID: String, name: String, semesterStartDate: Date, weekCount: Int, remarks: String) throws -> String {
+    /// 更新课表信息（名称/开学日期/总周数/备注）
+    static func updateSchedule(id scheduleID: String, name: String, semesterStartDate: Date, weekCount: Int, remarks: String) throws {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else {
             throw CustomCourseScheduleError.invalidScheduleName
@@ -142,7 +145,35 @@ enum CustomCourseScheduleHelper {
             try schedule.update(db)
         }
         syncActiveCourseSchedule()
-        return trimmedName
+    }
+
+    /// 更新课程信息（名称/教师/组名）
+    static func updateCourse(id courseID: String, name: String, teacher: String?, groupName: String?) throws {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else {
+            throw CustomCourseScheduleError.invalidCourseName
+        }
+        let trimmedTeacher = teacher?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+        let trimmedGroupName = groupName?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+
+        try DatabaseManager.shared.poolThrows.write { db in
+            guard var course = try CustomCourseGRDB.fetchOne(db, key: courseID) else {
+                return
+            }
+            course.courseName = trimmedName
+            course.teacher = trimmedTeacher
+            course.groupName = trimmedGroupName
+            try course.update(db)
+        }
+        syncActiveCourseSchedule()
+    }
+
+    /// 删除课程（级联删除其时间安排）
+    static func deleteCourse(id courseID: String) throws {
+        try DatabaseManager.shared.poolThrows.write { db in
+            _ = try CustomCourseGRDB.deleteOne(db, key: courseID)
+        }
+        syncActiveCourseSchedule()
     }
 
     /// 激活指定课表；传入 nil 切回默认课表

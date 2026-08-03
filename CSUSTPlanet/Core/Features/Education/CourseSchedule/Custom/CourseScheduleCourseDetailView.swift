@@ -16,17 +16,19 @@ private struct CourseScheduleCourseDetailContent: View {
     let course: CustomCourseGRDB
     let sessions: [CustomSessionGRDB]
 
+    let onSaveCourseInfo: (String, String?, String?) -> Bool
+    let onDeleteCourse: () -> Void
+
+    @State private var isEditingCourseInfo: Bool = false
+    @State private var editableName: String = ""
+    @State private var editableTeacher: String = ""
+    @State private var editableGroupName: String = ""
+
+    @State private var isDeleteConfirmPresented: Bool = false
+
     var body: some View {
         Form {
-            Section("课程信息") {
-                LabeledContent("名称", value: course.courseName)
-                if let teacher = course.teacher, !teacher.isEmpty {
-                    LabeledContent("教师", value: teacher)
-                }
-                if let groupName = course.groupName, !groupName.isEmpty {
-                    LabeledContent("组名", value: groupName)
-                }
-            }
+            courseInfoSection
 
             Section("时间安排") {
                 if sessions.isEmpty {
@@ -43,9 +45,86 @@ private struct CourseScheduleCourseDetailContent: View {
                     .padding(.vertical, 2)
                 }
             }
+
+            Section {
+                Button(role: .destructive) {
+                    isDeleteConfirmPresented = true
+                } label: {
+                    Text("删除课程")
+                }
+            }
+        }
+        .alert(
+            "删除课程",
+            isPresented: $isDeleteConfirmPresented,
+            presenting: course
+        ) { course in
+            Button("删除", role: .destructive) {
+                onDeleteCourse()
+            }
+            Button("取消", role: .cancel) {}
+        } message: { course in
+            Text("确定要删除「\(course.courseName)」吗？删除后不可恢复")
         }
         .formStyle(.grouped)
         .navigationTitle(course.courseName)
+    }
+
+    // MARK: - 课程信息
+
+    private var courseInfoSection: some View {
+        Section {
+            if isEditingCourseInfo {
+                LabeledContent("名称") {
+                    TextField("输入名称", text: $editableName)
+                        .multilineTextAlignment(.trailing)
+                }
+                LabeledContent("教师") {
+                    TextField("未设置", text: $editableTeacher)
+                        .multilineTextAlignment(.trailing)
+                }
+                LabeledContent("组名") {
+                    TextField("未设置", text: $editableGroupName)
+                        .multilineTextAlignment(.trailing)
+                }
+            } else {
+                LabeledContent("名称", value: course.courseName)
+                LabeledContent("教师", value: course.teacher?.nilIfEmpty ?? "未设置")
+                LabeledContent("组名", value: course.groupName?.nilIfEmpty ?? "未设置")
+            }
+        } header: {
+            HStack {
+                Text("课程信息")
+                Spacer()
+                if isEditingCourseInfo {
+                    Button("取消") {
+                        withAnimation {
+                            isEditingCourseInfo = false
+                        }
+                    }
+                    Button("保存") {
+                        saveCourseInfo()
+                    }
+                } else {
+                    Button("编辑") {
+                        editableName = course.courseName
+                        editableTeacher = course.teacher ?? ""
+                        editableGroupName = course.groupName ?? ""
+                        withAnimation {
+                            isEditingCourseInfo = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func saveCourseInfo() {
+        if onSaveCourseInfo(editableName, editableTeacher, editableGroupName) {
+            withAnimation {
+                isEditingCourseInfo = false
+            }
+        }
     }
 
     // MARK: - Helpers
@@ -73,19 +152,54 @@ private struct CourseScheduleCourseDetailContent: View {
 struct CourseScheduleCourseDetailView: View {
     @State var course: CustomCourseGRDB
 
+    @Environment(\.dismiss) private var dismiss
+
     @State private var sessions: [CustomSessionGRDB] = []
     @State private var sessionObserver: (any DatabaseCancellable)?
     @State private var isInitial: Bool = true
 
+    @State private var errorToast: ToastState = .errorTitle
+
     var body: some View {
         CourseScheduleCourseDetailContent(
             course: course,
-            sessions: sessions
+            sessions: sessions,
+            onSaveCourseInfo: saveCourseInfo,
+            onDeleteCourse: deleteCourse
         )
         .task {
             guard isInitial else { return }
             isInitial = false
             observeData()
+        }
+        .errorToast($errorToast)
+    }
+
+    // MARK: - 保存课程信息
+
+    private func saveCourseInfo(name: String, teacher: String?, groupName: String?) -> Bool {
+        do {
+            try CustomCourseScheduleHelper.updateCourse(
+                id: course.id,
+                name: name,
+                teacher: teacher,
+                groupName: groupName
+            )
+            return true
+        } catch {
+            errorToast.show(message: "保存失败：\(error.localizedDescription)")
+            return false
+        }
+    }
+
+    // MARK: - 删除课程
+
+    private func deleteCourse() {
+        do {
+            try CustomCourseScheduleHelper.deleteCourse(id: course.id)
+            dismiss()
+        } catch {
+            errorToast.show(message: "删除失败：\(error.localizedDescription)")
         }
     }
 
@@ -157,7 +271,9 @@ struct CourseScheduleCourseDetailView: View {
                     classroom: nil,
                     weeks: JSONIntArray([1, 2, 3, 4, 5, 6, 7, 8])
                 ),
-            ]
+            ],
+            onSaveCourseInfo: { _, _, _ in true },
+            onDeleteCourse: {}
         )
     }
 }
