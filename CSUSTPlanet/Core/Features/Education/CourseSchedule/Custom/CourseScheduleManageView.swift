@@ -27,16 +27,19 @@ private struct CourseScheduleManageContent: View {
 
     let onActivate: () -> Void
     let onDelete: () -> Void
+    let onSaveScheduleInfo: (String, Date, Int, String) -> Bool
 
     @State private var isDeleteConfirmPresented: Bool = false
 
+    @State private var isEditingScheduleInfo: Bool = false
+    @State private var editableName: String = ""
+    @State private var editableStartDate: Date = .now
+    @State private var editableWeekCount: Int = 20
+    @State private var editableRemarks: String = ""
+
     var body: some View {
         Form {
-            Section("课表信息") {
-                LabeledContent("名称", value: schedule.name)
-                LabeledContent("开学日期", value: CourseScheduleUtil.dateFormatter.string(from: schedule.semesterStartDate))
-                LabeledContent("总周数", value: "\(schedule.weekCount) 周")
-            }
+            scheduleInfoSection
 
             Section {
                 if courseItems.isEmpty {
@@ -94,6 +97,72 @@ private struct CourseScheduleManageContent: View {
         .navigationTitle(schedule.name)
     }
 
+    // MARK: - 课表信息
+
+    private var scheduleInfoSection: some View {
+        Section {
+            if isEditingScheduleInfo {
+                LabeledContent("名称") {
+                    TextField("输入名称", text: $editableName)
+                        .multilineTextAlignment(.trailing)
+                }
+                DatePicker("开学日期", selection: $editableStartDate, displayedComponents: .date)
+                Stepper("总周数：\(editableWeekCount) 周", value: $editableWeekCount, in: 1...40)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("备注")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    TextEditor(text: $editableRemarks)
+                        .frame(minHeight: 80)
+                }
+            } else {
+                LabeledContent("名称", value: schedule.name)
+                LabeledContent("开学日期", value: CourseScheduleUtil.dateFormatter.string(from: schedule.semesterStartDate))
+                LabeledContent("总周数", value: "\(schedule.weekCount) 周")
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("备注")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text(schedule.remarks.isEmpty ? "暂无备注" : schedule.remarks)
+                }
+                .padding(.vertical, 2)
+            }
+        } header: {
+            HStack {
+                Text("课表信息")
+                Spacer()
+                if isEditingScheduleInfo {
+                    Button("取消") {
+                        withAnimation {
+                            isEditingScheduleInfo = false
+                        }
+                    }
+                    Button("保存") {
+                        saveScheduleInfo()
+                    }
+                } else {
+                    Button("编辑") {
+                        editableName = schedule.name
+                        editableStartDate = schedule.semesterStartDate
+                        editableWeekCount = schedule.weekCount
+                        editableRemarks = schedule.remarks
+                        withAnimation {
+                            isEditingScheduleInfo = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func saveScheduleInfo() {
+        if onSaveScheduleInfo(editableName, editableStartDate, editableWeekCount, editableRemarks) {
+            withAnimation {
+                isEditingScheduleInfo = false
+            }
+        }
+    }
+
     // MARK: - Helpers
 
     private func courseSubtitle(for item: CourseScheduleCourseItem) -> String {
@@ -112,7 +181,7 @@ private struct CourseScheduleManageContent: View {
 // MARK: - 业务容器
 
 struct CourseScheduleManageView: View {
-    let schedule: CustomCourseScheduleGRDB
+    @State var schedule: CustomCourseScheduleGRDB
 
     @Environment(\.dismiss) private var dismiss
 
@@ -129,7 +198,8 @@ struct CourseScheduleManageView: View {
             isCurrentSchedule: isCurrentSchedule,
             courseItems: courseItems,
             onActivate: activate,
-            onDelete: deleteSchedule
+            onDelete: deleteSchedule,
+            onSaveScheduleInfo: saveScheduleInfo
         )
         .onReceive(MMKVHelper.CourseSchedule.$currentScheduleID) { scheduleID in
             withAnimation {
@@ -140,7 +210,7 @@ struct CourseScheduleManageView: View {
             guard isInitial else { return }
             isInitial = false
             isCurrentSchedule = (MMKVHelper.CourseSchedule.currentScheduleID == schedule.id)
-            observeCourseItems()
+            observeData()
         }
         .errorToast($errorToast)
     }
@@ -162,12 +232,31 @@ struct CourseScheduleManageView: View {
         }
     }
 
-    // MARK: - 课程列表观察
+    // MARK: - 保存课表信息
 
-    private func observeCourseItems() {
+    private func saveScheduleInfo(name: String, semesterStartDate: Date, weekCount: Int, remarks: String) -> Bool {
+        do {
+            try CustomCourseScheduleHelper.updateSchedule(
+                id: schedule.id,
+                name: name,
+                semesterStartDate: semesterStartDate,
+                weekCount: weekCount,
+                remarks: remarks
+            )
+            return true
+        } catch {
+            errorToast.show(message: "保存失败：\(error.localizedDescription)")
+            return false
+        }
+    }
+
+    // MARK: - 数据观察
+
+    private func observeData() {
         guard let pool = DatabaseManager.shared.pool else { return }
 
-        let observation = ValueObservation.tracking { db -> [CourseScheduleCourseItem] in
+        let observation = ValueObservation.tracking { db -> (CustomCourseScheduleGRDB?, [CourseScheduleCourseItem]) in
+            let fetchedSchedule = try CustomCourseScheduleGRDB.fetchOne(db, key: schedule.id)
             let courses =
                 try CustomCourseGRDB
                 .filter(CustomCourseGRDB.Columns.scheduleId == schedule.id)
@@ -178,19 +267,23 @@ struct CourseScheduleManageView: View {
                 .filter(courseIDs.contains(CustomSessionGRDB.Columns.courseId))
                 .fetchAll(db)
             let sessionCounts = Dictionary(grouping: sessions, by: \.courseId).mapValues(\.count)
-            return
+            let items =
                 courses
                 .map { CourseScheduleCourseItem(course: $0, sessionCount: sessionCounts[$0.id] ?? 0) }
                 .sorted { $0.course.courseName.localizedStandardCompare($1.course.courseName) == .orderedAscending }
+            return (fetchedSchedule, items)
         }
 
         courseObserver = observation.start(
             in: pool,
             scheduling: .immediate,
             onError: { _ in },
-            onChange: { items in
+            onChange: { result in
                 Task { @MainActor in
-                    courseItems = items
+                    if let schedule = result.0 {
+                        self.schedule = schedule
+                    }
+                    courseItems = result.1
                 }
             }
         )
@@ -211,7 +304,8 @@ struct CourseScheduleManageView: View {
             isCurrentSchedule: false,
             courseItems: [],
             onActivate: {},
-            onDelete: {}
+            onDelete: {},
+            onSaveScheduleInfo: { _, _, _, _ in true }
         )
     }
 }

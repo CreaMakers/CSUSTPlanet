@@ -17,6 +17,8 @@ enum CustomCourseScheduleError: LocalizedError {
     case activatedScheduleCannotDelete
     /// 开学日期必须为周日
     case invalidSemesterStartDate
+    /// 课表名称不能为空
+    case invalidScheduleName
 
     var errorDescription: String? {
         switch self {
@@ -26,6 +28,8 @@ enum CustomCourseScheduleError: LocalizedError {
             return "此课表为当前选择课表，不能删除，请先切换到其他课表再删除"
         case .invalidSemesterStartDate:
             return "开学日期必须是周日"
+        case .invalidScheduleName:
+            return "名称不能为空"
         }
     }
 }
@@ -114,6 +118,31 @@ enum CustomCourseScheduleHelper {
             _ = try CustomCourseScheduleGRDB.deleteOne(db, key: scheduleID)
         }
         syncActiveCourseSchedule()
+    }
+
+    /// 更新课表信息（名称/开学日期/总周数/备注），返回 trim 后的名称
+    @discardableResult
+    static func updateSchedule(id scheduleID: String, name: String, semesterStartDate: Date, weekCount: Int, remarks: String) throws -> String {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else {
+            throw CustomCourseScheduleError.invalidScheduleName
+        }
+        guard CourseScheduleUtil.getDayOfWeek(semesterStartDate) == .sunday else {
+            throw CustomCourseScheduleError.invalidSemesterStartDate
+        }
+
+        try DatabaseManager.shared.poolThrows.write { db in
+            guard var schedule = try CustomCourseScheduleGRDB.fetchOne(db, key: scheduleID) else {
+                return
+            }
+            schedule.name = trimmedName
+            schedule.semesterStartDate = semesterStartDate
+            schedule.weekCount = weekCount
+            schedule.remarks = remarks
+            try schedule.update(db)
+        }
+        syncActiveCourseSchedule()
+        return trimmedName
     }
 
     /// 激活指定课表；传入 nil 切回默认课表

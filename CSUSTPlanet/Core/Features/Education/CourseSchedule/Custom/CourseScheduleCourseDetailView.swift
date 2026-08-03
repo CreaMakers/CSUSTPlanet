@@ -71,7 +71,7 @@ private struct CourseScheduleCourseDetailContent: View {
 // MARK: - 业务容器
 
 struct CourseScheduleCourseDetailView: View {
-    let course: CustomCourseGRDB
+    @State var course: CustomCourseGRDB
 
     @State private var sessions: [CustomSessionGRDB] = []
     @State private var sessionObserver: (any DatabaseCancellable)?
@@ -85,36 +85,43 @@ struct CourseScheduleCourseDetailView: View {
         .task {
             guard isInitial else { return }
             isInitial = false
-            observeSessions()
+            observeData()
         }
     }
 
-    // MARK: - 时间安排观察
+    // MARK: - 数据观察
 
-    private func observeSessions() {
+    private func observeData() {
         guard let pool = DatabaseManager.shared.pool else { return }
 
-        let observation = ValueObservation.tracking { db -> [CustomSessionGRDB] in
-            try CustomSessionGRDB
+        let observation = ValueObservation.tracking { db -> (CustomCourseGRDB?, [CustomSessionGRDB]) in
+            let fetchedCourse = try CustomCourseGRDB.fetchOne(db, key: course.id)
+            let sessions =
+                try CustomSessionGRDB
                 .filter(CustomSessionGRDB.Columns.courseId == course.id)
                 .fetchAll(db)
+            return (fetchedCourse, sessions)
         }
-        .map { sessions in
-            sessions.sorted {
+        .map { result in
+            let sortedSessions = result.1.sorted {
                 if $0.dayOfWeek != $1.dayOfWeek {
                     return $0.dayOfWeek < $1.dayOfWeek
                 }
                 return $0.startSection < $1.startSection
             }
+            return (result.0, sortedSessions)
         }
 
         sessionObserver = observation.start(
             in: pool,
             scheduling: .immediate,
             onError: { _ in },
-            onChange: { sessions in
+            onChange: { result in
                 Task { @MainActor in
-                    self.sessions = sessions
+                    if let course = result.0 {
+                        self.course = course
+                    }
+                    sessions = result.1
                 }
             }
         )
