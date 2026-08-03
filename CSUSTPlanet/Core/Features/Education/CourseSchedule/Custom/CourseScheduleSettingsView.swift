@@ -65,11 +65,12 @@ struct CourseScheduleSettingsContent: View {
                             }
                             .tint(.blue)
                         }
-                        Button(role: .destructive) {
+                        Button {
                             schedulePendingDelete = schedule
                         } label: {
                             Label("删除", systemImage: "trash")
                         }
+                        .tint(.red)
                     }
                 }
             }

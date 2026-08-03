@@ -27,9 +27,11 @@ private struct CourseScheduleManageContent: View {
 
     let onActivate: () -> Void
     let onDelete: () -> Void
+    let onDeleteCourse: (CustomCourseGRDB) -> Void
     let onSaveScheduleInfo: (String, Date, Int, String) -> Bool
 
     @State private var isDeleteConfirmPresented: Bool = false
+    @State private var coursePendingDelete: CustomCourseGRDB?
 
     @State private var isEditingScheduleInfo: Bool = false
     @State private var editableName: String = ""
@@ -55,6 +57,14 @@ private struct CourseScheduleManageContent: View {
                                 .foregroundStyle(.secondary)
                         }
                         .padding(.vertical, 2)
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button {
+                            coursePendingDelete = item.course
+                        } label: {
+                            Label("删除", systemImage: "trash")
+                        }
+                        .tint(.red)
                     }
                 }
             } header: {
@@ -92,6 +102,18 @@ private struct CourseScheduleManageContent: View {
             Button("取消", role: .cancel) {}
         } message: { schedule in
             Text("确定要删除「\(schedule.name)」吗？删除后不可恢复")
+        }
+        .alert(
+            "删除课程",
+            isPresented: Binding(get: { coursePendingDelete != nil }, set: { if !$0 { coursePendingDelete = nil } }),
+            presenting: coursePendingDelete
+        ) { course in
+            Button("删除", role: .destructive) {
+                onDeleteCourse(course)
+            }
+            Button("取消", role: .cancel) {}
+        } message: { course in
+            Text("确定要删除「\(course.courseName)」吗？删除后不可恢复")
         }
         .formStyle(.grouped)
         .navigationTitle(schedule.name)
@@ -199,6 +221,7 @@ struct CourseScheduleManageView: View {
             courseItems: courseItems,
             onActivate: activate,
             onDelete: deleteSchedule,
+            onDeleteCourse: deleteCourse,
             onSaveScheduleInfo: saveScheduleInfo
         )
         .onReceive(MMKVHelper.CourseSchedule.$currentScheduleID) { scheduleID in
@@ -250,6 +273,16 @@ struct CourseScheduleManageView: View {
         }
     }
 
+    // MARK: - 删除课程
+
+    private func deleteCourse(_ course: CustomCourseGRDB) {
+        do {
+            try CustomCourseScheduleHelper.deleteCourse(id: course.id)
+        } catch {
+            errorToast.show(message: "删除失败：\(error.localizedDescription)")
+        }
+    }
+
     // MARK: - 数据观察
 
     private func observeData() {
@@ -280,10 +313,12 @@ struct CourseScheduleManageView: View {
             onError: { _ in },
             onChange: { result in
                 Task { @MainActor in
-                    if let schedule = result.0 {
-                        self.schedule = schedule
+                    withAnimation {
+                        if let schedule = result.0 {
+                            self.schedule = schedule
+                        }
+                        courseItems = result.1
                     }
-                    courseItems = result.1
                 }
             }
         )
@@ -305,6 +340,7 @@ struct CourseScheduleManageView: View {
             courseItems: [],
             onActivate: {},
             onDelete: {},
+            onDeleteCourse: { _ in },
             onSaveScheduleInfo: { _, _, _, _ in true }
         )
     }

@@ -232,10 +232,12 @@ struct CourseScheduleCourseDetailView: View {
             onError: { _ in },
             onChange: { result in
                 Task { @MainActor in
-                    if let course = result.0 {
-                        self.course = course
+                    withAnimation {
+                        if let course = result.0 {
+                            self.course = course
+                        }
+                        sessions = result.1
                     }
-                    sessions = result.1
                 }
             }
         )
