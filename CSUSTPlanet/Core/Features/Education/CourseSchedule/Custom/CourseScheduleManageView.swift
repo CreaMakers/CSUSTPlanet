@@ -1,5 +1,5 @@
 //
-//  CourseScheduleEditView.swift
+//  CourseScheduleManageView.swift
 //  CSUSTPlanet
 //
 //  Created by Zachary Liu on 2026/8/2.
@@ -20,7 +20,7 @@ private struct CourseScheduleCourseItem: Identifiable {
 
 // MARK: - Content
 
-private struct CourseScheduleEditContent: View {
+private struct CourseScheduleManageContent: View {
     let schedule: CustomCourseScheduleGRDB
     let isCurrentSchedule: Bool
     let courseItems: [CourseScheduleCourseItem]
@@ -111,7 +111,7 @@ private struct CourseScheduleEditContent: View {
 
 // MARK: - 业务容器
 
-struct CourseScheduleEditView: View {
+struct CourseScheduleManageView: View {
     let schedule: CustomCourseScheduleGRDB
 
     @Environment(\.dismiss) private var dismiss
@@ -124,7 +124,7 @@ struct CourseScheduleEditView: View {
     @State private var isInitial: Bool = true
 
     var body: some View {
-        CourseScheduleEditContent(
+        CourseScheduleManageContent(
             schedule: schedule,
             isCurrentSchedule: isCurrentSchedule,
             courseItems: courseItems,
@@ -132,7 +132,9 @@ struct CourseScheduleEditView: View {
             onDelete: deleteSchedule
         )
         .onReceive(MMKVHelper.CourseSchedule.$currentScheduleID) { scheduleID in
-            isCurrentSchedule = (scheduleID == schedule.id)
+            withAnimation {
+                isCurrentSchedule = (scheduleID == schedule.id)
+            }
         }
         .task {
             guard isInitial else { return }
@@ -147,7 +149,6 @@ struct CourseScheduleEditView: View {
 
     private func activate() {
         CustomCourseScheduleHelper.activateSchedule(id: schedule.id)
-        isCurrentSchedule = true
     }
 
     // MARK: - 删除课表
@@ -196,9 +197,9 @@ struct CourseScheduleEditView: View {
     }
 }
 
-#Preview("CourseScheduleEditContent") {
+#Preview("CourseScheduleManageContent") {
     NavigationStack {
-        CourseScheduleEditContent(
+        CourseScheduleManageContent(
             schedule: CustomCourseScheduleGRDB(
                 id: "preview-id",
                 name: "我的课表 1",

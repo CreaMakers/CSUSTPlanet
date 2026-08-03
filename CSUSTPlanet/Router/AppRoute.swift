@@ -160,7 +160,7 @@ enum AppRoute: Hashable {
                     case .settings:
                         CourseScheduleSettingsView()
                     case .edit(let schedule):
-                        CourseScheduleEditView(schedule: schedule)
+                        CourseScheduleManageView(schedule: schedule)
                     case .courseDetail(let course):
                         CourseScheduleCourseDetailView(course: course)
                     }

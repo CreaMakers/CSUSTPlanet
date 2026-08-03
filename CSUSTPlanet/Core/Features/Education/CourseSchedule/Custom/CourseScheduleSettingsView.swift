@@ -212,7 +212,9 @@ struct CourseScheduleSettingsView: View {
         MMKVHelper.CourseSchedule.$currentScheduleID
             .receive(on: RunLoop.main)
             .sink { scheduleID in
-                currentScheduleID = scheduleID
+                withAnimation {
+                    currentScheduleID = scheduleID
+                }
             }
             .store(in: &cancellables)
     }
