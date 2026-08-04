@@ -193,6 +193,7 @@ private struct CourseScheduleCourseDetailContent: View {
     @State private var editableGroupName: String = ""
 
     @State private var isDeleteConfirmPresented: Bool = false
+    @State private var isSessionFormPresented: Bool = false
 
     var body: some View {
         Form {
@@ -219,6 +220,19 @@ private struct CourseScheduleCourseDetailContent: View {
             Button("取消", role: .cancel) {}
         } message: { course in
             Text("确定要删除「\(course.courseName)」吗？删除后不可恢复")
+        }
+        .sheet(isPresented: $isSessionFormPresented) {
+            CourseScheduleSessionFormSheet(courseID: course.id, weekCount: weekCount)
+                .presentationDetents([.medium, .large])
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    isSessionFormPresented = true
+                } label: {
+                    Label("添加时间安排", systemImage: "plus")
+                }
+            }
         }
         .formStyle(.grouped)
         .navigationTitle(course.courseName)

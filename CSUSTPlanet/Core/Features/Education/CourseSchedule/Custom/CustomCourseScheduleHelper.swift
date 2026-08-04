@@ -216,6 +216,32 @@ enum CustomCourseScheduleHelper {
         syncActiveCourseSchedule()
     }
 
+    /// 新增时间安排
+    static func insertSession(courseId: String, dayOfWeek: Int, startSection: Int, endSection: Int, classroom: String?, weeks: JSONIntArray) throws {
+        guard startSection <= endSection else {
+            throw CustomCourseScheduleError.invalidSectionRange
+        }
+        guard !weeks.values.isEmpty else {
+            throw CustomCourseScheduleError.emptyWeeks
+        }
+        let trimmedClassroom = classroom?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+
+        let session = CustomSessionGRDB(
+            id: UUID().uuidString,
+            courseId: courseId,
+            dayOfWeek: dayOfWeek,
+            startSection: startSection,
+            endSection: endSection,
+            classroom: trimmedClassroom,
+            weeks: weeks
+        )
+        try DatabaseManager.shared.poolThrows.write { db in
+            var session = session
+            try session.insert(db)
+        }
+        syncActiveCourseSchedule()
+    }
+
     /// 激活指定课表；传入 nil 切回默认课表
     static func activateSchedule(id scheduleID: String?) {
         guard scheduleID != currentScheduleID else { return }
