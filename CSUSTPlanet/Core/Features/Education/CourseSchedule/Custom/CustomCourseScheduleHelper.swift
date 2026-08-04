@@ -184,6 +184,29 @@ enum CustomCourseScheduleHelper {
         syncActiveCourseSchedule()
     }
 
+    /// 新增课程
+    static func insertCourse(scheduleId: String, name: String, teacher: String?, groupName: String?) throws {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else {
+            throw CustomCourseScheduleError.invalidCourseName
+        }
+        let trimmedTeacher = teacher?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+        let trimmedGroupName = groupName?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+
+        let course = CustomCourseGRDB(
+            id: UUID().uuidString,
+            scheduleId: scheduleId,
+            courseName: trimmedName,
+            teacher: trimmedTeacher,
+            groupName: trimmedGroupName
+        )
+        try DatabaseManager.shared.poolThrows.write { db in
+            var course = course
+            try course.insert(db)
+        }
+        syncActiveCourseSchedule()
+    }
+
     /// 更新时间安排（星期/节次/教室/周次）
     static func updateSession(id sessionID: String, dayOfWeek: Int, startSection: Int, endSection: Int, classroom: String?, weeks: JSONIntArray) throws {
         guard startSection <= endSection else {

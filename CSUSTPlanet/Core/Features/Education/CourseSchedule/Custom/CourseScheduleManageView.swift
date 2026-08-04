@@ -33,6 +33,8 @@ private struct CourseScheduleManageContent: View {
     @State private var isDeleteConfirmPresented: Bool = false
     @State private var coursePendingDelete: CustomCourseGRDB?
 
+    @State private var isCourseFormPresented: Bool = false
+
     @State private var isEditingScheduleInfo: Bool = false
     @State private var editableName: String = ""
     @State private var editableStartDate: Date = .now
@@ -114,6 +116,19 @@ private struct CourseScheduleManageContent: View {
             Button("取消", role: .cancel) {}
         } message: { course in
             Text("确定要删除「\(course.courseName)」吗？删除后不可恢复")
+        }
+        .sheet(isPresented: $isCourseFormPresented) {
+            CourseScheduleCourseFormSheet(scheduleID: schedule.id)
+                .presentationDetents([.medium, .large])
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    isCourseFormPresented = true
+                } label: {
+                    Label("添加课程", systemImage: "plus")
+                }
+            }
         }
         .formStyle(.grouped)
         .navigationTitle(schedule.name)
