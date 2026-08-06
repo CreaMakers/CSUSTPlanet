@@ -166,12 +166,15 @@ private struct CourseScheduleSessionSection: View {
         if let classroom = session.classroom, !classroom.isEmpty {
             parts.append(classroom)
         }
-        parts.append("共 \(session.weeks.values.count) 周")
+        parts.append(session.weeks.values.isEmpty ? "未设置周次" : "共 \(session.weeks.values.count) 周")
         return parts.joined(separator: " · ")
     }
 
     private func weeksText(_ weeks: JSONIntArray) -> String {
-        "第 \(weeks.values.map(String.init).joined(separator: ", ")) 周"
+        guard !weeks.values.isEmpty else {
+            return "未设置"
+        }
+        return "第 \(weeks.values.map(String.init).joined(separator: ", ")) 周"
     }
 }
 

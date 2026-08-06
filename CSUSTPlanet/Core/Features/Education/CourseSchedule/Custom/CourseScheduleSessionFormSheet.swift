@@ -56,15 +56,13 @@ private struct CourseScheduleSessionFormContent: View {
                 }
 
                 LabeledContent("周次") {
-                    Text(weeks.isEmpty ? "未选择" : "已选 \(weeks.count) 周")
+                    Text(weeks.isEmpty ? "未设置" : "已选 \(weeks.count) 周")
                         .foregroundStyle(.tint)
                 }
                 .contentShape(.rect)
                 .onTapGesture {
                     isWeeksSheetPresented = true
                 }
-            } footer: {
-                Text("周次为空时无法保存")
             }
         }
         .formStyle(.grouped)
