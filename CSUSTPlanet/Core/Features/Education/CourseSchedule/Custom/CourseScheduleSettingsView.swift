@@ -26,7 +26,7 @@ struct CourseScheduleSettingsContent: View {
     @State private var schedulePendingDelete: CustomCourseScheduleGRDB?
 
     var body: some View {
-        List {
+        Form {
             Section {
                 Button {
                     onActivateDefault()
@@ -76,6 +76,7 @@ struct CourseScheduleSettingsContent: View {
             }
         }
         .navigationTitle("课表设置")
+        .formStyle(.grouped)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
