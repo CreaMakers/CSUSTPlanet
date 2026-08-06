@@ -62,7 +62,7 @@ private struct CourseScheduleSessionSection: View {
                     }
 
                     LabeledContent("周次") {
-                        Text("已选 \(editingWeeks.count) 周")
+                        Text(editingWeeks.isEmpty ? "未设置" : "已选 \(editingWeeks.count) 周")
                             .foregroundStyle(.tint)
                     }
                     .contentShape(.rect)
