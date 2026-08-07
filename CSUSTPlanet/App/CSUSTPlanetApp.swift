@@ -29,7 +29,10 @@ struct CSUSTPlanetApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        _ = DatabaseManager.shared
+        let databaseManager = DatabaseManager.shared
+        if MMKVHelper.CourseSchedule.currentScheduleID == nil || databaseManager.pool != nil {
+            CustomCourseScheduleHelper.syncActiveCourseSchedule()
+        }
         _ = TrackHelper.shared
         _ = NotificationManager.shared
         _ = GlobalManager.shared

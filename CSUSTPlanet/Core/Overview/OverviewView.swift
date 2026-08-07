@@ -10,7 +10,7 @@ import SwiftUI
 
 struct OverviewView: View {
     @Bindable var globalManager = GlobalManager.shared
-    @State private var courseScheduleData = MMKVHelper.CourseSchedule.cache
+    @State private var activeCourseSchedule = MMKVHelper.CourseSchedule.activeCourseSchedule
 
     private let overviewSpacing: CGFloat = 24
     private let minimumColumnWidth: CGFloat = 320
@@ -29,7 +29,7 @@ struct OverviewView: View {
     }
 
     private var currentWeekText: String? {
-        guard let data = courseScheduleData?.value else {
+        guard let data = activeCourseSchedule?.value.data else {
             return nil
         }
 
@@ -56,8 +56,8 @@ struct OverviewView: View {
         }
         .navigationTitle("概览")
         .navigationSubtitleCompat(overviewSubtitle)
-        .onReceive(MMKVHelper.CourseSchedule.$cache) { data in
-            courseScheduleData = data
+        .onReceive(MMKVHelper.CourseSchedule.$activeCourseSchedule) { schedule in
+            activeCourseSchedule = schedule
         }
     }
 

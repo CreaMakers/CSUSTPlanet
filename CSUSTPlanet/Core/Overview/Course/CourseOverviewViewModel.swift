@@ -21,19 +21,19 @@ final class CourseOverviewViewModel {
     }
 
     @ObservationIgnored private var cancellables = Set<AnyCancellable>()
-    private var courseScheduleData: Cached<CourseScheduleData>?
+    private var activeCourseSchedule: Cached<ActiveCourseSchedule>?
 
     init() {
-        MMKVHelper.CourseSchedule.$cache
+        MMKVHelper.CourseSchedule.$activeCourseSchedule
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] data in
-                self?.courseScheduleData = data
+            .sink { [weak self] schedule in
+                self?.activeCourseSchedule = schedule
             }
             .store(in: &cancellables)
     }
 
     func courseDisplayState(at now: Date) -> CourseDisplayState {
-        guard let data = courseScheduleData?.value else { return .loading }
+        guard let data = activeCourseSchedule?.value.data else { return .loading }
 
         let status = CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: now, weekCount: data.weekCount)
 
@@ -55,7 +55,7 @@ final class CourseOverviewViewModel {
     }
 
     var semesterInfoText: String {
-        guard let semester = courseScheduleData?.value.semester else { return "默认学期" }
-        return semester
+        guard let scheduleName = activeCourseSchedule?.value.scheduleName else { return "默认学期" }
+        return scheduleName
     }
 }
