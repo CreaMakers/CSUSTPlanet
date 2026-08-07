@@ -78,6 +78,7 @@ private let tomorrowPreviewCourses =
 struct TodayCoursesEntry: TimelineEntry {
     let date: Date
     let data: CourseScheduleData?
+    let scheduleName: String?
 
     static func mockEntry(
         semester: String = "2025-2026-1",
@@ -96,7 +97,8 @@ struct TodayCoursesEntry: TimelineEntry {
 
         return TodayCoursesEntry(
             date: timeDateFormatter.date(from: date) ?? .now,
-            data: data
+            data: data,
+            scheduleName: semester
         )
     }
 

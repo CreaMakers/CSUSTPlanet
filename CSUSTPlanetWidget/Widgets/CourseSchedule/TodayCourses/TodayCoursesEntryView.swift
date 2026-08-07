@@ -21,7 +21,7 @@ struct TodayCoursesEntryView: View {
             if let data = entry.data {
                 let dailyCourseDisplayState = resolvedDailyCourseDisplayState(date: entry.date, data: data)
                 VStack(spacing: 0) {
-                    CourseWidgetHeaderView(family: family, title: CourseScheduleUtil.courseScheduleTitle, date: entry.date, data: data)
+                    CourseWidgetHeaderView(family: family, title: CourseScheduleUtil.courseScheduleTitle, date: entry.date, data: data, scheduleName: entry.scheduleName)
 
                     Divider().padding(.vertical, 4)
 

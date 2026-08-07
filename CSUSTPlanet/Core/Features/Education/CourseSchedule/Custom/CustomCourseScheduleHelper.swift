@@ -265,10 +265,18 @@ enum CustomCourseScheduleHelper {
     /// 同步当前生效课表到 KV 镜像。
     /// 学校课表缓存等外部写入场景需手动调用此方法。
     static func syncActiveCourseSchedule() {
+        let schedule = currentActiveCourseSchedule()
+        if let previousSchedule = MMKVHelper.CourseSchedule.activeCourseSchedule?.value,
+            previousSchedule == schedule
+        {
+            return
+        }
+
         MMKVHelper.CourseSchedule.activeCourseSchedule = Cached(
             cachedAt: .now,
-            value: currentActiveCourseSchedule()
+            value: schedule
         )
+        WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
     }
 
     // MARK: - 读取

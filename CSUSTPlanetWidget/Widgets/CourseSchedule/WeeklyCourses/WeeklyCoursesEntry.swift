@@ -106,6 +106,7 @@ private let courses = [
 struct WeeklyCoursesEntry: TimelineEntry {
     let date: Date
     let data: CourseScheduleData?
+    let scheduleName: String?
 
     static func mockEntry(semester: String = "2025-2026-1", semesterStartDate: String = "2025-09-07", date: String = "2025-09-21 17:55") -> WeeklyCoursesEntry {
         let semesterDateFormatter = DateFormatter()
@@ -119,7 +120,8 @@ struct WeeklyCoursesEntry: TimelineEntry {
 
         return WeeklyCoursesEntry(
             date: timeDateFormatter.date(from: date) ?? .now,
-            data: data
+            data: data,
+            scheduleName: semester
         )
     }
 }

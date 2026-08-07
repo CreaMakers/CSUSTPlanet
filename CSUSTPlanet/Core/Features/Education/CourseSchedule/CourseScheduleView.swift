@@ -104,7 +104,6 @@ struct CourseScheduleView: View {
             )
             MMKVHelper.CourseSchedule.cache = data
             CustomCourseScheduleHelper.syncActiveCourseSchedule()
-            WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
 
             self.selectedSemester = selectedSemester
         } catch {

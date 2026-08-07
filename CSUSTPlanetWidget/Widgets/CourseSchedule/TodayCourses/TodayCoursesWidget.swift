@@ -24,15 +24,15 @@ struct TodayCoursesWidget: Widget {
 // MARK: - Preview
 
 #Preview("Small - 空", as: .systemSmall, widget: { TodayCoursesWidget() }) {
-    TodayCoursesEntry.init(date: .now, data: nil)
+    TodayCoursesEntry.init(date: .now, data: nil, scheduleName: nil)
 }
 
 #Preview("Medium - 空", as: .systemMedium, widget: { TodayCoursesWidget() }) {
-    TodayCoursesEntry.init(date: .now, data: nil)
+    TodayCoursesEntry.init(date: .now, data: nil, scheduleName: nil)
 }
 
 #Preview("Large - 空", as: .systemLarge, widget: { TodayCoursesWidget() }) {
-    TodayCoursesEntry.init(date: .now, data: nil)
+    TodayCoursesEntry.init(date: .now, data: nil, scheduleName: nil)
 }
 
 #Preview("Small - 学期未开始（一周以外）", as: .systemSmall, widget: { TodayCoursesWidget() }) {

@@ -20,7 +20,7 @@ struct CourseDisplayInfo: Identifiable, Codable {
     }
 }
 
-struct CourseScheduleData: Codable {
+struct CourseScheduleData: Codable, Equatable {
     var semester: String?
     var semesterStartDate: Date
     var courses: [EduHelper.Course]
@@ -44,7 +44,7 @@ struct CourseScheduleData: Codable {
 }
 
 /// 当前生效课表：数据、模式与名称的聚合
-struct ActiveCourseSchedule: Codable {
+struct ActiveCourseSchedule: Codable, Equatable {
     /// 当前生效的课表数据（默认课表取学校缓存，自定义课表读 GRDB）
     var data: CourseScheduleData?
     /// 是否为自定义课表模式

@@ -13,6 +13,7 @@ struct CourseWidgetHeaderView: View {
     let title: String
     let date: Date
     let data: CourseScheduleData
+    let scheduleName: String?
 
     var body: some View {
         HStack(alignment: .center, spacing: 6) {
@@ -20,7 +21,7 @@ struct CourseWidgetHeaderView: View {
                 Text(title)
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(.primary)
-                Text(data.semester ?? "默认学期")
+                Text(scheduleName ?? data.semester ?? "默认学期")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
             }
