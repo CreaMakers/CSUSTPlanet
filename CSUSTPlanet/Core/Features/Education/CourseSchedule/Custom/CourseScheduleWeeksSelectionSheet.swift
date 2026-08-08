@@ -18,7 +18,7 @@ struct CourseScheduleWeeksSelectionSheet: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            Form {
                 Section("快捷选择") {
                     Button("全部") {
                         weeksCopy = Array(1...weekCount)
@@ -39,6 +39,7 @@ struct CourseScheduleWeeksSelectionSheet: View {
                     .padding(.vertical, 4)
                 }
             }
+            .formStyle(.grouped)
             .navigationTitle("选择周次")
             .inlineToolbarTitle()
             .toolbar {
