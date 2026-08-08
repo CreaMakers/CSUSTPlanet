@@ -24,6 +24,10 @@ struct CourseScheduleView: View {
 
     @State private var currentWeek: Int = 1
     @State private var realCurrentWeek: Int? = nil
+    @State private var weekCount: Int = CourseScheduleUtil.weekCount
+
+    @State private var isCustomSchedule: Bool = false
+    @State private var scheduleName: String?
 
     @State private var errorToast: ToastState = .errorTitle
     @State private var loadingToast: ToastState = .loadingTitle
@@ -40,10 +44,13 @@ struct CourseScheduleView: View {
             semesterStartDate: semesterStartDate,
             remarks: remarks,
             selectedSemester: selectedSemester,
+            isCustomSchedule: isCustomSchedule,
+            scheduleName: scheduleName,
             isCourseScheduleLoading: isCourseScheduleLoading,
             isCalendarExporting: isCalendarExporting,
             currentWeek: $currentWeek,
             realCurrentWeek: realCurrentWeek,
+            weekCount: weekCount,
             errorToast: $errorToast,
             loadingToast: $loadingToast,
             successToast: $successToast,
@@ -55,16 +62,18 @@ struct CourseScheduleView: View {
             },
             onAddCalendar: addToCalendar
         )
-        .onReceive(MMKVHelper.CourseSchedule.$cache.dropFirst().receive(on: RunLoop.main)) { data in
-            applyData(data)
+        .onReceive(MMKVHelper.CourseSchedule.$activeCourseSchedule.dropFirst().receive(on: RunLoop.main)) { cached in
+            applyActiveSchedule(cached?.value)
         }
         .task {
             guard isInitial else {
                 return
             }
             isInitial = false
-            applyData(MMKVHelper.CourseSchedule.cache)
-            await loadCourses(selectedSemester: selectedSemester)
+            applyActiveSchedule(MMKVHelper.CourseSchedule.activeCourseSchedule?.value)
+            if MMKVHelper.CourseSchedule.currentScheduleID == nil {
+                await loadCourses(selectedSemester: selectedSemester)
+            }
         }
     }
 
@@ -94,7 +103,7 @@ struct CourseScheduleView: View {
                 )
             )
             MMKVHelper.CourseSchedule.cache = data
-            WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
+            CustomCourseScheduleHelper.syncActiveCourseSchedule()
 
             self.selectedSemester = selectedSemester
         } catch {
@@ -102,28 +111,40 @@ struct CourseScheduleView: View {
         }
     }
 
-    private func applyData(_ data: Cached<CourseScheduleData>?) {
-        guard let data else {
+    private func applyActiveSchedule(_ schedule: ActiveCourseSchedule?) {
+        isCustomSchedule = schedule?.isCustomSchedule ?? false
+        scheduleName = schedule?.scheduleName
+
+        guard let data = schedule?.data else {
             courses = nil
             weeklyCourses = nil
             semesterStartDate = nil
             realCurrentWeek = nil
+            weekCount = CourseScheduleUtil.weekCount
             courseColors = [:]
             remarks = []
             return
         }
 
-        courses = data.value.courses
-        weeklyCourses = CourseScheduleUtil.getWeeklyCourses(data.value.courses)
-        semesterStartDate = data.value.semesterStartDate
-        realCurrentWeek = CourseScheduleUtil.getCurrentWeek(semesterStartDate: data.value.semesterStartDate, now: .now)
-        courseColors = ColorUtil.getCourseColors(data.value.courses)
-        remarks = data.value.remarks
+        courses = data.courses
+        weeklyCourses = CourseScheduleUtil.getWeeklyCourses(data.courses)
+        semesterStartDate = data.semesterStartDate
+        weekCount = CourseScheduleUtil.resolveWeekCount(data.weekCount)
+        realCurrentWeek = CourseScheduleUtil.getCurrentWeek(
+            semesterStartDate: data.semesterStartDate,
+            now: .now,
+            weekCount: weekCount
+        )
+        courseColors = ColorUtil.getCourseColors(data.courses)
+        remarks = data.remarks
 
         if let week = realCurrentWeek {
             withAnimation {
                 currentWeek = week
             }
+        } else if currentWeek > weekCount {
+            // 切换到周数更少的课表时，钳制当前周数避免越界
+            currentWeek = weekCount
         }
     }
 
@@ -147,7 +168,7 @@ struct CourseScheduleView: View {
         }
 
         do {
-            let dateRange = CourseScheduleUtil.getSemesterDateRange(semesterStartDate: semesterStartDate)
+            let dateRange = CourseScheduleUtil.getSemesterDateRange(semesterStartDate: semesterStartDate, weekCount: weekCount)
             let drafts = makeCalendarEventDrafts(
                 courses: courses,
                 semesterStartDate: semesterStartDate,

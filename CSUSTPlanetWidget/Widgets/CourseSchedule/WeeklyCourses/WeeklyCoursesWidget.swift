@@ -23,7 +23,7 @@ struct WeeklyCoursesWidget: Widget {
 }
 
 #Preview("空", as: .systemLarge, widget: { WeeklyCoursesWidget() }) {
-    WeeklyCoursesEntry(date: .now, data: nil)
+    WeeklyCoursesEntry(date: .now, data: nil, scheduleName: nil)
 }
 
 #Preview("学期未开始（一周以外）", as: .systemLarge, widget: { WeeklyCoursesWidget() }) {

@@ -106,7 +106,7 @@ enum FeatureTabID: Hashable, CaseIterable {
     var rootRoute: AppRoute {
         switch self {
         case .courseSchedule:
-            return .features(.education(.courseSchedule))
+            return .features(.education(.courseSchedule(.main)))
         case .gradeQuery:
             return .features(.education(.gradeQuery(.main)))
         case .examSchedule:

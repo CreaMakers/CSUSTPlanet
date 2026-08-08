@@ -13,13 +13,14 @@ struct CourseScheduleScrollTable: View {
     let courseColors: [String: Color]
 
     @Binding var currentWeek: Int
+    let weekCount: Int
     @Binding var isCourseDetailInspectorPresented: Bool
     @Binding var selectedCourseInfo: CourseDisplayInfo?
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 0) {
-                ForEach(1...CourseScheduleUtil.weekCount, id: \.self) { week in
+                ForEach(1...weekCount, id: \.self) { week in
                     CourseScheduleTable(
                         semesterStartDate: semesterStartDate,
                         targetWeek: week,
@@ -49,6 +50,7 @@ struct CourseScheduleScrollTable: View {
         weeklyCourses: [:],
         courseColors: [:],
         currentWeek: .constant(1),
+        weekCount: 20,
         isCourseDetailInspectorPresented: .constant(false),
         selectedCourseInfo: .constant(nil)
     )

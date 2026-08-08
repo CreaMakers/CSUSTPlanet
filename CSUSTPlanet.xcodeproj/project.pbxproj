@@ -81,6 +81,9 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Database/DatabaseManager.swift,
+				Database/Models/CustomCourseGRDB.swift,
+				Database/Models/CustomCourseScheduleGRDB.swift,
+				Database/Models/CustomSessionGRDB.swift,
 				Database/Models/Dorm.swift,
 				Database/Models/ElectricityRecord.swift,
 				Database/Models/MatomoEvent.swift,

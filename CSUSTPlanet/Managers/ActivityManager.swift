@@ -61,15 +61,16 @@ final class ActivityManager {
         }
 
         let currentDate = Date()
-        guard let data = MMKVHelper.CourseSchedule.cache else {
+        guard let data = MMKVHelper.CourseSchedule.activeCourseSchedule?.value.data else {
             stopActivity()
             return
         }
 
         if let courseDisplayInfo = CourseScheduleUtil.getRelevantCourseForStatus(
-            semesterStartDate: data.value.semesterStartDate,
+            semesterStartDate: data.semesterStartDate,
             now: currentDate,
-            courses: data.value.courses
+            courses: data.courses,
+            weekCount: data.weekCount
         ), let courseDates = getCourseDates(from: courseDisplayInfo.session.startSection, to: courseDisplayInfo.session.endSection, now: currentDate) {
 
             let attributes = CourseStatusWidgetAttributes(

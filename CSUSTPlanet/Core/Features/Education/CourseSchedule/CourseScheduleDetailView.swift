@@ -21,82 +21,81 @@ struct CourseScheduleDetailView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    VStack(spacing: 8) {
-                        Text(course.courseName)
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: .infinity)
+        Form {
+            Section {
+                VStack(spacing: 8) {
+                    Text(course.courseName)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
 
-                        HStack(spacing: 12) {
-                            if let teacher = course.teacher {
-                                Label(teacher, systemImage: "person.fill")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-
-                            if let groupName = course.groupName {
-                                Text(groupName)
-                                    .font(.caption)
-                                    .fontWeight(.medium)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
-                                    .background(Color.accentColor.opacity(0.12))
-                                    .foregroundStyle(.primary)
-                                    .clipShape(.capsule)
-                            }
+                    HStack(spacing: 12) {
+                        if let teacher = course.teacher {
+                            Label(teacher, systemImage: "person.fill")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
                         }
-                    }
-                }
 
-                Section("本次安排") {
-                    FormRow(label: "课程周次", value: "第\(session.weeks.map { String($0) }.joined(separator: "，"))周")
-                    FormRow(label: "上课时间", value: "\(session.dayOfWeek.chineseLongString) · 第\(session.startSection)-\(session.endSection)节")
-                    FormRow(label: "上课教室", value: session.classroom ?? "未安排教室")
-                }
-
-                if !otherSessions.isEmpty {
-                    Section("其他安排") {
-                        ForEach(otherSessions, id: \.self) { otherSession in
-                            VStack(alignment: .leading, spacing: 6) {
-                                HStack {
-                                    Text(otherSession.dayOfWeek.chineseLongString)
-                                        .fontWeight(.medium)
-                                    Text("第\(otherSession.startSection)-\(otherSession.endSection)节")
-                                        .foregroundStyle(.secondary)
-                                    Spacer()
-                                    Text(otherSession.classroom ?? "未安排教室")
-                                        .font(.subheadline)
-                                        .foregroundStyle(otherSession.classroom == nil ? .secondary : .primary)
-                                }
-
-                                Text("第\(otherSession.weeks.map { String($0) }.joined(separator: "，"))周")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding(.vertical, 2)
+                        if let groupName = course.groupName {
+                            Text(groupName)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(Color.accentColor.opacity(0.12))
+                                .foregroundStyle(.primary)
+                                .clipShape(.capsule)
                         }
                     }
                 }
             }
-            .formStyle(.grouped)
-            .navigationTitle("课程详情")
-            .inlineToolbarTitle()
-            .apply { view in
-                if isToolbarPresented {
-                    view.toolbar {
+
+            Section("本次安排") {
+                FormRow(label: "课程周次", value: "第\(session.weeks.map { String($0) }.joined(separator: "，"))周")
+                FormRow(label: "上课时间", value: "\(session.dayOfWeek.chineseLongString) · 第\(session.startSection)-\(session.endSection)节")
+                FormRow(label: "上课教室", value: session.classroom ?? "未安排教室")
+            }
+
+            if !otherSessions.isEmpty {
+                Section("其他安排") {
+                    ForEach(otherSessions, id: \.self) { otherSession in
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text(otherSession.dayOfWeek.chineseLongString)
+                                    .fontWeight(.medium)
+                                Text("第\(otherSession.startSection)-\(otherSession.endSection)节")
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                                Text(otherSession.classroom ?? "未安排教室")
+                                    .font(.subheadline)
+                                    .foregroundStyle(otherSession.classroom == nil ? .secondary : .primary)
+                            }
+
+                            Text("第\(otherSession.weeks.map { String($0) }.joined(separator: "，"))周")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .apply { view in
+            if isToolbarPresented {
+                view
+                    .navigationTitle("课程详情")
+                    .inlineToolbarTitle()
+                    .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("关闭") {
                                 dismiss()
                             }
                         }
                     }
-                } else {
-                    view
-                }
+            } else {
+                view
             }
         }
     }
