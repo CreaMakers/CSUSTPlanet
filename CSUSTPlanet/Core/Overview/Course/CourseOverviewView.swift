@@ -25,11 +25,13 @@ struct CourseOverviewView: View {
         }
         .buttonStyle(.plain)
         .sheet(item: $selectedCourse) { courseInfo in
-            CourseScheduleDetailView(
-                course: courseInfo.course,
-                session: courseInfo.session,
-                isToolbarPresented: true,
-            )
+            NavigationStack {
+                CourseScheduleDetailView(
+                    course: courseInfo.course,
+                    session: courseInfo.session,
+                    isToolbarPresented: true,
+                )
+            }
         }
     }
 

@@ -127,11 +127,13 @@ struct CourseScheduleContent: View {
         .apply { view in
             if !isWideSize {
                 view.sheet(item: $selectedCourseInfo) { courseInfo in
-                    CourseScheduleDetailView(
-                        course: courseInfo.course,
-                        session: courseInfo.session,
-                        isToolbarPresented: sizeClass == .compact,
-                    )
+                    NavigationStack {
+                        CourseScheduleDetailView(
+                            course: courseInfo.course,
+                            session: courseInfo.session,
+                            isToolbarPresented: true,
+                        )
+                    }
                 }
             } else {
                 view.inspector(isPresented: $isCourseDetailInspectorPresented) {
@@ -213,7 +215,7 @@ struct CourseScheduleContent: View {
             CourseScheduleDetailView(
                 course: courseInfo.course,
                 session: courseInfo.session,
-                isToolbarPresented: sizeClass == .compact,
+                isToolbarPresented: false,
             )
         } else {
             ContentUnavailableView("请选择课程查看详情", systemImage: "doc.text.magnifyingglass")
