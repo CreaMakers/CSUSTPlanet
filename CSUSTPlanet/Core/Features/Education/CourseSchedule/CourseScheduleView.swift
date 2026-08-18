@@ -35,8 +35,6 @@ struct CourseScheduleView: View {
 
     @State private var isInitial: Bool = true
 
-    @Environment(\.horizontalSizeClass) private var sizeClass
-
     var body: some View {
         CourseScheduleContent(
             weeklyCourses: weeklyCourses,
@@ -62,6 +60,7 @@ struct CourseScheduleView: View {
             },
             onAddCalendar: addToCalendar
         )
+        .hideTabBarOnCompact()
         .onReceive(MMKVHelper.CourseSchedule.$activeCourseSchedule.dropFirst().receive(on: RunLoop.main)) { cached in
             applyActiveSchedule(cached?.value)
         }
