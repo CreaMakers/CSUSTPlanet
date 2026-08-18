@@ -8,6 +8,25 @@
 import Foundation
 import SwiftUI
 
+private struct HideTabBarOnCompactModifier: ViewModifier {
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    #endif
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        #if os(iOS)
+        if sizeClass == .compact {
+            content.toolbar(.hidden, for: .tabBar)
+        } else {
+            content
+        }
+        #else
+        content
+        #endif
+    }
+}
+
 extension View {
     @ViewBuilder
     func inlineToolbarTitle() -> some View {
@@ -25,5 +44,9 @@ extension View {
         #else
         self
         #endif
+    }
+
+    func hideTabBarOnCompact() -> some View {
+        modifier(HideTabBarOnCompactModifier())
     }
 }

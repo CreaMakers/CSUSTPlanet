@@ -67,13 +67,7 @@ struct CampusMapView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         #if os(iOS)
-        .apply { view in
-            if sizeClass == .compact {
-                view.toolbar(.hidden, for: .tabBar)
-            } else {
-                view
-            }
-        }
+        .hideTabBarOnCompact()
         .background(
             WillDisappearHandler {
                 viewModel.isBuildingsListShown = false
