@@ -33,6 +33,8 @@ extension AuthManager: AuthRetryProvider {
                     try await ssoReloginAsync(isSilent: true)
 
                     switch system {
+                    case .sso:
+                        break
                     case .edu:
                         try await educationLoginAsync(isSilent: true)
                     case .mooc:
@@ -54,6 +56,11 @@ extension AuthManager: AuthRetryProvider {
 
     private func isNotLoggedInError(error: Error, system: CampusSystem) -> Bool {
         switch system {
+        case .sso:
+            if let ssoError = error as? SSOHelper.SSOHelperError, case .notLoggedIn = ssoError {
+                return true
+            }
+            return false
         case .edu:
             if let eduError = error as? EduHelper.EduHelperError, case .notLoggedIn = eduError {
                 return true

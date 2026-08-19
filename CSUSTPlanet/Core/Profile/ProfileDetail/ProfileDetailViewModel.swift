@@ -44,7 +44,9 @@ class ProfileDetailViewModel {
         defer { isLoadingSSOProfile = false }
 
         do {
-            ssoProfile = try await AuthManager.shared.ssoHelper.getLoginUser()
+            ssoProfile = try await AuthManager.shared.withAuthRetry(system: .sso) {
+                try await AuthManager.shared.ssoHelper.getLoginUser()
+            }
         } catch {
             errorToast.show(message: error.localizedDescription)
         }

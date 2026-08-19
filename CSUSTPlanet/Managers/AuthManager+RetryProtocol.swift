@@ -6,6 +6,7 @@
 //
 
 enum CampusSystem {
+    case sso
     case edu
     case mooc
     case campusCard
