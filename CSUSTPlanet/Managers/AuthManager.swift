@@ -89,6 +89,7 @@ final class AuthManager {
         eduHelper = EduHelper(mode: mode, session: session)
         moocHelper = MoocHelper(mode: mode, session: session)
         campusCardHelper = CampusCardHelper(mode: mode, session: session)
+        campusCardHelper.token = KeychainUtil.campusCardToken
         startObservingLifecycle()
         ssoRelogin(isSilent: true)
     }
@@ -397,11 +398,11 @@ final class AuthManager {
             isCampusCardLoggingIn = true
             defer { isCampusCardLoggingIn = false }
 
-            let tempCampusCardHelper = CampusCardHelper(mode: mode, session: session)
-            tempCampusCardHelper.token = KeychainUtil.campusCardToken
-            if await tempCampusCardHelper.isLoggedIn() {
+            // Keep the helper instance stable because in-flight requests may retain this reference
+            // while an authentication retry refreshes the token.
+            campusCardHelper.token = KeychainUtil.campusCardToken
+            if await campusCardHelper.isLoggedIn() {
                 Logger.authManager.debug("campusCardLogin: 教务系统已登录")
-                self.campusCardHelper = tempCampusCardHelper
 
                 if !isSilent {
                     campusCardInfo = "校园卡系统已登录"
@@ -412,7 +413,7 @@ final class AuthManager {
 
             do {
                 let (_, ticket) = try await ssoHelper.loginToCampusCard()
-                try await tempCampusCardHelper.syncToken(ticket: ticket)
+                try await campusCardHelper.syncToken(ticket: ticket)
             } catch {
                 Logger.authManager.error("campusCardLogin: 校园卡登录请求失败, \(error)")
 
@@ -423,10 +424,9 @@ final class AuthManager {
                 throw error
             }
 
-            if await tempCampusCardHelper.isLoggedIn() {
+            if await campusCardHelper.isLoggedIn() {
                 Logger.authManager.debug("campusCardLogin: 验证校园卡登录成功")
-                self.campusCardHelper = tempCampusCardHelper
-                KeychainUtil.campusCardToken = tempCampusCardHelper.token
+                KeychainUtil.campusCardToken = campusCardHelper.token
                 CookieHelper.shared.save()
 
                 if !isSilent {
