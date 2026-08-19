@@ -30,17 +30,17 @@ extension AuthManager: AuthRetryProvider {
                 Logger.authManager.debug("请求遭拒，触发自动重试 (\(attempts)/\(maxRetries)) - 目标系统: \(String(describing: system))")
 
                 do {
-                    try await ssoReloginAsync(isSilent: true)
+                    try await ssoReloginAsync()
 
                     switch system {
                     case .sso:
                         break
                     case .edu:
-                        try await educationLoginAsync(isSilent: true)
+                        try await educationLoginAsync()
                     case .mooc:
-                        try await moocLoginAsync(isSilent: true)
+                        try await moocLoginAsync()
                     case .campusCard:
-                        try await campusCardLoginAsync(isSilent: true)
+                        try await campusCardLoginAsync()
                     }
                 } catch let loginError {
                     if isNotLoggedInError(error: loginError, system: system) {
