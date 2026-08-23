@@ -1,16 +1,16 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "sweetpad-lldb",
-            "request": "attach",
-            "name": "SweetPad: Debug"
-        },
-        {
-            "type": "sweetpad-lldb",
-            "request": "attach",
-            "name": "SweetPad: Run and Debug",
-            "preLaunchTask": "sweetpad: debugging-launch"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "sweetpad-lldb",
+      "request": "attach",
+      "name": "SweetPad: Attach to App"
+    },
+    {
+      "type": "sweetpad-lldb",
+      "request": "attach",
+      "name": "SweetPad: Launch and Attach",
+      "preLaunchTask": "sweetpad: debugging-launch"
+    }
+  ]
 }

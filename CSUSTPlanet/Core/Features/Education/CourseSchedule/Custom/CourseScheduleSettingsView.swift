@@ -28,6 +28,15 @@ struct CourseScheduleSettingsContent: View {
     var body: some View {
         Form {
             Section {
+                Text("选择自定义课表后，App 将完全使用自定义内容，不再自动同步学校课表。学校课表发生变动时，自定义课表不会自动更新，也无法与学校课表合并；如需使用学校最新课表，请切换回默认课表。")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } header: {
+                Label("注意事项", systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+            }
+
+            Section {
                 Button {
                     onActivateDefault()
                 } label: {

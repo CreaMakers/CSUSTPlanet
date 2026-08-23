@@ -23,35 +23,7 @@ final class AuthManager {
     var ssoProfile: SSOHelper.Profile?
     var isSSOLoggingIn: Bool = false
     var isSSOLoggingOut: Bool = false
-    var isSSOInfoPresented: Bool = false
-    var isSSOErrorPresented: Bool = false
-    var ssoInfo: String = ""
-    var ssoError: String = ""
     var isSSOLoggedIn: Bool { return ssoProfile != nil }
-
-    // MARK: - Education Properties
-
-    var isEducationLoggingIn: Bool = false
-    var isEducationInfoPresented: Bool = false
-    var isEducationErrorPresented: Bool = false
-    var educationInfo: String = ""
-    var educationError: String = ""
-
-    // MARK: - Mooc Properties
-
-    var isMoocLoggingIn: Bool = false
-    var isMoocInfoPresented: Bool = false
-    var isMoocErrorPresented: Bool = false
-    var moocInfo: String = ""
-    var moocError: String = ""
-
-    // MARK: - Campus Card Properties
-
-    var isCampusCardLoggingIn: Bool = false
-    var isCampusCardInfoPresented: Bool = false
-    var isCampusCardErrorPresented: Bool = false
-    var campusCardInfo: String = ""
-    var campusCardError: String = ""
 
     // MARK: - Captcha Properties
 
@@ -89,8 +61,9 @@ final class AuthManager {
         eduHelper = EduHelper(mode: mode, session: session)
         moocHelper = MoocHelper(mode: mode, session: session)
         campusCardHelper = CampusCardHelper(mode: mode, session: session)
+        campusCardHelper.token = KeychainUtil.campusCardToken
         startObservingLifecycle()
-        ssoRelogin(isSilent: true)
+        ssoRelogin()
     }
 
     private func startObservingLifecycle() {
@@ -103,7 +76,7 @@ final class AuthManager {
                     guard let resumeAfter else { return }
                     if resumeAfter > threshold {
                         Logger.authManager.debug("App后台停留时间 (\(resumeAfter)s) 超过阈值，执行重新登录")
-                        ssoRelogin(isSilent: true)
+                        ssoRelogin()
                     } else {
                         Logger.authManager.debug("App后台停留时间 (\(resumeAfter)s) 不足 \(threshold)s，跳过")
                     }
@@ -157,10 +130,7 @@ final class AuthManager {
         let profile = try await ssoHelper.getLoginUser()
         updateLocalProfile(with: profile)
 
-        ssoInfo = "统一身份认证登录成功"
-        isSSOInfoPresented = true
-
-        allLogin(isSilent: false)
+        allLogin()
     }
 
     func ssoLogout() {
@@ -187,9 +157,7 @@ final class AuthManager {
         let profile = try await ssoHelper.getLoginUser()
         updateLocalProfile(with: profile)
 
-        ssoInfo = "统一身份认证登录成功"
-        isSSOInfoPresented = true
-        allLogin(isSilent: false)
+        allLogin()
 
         if shouldPersistCredentials {
             saveCredentials(credentials: (username, password))
@@ -198,7 +166,7 @@ final class AuthManager {
 
     // MARK: - SSO Relogin Async
 
-    func ssoReloginAsync(isSilent: Bool) async throws {
+    func ssoReloginAsync() async throws {
         if let task = ssoLoginTask {
             return try await task.value
         }
@@ -210,11 +178,6 @@ final class AuthManager {
             if let ssoProfile = try? await ssoHelper.getLoginUser() {
                 Logger.authManager.debug("ssoRelogin: 统一身份认证已登录，无需再登录")
                 updateLocalProfile(with: ssoProfile)
-
-                if !isSilent {
-                    ssoInfo = "统一身份认证已登录"
-                    isSSOInfoPresented = true
-                }
                 return
             }
 
@@ -234,29 +197,14 @@ final class AuthManager {
                 try await ssoHelper.login(loginForm: loginForm, username: username, password: password, captcha: captcha)
             } catch {
                 Logger.authManager.error("ssoRelogin: 统一身份认证登录失败, \(error)")
-
-                if !isSilent {
-                    ssoError = "统一身份认证登录错误"
-                    isSSOErrorPresented = true
-                }
                 throw error
             }
 
             if let ssoProfile = try? await ssoHelper.getLoginUser() {
                 Logger.authManager.debug("ssoRelogin: 验证统一身份认证登录成功")
                 updateLocalProfile(with: ssoProfile)
-
-                if !isSilent {
-                    ssoInfo = "统一身份认证登录成功"
-                    isSSOInfoPresented = true
-                }
             } else {
                 Logger.authManager.debug("ssoRelogin: 验证统一身份认证登录失败")
-
-                if !isSilent {
-                    ssoError = "统一身份认证登录错误"
-                    isSSOErrorPresented = true
-                }
                 throw SSOHelper.SSOHelperError.notLoggedIn
             }
         }
@@ -268,24 +216,16 @@ final class AuthManager {
 
     // MARK: - Education Login Async
 
-    func educationLoginAsync(isSilent: Bool) async throws {
+    func educationLoginAsync() async throws {
         if let task = eduLoginTask {
             return try await task.value
         }
 
         let task = Task { @MainActor in
-            isEducationLoggingIn = true
-            defer { isEducationLoggingIn = false }
-
             let tempEduHelper = EduHelper(mode: mode, session: session)
             if await tempEduHelper.isLoggedIn() {
                 Logger.authManager.debug("educationLogin: 教务系统已登录")
                 self.eduHelper = tempEduHelper
-
-                if !isSilent {
-                    educationInfo = "教务系统已登录"
-                    isEducationInfoPresented = true
-                }
                 return
             }
 
@@ -293,11 +233,6 @@ final class AuthManager {
                 _ = try await ssoHelper.loginToEducation()
             } catch {
                 Logger.authManager.error("educationLogin: 教务登录请求失败, \(error)")
-
-                if !isSilent {
-                    educationError = "教务登录错误"
-                    isEducationErrorPresented = true
-                }
                 throw error
             }
 
@@ -305,18 +240,8 @@ final class AuthManager {
                 Logger.authManager.debug("educationLogin: 验证教务登录成功")
                 self.eduHelper = tempEduHelper
                 CookieHelper.shared.save()
-
-                if !isSilent {
-                    educationInfo = "教务系统登录成功"
-                    isEducationInfoPresented = true
-                }
             } else {
                 Logger.authManager.debug("educationLogin: 验证教务登录失败")
-
-                if !isSilent {
-                    educationError = "教务登录错误"
-                    isEducationErrorPresented = true
-                }
                 throw EduHelper.EduHelperError.notLoggedIn
             }
         }
@@ -328,24 +253,16 @@ final class AuthManager {
 
     // MARK: - Mooc Login Async
 
-    func moocLoginAsync(isSilent: Bool) async throws {
+    func moocLoginAsync() async throws {
         if let task = moocLoginTask {
             return try await task.value
         }
 
         let task = Task { @MainActor in
-            isMoocLoggingIn = true
-            defer { isMoocLoggingIn = false }
-
             let tempMoocHelper = MoocHelper(mode: mode, session: session)
             if await tempMoocHelper.isLoggedIn() {
                 Logger.authManager.debug("moocLogin: 网络课程平台已登录")
                 self.moocHelper = tempMoocHelper
-
-                if !isSilent {
-                    moocInfo = "网络课程平台已登录"
-                    isMoocInfoPresented = true
-                }
                 return
             }
 
@@ -353,11 +270,6 @@ final class AuthManager {
                 _ = try await ssoHelper.loginToMooc()
             } catch {
                 Logger.authManager.error("moocLogin: 网络课程平台登录请求失败, \(error)")
-
-                if !isSilent {
-                    moocError = "网络课程中心登录错误"
-                    isMoocErrorPresented = true
-                }
                 throw error
             }
 
@@ -365,18 +277,8 @@ final class AuthManager {
                 Logger.authManager.debug("moocLogin: 验证网络课程平台登录成功")
                 self.moocHelper = tempMoocHelper
                 CookieHelper.shared.save()
-
-                if !isSilent {
-                    moocInfo = "网络课程平台登录成功"
-                    isMoocInfoPresented = true
-                }
             } else {
                 Logger.authManager.debug("moocLogin: 验证网络课程平台登录失败")
-
-                if !isSilent {
-                    moocError = "网络课程中心登录错误"
-                    isMoocErrorPresented = true
-                }
                 throw MoocHelper.MoocHelperError.notLoggedIn
             }
         }
@@ -388,58 +290,34 @@ final class AuthManager {
 
     // MARK: - CampusCard Login Async
 
-    func campusCardLoginAsync(isSilent: Bool) async throws {
+    func campusCardLoginAsync() async throws {
         if let task = campusCardLoginTask {
             return try await task.value
         }
 
         let task = Task { @MainActor in
-            isCampusCardLoggingIn = true
-            defer { isCampusCardLoggingIn = false }
-
-            let tempCampusCardHelper = CampusCardHelper(mode: mode, session: session)
-            tempCampusCardHelper.token = KeychainUtil.campusCardToken
-            if await tempCampusCardHelper.isLoggedIn() {
+            // Keep the helper instance stable because in-flight requests may retain this reference
+            // while an authentication retry refreshes the token.
+            campusCardHelper.token = KeychainUtil.campusCardToken
+            if await campusCardHelper.isLoggedIn() {
                 Logger.authManager.debug("campusCardLogin: 教务系统已登录")
-                self.campusCardHelper = tempCampusCardHelper
-
-                if !isSilent {
-                    campusCardInfo = "校园卡系统已登录"
-                    isCampusCardInfoPresented = true
-                }
                 return
             }
 
             do {
                 let (_, ticket) = try await ssoHelper.loginToCampusCard()
-                try await tempCampusCardHelper.syncToken(ticket: ticket)
+                try await campusCardHelper.syncToken(ticket: ticket)
             } catch {
                 Logger.authManager.error("campusCardLogin: 校园卡登录请求失败, \(error)")
-
-                if !isSilent {
-                    campusCardError = "校园卡登录错误"
-                    isCampusCardErrorPresented = true
-                }
                 throw error
             }
 
-            if await tempCampusCardHelper.isLoggedIn() {
+            if await campusCardHelper.isLoggedIn() {
                 Logger.authManager.debug("campusCardLogin: 验证校园卡登录成功")
-                self.campusCardHelper = tempCampusCardHelper
-                KeychainUtil.campusCardToken = tempCampusCardHelper.token
+                KeychainUtil.campusCardToken = campusCardHelper.token
                 CookieHelper.shared.save()
-
-                if !isSilent {
-                    campusCardInfo = "校园卡系统登录成功"
-                    isCampusCardInfoPresented = true
-                }
             } else {
                 Logger.authManager.debug("campusCardLogin: 验证校园卡登录失败")
-
-                if !isSilent {
-                    campusCardError = "校园卡登录错误"
-                    isCampusCardErrorPresented = true
-                }
                 throw CampusCardHelper.CampusCardHelperError.notLoggedIn
             }
         }
@@ -449,60 +327,30 @@ final class AuthManager {
         try await task.value
     }
 
-    func allLoginAsync(isSilent: Bool) async throws {
-        async let edu: () = educationLoginAsync(isSilent: isSilent)
-        async let mooc: () = moocLoginAsync(isSilent: isSilent)
-        async let campusCard: () = campusCardLoginAsync(isSilent: isSilent)
+    func allLoginAsync() async throws {
+        async let edu: () = educationLoginAsync()
+        async let mooc: () = moocLoginAsync()
+        async let campusCard: () = campusCardLoginAsync()
         _ = try await (edu, mooc, campusCard)
     }
 
-    func allLogin(isSilent: Bool) {
+    func allLogin() {
         Task {
             do {
-                try await allLoginAsync(isSilent: isSilent)
+                try await allLoginAsync()
             } catch {
-                Logger.authManager.warning("后台静默登录子系统失败: \(error)")
+                Logger.authManager.warning("自动登录子系统失败: \(error)")
             }
         }
     }
 
-    func ssoRelogin(isSilent: Bool) {
+    func ssoRelogin() {
         Task {
             do {
-                try await ssoReloginAsync(isSilent: isSilent)
-                allLogin(isSilent: isSilent)
+                try await ssoReloginAsync()
+                allLogin()
             } catch {
                 Logger.authManager.error("ssoRelogin 失败: \(error)")
-            }
-        }
-    }
-
-    func educationLogin(isSilent: Bool) {
-        Task {
-            do {
-                try await educationLoginAsync(isSilent: isSilent)
-            } catch {
-                Logger.authManager.error("educationLogin 失败: \(error)")
-            }
-        }
-    }
-
-    func moocLogin(isSilent: Bool) {
-        Task {
-            do {
-                try await moocLoginAsync(isSilent: isSilent)
-            } catch {
-                Logger.authManager.error("moocLogin 失败: \(error)")
-            }
-        }
-    }
-
-    func campusCardLogin(isSilent: Bool) {
-        Task {
-            do {
-                try await campusCardLoginAsync(isSilent: isSilent)
-            } catch {
-                Logger.authManager.error("campusCardLogin失败: \(error)")
             }
         }
     }

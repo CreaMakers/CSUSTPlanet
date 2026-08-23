@@ -345,9 +345,7 @@ enum CustomCourseScheduleHelper {
                     semester: nil,
                     semesterStartDate: schedule.semesterStartDate,
                     courses: eduCourses,
-                    remarks: schedule.remarks
-                        .components(separatedBy: "\n")
-                        .filter { !$0.isEmpty },
+                    remarks: schedule.remarks.isEmpty ? [] : [schedule.remarks],
                     weekCount: schedule.weekCount
                 ),
                 isCustomSchedule: true,

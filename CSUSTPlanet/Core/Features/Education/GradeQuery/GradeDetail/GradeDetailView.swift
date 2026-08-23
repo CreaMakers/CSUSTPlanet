@@ -37,19 +37,12 @@ struct GradeDetailView: View {
         isLoadingDetail = true
         defer { isLoadingDetail = false }
 
-        let maxRetryCount = 5
-
-        for _ in 1...maxRetryCount {
-            do {
-                let gradeDetail = try await AuthManager.shared.withAuthRetry(system: .edu) {
-                    try await AuthManager.shared.eduHelper.courseService.getGradeDetail(url: courseGrade.gradeDetailUrl)
-                }
-
-                detail = gradeDetail
-                return
-            } catch {}
+        do {
+            detail = try await AuthManager.shared.withAuthRetry(system: .edu) {
+                try await AuthManager.shared.eduHelper.courseService.getGradeDetail(url: courseGrade.gradeDetailUrl)
+            }
+        } catch {
+            errorToast.show(message: error.localizedDescription)
         }
-
-        errorToast.show(message: "获取成绩详情失败，请刷新重试")
     }
 }
