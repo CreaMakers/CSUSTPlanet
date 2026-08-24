@@ -69,6 +69,7 @@ def build_and_upload_for_platform(platform_name:, destination:, app_store_platfo
     scheme: 'CSUSTPlanet',
     configuration: 'Release',
     destination: destination,
+    sdk: platform_name == 'macos' ? 'macosx' : nil,
     export_method: 'app-store',
     export_options: {
       provisioningProfiles: provisioning_profiles
