@@ -133,7 +133,7 @@ struct TodayCoursesEntryView: View {
                 .padding(.trailing, 4)
             Text("共")
             Text("\(courseCount)")
-                .foregroundStyle(.blue)
+                .foregroundStyle(Color.accentColor)
             Text("节课程")
         }
         .minimumScaleFactor(0.8)

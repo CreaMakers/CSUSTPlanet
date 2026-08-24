@@ -110,7 +110,7 @@ struct DormDetailView: View {
                 title: viewModel.isQueryingElectricity ? "查询中..." : "刷新电量",
                 titleColor: .white,
                 iconColor: .white,
-                backgroundColor: AnyShapeStyle(Color.blue.gradient),
+                backgroundColor: AnyShapeStyle(Color.accentColor.gradient),
                 asyncAction: { await viewModel.queryElectricity() }
             )
             .disabled(viewModel.isQueryingElectricity)

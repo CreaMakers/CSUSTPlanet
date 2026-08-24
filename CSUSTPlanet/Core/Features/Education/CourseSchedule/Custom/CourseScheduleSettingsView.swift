@@ -72,7 +72,7 @@ struct CourseScheduleSettingsContent: View {
                             } label: {
                                 Label("设为当前", systemImage: "checkmark.circle")
                             }
-                            .tint(.blue)
+                            .tint(.accentColor)
                         }
                         Button {
                             schedulePendingDelete = schedule

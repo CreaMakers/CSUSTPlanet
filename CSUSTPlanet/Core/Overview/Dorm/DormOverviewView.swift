@@ -95,7 +95,7 @@ struct DormOverviewView: View {
 
                         Text("查看宿舍电量")
                             .font(.caption)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(Color.accentColor)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)

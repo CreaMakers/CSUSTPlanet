@@ -196,7 +196,7 @@ struct DormListView: View {
                     } else {
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(Color.accentColor)
                             .frame(width: 15, height: 15)
                     }
                 }

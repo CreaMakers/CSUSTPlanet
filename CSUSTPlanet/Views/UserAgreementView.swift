@@ -31,7 +31,7 @@ struct UserAgreementView: View {
                     Button(action: { globalManager.isUserAgreementAccepted = true }) {
                         Text("同意并继续使用")
                     }
-                    .tint(.blue)
+                    .tint(.accentColor)
                 }
             }
         }

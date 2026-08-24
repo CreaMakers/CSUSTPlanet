@@ -183,7 +183,7 @@ private struct TomorrowPreviewStatusView: View {
                 .padding(.trailing, 8)
             Text("共")
             Text("\(courseCount)")
-                .foregroundStyle(.blue)
+                .foregroundStyle(Color.accentColor)
             Text("节课程")
         }
         .lineLimit(1)

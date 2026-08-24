@@ -20,7 +20,7 @@ struct AvailableClassroomView: View {
                     VStack(spacing: 16) {
                         HStack {
                             Image(systemName: "slider.horizontal.3")
-                                .foregroundColor(.blue)
+                                .foregroundColor(.accentColor)
                             Text("查询条件")
                                 .font(.headline)
                             Spacer()
@@ -96,7 +96,7 @@ struct AvailableClassroomView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(Color.blue)
+                            .background(Color.accentColor)
                             .foregroundColor(.white)
                             .clipShape(.capsule)
                         }

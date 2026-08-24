@@ -111,7 +111,7 @@ struct WebVPNConverterView: View {
                             } else {
                                 Button(action: openResultInBrowser) {
                                     Text(resultUrl)
-                                        .foregroundColor(.blue)
+                                        .foregroundColor(.accentColor)
                                         .font(.subheadline)
                                         .multilineTextAlignment(.leading)
                                 }
