@@ -19,17 +19,42 @@ def sync_for_platform(platform_name:, readonly:)
   api_key = readonly ? nil : load_api_key_if_present
 
   %w[development appstore].each do |cert_type|
-    params = {
-      type: cert_type,
-      platform: platform_name,
-      app_identifier: app_identifiers,
-      readonly: readonly
-    }
-    params[:api_key] = api_key if api_key
-    params[:force_for_new_devices] = true if !readonly && cert_type == 'development'
-
-    sync_code_signing(**params)
+    sync_code_signing(
+      **build_sync_params(
+        platform_name: platform_name,
+        cert_type: cert_type,
+        app_identifiers: app_identifiers,
+        readonly: readonly,
+        api_key: api_key
+      )
+    )
   end
+end
+
+def build_sync_params(platform_name:, cert_type:, app_identifiers:, readonly:, api_key:)
+  params = {
+    type: cert_type,
+    platform: platform_name,
+    app_identifier: app_identifiers,
+    readonly: readonly
+  }
+  params[:api_key] = api_key if api_key
+  add_development_options(params, cert_type, readonly)
+  add_mac_installer_options(params, platform_name, cert_type)
+
+  params
+end
+
+def add_development_options(params, cert_type, readonly)
+  return unless cert_type == 'development' && !readonly
+
+  params[:force_for_new_devices] = true
+end
+
+def add_mac_installer_options(params, platform_name, cert_type)
+  return unless platform_name == 'macos' && cert_type == 'appstore'
+
+  params[:additional_cert_types] = ['mac_installer_distribution']
 end
 
 def build_and_upload_for_platform(platform_name:, destination:, app_store_platform:, artifact:)
