@@ -32,6 +32,40 @@ def sync_for_platform(platform_name:, readonly:)
   end
 end
 
+def build_and_upload_for_platform(platform_name:, destination:, app_store_platform:, artifact:)
+  provisioning_profile_suffix = platform_name == 'macos' ? ' macos' : ''
+  provisioning_profiles = {
+    ENV['APP_IDENTIFIER'] => "match AppStore #{ENV['APP_IDENTIFIER']}#{provisioning_profile_suffix}",
+    ENV['WIDGET_IDENTIFIER'] => "match AppStore #{ENV['WIDGET_IDENTIFIER']}#{provisioning_profile_suffix}"
+  }
+
+  build_app(
+    project: File.expand_path('../CSUSTPlanet.xcodeproj', __dir__),
+    scheme: 'CSUSTPlanet',
+    configuration: 'Release',
+    destination: destination,
+    export_method: 'app-store',
+    export_options: {
+      provisioningProfiles: provisioning_profiles
+    },
+    output_directory: File.expand_path("builds/#{platform_name}", __dir__)
+  )
+
+  artifact_path = lane_context[
+    artifact == :ipa ? SharedValues::IPA_OUTPUT_PATH : SharedValues::PKG_OUTPUT_PATH
+  ]
+
+  upload_to_app_store(
+    api_key: load_api_key_if_present,
+    app_identifier: ENV['APP_IDENTIFIER'],
+    platform: app_store_platform,
+    artifact => artifact_path,
+    skip_metadata: true,
+    skip_screenshots: true,
+    submit_for_review: false
+  )
+end
+
 platform :ios do
   desc '同步 iOS 证书'
   lane :sync_certs do
@@ -41,6 +75,16 @@ platform :ios do
   desc '创建或更新 iOS 证书'
   lane :update_certs do
     sync_for_platform(platform_name: 'ios', readonly: false)
+  end
+
+  desc '构建 iOS 正式包并上传到 App Store Connect'
+  lane :release do
+    build_and_upload_for_platform(
+      platform_name: 'ios',
+      destination: 'generic/platform=iOS',
+      app_store_platform: 'ios',
+      artifact: :ipa
+    )
   end
 end
 
@@ -53,5 +97,15 @@ platform :mac do
   desc '创建或更新 macOS 证书'
   lane :update_certs do
     sync_for_platform(platform_name: 'macos', readonly: false)
+  end
+
+  desc '构建 macOS 正式包并上传到 App Store Connect'
+  lane :release do
+    build_and_upload_for_platform(
+      platform_name: 'macos',
+      destination: 'generic/platform=macOS',
+      app_store_platform: 'osx',
+      artifact: :pkg
+    )
   end
 end
