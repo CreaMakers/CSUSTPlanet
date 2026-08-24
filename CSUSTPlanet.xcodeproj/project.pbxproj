@@ -394,7 +394,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "OUTPUT_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/com.mono0926.LicensePlist.Output\"\nmkdir -p \"$OUTPUT_DIR\"\n/opt/homebrew/bin/license-plist --output-path \"$OUTPUT_DIR\" --github-token \"$LICENSE_PLIST_GITHUB_TOKEN\"\n";
+			shellScript = "OUTPUT_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/com.mono0926.LicensePlist.Output\"\nmkdir -p \"$OUTPUT_DIR\"\n/opt/homebrew/bin/license-plist --output-path \"$OUTPUT_DIR\" --github-token \"$LICENSE_PLIST_GITHUB_TOKEN\" --suppress-opening-directory\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
