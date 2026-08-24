@@ -13,13 +13,31 @@ import OSLog
 final class TrackHelper {
     static let shared = TrackHelper()
 
-    private lazy var tracker: MatomoTracker = {
+    private var trackerStorage: MatomoTracker?
+    private var pendingIsOptedOut: Bool?
+    private var pendingUserID: String? = MMKVHelper.Track.userId
+
+    private var tracker: MatomoTracker {
+        if let trackerStorage {
+            return trackerStorage
+        }
+
+        let tracker = makeTracker()
+        trackerStorage = tracker
+        return tracker
+    }
+
+    private func makeTracker() -> MatomoTracker {
         let dispatcher = URLSessionDispatcher(baseURL: URL(string: Constants.matomoURL)!)
         let queue = MatomoGRDBQueue()
         let logger = MatomoLogger(minLevel: .debug)
 
         let instance = MatomoTracker(siteId: Constants.matomoSiteID, queue: queue, dispatcher: dispatcher)
         instance.logger = logger
+
+        if let pendingIsOptedOut {
+            instance.isOptedOut = pendingIsOptedOut
+        }
 
         if let index = Int(Constants.matomoDimensionIDAppVersion),
             let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
@@ -40,12 +58,12 @@ final class TrackHelper {
 
         Logger.trackHelper.debug("初始化 MatomoTracker 完成")
 
-        if let currentUserId = MMKVHelper.Track.userId {
-            instance.userId = currentUserId
-            Logger.trackHelper.debug("初始化时同步用户ID: \(currentUserId)")
+        if let pendingUserID {
+            instance.userId = pendingUserID
+            Logger.trackHelper.debug("初始化时同步用户ID: \(pendingUserID)")
         }
         return instance
-    }()
+    }
 
     func views(path: [String]) {
         tracker.track(view: path)
@@ -77,16 +95,19 @@ final class TrackHelper {
 
     func updateUserID(_ id: String?) {
         guard let id = id, !id.isEmpty else {
-            tracker.userId = nil
+            pendingUserID = nil
+            trackerStorage?.userId = nil
             Logger.trackHelper.debug("用户ID已清空")
             return
         }
-        tracker.userId = id
+        pendingUserID = id
+        trackerStorage?.userId = id
         Logger.trackHelper.debug("用户ID已更新: \(id)")
     }
 
     func updateIsOptedOut(_ isOptedOut: Bool) {
-        tracker.isOptedOut = isOptedOut
+        pendingIsOptedOut = isOptedOut
+        trackerStorage?.isOptedOut = isOptedOut
         Logger.trackHelper.debug("更新用户是否拒绝跟踪: \(isOptedOut, privacy: .public)")
     }
 }
