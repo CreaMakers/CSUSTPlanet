@@ -58,7 +58,7 @@ struct GradeAnalysisEntryView: View {
         Button(intent: RefreshGradeAnalysisTimelineIntent()) {
             Image(systemName: "arrow.clockwise.circle")
         }
-        .foregroundStyle(Color.accentColor)
+        .foregroundStyle(Color("AccentColor"))
         .buttonStyle(.plain)
     }
 

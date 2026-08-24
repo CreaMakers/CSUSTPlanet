@@ -269,7 +269,7 @@ struct TodoAssignmentsEntryView: View {
         Button(intent: RefreshTodoAssignmentsTimelineIntent()) {
             Image(systemName: "arrow.clockwise.circle")
         }
-        .foregroundStyle(Color.accentColor)
+        .foregroundStyle(Color("AccentColor"))
         .buttonStyle(.plain)
     }
 
