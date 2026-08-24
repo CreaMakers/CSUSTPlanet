@@ -62,7 +62,8 @@ def build_and_upload_for_platform(platform_name:, destination:, app_store_platfo
     artifact => artifact_path,
     skip_metadata: true,
     skip_screenshots: true,
-    submit_for_review: false
+    submit_for_review: false,
+    precheck_include_in_app_purchases: false
   )
 end
 
