@@ -19,17 +19,78 @@ def sync_for_platform(platform_name:, readonly:)
   api_key = readonly ? nil : load_api_key_if_present
 
   %w[development appstore].each do |cert_type|
-    params = {
-      type: cert_type,
-      platform: platform_name,
-      app_identifier: app_identifiers,
-      readonly: readonly
-    }
-    params[:api_key] = api_key if api_key
-    params[:force_for_new_devices] = true if !readonly && cert_type == 'development'
-
-    sync_code_signing(**params)
+    sync_code_signing(
+      **build_sync_params(
+        platform_name: platform_name,
+        cert_type: cert_type,
+        app_identifiers: app_identifiers,
+        readonly: readonly,
+        api_key: api_key
+      )
+    )
   end
+end
+
+def build_sync_params(platform_name:, cert_type:, app_identifiers:, readonly:, api_key:)
+  params = {
+    type: cert_type,
+    platform: platform_name,
+    app_identifier: app_identifiers,
+    readonly: readonly
+  }
+  params[:api_key] = api_key if api_key
+  add_development_options(params, cert_type, readonly)
+  add_mac_installer_options(params, platform_name, cert_type)
+
+  params
+end
+
+def add_development_options(params, cert_type, readonly)
+  return unless cert_type == 'development' && !readonly
+
+  params[:force_for_new_devices] = true
+end
+
+def add_mac_installer_options(params, platform_name, cert_type)
+  return unless platform_name == 'macos' && cert_type == 'appstore'
+
+  params[:additional_cert_types] = ['mac_installer_distribution']
+end
+
+def build_and_upload_for_platform(platform_name:, destination:, app_store_platform:, artifact:)
+  provisioning_profile_suffix = platform_name == 'macos' ? ' macos' : ''
+  provisioning_profiles = {
+    ENV['APP_IDENTIFIER'] => "match AppStore #{ENV['APP_IDENTIFIER']}#{provisioning_profile_suffix}",
+    ENV['WIDGET_IDENTIFIER'] => "match AppStore #{ENV['WIDGET_IDENTIFIER']}#{provisioning_profile_suffix}"
+  }
+
+  build_app(
+    project: File.expand_path('../CSUSTPlanet.xcodeproj', __dir__),
+    scheme: 'CSUSTPlanet',
+    configuration: 'Release',
+    destination: destination,
+    sdk: platform_name == 'macos' ? 'macosx' : nil,
+    export_method: 'app-store',
+    export_options: {
+      provisioningProfiles: provisioning_profiles
+    },
+    output_directory: File.expand_path("builds/#{platform_name}", __dir__)
+  )
+
+  artifact_path = lane_context[
+    artifact == :ipa ? SharedValues::IPA_OUTPUT_PATH : SharedValues::PKG_OUTPUT_PATH
+  ]
+
+  upload_to_app_store(
+    api_key: load_api_key_if_present,
+    app_identifier: ENV['APP_IDENTIFIER'],
+    platform: app_store_platform,
+    artifact => artifact_path,
+    skip_metadata: true,
+    skip_screenshots: true,
+    submit_for_review: false,
+    precheck_include_in_app_purchases: false
+  )
 end
 
 platform :ios do
@@ -42,6 +103,16 @@ platform :ios do
   lane :update_certs do
     sync_for_platform(platform_name: 'ios', readonly: false)
   end
+
+  desc '构建 iOS 正式包并上传到 App Store Connect'
+  lane :release do
+    build_and_upload_for_platform(
+      platform_name: 'ios',
+      destination: 'generic/platform=iOS',
+      app_store_platform: 'ios',
+      artifact: :ipa
+    )
+  end
 end
 
 platform :mac do
@@ -53,5 +124,15 @@ platform :mac do
   desc '创建或更新 macOS 证书'
   lane :update_certs do
     sync_for_platform(platform_name: 'macos', readonly: false)
+  end
+
+  desc '构建 macOS 正式包并上传到 App Store Connect'
+  lane :release do
+    build_and_upload_for_platform(
+      platform_name: 'macos',
+      destination: 'generic/platform=macOS',
+      app_store_platform: 'osx',
+      artifact: :pkg
+    )
   end
 end

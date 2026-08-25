@@ -31,6 +31,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 创建或更新 iOS 证书
 
+### ios release
+
+```sh
+[bundle exec] fastlane ios release
+```
+
+构建 iOS 正式包并上传到 App Store Connect
+
 ----
 
 
@@ -51,6 +59,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 ```
 
 创建或更新 macOS 证书
+
+### mac release
+
+```sh
+[bundle exec] fastlane mac release
+```
+
+构建 macOS 正式包并上传到 App Store Connect
 
 ----
 
