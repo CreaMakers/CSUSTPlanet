@@ -20,11 +20,18 @@ jobs:
   ios:
     name: Release iOS
     if: inputs.platform == 'ios' || inputs.platform == 'both'
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+
+      - name: Verify toolchain
+        run: |
+          sw_vers
+          uname -m
+          xcodebuild -version
+          swift --version
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -58,11 +65,18 @@ jobs:
   macos:
     name: Release macOS
     if: inputs.platform == 'macos' || inputs.platform == 'both'
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+
+      - name: Verify toolchain
+        run: |
+          sw_vers
+          uname -m
+          xcodebuild -version
+          swift --version
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
