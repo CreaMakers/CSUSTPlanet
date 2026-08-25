@@ -8,6 +8,7 @@
 #if DEBUG
 import CSUSTKit
 import Foundation
+import GRDB
 import Observation
 
 @MainActor
@@ -16,11 +17,14 @@ final class MockDataGeneratorViewModel {
     var todoAssignmentsCacheDescription = ""
     var examSchedulesCacheDescription = ""
     var courseScheduleCacheDescription = ""
+    var electricityCacheDescription = ""
+    var errorToast: ToastState = .errorTitle
 
     func onAppear() {
         refreshTodoAssignmentsCacheDescription()
         refreshExamSchedulesCacheDescription()
         refreshCourseScheduleCacheDescription()
+        refreshElectricityCacheDescription()
     }
 
     func clearTodoAssignmentsCache() {
@@ -99,6 +103,23 @@ final class MockDataGeneratorViewModel {
         refreshCourseScheduleCacheDescription()
     }
 
+    func generateMockElectricity() {
+        guard let pool = DatabaseManager.shared.pool else {
+            errorToast.show(message: DatabaseManagerError.databaseUnavailable.localizedDescription)
+            return
+        }
+
+        do {
+            try pool.write { db in
+                try MockElectricityFactory.replaceMockDormElectricity(in: db)
+            }
+            WidgetTimelineRefreshHelper.reloadDormElectricity()
+            refreshElectricityCacheDescription()
+        } catch {
+            errorToast.show(message: error.localizedDescription)
+        }
+    }
+
     private func refreshTodoAssignmentsCacheDescription() {
         guard let cache = MMKVHelper.TodoAssignments.cache else {
             todoAssignmentsCacheDescription = "当前状态：nil"
@@ -138,6 +159,49 @@ final class MockDataGeneratorViewModel {
         ).count
 
         courseScheduleCacheDescription = "当前状态：\(cache.value.semester ?? "默认学期")，\(courseCount) 门课程，\(sessionCount) 个上课安排，今日可见 \(todayCoursesCount) 门，缓存时间 \(cache.cachedAt.formatted(date: .abbreviated, time: .standard))"
+    }
+
+    private func refreshElectricityCacheDescription() {
+        guard let pool = DatabaseManager.shared.pool else {
+            electricityCacheDescription = "当前状态：数据库不可用"
+            return
+        }
+
+        do {
+            let state = try pool.read { db -> (DormGRDB?, Int) in
+                let dorm =
+                    try DormGRDB
+                    .filter(DormGRDB.Columns.campusName == MockElectricityFactory.campusName)
+                    .filter(DormGRDB.Columns.buildingName == MockElectricityFactory.buildingName)
+                    .filter(DormGRDB.Columns.room == MockElectricityFactory.room)
+                    .fetchOne(db)
+
+                let recordCount: Int
+                if let dormID = dorm?.id {
+                    recordCount =
+                        try ElectricityRecordGRDB
+                        .filter(ElectricityRecordGRDB.Columns.dormID == dormID)
+                        .fetchCount(db)
+                } else {
+                    recordCount = 0
+                }
+
+                return (dorm, recordCount)
+            }
+
+            guard let dorm = state.0 else {
+                electricityCacheDescription = "当前状态：未生成模拟宿舍"
+                return
+            }
+
+            if let electricity = dorm.lastFetchElectricity, let date = dorm.lastFetchDate {
+                electricityCacheDescription = "当前状态：\(dorm.campusName) · \(dorm.buildingName) · \(dorm.room)，\(state.1) 条记录，最新电量 \(String(format: "%.2f", electricity)) 度，最近更新 \(date.formatted(date: .abbreviated, time: .standard))"
+            } else {
+                electricityCacheDescription = "当前状态：\(dorm.campusName) · \(dorm.buildingName) · \(dorm.room)，\(state.1) 条记录，暂无最新电量"
+            }
+        } catch {
+            electricityCacheDescription = "当前状态：读取失败"
+        }
     }
 }
 
@@ -409,6 +473,111 @@ private enum MockCourseScheduleFactory {
 
     private static func semesterText() -> String {
         "2026-2027-1"
+    }
+}
+
+private enum MockElectricityFactory {
+    static let campusName = "金盆岭"
+    static let buildingName = "西苑11栋"
+    static let room = "233"
+    static let recordCount = 90
+
+    static func replaceMockDormElectricity(in db: Database) throws {
+        let existingDorm =
+            try DormGRDB
+            .filter(DormGRDB.Columns.campusName == campusName)
+            .filter(DormGRDB.Columns.buildingName == buildingName)
+            .filter(DormGRDB.Columns.room == room)
+            .fetchOne(db)
+
+        if let existingDorm, let dormID = existingDorm.id {
+            try DormGRDB.deleteAllElectricityRecords(dormID: dormID, in: db)
+        }
+
+        var dorm: DormGRDB
+        if let existingDorm {
+            dorm = existingDorm
+        } else {
+            dorm = DormGRDB(
+                id: nil,
+                room: room,
+                buildingName: buildingName,
+                campusName: campusName,
+                isFavorite: false,
+                lastFetchDate: nil,
+                lastFetchElectricity: nil
+            )
+            try dorm.insert(db)
+        }
+
+        let dormID: Int64
+        if let existingID = dorm.id {
+            dormID = existingID
+        } else {
+            dormID = db.lastInsertedRowID
+            dorm.id = dormID
+        }
+
+        let records = makeRecords(dormID: dormID)
+        for var record in records {
+            try record.insert(db)
+        }
+
+        guard let latestRecord = records.last else {
+            throw MockElectricityError.emptyRecords
+        }
+        dorm.lastFetchDate = latestRecord.date
+        dorm.lastFetchElectricity = latestRecord.electricity
+        try dorm.update(db)
+    }
+
+    static func makeRecords(
+        dormID: Int64,
+        referenceDate: Date = .now,
+        calendar: Calendar = .current
+    ) -> [ElectricityRecordGRDB] {
+        let todayStart = calendar.startOfDay(for: referenceDate)
+        let rechargeDay = 55
+
+        return (0..<recordCount).map { day in
+            let date: Date
+            if day == recordCount - 1 {
+                date = referenceDate
+            } else {
+                let baseDate = calendar.date(byAdding: .day, value: day - (recordCount - 1), to: todayStart) ?? referenceDate
+                date = calendar.date(byAdding: .hour, value: 20, to: baseDate) ?? baseDate
+            }
+
+            let rawValue: Double
+            if day < rechargeDay {
+                rawValue = 180 - Double(day) * 3
+            } else if day == rechargeDay {
+                rawValue = 160
+            } else {
+                rawValue = 160 - Double(day - rechargeDay) * 4
+            }
+
+            let jitter = Double((day * 37) % 9 - 4) * 0.1
+            let electricity = ((rawValue + jitter) * 100).rounded() / 100
+
+            return ElectricityRecordGRDB(
+                id: nil,
+                electricity: electricity,
+                date: date,
+                dormID: dormID
+            )
+        }
+    }
+}
+
+private enum MockElectricityError: LocalizedError {
+    case emptyRecords
+
+    var errorDescription: String? {
+        switch self {
+        case .emptyRecords:
+            return "模拟电量记录为空"
+        }
     }
 }
 #endif

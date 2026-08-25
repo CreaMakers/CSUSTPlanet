@@ -70,8 +70,19 @@ struct MockDataGeneratorView: View {
             } footer: {
                 Text(viewModel.courseScheduleCacheDescription)
             }
+
+            Section {
+                Button("生成模拟电量") {
+                    viewModel.generateMockElectricity()
+                }
+            } header: {
+                Text("宿舍电量")
+            } footer: {
+                Text(viewModel.electricityCacheDescription)
+            }
         }
         .formStyle(.grouped)
+        .errorToast($viewModel.errorToast)
         .navigationTitle("模拟数据生成")
         .onAppear {
             viewModel.onAppear()
