@@ -589,7 +589,7 @@
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CSUSTPlanet/App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "云岭星球";
+				INFOPLIST_KEY_CFBundleDisplayName = CSUSTPlanet;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "我们需要访问您的日历以添加事件";
@@ -668,7 +668,7 @@
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CSUSTPlanet/App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "云岭星球";
+				INFOPLIST_KEY_CFBundleDisplayName = CSUSTPlanet;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "我们需要访问您的日历以添加事件";
