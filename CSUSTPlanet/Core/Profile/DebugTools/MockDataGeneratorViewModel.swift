@@ -64,7 +64,8 @@ final class MockDataGeneratorViewModel {
 
     func clearCourseScheduleCache() {
         MMKVHelper.CourseSchedule.cache = nil
-        WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
+        MMKVHelper.CourseSchedule.currentScheduleID = nil
+        CustomCourseScheduleHelper.syncActiveCourseSchedule()
         refreshCourseScheduleCacheDescription()
     }
 
@@ -73,7 +74,8 @@ final class MockDataGeneratorViewModel {
             cachedAt: .now,
             value: MockCourseScheduleFactory.makeEmptyCourseScheduleData()
         )
-        WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
+        MMKVHelper.CourseSchedule.currentScheduleID = nil
+        CustomCourseScheduleHelper.syncActiveCourseSchedule()
         refreshCourseScheduleCacheDescription()
     }
 
@@ -82,7 +84,8 @@ final class MockDataGeneratorViewModel {
             cachedAt: .now,
             value: MockCourseScheduleFactory.makeTodayFilledCourseScheduleData()
         )
-        WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
+        MMKVHelper.CourseSchedule.currentScheduleID = nil
+        CustomCourseScheduleHelper.syncActiveCourseSchedule()
         refreshCourseScheduleCacheDescription()
     }
 
@@ -91,7 +94,8 @@ final class MockDataGeneratorViewModel {
             cachedAt: .now,
             value: MockCourseScheduleFactory.makeConflictedCourseScheduleData()
         )
-        WidgetTimelineRefreshHelper.reloadCourseScheduleWidgets()
+        MMKVHelper.CourseSchedule.currentScheduleID = nil
+        CustomCourseScheduleHelper.syncActiveCourseSchedule()
         refreshCourseScheduleCacheDescription()
     }
 
@@ -278,7 +282,7 @@ private enum MockExamSchedulesFactory {
 private enum MockCourseScheduleFactory {
     static func makeEmptyCourseScheduleData(referenceDate: Date = .now) -> CourseScheduleData {
         CourseScheduleData(
-            semester: semesterText(for: referenceDate),
+            semester: semesterText(),
             semesterStartDate: semesterStartDate(for: referenceDate),
             courses: [],
             remarks: []
@@ -333,7 +337,7 @@ private enum MockCourseScheduleFactory {
         ]
 
         return CourseScheduleData(
-            semester: semesterText(for: referenceDate),
+            semester: semesterText(),
             semesterStartDate: semesterStartDate(for: referenceDate),
             courses: courses,
             remarks: []
@@ -388,7 +392,7 @@ private enum MockCourseScheduleFactory {
         ]
 
         return CourseScheduleData(
-            semester: semesterText(for: referenceDate),
+            semester: semesterText(),
             semesterStartDate: semesterStartDate(for: referenceDate),
             courses: courses,
             remarks: []
@@ -403,9 +407,8 @@ private enum MockCourseScheduleFactory {
         return calendar.date(byAdding: .day, value: -daysSinceSunday, to: todayStart) ?? todayStart
     }
 
-    private static func semesterText(for referenceDate: Date) -> String {
-        let year = Calendar.current.component(.year, from: referenceDate)
-        return "\(year)-\(year + 1)-Mock"
+    private static func semesterText() -> String {
+        "2026-2027-1"
     }
 }
 #endif
