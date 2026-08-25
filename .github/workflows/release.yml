@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to build and upload
+        required: true
+        type: choice
+        default: both
+        options:
+          - both
+          - ios
+          - macos
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    name: Release iOS
+    if: inputs.platform == 'ios' || inputs.platform == 'both'
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '4.0'
+          bundler-cache: true
+
+      - name: Install LicensePlist
+        run: |
+          if ! brew list --formula licenseplist >/dev/null 2>&1; then
+            brew install licenseplist
+          fi
+
+      - name: Restore release configuration
+        env:
+          FASTLANE_ENV_CONTENT: ${{ secrets.FASTLANE_ENV }}
+          USER_XCCONFIG_CONTENT: ${{ secrets.USER_XCCONFIG }}
+        run: |
+          test -n "$FASTLANE_ENV_CONTENT"
+          test -n "$USER_XCCONFIG_CONTENT"
+          printf '%s\n' "$FASTLANE_ENV_CONTENT" > .env
+          printf '%s\n' "$USER_XCCONFIG_CONTENT" > Configs/User.xcconfig
+          chmod 600 .env Configs/User.xcconfig
+
+      - name: Sync iOS signing assets
+        run: bundle exec fastlane ios sync_certs
+
+      - name: Build and upload iOS release
+        run: bundle exec fastlane ios release
+
+  macos:
+    name: Release macOS
+    if: inputs.platform == 'macos' || inputs.platform == 'both'
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '4.0'
+          bundler-cache: true
+
+      - name: Install LicensePlist
+        run: |
+          if ! brew list --formula licenseplist >/dev/null 2>&1; then
+            brew install licenseplist
+          fi
+
+      - name: Restore release configuration
+        env:
+          FASTLANE_ENV_CONTENT: ${{ secrets.FASTLANE_ENV }}
+          USER_XCCONFIG_CONTENT: ${{ secrets.USER_XCCONFIG }}
+        run: |
+          test -n "$FASTLANE_ENV_CONTENT"
+          test -n "$USER_XCCONFIG_CONTENT"
+          printf '%s\n' "$FASTLANE_ENV_CONTENT" > .env
+          printf '%s\n' "$USER_XCCONFIG_CONTENT" > Configs/User.xcconfig
+          chmod 600 .env Configs/User.xcconfig
+
+      - name: Sync macOS signing assets
+        run: bundle exec fastlane mac sync_certs
+
+      - name: Build and upload macOS release
+        run: bundle exec fastlane mac release
