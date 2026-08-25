@@ -13,6 +13,15 @@ def load_api_key_if_present
   )
 end
 
+def setup_ci_keychain
+  return unless ENV['CI']
+
+  setup_ci(
+    keychain_name: 'csustplanet_ci_keychain',
+    timeout: 0
+  )
+end
+
 def sync_for_platform(platform_name:, readonly:)
   app_identifiers = [ENV['APP_IDENTIFIER'], ENV['WIDGET_IDENTIFIER']]
 
@@ -96,6 +105,7 @@ end
 platform :ios do
   desc '同步 iOS 证书'
   lane :sync_certs do
+    setup_ci_keychain
     sync_for_platform(platform_name: 'ios', readonly: true)
   end
 
@@ -106,6 +116,7 @@ platform :ios do
 
   desc '构建 iOS 正式包并上传到 App Store Connect'
   lane :release do
+    setup_ci_keychain
     build_and_upload_for_platform(
       platform_name: 'ios',
       destination: 'generic/platform=iOS',
@@ -118,6 +129,7 @@ end
 platform :mac do
   desc '同步 macOS 证书'
   lane :sync_certs do
+    setup_ci_keychain
     sync_for_platform(platform_name: 'macos', readonly: true)
   end
 
@@ -128,6 +140,7 @@ platform :mac do
 
   desc '构建 macOS 正式包并上传到 App Store Connect'
   lane :release do
+    setup_ci_keychain
     build_and_upload_for_platform(
       platform_name: 'macos',
       destination: 'generic/platform=macOS',
