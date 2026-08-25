@@ -9,6 +9,12 @@
 - 在 `grilling` skill 要求的最终确认环节，必须先完整汇总共识，再单独询问用户是否确认。
 - 仅当用户在当次请求中明确要求“立即执行并忽略 grilling”时，才可以跳过上述流程。该豁免仅对当次请求有效。
 
+## 敏感文件
+
+- 不得读取 `.env` 与 `Configs/User.xcconfig`，只应读取 `.env.template` 与 `Configs/User.xcconfig.template`。
+- `Configs/User.xcconfig` 与 `.env` 同等重要，直接读取会泄露用户敏感信息。
+- 若需要真实值，应向用户询问，不得自行读取真实文件。
+
 ## 编译验证
 
 - 只有用户明确要求时才进行编译验证，默认不跑编译验证。
