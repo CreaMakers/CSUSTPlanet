@@ -62,6 +62,10 @@ struct MockDataGeneratorView: View {
                     viewModel.generateTodayFilledCourseSchedule()
                 }
 
+                Button("生成两节当前可见模拟课") {
+                    viewModel.generateTwoVisibleCourseSchedule()
+                }
+
                 Button("生成有冲突的模拟课表") {
                     viewModel.generateConflictedCourseSchedule()
                 }

@@ -93,6 +93,18 @@ final class MockDataGeneratorViewModel {
         refreshCourseScheduleCacheDescription()
     }
 
+    func generateTwoVisibleCourseSchedule() {
+        do {
+            let data = try MockCourseScheduleFactory.makeTwoVisibleCourseScheduleData()
+            MMKVHelper.CourseSchedule.cache = Cached(cachedAt: .now, value: data)
+            MMKVHelper.CourseSchedule.currentScheduleID = nil
+            CustomCourseScheduleHelper.syncActiveCourseSchedule()
+            refreshCourseScheduleCacheDescription()
+        } catch {
+            errorToast.show(message: error.localizedDescription)
+        }
+    }
+
     func generateConflictedCourseSchedule() {
         MMKVHelper.CourseSchedule.cache = Cached(
             cachedAt: .now,
@@ -408,6 +420,63 @@ private enum MockCourseScheduleFactory {
         )
     }
 
+    static func makeTwoVisibleCourseScheduleData(referenceDate: Date = .now) throws -> CourseScheduleData {
+        let semesterStartDate = semesterStartDate(for: referenceDate)
+        guard
+            let currentWeek = CourseScheduleUtil.getCurrentWeek(
+                semesterStartDate: semesterStartDate,
+                now: referenceDate
+            )
+        else {
+            throw MockCourseScheduleError.currentWeekUnavailable
+        }
+
+        let today = CourseScheduleUtil.getDayOfWeek(referenceDate)
+        let visibleSections = (1...CourseScheduleUtil.sectionTimeString.count).filter { section in
+            let session = EduHelper.ScheduleSession(
+                weeks: [currentWeek],
+                startSection: section,
+                endSection: section,
+                dayOfWeek: today,
+                classroom: nil
+            )
+            let dates = CourseScheduleUtil.getCourseEventDates(
+                session: session,
+                week: currentWeek,
+                semesterStartDate: semesterStartDate
+            )
+            return referenceDate < dates.endDate
+        }
+
+        guard visibleSections.count >= 2 else {
+            throw MockCourseScheduleError.insufficientVisibleSections
+        }
+
+        let courses = Array(visibleSections.prefix(2)).enumerated().map { index, section in
+            EduHelper.Course(
+                courseName: index == 0 ? "Java 课程设计" : "大数据存储与管理A",
+                groupName: nil,
+                teacher: index == 0 ? "徐聪讲师" : "刘文正 (08) 讲师",
+                sessions: [
+                    .init(
+                        weeks: [currentWeek],
+                        startSection: section,
+                        endSection: section,
+                        dayOfWeek: today,
+                        classroom: index == 0 ? "金6-405" : "金12-209"
+                    )
+                ]
+            )
+        }
+
+        return CourseScheduleData(
+            semester: semesterText(),
+            semesterStartDate: semesterStartDate,
+            courses: courses,
+            remarks: []
+        )
+    }
+
     static func makeConflictedCourseScheduleData(referenceDate: Date = .now) -> CourseScheduleData {
         let today = CourseScheduleUtil.getDayOfWeek(referenceDate)
         let weeks = Array(1...16)
@@ -577,6 +646,20 @@ private enum MockElectricityError: LocalizedError {
         switch self {
         case .emptyRecords:
             return "模拟电量记录为空"
+        }
+    }
+}
+
+private enum MockCourseScheduleError: LocalizedError {
+    case currentWeekUnavailable
+    case insufficientVisibleSections
+
+    var errorDescription: String? {
+        switch self {
+        case .currentWeekUnavailable:
+            return "无法确定当前课表周次，不能生成模拟课表"
+        case .insufficientVisibleSections:
+            return "当前时间不足以生成两节仍可见的模拟课"
         }
     }
 }
