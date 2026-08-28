@@ -97,7 +97,7 @@ struct DormElectricityEntryView: View {
             Button(intent: RefreshElectricityTimelineIntent(dorm: dorm)) {
                 Image(systemName: "arrow.clockwise.circle")
             }
-            .foregroundColor(.blue)
+            .foregroundColor(Color("AccentColor"))
             .buttonStyle(.plain)
         }
     }

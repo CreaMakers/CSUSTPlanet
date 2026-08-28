@@ -120,6 +120,39 @@ final class DatabaseManager {
             }
         }
 
+        migrator.registerMigration("v6_create_custom_course_schedules") { db in
+            try db.create(table: CustomCourseScheduleGRDB.databaseTableName) { t in
+                t.column(CustomCourseScheduleGRDB.Columns.id.name, .text).notNull().primaryKey()
+                t.column(CustomCourseScheduleGRDB.Columns.name.name, .text).notNull()
+                t.column(CustomCourseScheduleGRDB.Columns.semesterStartDate.name, .datetime).notNull()
+                t.column(CustomCourseScheduleGRDB.Columns.weekCount.name, .integer).notNull().defaults(to: 20)
+                t.column(CustomCourseScheduleGRDB.Columns.remarks.name, .text).notNull().defaults(to: "")
+                t.column(CustomCourseScheduleGRDB.Columns.createdAt.name, .datetime).notNull()
+            }
+
+            try db.create(table: CustomCourseGRDB.databaseTableName) { t in
+                t.column(CustomCourseGRDB.Columns.id.name, .text).notNull().primaryKey()
+                t.column(CustomCourseGRDB.Columns.scheduleId.name, .text).notNull().references(CustomCourseScheduleGRDB.databaseTableName, onDelete: .cascade)
+                t.column(CustomCourseGRDB.Columns.courseName.name, .text).notNull()
+                t.column(CustomCourseGRDB.Columns.teacher.name, .text)
+                t.column(CustomCourseGRDB.Columns.groupName.name, .text)
+            }
+
+            try db.create(index: "idx_custom_courses_scheduleId", on: CustomCourseGRDB.databaseTableName, columns: [CustomCourseGRDB.Columns.scheduleId.name])
+
+            try db.create(table: CustomSessionGRDB.databaseTableName) { t in
+                t.column(CustomSessionGRDB.Columns.id.name, .text).notNull().primaryKey()
+                t.column(CustomSessionGRDB.Columns.courseId.name, .text).notNull().references(CustomCourseGRDB.databaseTableName, onDelete: .cascade)
+                t.column(CustomSessionGRDB.Columns.dayOfWeek.name, .integer).notNull()
+                t.column(CustomSessionGRDB.Columns.startSection.name, .integer).notNull()
+                t.column(CustomSessionGRDB.Columns.endSection.name, .integer).notNull()
+                t.column(CustomSessionGRDB.Columns.classroom.name, .text)
+                t.column(CustomSessionGRDB.Columns.weeks.name, .text).notNull()
+            }
+
+            try db.create(index: "idx_custom_sessions_courseId", on: CustomSessionGRDB.databaseTableName, columns: [CustomSessionGRDB.Columns.courseId.name])
+        }
+
         return migrator
     }
 }

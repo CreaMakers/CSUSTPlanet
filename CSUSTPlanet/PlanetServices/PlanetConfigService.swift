@@ -112,24 +112,24 @@ enum PlanetConfigService {
     }
 
     static func campusMap() async throws -> GeoJSON {
-        return try await get("/config/campus-map", cachePolicy: .reloadIgnoringLocalCacheData)
+        return try await get("/v1/config/campus-map", cachePolicy: .reloadIgnoringLocalCacheData)
     }
 
     static func semesterCalendars() async throws -> [SchoolCalendar] {
-        return try await get("/config/semester-calendars")
+        return try await get("/v1/config/semester-calendars")
     }
 
     static func semesterCalendar(semester: String) async throws -> SemesterCalendarConfig {
-        return try await get("/config/semester-calendars/\(semester)")
+        return try await get("/v1/config/semester-calendars/\(semester)")
     }
 
     static func announcements() async throws -> [Announcement] {
-        return try await get("/config/announcements")
+        return try await get("/v1/config/announcements")
     }
 
     static func checkAppVersion(currentVersionCode: Int) async throws -> CheckAppVersionResult {
         return try await get(
-            "/config/app-versions/check",
+            "/v2/config/app-versions/check",
             parameters: [
                 "platform": "ios",
                 "currentVersionCode": currentVersionCode,

@@ -47,50 +47,6 @@ struct ProfileView: View {
                         }
                     }
 
-                    HStack {
-                        Button(action: { authManager.ssoRelogin(isSilent: false) }) {
-                            Label("刷新统一身份认证登录", systemImage: "person.fill")
-                        }
-                        .disabled(!authManager.isSSOLoggedIn)
-                        if authManager.isSSOLoggingIn {
-                            Spacer()
-                            ProgressView().smallControlSizeOnMac()
-                        }
-                    }
-
-                    HStack {
-                        Button(action: { authManager.educationLogin(isSilent: false) }) {
-                            Label("刷新教务系统登录", systemImage: "graduationcap")
-                        }
-                        .disabled(!authManager.isSSOLoggedIn || authManager.isEducationLoggingIn)
-                        if authManager.isEducationLoggingIn {
-                            Spacer()
-                            ProgressView().smallControlSizeOnMac()
-                        }
-                    }
-
-                    HStack {
-                        Button(action: { authManager.moocLogin(isSilent: false) }) {
-                            Label("刷新网络课程中心登录", systemImage: "book.closed")
-                        }
-                        .disabled(!authManager.isSSOLoggedIn || authManager.isMoocLoggingIn)
-                        if authManager.isMoocLoggingIn {
-                            Spacer()
-                            ProgressView().smallControlSizeOnMac()
-                        }
-                    }
-
-                    HStack {
-                        Button(action: { authManager.campusCardLogin(isSilent: false) }) {
-                            Label("刷新校园卡系统登录", systemImage: "creditcard")
-                        }
-                        .disabled(!authManager.isSSOLoggedIn || authManager.isCampusCardLoggingIn)
-                        if authManager.isCampusCardLoggingIn {
-                            Spacer()
-                            ProgressView().smallControlSizeOnMac()
-                        }
-                    }
-
                     Button(action: { isLogoutAlertPresented = true }) {
                         Label("退出登录", systemImage: "arrow.right.circle").foregroundColor(.red)
                     }
@@ -145,7 +101,7 @@ struct ProfileView: View {
 
             Section {
                 NavigationLink(value: AppRoute.profile(.about(.main))) {
-                    Text("关于 长理星球")
+                    Text("关于 云岭星球")
                 }
 
                 NavigationLink(value: AppRoute.profile(.feedback)) {
@@ -153,7 +109,7 @@ struct ProfileView: View {
                 }
 
                 NavigationLink(value: AppRoute.profile(.userAgreement)) {
-                    Text("长理星球 用户协议")
+                    Text("云岭星球 用户协议")
                 }
             } header: {
                 Text("帮助与支持")

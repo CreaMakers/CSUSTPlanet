@@ -1,5 +1,6 @@
 {
-    "sweetpad.build.xcodeWorkspacePath": "CSUSTPlanet.xcodeproj/project.xcworkspace",
-    "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
-    "cmake.ignoreCMakeListsMissing": true,
+  "sweetpad.build.xcodeWorkspacePath": "CSUSTPlanet.xcodeproj/project.xcworkspace",
+  "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
+  "cmake.ignoreCMakeListsMissing": true,
+  "sweetpad.build.scheme": "CSUSTPlanet"
 }

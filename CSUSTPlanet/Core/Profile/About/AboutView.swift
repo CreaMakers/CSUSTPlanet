@@ -31,7 +31,7 @@ struct AboutView: View {
                         .frame(width: 158, height: 158)
 
                     VStack {
-                        Text("长理星球")
+                        Text("云岭星球")
                             .font(.title2.weight(.semibold))
 
                         Group {

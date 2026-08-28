@@ -68,7 +68,7 @@ struct CourseDetailView: View {
 
         do {
             let dateFormatter = makeReminderDateFormatter()
-            let calendar = try await CalendarUtil.getOrCreateReminderCalendar(named: "长理星球 - 作业")
+            let calendar = try await CalendarUtil.getOrCreateReminderCalendar(suffix: "作业")
 
             for assignment in assignments {
                 guard assignment.canSubmit else { continue }

@@ -14,10 +14,11 @@ struct CourseScheduleControlBar: View {
 
     let remarks: [String]
 
-    let selectedSemester: String?
+    let subtitle: String?
     let realCurrentWeek: Int?
 
     @Binding var currentWeek: Int
+    let weekCount: Int
 
     var body: some View {
         HStack {
@@ -28,7 +29,7 @@ struct CourseScheduleControlBar: View {
                     .foregroundColor(.primary)
 
                 if #unavailable(iOS 26.0) {
-                    Text(selectedSemester ?? "默认学期")
+                    Text(subtitle ?? "默认学期")
                         .font(layoutConfig.isWideSize ? .subheadline : .caption)
                         .foregroundColor(.secondary)
                 }
@@ -38,7 +39,7 @@ struct CourseScheduleControlBar: View {
 
             HStack(spacing: 12) {
                 Picker("选择周数", selection: $currentWeek.withAnimation()) {
-                    ForEach(1...CourseScheduleUtil.weekCount, id: \.self) { week in
+                    ForEach(1...weekCount, id: \.self) { week in
                         Text("第 \(week) 周").tag(week)
                     }
                 }
@@ -46,7 +47,7 @@ struct CourseScheduleControlBar: View {
 
                 Button(action: {
                     withAnimation {
-                        if let realWeek = realCurrentWeek, realWeek > 0 && realWeek <= CourseScheduleUtil.weekCount {
+                        if let realWeek = realCurrentWeek, realWeek > 0 && realWeek <= weekCount {
                             self.currentWeek = realWeek
                         } else {
                             self.currentWeek = 1
@@ -109,8 +110,9 @@ struct CourseScheduleControlBar: View {
             "习近平新时代中国特色社会主义思想概论课外实践 刘绍云 27周",
             "毛泽东思想和中国特色社会主义理论体系概论课外实践 张慧娟 25周",
         ],
-        selectedSemester: "2024-2025-1",
+        subtitle: "2024-2025-1",
         realCurrentWeek: 16,
-        currentWeek: $currentWeek
+        currentWeek: $currentWeek,
+        weekCount: 20
     )
 }

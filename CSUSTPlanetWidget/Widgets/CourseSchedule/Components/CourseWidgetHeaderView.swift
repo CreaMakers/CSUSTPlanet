@@ -13,6 +13,7 @@ struct CourseWidgetHeaderView: View {
     let title: String
     let date: Date
     let data: CourseScheduleData
+    let scheduleName: String?
 
     var body: some View {
         HStack(alignment: .center, spacing: 6) {
@@ -20,7 +21,7 @@ struct CourseWidgetHeaderView: View {
                 Text(title)
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(.primary)
-                Text(data.semester ?? "默认学期")
+                Text(scheduleName ?? data.semester ?? "默认学期")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
             }
@@ -30,7 +31,7 @@ struct CourseWidgetHeaderView: View {
 
             Spacer()
 
-            switch CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date) {
+            switch CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date, weekCount: data.weekCount) {
             case .beforeSemester:
                 Text(CourseScheduleUtil.semesterNotStartedText)
                     .font(.system(size: 14))
@@ -40,7 +41,7 @@ struct CourseWidgetHeaderView: View {
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
             case .inSemester:
-                if let currentWeek = CourseScheduleUtil.getCurrentWeek(semesterStartDate: data.semesterStartDate, now: date) {
+                if let currentWeek = CourseScheduleUtil.getCurrentWeek(semesterStartDate: data.semesterStartDate, now: date, weekCount: data.weekCount) {
                     Text("第 \(currentWeek) 周")
                         .font(.system(size: 14))
                         .foregroundStyle(.primary)

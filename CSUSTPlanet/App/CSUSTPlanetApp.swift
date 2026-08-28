@@ -29,7 +29,10 @@ struct CSUSTPlanetApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        _ = DatabaseManager.shared
+        let databaseManager = DatabaseManager.shared
+        if MMKVHelper.CourseSchedule.currentScheduleID == nil || databaseManager.pool != nil {
+            CustomCourseScheduleHelper.syncActiveCourseSchedule()
+        }
         _ = TrackHelper.shared
         _ = NotificationManager.shared
         _ = GlobalManager.shared
@@ -43,7 +46,7 @@ struct CSUSTPlanetApp: App {
     var body: some Scene {
         Group {
             #if os(macOS)
-            Window("长理星球", id: "main") {
+            Window("云岭星球", id: "main") {
                 ContentView()
                     .frame(minWidth: WindowSize.minWidth, minHeight: WindowSize.minHeight)
             }

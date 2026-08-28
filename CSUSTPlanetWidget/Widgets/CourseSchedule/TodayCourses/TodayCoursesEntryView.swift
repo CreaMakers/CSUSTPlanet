@@ -21,7 +21,7 @@ struct TodayCoursesEntryView: View {
             if let data = entry.data {
                 let dailyCourseDisplayState = resolvedDailyCourseDisplayState(date: entry.date, data: data)
                 VStack(spacing: 0) {
-                    CourseWidgetHeaderView(family: family, title: CourseScheduleUtil.courseScheduleTitle, date: entry.date, data: data)
+                    CourseWidgetHeaderView(family: family, title: CourseScheduleUtil.courseScheduleTitle, date: entry.date, data: data, scheduleName: entry.scheduleName)
 
                     Divider().padding(.vertical, 4)
 
@@ -40,7 +40,7 @@ struct TodayCoursesEntryView: View {
 
     @ViewBuilder
     func contentView(date: Date, data: CourseScheduleData, dailyCourseDisplayState: DailyCourseDisplayState?) -> some View {
-        switch CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date) {
+        switch CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date, weekCount: data.weekCount) {
         case .beforeSemester:
             CourseWidgetBeforeSemesterView(date: date, data: data)
         case .afterSemester:
@@ -133,7 +133,7 @@ struct TodayCoursesEntryView: View {
                 .padding(.trailing, 4)
             Text("共")
             Text("\(courseCount)")
-                .foregroundStyle(.blue)
+                .foregroundStyle(Color.accentColor)
             Text("节课程")
         }
         .minimumScaleFactor(0.8)
@@ -161,14 +161,15 @@ struct TodayCoursesEntryView: View {
     }
 
     private func resolvedDailyCourseDisplayState(date: Date, data: CourseScheduleData) -> DailyCourseDisplayState? {
-        guard CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date) == .inSemester else {
+        guard CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date, weekCount: data.weekCount) == .inSemester else {
             return nil
         }
 
         return CourseScheduleUtil.getDailyCourseDisplayState(
             semesterStartDate: data.semesterStartDate,
             now: date,
-            courses: data.courses
+            courses: data.courses,
+            weekCount: data.weekCount
         )
     }
 

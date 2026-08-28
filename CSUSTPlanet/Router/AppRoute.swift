@@ -99,15 +99,15 @@ enum AppRoute: Hashable {
         }
 
         enum EducationRoute: Hashable {
-            case courseSchedule
+            case courseSchedule(CourseScheduleRoute)
             case gradeQuery(GradeQueryRoute)
             case examSchedule
             case gradeAnalysis
 
             var trackSegment: String {
                 switch self {
-                case .courseSchedule:
-                    return "CourseSchedule"
+                case .courseSchedule(let route):
+                    return route.trackSegment
                 case .gradeQuery(let route):
                     return route.trackSegment
                 case .examSchedule:
@@ -120,14 +120,50 @@ enum AppRoute: Hashable {
             @ViewBuilder
             var destinationView: some View {
                 switch self {
-                case .courseSchedule:
-                    CourseScheduleView()
+                case .courseSchedule(let route):
+                    route.destinationView
                 case .gradeQuery(let route):
                     route.destinationView
                 case .examSchedule:
                     ExamScheduleView()
                 case .gradeAnalysis:
                     GradeAnalysisView()
+                }
+            }
+
+            // MARK: - CourseScheduleRoute
+
+            enum CourseScheduleRoute: Hashable {
+                case main
+                case settings
+                case edit(CustomCourseScheduleGRDB)
+                case courseDetail(CustomCourseGRDB)
+
+                var trackSegment: String {
+                    switch self {
+                    case .main:
+                        return "CourseSchedule"
+                    case .settings:
+                        return "CourseScheduleSettings"
+                    case .edit:
+                        return "CourseScheduleEdit"
+                    case .courseDetail:
+                        return "CourseScheduleCourseDetail"
+                    }
+                }
+
+                @ViewBuilder
+                var destinationView: some View {
+                    switch self {
+                    case .main:
+                        CourseScheduleView()
+                    case .settings:
+                        CourseScheduleSettingsView()
+                    case .edit(let schedule):
+                        CourseScheduleManageView(schedule: schedule)
+                    case .courseDetail(let course):
+                        CourseScheduleCourseDetailView(course: course)
+                    }
                 }
             }
 

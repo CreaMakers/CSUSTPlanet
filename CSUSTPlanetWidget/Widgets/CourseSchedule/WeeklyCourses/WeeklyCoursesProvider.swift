@@ -29,8 +29,10 @@ struct WeeklyCoursesProvider: TimelineProvider {
     func getSnapshot(in context: Context, completion: @escaping (WeeklyCoursesEntry) -> Void) {
         if context.isPreview {
             completion(.mockEntry())
-        } else if let data = MMKVHelper.CourseSchedule.cache {
-            completion(WeeklyCoursesEntry(date: .now, data: data.value))
+        } else if let schedule = MMKVHelper.CourseSchedule.activeCourseSchedule?.value,
+            let data = schedule.data
+        {
+            completion(WeeklyCoursesEntry(date: .now, data: data, scheduleName: schedule.scheduleName))
         } else {
             completion(.mockEntry())
         }
@@ -41,17 +43,19 @@ struct WeeklyCoursesProvider: TimelineProvider {
         let calendar = Calendar.current
 
         // 无缓存数据时：1小时后重试
-        guard let data = MMKVHelper.CourseSchedule.cache else {
-            let entry = WeeklyCoursesEntry(date: currentDate, data: nil)
+        guard let schedule = MMKVHelper.CourseSchedule.activeCourseSchedule?.value,
+            let data = schedule.data
+        else {
+            let entry = WeeklyCoursesEntry(date: currentDate, data: nil, scheduleName: nil)
             let nextUpdate = calendar.date(byAdding: .hour, value: 1, to: currentDate) ?? currentDate.addingTimeInterval(3600)
             completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
             return
         }
 
         // 放假或未开学时：12小时刷新一次
-        let semesterStatus = CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.value.semesterStartDate, date: currentDate)
+        let semesterStatus = CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: currentDate, weekCount: data.weekCount)
         guard semesterStatus == .inSemester else {
-            let entry = WeeklyCoursesEntry(date: currentDate, data: data.value)
+            let entry = WeeklyCoursesEntry(date: currentDate, data: data, scheduleName: schedule.scheduleName)
             let refreshDate = calendar.date(byAdding: .hour, value: 12, to: currentDate) ?? currentDate.addingTimeInterval(12 * 3600)
             completion(Timeline(entries: [entry], policy: .after(refreshDate)))
             return
@@ -59,7 +63,7 @@ struct WeeklyCoursesProvider: TimelineProvider {
 
         // 正常学期中：构建当天的多条时间线
         var entries: [WeeklyCoursesEntry] = [
-            WeeklyCoursesEntry(date: currentDate, data: data.value)
+            WeeklyCoursesEntry(date: currentDate, data: data, scheduleName: schedule.scheduleName)
         ]
 
         let startOfDay = calendar.startOfDay(for: currentDate)
@@ -68,7 +72,7 @@ struct WeeklyCoursesProvider: TimelineProvider {
             if let entryDate = calendar.date(bySettingHour: time.hour, minute: time.minute, second: 0, of: startOfDay),
                 entryDate > currentDate
             {
-                let entry = WeeklyCoursesEntry(date: entryDate, data: data.value)
+                let entry = WeeklyCoursesEntry(date: entryDate, data: data, scheduleName: schedule.scheduleName)
                 entries.append(entry)
             }
         }

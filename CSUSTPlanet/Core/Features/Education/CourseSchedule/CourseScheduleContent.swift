@@ -20,11 +20,15 @@ struct CourseScheduleContent: View {
     let remarks: [String]
 
     let selectedSemester: String?
+    let isCustomSchedule: Bool
+    let scheduleName: String?
 
     let isCourseScheduleLoading: Bool
+    let isCalendarExporting: Bool
 
     @Binding var currentWeek: Int
     let realCurrentWeek: Int?
+    let weekCount: Int
 
     @Binding var errorToast: ToastState
     @Binding var loadingToast: ToastState
@@ -50,9 +54,10 @@ struct CourseScheduleContent: View {
         VStack(spacing: 0) {
             CourseScheduleControlBar(
                 remarks: remarks,
-                selectedSemester: selectedSemester,
+                subtitle: isCustomSchedule ? scheduleName : selectedSemester,
                 realCurrentWeek: realCurrentWeek,
-                currentWeek: $currentWeek
+                currentWeek: $currentWeek,
+                weekCount: weekCount
             )
 
             if let weeklyCourses = weeklyCourses,
@@ -62,7 +67,7 @@ struct CourseScheduleContent: View {
                     #if os(macOS)
                     Button {
                         let newWeek = currentWeek - 1
-                        if newWeek >= 1 && newWeek <= CourseScheduleUtil.weekCount {
+                        if newWeek >= 1 && newWeek <= weekCount {
                             withAnimation {
                                 currentWeek = newWeek
                             }
@@ -86,6 +91,7 @@ struct CourseScheduleContent: View {
                         weeklyCourses: weeklyCourses,
                         courseColors: courseColors,
                         currentWeek: $currentWeek,
+                        weekCount: weekCount,
                         isCourseDetailInspectorPresented: $isCourseDetailInspectorPresented,
                         selectedCourseInfo: $selectedCourseInfo
                     )
@@ -93,7 +99,7 @@ struct CourseScheduleContent: View {
                     #if os(macOS)
                     Button {
                         let newWeek = currentWeek + 1
-                        if newWeek >= 1 && newWeek <= CourseScheduleUtil.weekCount {
+                        if newWeek >= 1 && newWeek <= weekCount {
                             withAnimation {
                                 currentWeek = newWeek
                             }
@@ -108,7 +114,7 @@ struct CourseScheduleContent: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    .disabled(currentWeek >= CourseScheduleUtil.weekCount)
+                    .disabled(currentWeek >= weekCount)
                     .keyboardShortcut(.rightArrow, modifiers: [])
                     #endif
                 }
@@ -121,11 +127,13 @@ struct CourseScheduleContent: View {
         .apply { view in
             if !isWideSize {
                 view.sheet(item: $selectedCourseInfo) { courseInfo in
-                    CourseScheduleDetailView(
-                        course: courseInfo.course,
-                        session: courseInfo.session,
-                        isToolbarPresented: sizeClass == .compact,
-                    )
+                    NavigationStack {
+                        CourseScheduleDetailView(
+                            course: courseInfo.course,
+                            session: courseInfo.session,
+                            isToolbarPresented: true,
+                        )
+                    }
                 }
             } else {
                 view.inspector(isPresented: $isCourseDetailInspectorPresented) {
@@ -146,28 +154,41 @@ struct CourseScheduleContent: View {
             }
         }
         .navigationTitle("我的课表")
-        .navigationSubtitleCompat(selectedSemester.map { "学期\($0)" } ?? "默认学期")
+        .navigationSubtitleCompat(
+            isCustomSchedule
+                ? (scheduleName ?? "")
+                : (selectedSemester.map { "学期\($0)" } ?? "默认学期")
+        )
         .inlineToolbarTitle()
         .toolbar {
-            ToolbarItemGroup(placement: .secondaryAction) {
-                Button(action: { isSemestersSheetPresented = true }) {
-                    Label("学期选择", systemImage: "gearshape")
-                }
-
-                Button(action: { isCalendarSettingsSheetPresented = true }) {
-                    Label("添加课表到系统日历", systemImage: "calendar.badge.plus")
+            ToolbarItem(placement: .secondaryAction) {
+                NavigationLink(value: AppRoute.features(.education(.courseSchedule(.settings)))) {
+                    Label("课表设置", systemImage: "gearshape")
                 }
             }
-
-            ToolbarItem(placement: .primaryAction) {
-                Button(asyncAction: onRefreshCourses) {
-                    if isCourseScheduleLoading {
-                        ProgressView().smallControlSizeOnMac()
-                    } else {
-                        Label("刷新", systemImage: "arrow.clockwise")
+            if !isCustomSchedule {
+                ToolbarItemGroup(placement: .secondaryAction) {
+                    Button(action: { isSemestersSheetPresented = true }) {
+                        Label("学期选择", systemImage: "slider.horizontal.3")
                     }
+                    .disabled(isCourseScheduleLoading || isCalendarExporting)
+
+                    Button(action: { isCalendarSettingsSheetPresented = true }) {
+                        Label("添加课表到系统日历", systemImage: "calendar.badge.plus")
+                    }
+                    .disabled(isCourseScheduleLoading || isCalendarExporting)
                 }
-                .disabled(isCourseScheduleLoading)
+
+                ToolbarItem(placement: .primaryAction) {
+                    Button(asyncAction: onRefreshCourses) {
+                        if isCourseScheduleLoading {
+                            ProgressView().smallControlSizeOnMac()
+                        } else {
+                            Label("刷新", systemImage: "arrow.clockwise")
+                        }
+                    }
+                    .disabled(isCourseScheduleLoading || isCalendarExporting)
+                }
             }
         }
         .onAppear {
@@ -194,7 +215,7 @@ struct CourseScheduleContent: View {
             CourseScheduleDetailView(
                 course: courseInfo.course,
                 session: courseInfo.session,
-                isToolbarPresented: sizeClass == .compact,
+                isToolbarPresented: false,
             )
         } else {
             ContentUnavailableView("请选择课程查看详情", systemImage: "doc.text.magnifyingglass")
@@ -210,9 +231,13 @@ struct CourseScheduleContent: View {
             semesterStartDate: nil,
             remarks: [],
             selectedSemester: nil,
+            isCustomSchedule: false,
+            scheduleName: nil,
             isCourseScheduleLoading: false,
+            isCalendarExporting: false,
             currentWeek: .constant(1),
             realCurrentWeek: 1,
+            weekCount: 20,
             errorToast: .constant(.errorTitle),
             loadingToast: .constant(.loadingTitle),
             successToast: .constant(.successTitle),

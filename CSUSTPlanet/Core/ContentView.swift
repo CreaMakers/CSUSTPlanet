@@ -5,7 +5,6 @@
 //  Created by Zhe_Learn on 2025/7/7.
 //
 
-import AlertToast
 import SwiftUI
 
 #if os(macOS)
@@ -190,33 +189,6 @@ struct ContentView: View {
             CaptchaInputView()
         }
 
-        // MARK: 全局Toast状态
-
-        .toast(isPresenting: $authManager.isSSOInfoPresented) {
-            AlertToast(displayMode: .hud, type: .systemImage("info.circle.fill", .blue), title: authManager.ssoInfo)
-        }
-        .toast(isPresenting: $authManager.isSSOErrorPresented) {
-            AlertToast(displayMode: .hud, type: .error(.red), title: authManager.ssoError)
-        }
-        .toast(isPresenting: $authManager.isEducationInfoPresented) {
-            AlertToast(displayMode: .hud, type: .systemImage("info.circle.fill", .blue), title: authManager.educationInfo)
-        }
-        .toast(isPresenting: $authManager.isEducationErrorPresented) {
-            AlertToast(displayMode: .hud, type: .error(.red), title: authManager.educationError)
-        }
-        .toast(isPresenting: $authManager.isMoocInfoPresented) {
-            AlertToast(displayMode: .hud, type: .systemImage("info.circle.fill", .blue), title: authManager.moocInfo)
-        }
-        .toast(isPresenting: $authManager.isMoocErrorPresented) {
-            AlertToast(displayMode: .hud, type: .error(.red), title: authManager.moocError)
-        }
-        .toast(isPresenting: $authManager.isCampusCardInfoPresented) {
-            AlertToast(displayMode: .hud, type: .systemImage("info.circle.fill", .blue), title: authManager.campusCardInfo)
-        }
-        .toast(isPresenting: $authManager.isCampusCardErrorPresented) {
-            AlertToast(displayMode: .hud, type: .error(.red), title: authManager.campusCardError)
-        }
-
         // MARK: - 主题设置 & 用户协议弹窗
 
         #if os(iOS)
@@ -358,7 +330,7 @@ struct ContentView: View {
                         }
                     }
                 }
-                .navigationTitle("长理星球")
+                .navigationTitle("云岭星球")
                 #if os(macOS)
                 .navigationSplitViewColumnWidth(min: 150, ideal: 200, max: 250)
                 #endif

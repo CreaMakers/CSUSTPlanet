@@ -62,6 +62,10 @@ struct MockDataGeneratorView: View {
                     viewModel.generateTodayFilledCourseSchedule()
                 }
 
+                Button("生成两节当前可见模拟课") {
+                    viewModel.generateTwoVisibleCourseSchedule()
+                }
+
                 Button("生成有冲突的模拟课表") {
                     viewModel.generateConflictedCourseSchedule()
                 }
@@ -70,8 +74,19 @@ struct MockDataGeneratorView: View {
             } footer: {
                 Text(viewModel.courseScheduleCacheDescription)
             }
+
+            Section {
+                Button("生成模拟电量") {
+                    viewModel.generateMockElectricity()
+                }
+            } header: {
+                Text("宿舍电量")
+            } footer: {
+                Text(viewModel.electricityCacheDescription)
+            }
         }
         .formStyle(.grouped)
+        .errorToast($viewModel.errorToast)
         .navigationTitle("模拟数据生成")
         .onAppear {
             viewModel.onAppear()

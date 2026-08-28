@@ -25,7 +25,7 @@ struct WeeklyCoursesEntryView: View {
         Group {
             if let data = entry.data {
                 VStack(spacing: 0) {
-                    CourseWidgetHeaderView(family: family, title: "本周课程", date: entry.date, data: data)
+                    CourseWidgetHeaderView(family: family, title: "本周课程", date: entry.date, data: data, scheduleName: entry.scheduleName)
 
                     Divider().padding(.vertical, 4)
 
@@ -44,7 +44,7 @@ struct WeeklyCoursesEntryView: View {
 
     @ViewBuilder
     func contentView(date: Date, data: CourseScheduleData) -> some View {
-        switch CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date) {
+        switch CourseScheduleUtil.getSemesterStatus(semesterStartDate: data.semesterStartDate, date: date, weekCount: data.weekCount) {
         case .beforeSemester:
             CourseWidgetBeforeSemesterView(date: date, data: data)
         case .afterSemester:
@@ -61,7 +61,7 @@ struct WeeklyCoursesEntryView: View {
 
     @ViewBuilder
     func inSemesterView(date: Date, data: CourseScheduleData) -> some View {
-        let currentWeek = CourseScheduleUtil.getCurrentWeek(semesterStartDate: data.semesterStartDate, now: date) ?? 1
+        let currentWeek = CourseScheduleUtil.getCurrentWeek(semesterStartDate: data.semesterStartDate, now: date, weekCount: data.weekCount) ?? 1
         let firstVisibleSection = firstVisibleSection(for: date)
         let courseColors = ColorUtil.getCourseColors(data.courses)
 

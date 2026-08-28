@@ -46,7 +46,7 @@ struct AnnouncementOverviewView: View {
                     } label: {
                         Text("全部已读")
                             .font(.subheadline)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(Color.accentColor)
                     }
                     .buttonStyle(.borderless)
                 }

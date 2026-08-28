@@ -25,11 +25,13 @@ struct CourseOverviewView: View {
         }
         .buttonStyle(.plain)
         .sheet(item: $selectedCourse) { courseInfo in
-            CourseScheduleDetailView(
-                course: courseInfo.course,
-                session: courseInfo.session,
-                isToolbarPresented: true,
-            )
+            NavigationStack {
+                CourseScheduleDetailView(
+                    course: courseInfo.course,
+                    session: courseInfo.session,
+                    isToolbarPresented: true,
+                )
+            }
         }
     }
 
@@ -181,7 +183,7 @@ private struct TomorrowPreviewStatusView: View {
                 .padding(.trailing, 8)
             Text("共")
             Text("\(courseCount)")
-                .foregroundStyle(.blue)
+                .foregroundStyle(Color.accentColor)
             Text("节课程")
         }
         .lineLimit(1)
