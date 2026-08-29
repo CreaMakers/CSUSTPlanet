@@ -18,36 +18,29 @@ struct CourseScheduleScrollTable: View {
     @Binding var selectedCourseInfo: CourseDisplayInfo?
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 0) {
-                    ForEach(1...weekCount, id: \.self) { week in
-                        CourseScheduleTable(
-                            semesterStartDate: semesterStartDate,
-                            targetWeek: week,
-                            weeklyCourses: weeklyCourses,
-                            courseColors: courseColors,
-                            isCourseDetailInspectorPresented: $isCourseDetailInspectorPresented,
-                            selectedCourseInfo: $selectedCourseInfo
-                        )
-                        .padding(.leading, geometry.safeAreaInsets.leading)
-                        .padding(.trailing, geometry.safeAreaInsets.trailing)
-                        .containerRelativeFrame(.horizontal)
-                    }
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 0) {
+                ForEach(1...weekCount, id: \.self) { week in
+                    CourseScheduleTable(
+                        semesterStartDate: semesterStartDate,
+                        targetWeek: week,
+                        weeklyCourses: weeklyCourses,
+                        courseColors: courseColors,
+                        isCourseDetailInspectorPresented: $isCourseDetailInspectorPresented,
+                        selectedCourseInfo: $selectedCourseInfo
+                    )
+                    .containerRelativeFrame(.horizontal)
                 }
-                .scrollTargetLayout()
             }
-            .scrollTargetBehavior(.paging)
-            #if os(iOS)
-            .ignoresSafeArea(.container, edges: .horizontal)
-            #endif
-            .scrollPosition(
-                id: Binding<Int?>(
-                    get: { currentWeek },
-                    set: { if let newWeek = $0 { currentWeek = newWeek } }
-                )
-            )
+            .scrollTargetLayout()
         }
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .always))
+        .scrollPosition(
+            id: Binding<Int?>(
+                get: { currentWeek },
+                set: { if let newWeek = $0 { currentWeek = newWeek } }
+            )
+        )
     }
 }
 
