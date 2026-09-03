@@ -46,7 +46,7 @@ struct FeaturesView: View {
             .frame(maxWidth: .infinity)
             .padding(.top, 0)
         }
-        .navigationTitle("全部功能")
+        .navigationTitle("功能")
         #if os(iOS)
         .background(Color(PlatformColor.systemGroupedBackground))
         #endif
