@@ -85,6 +85,7 @@ private let featureSections: [FeatureSection] = [
 @MainActor
 private let primarySidebarItems: [SidebarPrimaryItem] = [
     SidebarPrimaryItem(tab: .overview, title: "概览", systemImage: "rectangle.stack"),
+    SidebarPrimaryItem(tab: .schedule, title: "日程", systemImage: "calendar"),
     SidebarPrimaryItem(tab: .profile, title: "我的", systemImage: "person"),
 ]
 
@@ -224,6 +225,12 @@ struct ContentView: View {
             }
             .badge(globalManager.unreadAnnouncementsCount)
 
+            Tab("日程", systemImage: "calendar", value: AppTabItem.schedule) {
+                navigationStack(for: .schedule) {
+                    ScheduleView()
+                }
+            }
+
             if router.isCompact {
                 Tab("功能", systemImage: "square.grid.2x2", value: AppTabItem.features) {
                     navigationStack(for: .features) {
@@ -283,6 +290,12 @@ struct ContentView: View {
                 .tag(AppTabItem.overview)
                 .badge(globalManager.unreadAnnouncementsCount)
 
+                navigationStack(for: .schedule) {
+                    ScheduleView()
+                }
+                .tabItem { Label("日程", systemImage: "calendar") }
+                .tag(AppTabItem.schedule)
+
                 navigationStack(for: .features) {
                     FeaturesView()
                 }
@@ -339,6 +352,10 @@ struct ContentView: View {
                 case .overview:
                     navigationStack(for: .overview) {
                         OverviewView()
+                    }
+                case .schedule:
+                    navigationStack(for: .schedule) {
+                        ScheduleView()
                     }
                 case .profile:
                     navigationStack(for: .profile) {

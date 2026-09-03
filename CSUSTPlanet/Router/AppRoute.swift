@@ -526,6 +526,7 @@ enum AppRoute: Hashable {
 
 enum AppTabItem: Hashable {
     case overview
+    case schedule
     case features
     case profile
     case feature(FeatureTabID)
@@ -534,6 +535,8 @@ enum AppTabItem: Hashable {
         switch self {
         case .overview:
             return "Overview"
+        case .schedule:
+            return "Schedule"
         case .features:
             return "Features"
         case .profile:
