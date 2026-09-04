@@ -6,13 +6,53 @@
 //
 
 import Foundation
+import SwiftUI
 
 /// 日程的业务类型
 enum ScheduleEventKind: String, Codable, Hashable, Sendable {
     case course
     case exam
-    case assignmentDeadline
-    case electricityExhaustion
+    case assignment
+    case electricity
+
+    var presentationTitle: String {
+        switch self {
+        case .course:
+            return "课程"
+        case .exam:
+            return "考试"
+        case .assignment:
+            return "作业"
+        case .electricity:
+            return "电量"
+        }
+    }
+
+    var presentationTint: Color {
+        switch self {
+        case .course:
+            return .blue
+        case .exam:
+            return .orange
+        case .assignment:
+            return .purple
+        case .electricity:
+            return .green
+        }
+    }
+
+    var presentationSortPriority: Int {
+        switch self {
+        case .course:
+            return 0
+        case .exam:
+            return 1
+        case .assignment:
+            return 2
+        case .electricity:
+            return 3
+        }
+    }
 }
 
 /// 日程的时间形态

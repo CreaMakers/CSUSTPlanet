@@ -60,7 +60,7 @@ final class ScheduleEventStore {
             .sink { [weak self] cached in
                 guard let self else { return }
                 self.replaceEvents(
-                    for: .assignmentDeadline,
+                    for: .assignment,
                     with: Self.makeAssignmentEvents(from: cached?.value ?? [])
                 )
             }
@@ -82,7 +82,7 @@ final class ScheduleEventStore {
         electricityObservation?.cancel()
 
         guard let pool = DatabaseManager.shared.pool else {
-            replaceEvents(for: .electricityExhaustion, with: [])
+            replaceEvents(for: .electricity, with: [])
             return
         }
 
@@ -112,7 +112,7 @@ final class ScheduleEventStore {
             scheduling: .immediate,
             onError: { [weak self] _ in
                 Task { @MainActor [weak self] in
-                    self?.replaceEvents(for: .electricityExhaustion, with: [])
+                    self?.replaceEvents(for: .electricity, with: [])
                 }
             },
             onChange: { [weak self] data in
@@ -120,7 +120,7 @@ final class ScheduleEventStore {
                 Task { @MainActor [weak self] in
                     guard let self else { return }
                     self.replaceEvents(
-                        for: .electricityExhaustion,
+                        for: .electricity,
                         with: Self.makeElectricityEvents(
                             from: dorm,
                             records: records,
@@ -298,7 +298,7 @@ final class ScheduleEventStore {
                         group.course.id,
                         String(assignment.id),
                     ]),
-                    kind: .assignmentDeadline,
+                    kind: .assignment,
                     timing: .point(at: assignment.deadline),
                     content: ScheduleEventContent(
                         title: assignment.title,
@@ -334,7 +334,7 @@ final class ScheduleEventStore {
         return [
             ScheduleEvent(
                 id: stableID(["electricity", String(dormID)]),
-                kind: .electricityExhaustion,
+                kind: .electricity,
                 timing: .point(at: predictionDate),
                 content: ScheduleEventContent(
                     title: "电量预计耗尽",
