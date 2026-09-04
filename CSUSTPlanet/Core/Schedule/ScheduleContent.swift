@@ -9,15 +9,19 @@ import SwiftUI
 
 struct ScheduleContent: View {
     let events: [ScheduleEvent]
-    let referenceDate: Date
 
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var referenceDate: Date
     @State private var visibleDayID: Date?
     @State private var selectedEvent: ScheduleEvent?
     @State private var hasPerformedInitialScroll = false
 
-    init(events: [ScheduleEvent], referenceDate: Date = .now) {
+    private let refreshesReferenceDate: Bool
+
+    init(events: [ScheduleEvent], referenceDate: Date? = nil) {
         self.events = events
-        self.referenceDate = referenceDate
+        refreshesReferenceDate = referenceDate == nil
+        _referenceDate = State(initialValue: referenceDate ?? .now)
     }
 
     var body: some View {
@@ -27,6 +31,9 @@ struct ScheduleContent: View {
                     ScheduleDaySectionView(
                         section: section,
                         referenceDate: referenceDate,
+                        currentIndicatorEventID: currentIndicatorEventID,
+                        showsIndicatorAfterEvents: shouldShowIndicatorAfterLastEvent
+                            && section.events.last?.id == sortedEvents.last?.id,
                         onSelectEvent: { selectedEvent = $0 }
                     )
                     .id(section.id)
@@ -64,6 +71,13 @@ struct ScheduleContent: View {
             hasPerformedInitialScroll = true
             visibleDayID = todayID
         }
+        .task(id: scenePhase) {
+            guard refreshesReferenceDate, scenePhase == .active else {
+                return
+            }
+
+            await refreshReferenceDate()
+        }
         .sheet(item: $selectedEvent) { event in
             NavigationStack {
                 ScheduleEventDetailView(event: event)
@@ -75,25 +89,45 @@ struct ScheduleContent: View {
     private var daySections: [ScheduleDaySection] {
         var groupedEvents: [Date: [ScheduleEvent]] = [:]
 
-        for event in events {
+        for event in sortedEvents {
             groupedEvents[ScheduleDateUtil.eventDay(for: event), default: []].append(event)
         }
 
         return groupedEvents.keys.sorted().map { day in
-            let sortedEvents = groupedEvents[day, default: []].sorted {
-                if $0.timing.anchorDate != $1.timing.anchorDate {
-                    return $0.timing.anchorDate < $1.timing.anchorDate
-                }
+            return ScheduleDaySection(id: day, events: groupedEvents[day, default: []])
+        }
+    }
 
-                if $0.kind.presentationSortPriority != $1.kind.presentationSortPriority {
-                    return $0.kind.presentationSortPriority < $1.kind.presentationSortPriority
-                }
-
-                return $0.id < $1.id
+    private var sortedEvents: [ScheduleEvent] {
+        events.sorted { lhs, rhs in
+            if lhs.timing.anchorDate != rhs.timing.anchorDate {
+                return lhs.timing.anchorDate < rhs.timing.anchorDate
             }
 
-            return ScheduleDaySection(id: day, events: sortedEvents)
+            if lhs.kind.presentationSortPriority != rhs.kind.presentationSortPriority {
+                return lhs.kind.presentationSortPriority < rhs.kind.presentationSortPriority
+            }
+
+            return lhs.id < rhs.id
         }
+    }
+
+    private var currentIndicatorEventID: String? {
+        guard !sortedEvents.isEmpty else {
+            return nil
+        }
+
+        if let currentEvent = sortedEvents.first(where: isCurrentEvent(_:)) {
+            return currentEvent.id
+        }
+
+        return sortedEvents.first { event in
+            event.timing.anchorDate >= referenceDate
+        }?.id
+    }
+
+    private var shouldShowIndicatorAfterLastEvent: Bool {
+        !sortedEvents.isEmpty && currentIndicatorEventID == nil
     }
 
     private var dayIDs: [Date] {
@@ -125,6 +159,44 @@ struct ScheduleContent: View {
             visibleDayID = targetDate
         }
     }
+
+    private func isCurrentEvent(_ event: ScheduleEvent) -> Bool {
+        guard case .interval(let start, let end) = event.timing else {
+            return false
+        }
+
+        return start <= referenceDate && referenceDate < end
+    }
+
+    private func refreshReferenceDate() async {
+        while !Task.isCancelled {
+            let now = Date.now
+            referenceDate = now
+
+            guard
+                let startOfMinute = ScheduleDateUtil.calendar.date(
+                    bySetting: .second,
+                    value: 0,
+                    of: now
+                ),
+                let nextMinute = ScheduleDateUtil.calendar.date(
+                    byAdding: .minute,
+                    value: 1,
+                    to: startOfMinute
+                )
+            else {
+                return
+            }
+
+            let delay = max(nextMinute.timeIntervalSince(now), 0.1)
+
+            do {
+                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            } catch {
+                return
+            }
+        }
+    }
 }
 
 private struct ScheduleDaySection: Identifiable {
@@ -135,6 +207,8 @@ private struct ScheduleDaySection: Identifiable {
 private struct ScheduleDaySectionView: View {
     let section: ScheduleDaySection
     let referenceDate: Date
+    let currentIndicatorEventID: String?
+    let showsIndicatorAfterEvents: Bool
     let onSelectEvent: (ScheduleEvent) -> Void
 
     var body: some View {
@@ -172,17 +246,47 @@ private struct ScheduleDaySectionView: View {
             }
             .padding(.bottom, 8)
 
-            VStack(spacing: 8) {
-                ForEach(section.events) { event in
+            VStack(spacing: 0) {
+                ForEach(Array(section.events.enumerated()), id: \.element.id) { index, event in
+                    if event.id == currentIndicatorEventID {
+                        ScheduleCurrentTimeIndicator()
+                    } else if index > 0 {
+                        Color.clear
+                            .frame(height: 8)
+                            .accessibilityHidden(true)
+                    }
+
                     ScheduleEventRow(event: event) {
                         onSelectEvent(event)
                     }
+                }
+
+                if showsIndicatorAfterEvents {
+                    ScheduleCurrentTimeIndicator()
                 }
             }
         }
         .padding(.horizontal, 16)
         .padding(.top, 16)
         .padding(.bottom, 8)
+    }
+}
+
+private struct ScheduleCurrentTimeIndicator: View {
+    var body: some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(Color.red)
+                .frame(width: 8, height: 8)
+
+            RoundedRectangle(cornerRadius: 1)
+                .fill(Color.red)
+                .frame(maxWidth: .infinity)
+                .frame(height: 2)
+        }
+        .frame(maxWidth: .infinity, minHeight: 8, maxHeight: 8)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("当前时间")
     }
 }
 
