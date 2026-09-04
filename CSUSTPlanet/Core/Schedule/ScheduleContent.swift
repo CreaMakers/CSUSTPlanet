@@ -79,11 +79,6 @@ struct ScheduleContent: View {
             groupedEvents[ScheduleDateUtil.eventDay(for: event), default: []].append(event)
         }
 
-        let today = todayID
-        if groupedEvents[today] == nil {
-            groupedEvents[today] = []
-        }
-
         return groupedEvents.keys.sorted().map { day in
             let sortedEvents = groupedEvents[day, default: []].sorted {
                 if $0.timing.anchorDate != $1.timing.anchorDate {
@@ -177,20 +172,10 @@ private struct ScheduleDaySectionView: View {
             }
             .padding(.bottom, 8)
 
-            if section.events.isEmpty {
-                ContentUnavailableView {
-                    Label("今天暂无日程", systemImage: "calendar.badge.checkmark")
-                } description: {
-                    Text("可以先看看其他日期的课程和安排")
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 22)
-            } else {
-                VStack(spacing: 8) {
-                    ForEach(section.events) { event in
-                        ScheduleEventRow(event: event) {
-                            onSelectEvent(event)
-                        }
+            VStack(spacing: 8) {
+                ForEach(section.events) { event in
+                    ScheduleEventRow(event: event) {
+                        onSelectEvent(event)
                     }
                 }
             }
@@ -205,15 +190,6 @@ private struct ScheduleDaySectionView: View {
     NavigationStack {
         ScheduleContent(
             events: SchedulePreviewData.events,
-            referenceDate: SchedulePreviewData.referenceDate
-        )
-    }
-}
-
-#Preview("ScheduleContent - Empty") {
-    NavigationStack {
-        ScheduleContent(
-            events: [],
             referenceDate: SchedulePreviewData.referenceDate
         )
     }
