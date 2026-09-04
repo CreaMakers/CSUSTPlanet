@@ -155,7 +155,7 @@ struct ScheduleContent: View {
             return
         }
 
-        withAnimation(.easeInOut) {
+        withAnimation {
             visibleDayID = targetDate
         }
     }
