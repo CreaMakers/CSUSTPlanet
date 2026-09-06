@@ -225,7 +225,7 @@ struct ContentView: View {
             .badge(globalManager.unreadAnnouncementsCount)
 
             if router.isCompact {
-                Tab("全部功能", systemImage: "square.grid.2x2", value: AppTabItem.features) {
+                Tab("功能", systemImage: "square.grid.2x2", value: AppTabItem.features) {
                     navigationStack(for: .features) {
                         FeaturesView()
                     }
@@ -286,7 +286,7 @@ struct ContentView: View {
                 navigationStack(for: .features) {
                     FeaturesView()
                 }
-                .tabItem { Label("全部功能", systemImage: "square.grid.2x2") }
+                .tabItem { Label("功能", systemImage: "square.grid.2x2") }
                 .tag(AppTabItem.features)
 
                 navigationStack(for: .profile) {
