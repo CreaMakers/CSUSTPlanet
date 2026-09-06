@@ -12,7 +12,7 @@ struct ScheduleContent: View {
 
     @Environment(\.scenePhase) private var scenePhase
     @State private var referenceDate: Date
-    @State private var visibleDayID: Date?
+    @State private var visibleSectionID: ScheduleTimelineSectionID?
     @State private var selectedEvent: ScheduleEvent?
     @State private var hasPerformedInitialScroll = false
 
@@ -27,21 +27,30 @@ struct ScheduleContent: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(daySections) { section in
-                    ScheduleDaySectionView(
-                        section: section,
-                        referenceDate: referenceDate,
-                        currentIndicatorEventID: currentIndicatorEventID,
-                        showsIndicatorAfterEvents: shouldShowIndicatorAfterLastEvent
-                            && section.events.last?.id == sortedEvents.last?.id,
-                        onSelectEvent: { selectedEvent = $0 }
-                    )
+                ForEach(timelineSections) { section in
+                    Group {
+                        switch section {
+                        case .day(let daySection):
+                            ScheduleDaySectionView(
+                                section: daySection,
+                                referenceDate: referenceDate,
+                                currentIndicatorPlacement: currentIndicatorPlacement,
+                                onSelectEvent: { selectedEvent = $0 }
+                            )
+                        case .empty(let emptySection):
+                            ScheduleEmptySectionView(
+                                section: emptySection,
+                                referenceDate: referenceDate,
+                                showsIndicator: showsIndicator(in: emptySection)
+                            )
+                        }
+                    }
                     .id(section.id)
                 }
             }
             .scrollTargetLayout()
         }
-        .scrollPosition(id: $visibleDayID, anchor: .top)
+        .scrollPosition(id: $visibleSectionID, anchor: .top)
         .safeAreaInset(edge: .top, spacing: 0) {
             ScheduleDateHeader(
                 dates: ScheduleDateUtil.datesForWeek(containing: activeDayID),
@@ -63,13 +72,16 @@ struct ScheduleContent: View {
                 .disabled(ScheduleDateUtil.isSameDay(activeDayID, todayID))
             }
         }
-        .onChange(of: dayIDs, initial: true) { _, _ in
-            guard !hasPerformedInitialScroll, dayIDs.contains(todayID) else {
+        .onChange(of: timelineSectionIDs, initial: true) { _, _ in
+            guard
+                !hasPerformedInitialScroll,
+                let todaySectionID = timelineSections.first(where: { $0.contains(todayID) })?.id
+            else {
                 return
             }
 
             hasPerformedInitialScroll = true
-            visibleDayID = todayID
+            visibleSectionID = todaySectionID
         }
         .task(id: scenePhase) {
             guard refreshesReferenceDate, scenePhase == .active else {
@@ -86,16 +98,74 @@ struct ScheduleContent: View {
         }
     }
 
-    private var daySections: [ScheduleDaySection] {
+    private var timelineSections: [ScheduleTimelineSection] {
         var groupedEvents: [Date: [ScheduleEvent]] = [:]
 
         for event in sortedEvents {
             groupedEvents[ScheduleDateUtil.eventDay(for: event), default: []].append(event)
         }
 
-        return groupedEvents.keys.sorted().map { day in
-            return ScheduleDaySection(id: day, events: groupedEvents[day, default: []])
+        let occupiedDays = groupedEvents.keys.sorted()
+
+        guard let firstOccupiedDay = occupiedDays.first, let lastOccupiedDay = occupiedDays.last else {
+            return [.empty(ScheduleEmptySection(startDate: todayID, endDate: todayID))]
         }
+
+        var sections: [ScheduleTimelineSection] = []
+
+        if todayID < firstOccupiedDay {
+            sections.append(
+                .empty(
+                    ScheduleEmptySection(
+                        startDate: todayID,
+                        endDate: dayBefore(firstOccupiedDay)
+                    )
+                )
+            )
+        }
+
+        for (index, day) in occupiedDays.enumerated() {
+            sections.append(
+                .day(
+                    ScheduleDaySection(
+                        id: day,
+                        events: groupedEvents[day, default: []]
+                    )
+                )
+            )
+
+            guard index + 1 < occupiedDays.count else {
+                continue
+            }
+
+            let nextDay = occupiedDays[index + 1]
+
+            let emptyStartDate = dayAfter(day)
+            let emptyEndDate = dayBefore(nextDay)
+            if emptyStartDate <= emptyEndDate {
+                sections.append(
+                    .empty(
+                        ScheduleEmptySection(
+                            startDate: emptyStartDate,
+                            endDate: emptyEndDate
+                        )
+                    )
+                )
+            }
+        }
+
+        if lastOccupiedDay < todayID {
+            sections.append(
+                .empty(
+                    ScheduleEmptySection(
+                        startDate: dayAfter(lastOccupiedDay),
+                        endDate: todayID
+                    )
+                )
+            )
+        }
+
+        return sections
     }
 
     private var sortedEvents: [ScheduleEvent] {
@@ -112,26 +182,40 @@ struct ScheduleContent: View {
         }
     }
 
-    private var currentIndicatorEventID: String? {
-        guard !sortedEvents.isEmpty else {
-            return nil
-        }
-
+    private var currentIndicatorPlacement: ScheduleCurrentIndicatorPlacement? {
         if let currentEvent = sortedEvents.first(where: isCurrentEvent(_:)) {
-            return currentEvent.id
+            return .beforeEvent(currentEvent.id)
         }
 
-        return sortedEvents.first { event in
-            event.timing.anchorDate >= referenceDate
-        }?.id
+        let todayEvents = sortedEvents.filter {
+            ScheduleDateUtil.isSameDay(ScheduleDateUtil.eventDay(for: $0), todayID)
+        }
+
+        if let nextTodayEvent = todayEvents.first(where: { $0.timing.anchorDate >= referenceDate }) {
+            return .beforeEvent(nextTodayEvent.id)
+        }
+
+        if !todayEvents.isEmpty {
+            return .afterDay(todayID)
+        }
+
+        if let emptySection = timelineSections.first(where: { $0.contains(todayID) }) {
+            return .inEmptySection(emptySection.id)
+        }
+
+        return nil
     }
 
-    private var shouldShowIndicatorAfterLastEvent: Bool {
-        !sortedEvents.isEmpty && currentIndicatorEventID == nil
+    private func showsIndicator(in section: ScheduleEmptySection) -> Bool {
+        guard case .some(.inEmptySection(let sectionID)) = currentIndicatorPlacement else {
+            return false
+        }
+
+        return sectionID == section.id
     }
 
-    private var dayIDs: [Date] {
-        daySections.map(\.id)
+    private var timelineSectionIDs: [ScheduleTimelineSectionID] {
+        timelineSections.map(\.id)
     }
 
     private var todayID: Date {
@@ -139,25 +223,37 @@ struct ScheduleContent: View {
     }
 
     private var activeDayID: Date {
-        guard let visibleDayID, dayIDs.contains(visibleDayID) else {
+        guard
+            let visibleSectionID,
+            let visibleSection = timelineSections.first(where: { $0.id == visibleSectionID })
+        else {
             return todayID
         }
 
-        return visibleDayID
+        switch visibleSection {
+        case .day(let section):
+            return section.id
+        case .empty(let section):
+            return section.contains(todayID) ? todayID : section.startDate
+        }
     }
 
     private func scrollToNearestDate(_ date: Date) {
-        guard
-            let targetDate = dayIDs.min(by: { lhs, rhs in
-                abs(lhs.timeIntervalSince(date)) < abs(rhs.timeIntervalSince(date))
-            })
-        else {
+        guard let targetSectionID = timelineSections.first(where: { $0.contains(date) })?.id else {
             return
         }
 
         withAnimation {
-            visibleDayID = targetDate
+            visibleSectionID = targetSectionID
         }
+    }
+
+    private func dayBefore(_ date: Date) -> Date {
+        ScheduleDateUtil.calendar.date(byAdding: .day, value: -1, to: date)!
+    }
+
+    private func dayAfter(_ date: Date) -> Date {
+        ScheduleDateUtil.calendar.date(byAdding: .day, value: 1, to: date)!
     }
 
     private func isCurrentEvent(_ event: ScheduleEvent) -> Bool {
@@ -199,16 +295,72 @@ struct ScheduleContent: View {
     }
 }
 
-private struct ScheduleDaySection: Identifiable {
+private enum ScheduleTimelineSectionID: Hashable {
+    case day(Date)
+    case empty(startDate: Date, endDate: Date)
+}
+
+private enum ScheduleTimelineSection: Identifiable {
+    case day(ScheduleDaySection)
+    case empty(ScheduleEmptySection)
+
+    var id: ScheduleTimelineSectionID {
+        switch self {
+        case .day(let section):
+            return .day(section.id)
+        case .empty(let section):
+            return section.id
+        }
+    }
+
+    func contains(_ date: Date) -> Bool {
+        switch self {
+        case .day(let section):
+            return ScheduleDateUtil.isSameDay(section.id, date)
+        case .empty(let section):
+            return section.contains(date)
+        }
+    }
+}
+
+private struct ScheduleDaySection {
     let id: Date
     let events: [ScheduleEvent]
+}
+
+private struct ScheduleEmptySection {
+    let startDate: Date
+    let endDate: Date
+
+    var id: ScheduleTimelineSectionID {
+        .empty(startDate: startDate, endDate: endDate)
+    }
+
+    var dayCount: Int {
+        let components = ScheduleDateUtil.calendar.dateComponents(
+            [.day],
+            from: startDate,
+            to: endDate
+        )
+        return (components.day ?? 0) + 1
+    }
+
+    func contains(_ date: Date) -> Bool {
+        let day = ScheduleDateUtil.startOfDay(for: date)
+        return startDate <= day && day <= endDate
+    }
+}
+
+private enum ScheduleCurrentIndicatorPlacement: Equatable {
+    case beforeEvent(String)
+    case afterDay(Date)
+    case inEmptySection(ScheduleTimelineSectionID)
 }
 
 private struct ScheduleDaySectionView: View {
     let section: ScheduleDaySection
     let referenceDate: Date
-    let currentIndicatorEventID: String?
-    let showsIndicatorAfterEvents: Bool
+    let currentIndicatorPlacement: ScheduleCurrentIndicatorPlacement?
     let onSelectEvent: (ScheduleEvent) -> Void
 
     var body: some View {
@@ -248,7 +400,7 @@ private struct ScheduleDaySectionView: View {
 
             VStack(spacing: 0) {
                 ForEach(Array(section.events.enumerated()), id: \.element.id) { index, event in
-                    if event.id == currentIndicatorEventID {
+                    if showsIndicator(before: event) {
                         ScheduleCurrentTimeIndicator()
                     } else if index > 0 {
                         Color.clear
@@ -270,6 +422,77 @@ private struct ScheduleDaySectionView: View {
         .padding(.top, 16)
         .padding(.bottom, 8)
     }
+
+    private func showsIndicator(before event: ScheduleEvent) -> Bool {
+        guard case .some(.beforeEvent(let eventID)) = currentIndicatorPlacement else {
+            return false
+        }
+
+        return event.id == eventID
+    }
+
+    private var showsIndicatorAfterEvents: Bool {
+        guard case .some(.afterDay(let day)) = currentIndicatorPlacement else {
+            return false
+        }
+
+        return ScheduleDateUtil.isSameDay(day, section.id)
+    }
+}
+
+private struct ScheduleEmptySectionView: View {
+    let section: ScheduleEmptySection
+    let referenceDate: Date
+    let showsIndicator: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(title)
+                    .font(.headline.weight(.semibold))
+
+                Spacer(minLength: 8)
+
+                Text("连续 \(section.dayCount) 天")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.bottom, 8)
+
+            VStack(spacing: 12) {
+                if showsIndicator {
+                    ScheduleCurrentTimeIndicator()
+                }
+
+                Text("暂无日程")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+            }
+            .padding(.vertical, 12)
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 16)
+        .padding(.bottom, 8)
+    }
+
+    private var title: String {
+        if section.dayCount == 1 {
+            if let relativeDayTitle = ScheduleDateUtil.relativeDayTitle(
+                for: section.startDate,
+                referenceDate: referenceDate
+            ) {
+                return "\(relativeDayTitle) · \(ScheduleDateUtil.dateWithWeekdayFormatter.string(from: section.startDate))"
+            }
+
+            return ScheduleDateUtil.dateWithWeekdayFormatter.string(from: section.startDate)
+        }
+
+        let start = ScheduleDateUtil.dateWithWeekdayFormatter.string(from: section.startDate)
+        let end = ScheduleDateUtil.dateWithWeekdayFormatter.string(from: section.endDate)
+        return "\(start) — \(end)"
+    }
+
 }
 
 private struct ScheduleCurrentTimeIndicator: View {
