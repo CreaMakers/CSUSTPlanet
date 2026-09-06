@@ -5,6 +5,7 @@
 //  Created by Codex on 2026/3/29.
 //
 
+import MarkdownUI
 import SwiftUI
 
 struct AnnouncementListView: View {
@@ -94,9 +95,8 @@ struct AnnouncementListView: View {
                 if !announcement.content.isEmpty {
                     Divider()
 
-                    Text(announcement.content)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    Markdown(announcement.content)
+                        .markdownTheme(.gitHub)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .textSelection(.enabled)
                 }
