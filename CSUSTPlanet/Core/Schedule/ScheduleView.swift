@@ -10,20 +10,25 @@ import SwiftUI
 struct ScheduleView: View {
     @State private var events: [ScheduleEvent] = []
     @State private var referenceDate: Date = .now
+    @State private var isInitialDataReady = false
 
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         let timeline = ScheduleTimelineBuilder.makeData(events: events, referenceDate: referenceDate)
 
-        ScheduleContent(timeline: timeline)
-            .onReceive(ScheduleEventStore.shared.eventsPublisher.receive(on: RunLoop.main)) { events in
-                self.events = events
-            }
-            .task(id: scenePhase) {
-                guard scenePhase == .active else { return }
-                await refreshReferenceDate()
-            }
+        ScheduleContent(
+            timeline: timeline,
+            isInitialDataReady: isInitialDataReady
+        )
+        .onReceive(ScheduleEventStore.shared.eventsPublisher.receive(on: RunLoop.main)) { events in
+            self.events = events
+            isInitialDataReady = true
+        }
+        .task(id: scenePhase) {
+            guard scenePhase == .active else { return }
+            await refreshReferenceDate()
+        }
     }
 
     private func refreshReferenceDate() async {
@@ -51,6 +56,12 @@ struct ScheduleView: View {
 
 #Preview("ScheduleView") {
     NavigationStack {
-        ScheduleContent(timeline: ScheduleTimelineBuilder.makeData(events: SchedulePreviewData.events, referenceDate: SchedulePreviewData.referenceDate))
+        ScheduleContent(
+            timeline: ScheduleTimelineBuilder.makeData(
+                events: SchedulePreviewData.events,
+                referenceDate: SchedulePreviewData.referenceDate
+            ),
+            isInitialDataReady: true
+        )
     }
 }

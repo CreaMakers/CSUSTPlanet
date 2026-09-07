@@ -15,14 +15,24 @@ import GRDB
 final class ScheduleEventStore {
     static let shared = ScheduleEventStore()
 
-    private let eventsSubject = CurrentValueSubject<[ScheduleEvent], Never>([])
+    private let eventsSubject = CurrentValueSubject<[ScheduleEvent]?, Never>(nil)
     private var cancellables = Set<AnyCancellable>()
     private var electricityObservation: (any DatabaseCancellable)?
 
     private var eventsByKind: [ScheduleEventKind: [ScheduleEvent]] = [:]
+    private let initialEventKinds: Set<ScheduleEventKind> = [
+        .course,
+        .exam,
+        .assignment,
+        .electricity,
+    ]
+    private var receivedInitialEventKinds: Set<ScheduleEventKind> = []
+    private var publishedEvents: [ScheduleEvent]?
 
     var eventsPublisher: AnyPublisher<[ScheduleEvent], Never> {
-        eventsSubject.eraseToAnyPublisher()
+        eventsSubject
+            .compactMap { $0 }
+            .eraseToAnyPublisher()
     }
 
     private init() {
@@ -134,8 +144,12 @@ final class ScheduleEventStore {
     // MARK: - Event Updates
 
     private func replaceEvents(for kind: ScheduleEventKind, with events: [ScheduleEvent]) {
-        guard eventsByKind[kind] != events else { return }
         eventsByKind[kind] = events
+        receivedInitialEventKinds.insert(kind)
+
+        guard receivedInitialEventKinds == initialEventKinds else {
+            return
+        }
 
         var eventsByID: [String: ScheduleEvent] = [:]
         for event in eventsByKind.values.flatMap({ $0 }) {
@@ -152,7 +166,8 @@ final class ScheduleEventStore {
             return lhs.id < rhs.id
         })
 
-        guard events != eventsSubject.value else { return }
+        guard publishedEvents != events else { return }
+        publishedEvents = events
         eventsSubject.send(events)
     }
 

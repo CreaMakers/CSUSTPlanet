@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ScheduleContent: View {
     let timeline: ScheduleTimelineData
+    let isInitialDataReady: Bool
 
     @State private var visibleSectionID: ScheduleTimelineSectionID?
     @State private var selectedDayID: Date?
@@ -66,16 +67,33 @@ struct ScheduleContent: View {
                     .disabled(ScheduleDateUtil.isSameDay(headerDayID, todayID))
                 }
             }
-            .onChange(of: timeline.sections.map(\.id), initial: true) { _, _ in
+            .task(id: initialScrollTargetID) {
                 guard
+                    isInitialDataReady,
                     !hasPerformedInitialScroll,
-                    let todaySectionID = timeline.sections.first(where: { $0.contains(todayID) })?.id
+                    let targetSectionID = initialScrollTargetID
                 else {
                     return
                 }
 
+                if isOnlyTodayEmptySection {
+                    hasPerformedInitialScroll = true
+                    return
+                }
+
+                await Task.yield()
+
+                guard
+                    !Task.isCancelled,
+                    !hasPerformedInitialScroll,
+                    let targetSection = timeline.sections.first(where: { $0.id == targetSectionID })
+                else {
+                    return
+                }
+
+                selectedDayID = dayID(for: targetSection)
+                proxy.scrollTo(targetSectionID, anchor: .top)
                 hasPerformedInitialScroll = true
-                visibleSectionID = todaySectionID
             }
             .onChange(of: visibleSectionID) { _, newVisibleSectionID in
                 guard
@@ -110,6 +128,26 @@ struct ScheduleContent: View {
 
     private var todayID: Date {
         ScheduleDateUtil.startOfDay(for: timeline.referenceDate)
+    }
+
+    private var initialScrollTargetID: ScheduleTimelineSectionID? {
+        guard isInitialDataReady, !hasPerformedInitialScroll else {
+            return nil
+        }
+
+        return timeline.sections.first(where: { $0.contains(todayID) })?.id
+    }
+
+    private var isOnlyTodayEmptySection: Bool {
+        guard
+            timeline.sections.count == 1,
+            case .empty(let section) = timeline.sections[0]
+        else {
+            return false
+        }
+
+        return ScheduleDateUtil.isSameDay(section.startDate, todayID)
+            && ScheduleDateUtil.isSameDay(section.endDate, todayID)
     }
 
     private var activeDayID: Date {
@@ -153,6 +191,9 @@ struct ScheduleContent: View {
             referenceDate: referenceDate
         )
 
-        ScheduleContent(timeline: timeline)
+        ScheduleContent(
+            timeline: timeline,
+            isInitialDataReady: true
+        )
     }
 }
