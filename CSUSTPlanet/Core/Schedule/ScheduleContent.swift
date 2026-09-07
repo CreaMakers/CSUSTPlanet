@@ -171,7 +171,7 @@ struct ScheduleContent: View {
     }
 
     private func scrollToNearestDate(_ date: Date, using proxy: ScrollViewProxy) {
-        guard let targetSection = timeline.sections.first(where: { $0.contains(date) }) else {
+        guard let targetSection = targetSection(for: date) else {
             return
         }
 
@@ -180,6 +180,36 @@ struct ScheduleContent: View {
         withAnimation {
             proxy.scrollTo(targetSection.id, anchor: .top)
         }
+    }
+
+    private func targetSection(for date: Date) -> ScheduleTimelineSection? {
+        if let targetSection = timeline.sections.first(where: { $0.contains(date) }) {
+            return targetSection
+        }
+
+        let daySections = timeline.sections.filter {
+            if case .day = $0 {
+                return true
+            }
+
+            return false
+        }
+
+        guard let firstDaySection = daySections.first, let lastDaySection = daySections.last else {
+            return nil
+        }
+
+        let targetDay = ScheduleDateUtil.startOfDay(for: date)
+
+        if targetDay < dayID(for: firstDaySection) {
+            return firstDaySection
+        }
+
+        if targetDay > dayID(for: lastDaySection) {
+            return lastDaySection
+        }
+
+        return nil
     }
 }
 
