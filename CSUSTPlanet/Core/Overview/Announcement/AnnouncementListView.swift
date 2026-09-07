@@ -96,7 +96,7 @@ struct AnnouncementListView: View {
                     Divider()
 
                     Markdown(announcement.content)
-                        .markdownTheme(.gitHub)
+                        .markdownTheme(.docC)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .textSelection(.enabled)
                 }
