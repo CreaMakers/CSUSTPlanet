@@ -8,32 +8,29 @@
 import SwiftUI
 
 struct ScheduleContent: View {
-    let sections: [ScheduleTimelineSection]
-    let eventDates: Set<Date>
-    let referenceDate: Date
-    let currentIndicatorPlacement: ScheduleCurrentIndicatorPlacement?
+    let timeline: ScheduleTimelineData
 
     @State private var visibleSectionID: ScheduleTimelineSectionID?
     @State private var selectedEvent: ScheduleEvent?
     @State private var hasPerformedInitialScroll = false
 
     var body: some View {
-        ScrollView {
+        CustomScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(sections) { section in
+                ForEach(timeline.sections) { section in
                     Group {
                         switch section {
                         case .day(let daySection):
                             ScheduleDaySectionView(
                                 section: daySection,
-                                referenceDate: referenceDate,
-                                currentIndicatorPlacement: currentIndicatorPlacement,
+                                referenceDate: timeline.referenceDate,
+                                currentIndicatorPlacement: timeline.currentIndicatorPlacement,
                                 onSelectEvent: { selectedEvent = $0 }
                             )
                         case .empty(let emptySection):
                             ScheduleEmptySectionView(
                                 section: emptySection,
-                                referenceDate: referenceDate,
+                                referenceDate: timeline.referenceDate,
                                 showsIndicator: showsIndicator(in: emptySection)
                             )
                         }
@@ -48,8 +45,8 @@ struct ScheduleContent: View {
             ScheduleDateHeader(
                 dates: ScheduleDateUtil.datesForWeek(containing: activeDayID),
                 activeDate: activeDayID,
-                referenceDate: referenceDate,
-                eventDates: eventDates,
+                referenceDate: timeline.referenceDate,
+                eventDates: timeline.eventDates,
                 onSelectDate: scrollToNearestDate
             )
             .frame(maxWidth: 700)
@@ -65,10 +62,10 @@ struct ScheduleContent: View {
                 .disabled(ScheduleDateUtil.isSameDay(activeDayID, todayID))
             }
         }
-        .onChange(of: sectionIDs, initial: true) { _, _ in
+        .onChange(of: timeline.sections.map(\.id), initial: true) { _, _ in
             guard
                 !hasPerformedInitialScroll,
-                let todaySectionID = sections.first(where: { $0.contains(todayID) })?.id
+                let todaySectionID = timeline.sections.first(where: { $0.contains(todayID) })?.id
             else {
                 return
             }
@@ -85,25 +82,21 @@ struct ScheduleContent: View {
     }
 
     private func showsIndicator(in section: ScheduleEmptySection) -> Bool {
-        guard case .some(.inEmptySection(let sectionID)) = currentIndicatorPlacement else {
+        guard case .some(.inEmptySection(let sectionID)) = timeline.currentIndicatorPlacement else {
             return false
         }
 
         return sectionID == section.id
     }
 
-    private var sectionIDs: [ScheduleTimelineSectionID] {
-        sections.map(\.id)
-    }
-
     private var todayID: Date {
-        ScheduleDateUtil.startOfDay(for: referenceDate)
+        ScheduleDateUtil.startOfDay(for: timeline.referenceDate)
     }
 
     private var activeDayID: Date {
         guard
             let visibleSectionID,
-            let visibleSection = sections.first(where: { $0.id == visibleSectionID })
+            let visibleSection = timeline.sections.first(where: { $0.id == visibleSectionID })
         else {
             return todayID
         }
@@ -117,7 +110,7 @@ struct ScheduleContent: View {
     }
 
     private func scrollToNearestDate(_ date: Date) {
-        guard let targetSectionID = sections.first(where: { $0.contains(date) })?.id else {
+        guard let targetSectionID = timeline.sections.first(where: { $0.contains(date) })?.id else {
             return
         }
 
@@ -135,11 +128,6 @@ struct ScheduleContent: View {
             referenceDate: referenceDate
         )
 
-        ScheduleContent(
-            sections: timeline.sections,
-            eventDates: timeline.eventDates,
-            referenceDate: referenceDate,
-            currentIndicatorPlacement: timeline.currentIndicatorPlacement
-        )
+        ScheduleContent(timeline: timeline)
     }
 }

@@ -14,27 +14,16 @@ struct ScheduleView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
-        let timeline = ScheduleTimelineBuilder.makeData(
-            events: events,
-            referenceDate: referenceDate
-        )
+        let timeline = ScheduleTimelineBuilder.makeData(events: events, referenceDate: referenceDate)
 
-        ScheduleContent(
-            sections: timeline.sections,
-            eventDates: timeline.eventDates,
-            referenceDate: referenceDate,
-            currentIndicatorPlacement: timeline.currentIndicatorPlacement
-        )
-        .onReceive(ScheduleEventStore.shared.eventsPublisher.receive(on: RunLoop.main)) { events in
-            self.events = events
-        }
-        .task(id: scenePhase) {
-            guard scenePhase == .active else {
-                return
+        ScheduleContent(timeline: timeline)
+            .onReceive(ScheduleEventStore.shared.eventsPublisher.receive(on: RunLoop.main)) { events in
+                self.events = events
             }
-
-            await refreshReferenceDate()
-        }
+            .task(id: scenePhase) {
+                guard scenePhase == .active else { return }
+                await refreshReferenceDate()
+            }
     }
 
     private func refreshReferenceDate() async {
@@ -43,16 +32,8 @@ struct ScheduleView: View {
             referenceDate = now
 
             guard
-                let startOfMinute = ScheduleDateUtil.calendar.date(
-                    bySetting: .second,
-                    value: 0,
-                    of: now
-                ),
-                let nextMinute = ScheduleDateUtil.calendar.date(
-                    byAdding: .minute,
-                    value: 1,
-                    to: startOfMinute
-                )
+                let startOfMinute = ScheduleDateUtil.calendar.date(bySetting: .second, value: 0, of: now),
+                let nextMinute = ScheduleDateUtil.calendar.date(byAdding: .minute, value: 1, to: startOfMinute)
             else {
                 return
             }
@@ -70,17 +51,6 @@ struct ScheduleView: View {
 
 #Preview("ScheduleView") {
     NavigationStack {
-        let referenceDate = SchedulePreviewData.referenceDate
-        let timeline = ScheduleTimelineBuilder.makeData(
-            events: SchedulePreviewData.events,
-            referenceDate: referenceDate
-        )
-
-        ScheduleContent(
-            sections: timeline.sections,
-            eventDates: timeline.eventDates,
-            referenceDate: referenceDate,
-            currentIndicatorPlacement: timeline.currentIndicatorPlacement
-        )
+        ScheduleContent(timeline: ScheduleTimelineBuilder.makeData(events: SchedulePreviewData.events, referenceDate: SchedulePreviewData.referenceDate))
     }
 }
