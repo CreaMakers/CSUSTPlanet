@@ -18,11 +18,13 @@ struct ScheduleEmptySectionView: View {
                 Text(title)
                     .font(.headline.weight(.semibold))
 
-                Spacer(minLength: 8)
+                if section.dayCount > 1 {
+                    Spacer(minLength: 8)
 
-                Text("连续 \(section.dayCount) 天")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    Text("连续 \(section.dayCount) 天")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
             .padding(.bottom, 8)
 
