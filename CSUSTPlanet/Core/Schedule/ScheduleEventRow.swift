@@ -103,5 +103,6 @@ struct ScheduleEventRow: View {
         ScheduleEventRow(event: SchedulePreviewData.events[0], onTap: {})
         ScheduleEventRow(event: SchedulePreviewData.events[2], onTap: {})
     }
+    .fixedSize(horizontal: false, vertical: true)
     .padding()
 }
