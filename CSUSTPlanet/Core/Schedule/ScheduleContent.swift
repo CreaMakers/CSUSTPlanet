@@ -7,11 +7,16 @@
 
 import SwiftUI
 import SwiftUIIntrospect
-import UIKit
 
+#if os(iOS)
+import UIKit
+#endif
+
+#if os(iOS)
 private final class WeakUIScrollViewReference: ObservableObject {
     weak var scrollView: UIScrollView?
 }
+#endif
 
 struct ScheduleContent: View {
     let timeline: ScheduleTimelineData
@@ -21,7 +26,9 @@ struct ScheduleContent: View {
     @State private var selectedDayID: Date?
     @State private var selectedEvent: ScheduleEvent?
     @State private var hasPerformedInitialScroll = false
+    #if os(iOS)
     @StateObject private var scheduleScrollViewReference = WeakUIScrollViewReference()
+    #endif
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -49,9 +56,11 @@ struct ScheduleContent: View {
                     }
                 }
                 .scrollTargetLayout()
+                #if os(iOS)
                 .introspect(.scrollView, on: .iOS(.v17, .v18, .v26), scope: .ancestor) { scrollView in
                     scheduleScrollViewReference.scrollView = scrollView
                 }
+                #endif
             }
             .scrollPosition(id: $visibleSectionID, anchor: .top)
             .safeAreaInset(edge: .top, spacing: 0) {
@@ -187,9 +196,11 @@ struct ScheduleContent: View {
 
         selectedDayID = dayID(for: targetSection)
 
+        #if os(iOS)
         if let scheduleScrollView = scheduleScrollViewReference.scrollView {
             scheduleScrollView.setContentOffset(scheduleScrollView.contentOffset, animated: false)
         }
+        #endif
 
         DispatchQueue.main.async {
             withAnimation {
