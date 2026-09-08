@@ -31,105 +31,103 @@ struct ScheduleContent: View {
     #endif
 
     var body: some View {
-        ScrollViewReader { proxy in
-            CustomScrollView {
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    ForEach(timeline.sections) { section in
-                        Group {
-                            switch section {
-                            case .day(let daySection):
-                                ScheduleDaySectionView(
-                                    section: daySection,
-                                    referenceDate: timeline.referenceDate,
-                                    currentIndicatorPlacement: timeline.currentIndicatorPlacement,
-                                    onSelectEvent: { selectedEvent = $0 }
-                                )
-                            case .empty(let emptySection):
-                                ScheduleEmptySectionView(
-                                    section: emptySection,
-                                    referenceDate: timeline.referenceDate,
-                                    showsIndicator: showsIndicator(in: emptySection)
-                                )
-                            }
+        CustomScrollView {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(timeline.sections) { section in
+                    Group {
+                        switch section {
+                        case .day(let daySection):
+                            ScheduleDaySectionView(
+                                section: daySection,
+                                referenceDate: timeline.referenceDate,
+                                currentIndicatorPlacement: timeline.currentIndicatorPlacement,
+                                onSelectEvent: { selectedEvent = $0 }
+                            )
+                        case .empty(let emptySection):
+                            ScheduleEmptySectionView(
+                                section: emptySection,
+                                referenceDate: timeline.referenceDate,
+                                showsIndicator: showsIndicator(in: emptySection)
+                            )
                         }
-                        .id(section.id)
                     }
-                }
-                .scrollTargetLayout()
-                #if os(iOS)
-                .introspect(.scrollView, on: .iOS(.v17, .v18, .v26), scope: .ancestor) { scrollView in
-                    scheduleScrollViewReference.scrollView = scrollView
-                }
-                #endif
-            }
-            .scrollPosition(id: $visibleSectionID, anchor: .top)
-            .safeAreaInset(edge: .top, spacing: 0) {
-                ScheduleDateHeader(
-                    dates: ScheduleDateUtil.datesForWeek(containing: headerDayID),
-                    activeDate: headerDayID,
-                    referenceDate: timeline.referenceDate,
-                    eventDates: timeline.eventDates,
-                    onSelectDate: { date in
-                        scrollToNearestDate(date, using: proxy)
-                    }
-                )
-                .frame(maxWidth: 700)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .navigationTitle("日程")
-            .inlineToolbarTitle()
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("今天") {
-                        scrollToNearestDate(todayID, using: proxy)
-                    }
-                    .disabled(ScheduleDateUtil.isSameDay(headerDayID, todayID))
+                    .id(section.id)
                 }
             }
-            .task(id: initialScrollTargetID) {
-                guard
-                    isInitialDataReady,
-                    !hasPerformedInitialScroll,
-                    let targetSectionID = initialScrollTargetID
-                else {
-                    return
+            .scrollTargetLayout()
+            #if os(iOS)
+            .introspect(.scrollView, on: .iOS(.v17, .v18, .v26), scope: .ancestor) { scrollView in
+                scheduleScrollViewReference.scrollView = scrollView
+            }
+            #endif
+        }
+        .scrollPosition(id: $visibleSectionID, anchor: .top)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            ScheduleDateHeader(
+                dates: ScheduleDateUtil.datesForWeek(containing: headerDayID),
+                activeDate: headerDayID,
+                referenceDate: timeline.referenceDate,
+                eventDates: timeline.eventDates,
+                onSelectDate: { date in
+                    scrollToNearestDate(date)
                 }
-
-                if isOnlyTodayEmptySection {
-                    hasPerformedInitialScroll = true
-                    return
+            )
+            .frame(maxWidth: 700)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationTitle("日程")
+        .inlineToolbarTitle()
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("今天") {
+                    scrollToNearestDate(todayID)
                 }
+                .disabled(ScheduleDateUtil.isSameDay(headerDayID, todayID))
+            }
+        }
+        .task(id: initialScrollTargetID) {
+            guard
+                isInitialDataReady,
+                !hasPerformedInitialScroll,
+                let targetSectionID = initialScrollTargetID
+            else {
+                return
+            }
 
-                await Task.yield()
-
-                guard
-                    !Task.isCancelled,
-                    !hasPerformedInitialScroll,
-                    let targetSection = timeline.sections.first(where: { $0.id == targetSectionID })
-                else {
-                    return
-                }
-
-                selectedDayID = dayID(for: targetSection)
-                proxy.scrollTo(targetSectionID, anchor: .top)
+            if isOnlyTodayEmptySection {
                 hasPerformedInitialScroll = true
+                return
             }
-            .onChange(of: visibleSectionID) { _, newVisibleSectionID in
-                guard
-                    let newVisibleSectionID,
-                    let visibleSection = timeline.sections.first(where: { $0.id == newVisibleSectionID })
-                else {
-                    return
-                }
 
-                selectedDayID = dayID(for: visibleSection)
+            await Task.yield()
+
+            guard
+                !Task.isCancelled,
+                !hasPerformedInitialScroll,
+                let targetSection = timeline.sections.first(where: { $0.id == targetSectionID })
+            else {
+                return
             }
-            .sheet(item: $selectedEvent) { event in
-                NavigationStack {
-                    ScheduleEventDetailView(event: event)
-                }
-                .presentationDetents([.medium, .large])
+
+            selectedDayID = dayID(for: targetSection)
+            visibleSectionID = targetSectionID
+            hasPerformedInitialScroll = true
+        }
+        .onChange(of: visibleSectionID) { _, newVisibleSectionID in
+            guard
+                let newVisibleSectionID,
+                let visibleSection = timeline.sections.first(where: { $0.id == newVisibleSectionID })
+            else {
+                return
             }
+
+            selectedDayID = dayID(for: visibleSection)
+        }
+        .sheet(item: $selectedEvent) { event in
+            NavigationStack {
+                ScheduleEventDetailView(event: event)
+            }
+            .presentationDetents([.medium, .large])
         }
     }
 
@@ -189,7 +187,7 @@ struct ScheduleContent: View {
         }
     }
 
-    private func scrollToNearestDate(_ date: Date, using proxy: ScrollViewProxy) {
+    private func scrollToNearestDate(_ date: Date) {
         guard let targetSection = targetSection(for: date) else {
             return
         }
@@ -202,10 +200,10 @@ struct ScheduleContent: View {
         }
         #endif
 
+        let targetSectionID = targetSection.id
+        let visibleSectionBinding = $visibleSectionID
         DispatchQueue.main.async {
-            withAnimation {
-                proxy.scrollTo(targetSection.id, anchor: .top)
-            }
+            visibleSectionBinding.wrappedValue = targetSectionID
         }
     }
 
