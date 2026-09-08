@@ -23,6 +23,7 @@
 		00E89C632E2C88D800B43162 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C622E2C88D800B43162 /* WidgetKit.framework */; };
 		00E89C652E2C88D800B43162 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E89C642E2C88D800B43162 /* SwiftUI.framework */; };
 		00E89C722E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 00E89C602E2C88D800B43162 /* CSUSTPlanetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		00FAF248304FA7D900AE2398 /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 00FAF247304FA7D900AE2398 /* SwiftUIIntrospect */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -196,6 +197,7 @@
 				00326DF62F7A15DF003A4BD1 /* AlertToast in Frameworks */,
 				0041FC6D2E2AA269007F383F /* MarkdownUI in Frameworks */,
 				008086612F7AA25F008CB508 /* GRDB in Frameworks */,
+				00FAF248304FA7D900AE2398 /* SwiftUIIntrospect in Frameworks */,
 				0080865F2F7AA25B008CB508 /* CSUSTKit in Frameworks */,
 				00E575FB2F1F4F6B00440D8D /* Kingfisher in Frameworks */,
 				00E574AB2F1F4F0400440D8D /* MatomoTracker in Frameworks */,
@@ -284,6 +286,7 @@
 				008086602F7AA25F008CB508 /* GRDB */,
 				0051222E2F7B586B00E1595D /* MMKV */,
 				0055843F2F7C17F100F703BC /* LookinServer */,
+				00FAF247304FA7D900AE2398 /* SwiftUIIntrospect */,
 			);
 			productName = CSUSTPlanet;
 			productReference = 007CF85B2E1BD68900E319F2 /* CSUSTPlanet.app */;
@@ -347,6 +350,7 @@
 				005FBAB82F72E1BE00D7B07C /* XCRemoteSwiftPackageReference "JWTDecode" */,
 				0051222D2F7B586B00E1595D /* XCRemoteSwiftPackageReference "MMKV" */,
 				0055843E2F7C17F100F703BC /* XCRemoteSwiftPackageReference "LookinServer" */,
+				00FAF246304FA7D900AE2398 /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 007CF85C2E1BD68900E319F2 /* Products */;
@@ -910,6 +914,14 @@
 				minimumVersion = 8.0.0;
 			};
 		};
+		00FAF246304FA7D900AE2398 /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/swiftui-introspect.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 26.0.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -977,6 +989,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 00E575F92F1F4F6B00440D8D /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		00FAF247304FA7D900AE2398 /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 00FAF246304FA7D900AE2398 /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
+			productName = SwiftUIIntrospect;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
