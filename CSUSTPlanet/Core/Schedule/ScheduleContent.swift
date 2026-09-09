@@ -77,7 +77,6 @@ struct ScheduleContent: View {
                     scrollToNearestDate(date)
                 }
             )
-            .frame(maxWidth: 700)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationTitle("日程")

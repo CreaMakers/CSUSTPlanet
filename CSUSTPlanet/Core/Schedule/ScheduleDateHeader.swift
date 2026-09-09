@@ -20,6 +20,13 @@ struct ScheduleDateHeader: View {
                 dateButton(for: date)
             }
         }
+        .apply { view in
+            if #unavailable(iOS 26.0, macOS 26.0) {
+                view.frame(minWidth: 700)
+            } else {
+                view
+            }
+        }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
@@ -30,6 +37,13 @@ struct ScheduleDateHeader: View {
                     .padding(.horizontal, 8)
             } else {
                 view.background(.ultraThinMaterial)
+            }
+        }
+        .apply { view in
+            if #available(iOS 26.0, macOS 26.0, *) {
+                view.frame(maxWidth: 700)
+            } else {
+                view
             }
         }
     }
