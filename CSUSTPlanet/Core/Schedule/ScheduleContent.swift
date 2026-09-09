@@ -23,6 +23,7 @@ struct ScheduleContent: View {
     let isInitialDataReady: Bool
 
     @Binding var selectedEventKinds: Set<ScheduleEventKind>
+    @Binding var showsEndedEvents: Bool
 
     @State private var visibleSectionID: ScheduleTimelineSectionID?
     @State private var selectedDayID: Date?
@@ -140,6 +141,11 @@ struct ScheduleContent: View {
             selectedDayID = nil
             hasPerformedInitialScroll = false
         }
+        .onChange(of: showsEndedEvents) { _, _ in
+            visibleSectionID = nil
+            selectedDayID = nil
+            hasPerformedInitialScroll = false
+        }
         .onAppear {
             if usesInspector {
                 isFilterPresented = true
@@ -153,13 +159,19 @@ struct ScheduleContent: View {
         .apply { view in
             if usesInspector {
                 view.inspector(isPresented: $isFilterPresented) {
-                    ScheduleFilterView(selectedEventKinds: $selectedEventKinds)
-                        .inspectorColumnWidth(min: 260, ideal: 300, max: 360)
+                    ScheduleFilterView(
+                        selectedEventKinds: $selectedEventKinds,
+                        showsEndedEvents: $showsEndedEvents
+                    )
+                    .inspectorColumnWidth(min: 260, ideal: 300, max: 360)
                 }
             } else {
                 view.sheet(isPresented: $isFilterPresented) {
                     NavigationStack {
-                        ScheduleFilterView(selectedEventKinds: $selectedEventKinds)
+                        ScheduleFilterView(
+                            selectedEventKinds: $selectedEventKinds,
+                            showsEndedEvents: $showsEndedEvents
+                        )
                     }
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
@@ -185,7 +197,7 @@ struct ScheduleContent: View {
     }
 
     private var hasActiveFilter: Bool {
-        selectedEventKinds != Set(ScheduleEventKind.allCases)
+        selectedEventKinds != Set(ScheduleEventKind.allCases) || !showsEndedEvents
     }
 
     private var headerDayID: Date {
@@ -306,7 +318,8 @@ struct ScheduleContent: View {
         ScheduleContent(
             timeline: timeline,
             isInitialDataReady: true,
-            selectedEventKinds: .constant(Set(ScheduleEventKind.allCases))
+            selectedEventKinds: .constant(Set(ScheduleEventKind.allCases)),
+            showsEndedEvents: .constant(true)
         )
     }
 }

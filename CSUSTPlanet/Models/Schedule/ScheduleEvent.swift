@@ -90,4 +90,13 @@ struct ScheduleEvent: Codable, Hashable, Sendable, Identifiable {
     let kind: ScheduleEventKind
     let timing: ScheduleEventTiming
     let content: ScheduleEventContent
+
+    func isEnded(at date: Date) -> Bool {
+        switch timing {
+        case .interval(_, let end):
+            return date >= end
+        case .point(let at):
+            return date >= at
+        }
+    }
 }

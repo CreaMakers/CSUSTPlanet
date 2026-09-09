@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ScheduleFilterView: View {
     @Binding var selectedEventKinds: Set<ScheduleEventKind>
+    @Binding var showsEndedEvents: Bool
 
     var body: some View {
         Form {
@@ -21,10 +22,15 @@ struct ScheduleFilterView: View {
                 .padding(.vertical, 4)
             }
 
-            if selectedEventKinds != allEventKinds {
+            Section("日程状态") {
+                Toggle("显示已结束的日程", isOn: $showsEndedEvents)
+            }
+
+            if selectedEventKinds != allEventKinds || !showsEndedEvents {
                 Section {
                     Button("恢复全部") {
                         selectedEventKinds = allEventKinds
+                        showsEndedEvents = true
                     }
                 }
             }
@@ -66,7 +72,8 @@ struct ScheduleFilterView: View {
 #Preview("ScheduleFilterView") {
     NavigationStack {
         ScheduleFilterView(
-            selectedEventKinds: .constant(Set(ScheduleEventKind.allCases))
+            selectedEventKinds: .constant(Set(ScheduleEventKind.allCases)),
+            showsEndedEvents: .constant(true)
         )
     }
 }
