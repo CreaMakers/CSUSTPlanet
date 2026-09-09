@@ -868,10 +868,10 @@
 		};
 		0051222D2F7B586B00E1595D /* XCRemoteSwiftPackageReference "MMKV" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/zHElEARN/MMKV.git";
+			repositoryURL = "https://github.com/Tencent/MMKV.git";
 			requirement = {
-				branch = master;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.2;
 			};
 		};
 		0055843E2F7C17F100F703BC /* XCRemoteSwiftPackageReference "LookinServer" */ = {
