@@ -58,9 +58,13 @@ struct ScheduleDaySectionView: View {
                             .accessibilityHidden(true)
                     }
 
-                    ScheduleEventRow(event: event) {
-                        onSelectEvent(event)
-                    }
+                    ScheduleEventRow(
+                        event: event,
+                        isEnded: event.isEnded(at: referenceDate),
+                        onTap: {
+                            onSelectEvent(event)
+                        }
+                    )
                 }
 
                 if showsIndicatorAfterEvents {

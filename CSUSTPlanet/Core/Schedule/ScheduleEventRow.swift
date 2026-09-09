@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ScheduleEventRow: View {
     let event: ScheduleEvent
+    let isEnded: Bool
     let onTap: () -> Void
 
     var body: some View {
@@ -29,6 +30,8 @@ struct ScheduleEventRow: View {
             )
         }
         .buttonStyle(.plain)
+        .opacity(isEnded ? 0.6 : 1.0)
+        .saturation(isEnded ? 0.0 : 1.0)
     }
 
     private var timeColumn: some View {
@@ -100,8 +103,8 @@ struct ScheduleEventRow: View {
 
 #Preview("ScheduleEventRow") {
     VStack(spacing: 12) {
-        ScheduleEventRow(event: SchedulePreviewData.events[0], onTap: {})
-        ScheduleEventRow(event: SchedulePreviewData.events[2], onTap: {})
+        ScheduleEventRow(event: SchedulePreviewData.events[0], isEnded: true, onTap: {})
+        ScheduleEventRow(event: SchedulePreviewData.events[2], isEnded: false, onTap: {})
     }
     .fixedSize(horizontal: false, vertical: true)
     .padding()
