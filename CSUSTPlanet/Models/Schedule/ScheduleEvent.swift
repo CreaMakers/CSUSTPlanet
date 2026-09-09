@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 /// 日程的业务类型
-enum ScheduleEventKind: String, Codable, Hashable, Sendable {
+enum ScheduleEventKind: String, Codable, Hashable, Sendable, CaseIterable {
     case course
     case exam
     case assignment

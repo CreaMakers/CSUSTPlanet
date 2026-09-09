@@ -9,17 +9,20 @@ import SwiftUI
 
 struct ScheduleView: View {
     @State private var events: [ScheduleEvent] = []
+    @State private var selectedEventKinds: Set<ScheduleEventKind> = Set(ScheduleEventKind.allCases)
     @State private var referenceDate: Date = .now
     @State private var isInitialDataReady = false
 
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
-        let timeline = ScheduleTimelineBuilder.makeData(events: events, referenceDate: referenceDate)
+        let filteredEvents = events.filter { selectedEventKinds.contains($0.kind) }
+        let timeline = ScheduleTimelineBuilder.makeData(events: filteredEvents, referenceDate: referenceDate)
 
         ScheduleContent(
             timeline: timeline,
-            isInitialDataReady: isInitialDataReady
+            isInitialDataReady: isInitialDataReady,
+            selectedEventKinds: $selectedEventKinds
         )
         .onReceive(ScheduleEventStore.shared.eventsPublisher.receive(on: RunLoop.main)) { events in
             self.events = events
@@ -61,7 +64,8 @@ struct ScheduleView: View {
                 events: SchedulePreviewData.events,
                 referenceDate: SchedulePreviewData.referenceDate
             ),
-            isInitialDataReady: true
+            isInitialDataReady: true,
+            selectedEventKinds: .constant(Set(ScheduleEventKind.allCases))
         )
     }
 }

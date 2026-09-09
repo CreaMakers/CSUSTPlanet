@@ -22,10 +22,14 @@ struct ScheduleContent: View {
     let timeline: ScheduleTimelineData
     let isInitialDataReady: Bool
 
+    @Binding var selectedEventKinds: Set<ScheduleEventKind>
+
     @State private var visibleSectionID: ScheduleTimelineSectionID?
     @State private var selectedDayID: Date?
     @State private var selectedEvent: ScheduleEvent?
     @State private var hasPerformedInitialScroll = false
+    @State private var isFilterPresented = false
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #if os(iOS)
     @StateObject private var scheduleScrollViewReference = WeakUIScrollViewReference()
     #endif
@@ -84,6 +88,14 @@ struct ScheduleContent: View {
                 }
                 .disabled(ScheduleDateUtil.isSameDay(headerDayID, todayID))
             }
+
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    isFilterPresented.toggle()
+                } label: {
+                    FilterToolbarLabel(isActive: hasActiveFilter)
+                }
+            }
         }
         .task(id: initialScrollTargetID) {
             guard
@@ -123,12 +135,57 @@ struct ScheduleContent: View {
 
             selectedDayID = dayID(for: visibleSection)
         }
+        .onChange(of: selectedEventKinds) { _, _ in
+            visibleSectionID = nil
+            selectedDayID = nil
+            hasPerformedInitialScroll = false
+        }
+        .onAppear {
+            if usesInspector {
+                isFilterPresented = true
+            }
+        }
+        .onChange(of: usesInspector) { _, usesInspector in
+            if usesInspector {
+                isFilterPresented = true
+            }
+        }
+        .apply { view in
+            if usesInspector {
+                view.inspector(isPresented: $isFilterPresented) {
+                    ScheduleFilterView(selectedEventKinds: $selectedEventKinds)
+                        .inspectorColumnWidth(min: 260, ideal: 300, max: 360)
+                }
+            } else {
+                view.sheet(isPresented: $isFilterPresented) {
+                    NavigationStack {
+                        ScheduleFilterView(selectedEventKinds: $selectedEventKinds)
+                    }
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+                }
+            }
+        }
         .sheet(item: $selectedEvent) { event in
             NavigationStack {
                 ScheduleEventDetailView(event: event)
             }
             .presentationDetents([.medium, .large])
         }
+    }
+
+    private var usesInspector: Bool {
+        #if os(macOS)
+        true
+        #elseif os(iOS)
+        horizontalSizeClass == .regular
+        #else
+        false
+        #endif
+    }
+
+    private var hasActiveFilter: Bool {
+        selectedEventKinds != Set(ScheduleEventKind.allCases)
     }
 
     private var headerDayID: Date {
@@ -248,7 +305,8 @@ struct ScheduleContent: View {
 
         ScheduleContent(
             timeline: timeline,
-            isInitialDataReady: true
+            isInitialDataReady: true,
+            selectedEventKinds: .constant(Set(ScheduleEventKind.allCases))
         )
     }
 }
