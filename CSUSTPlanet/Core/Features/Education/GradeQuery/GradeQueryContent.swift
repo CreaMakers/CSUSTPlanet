@@ -83,7 +83,6 @@ struct GradeQueryContent: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .top) {
             GradeQueryStatsSection(analysis: gradeAnalysis, isLoading: isLoading)
-                .frame(maxWidth: 700)
         }
         #if os(iOS)
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "搜索课程")

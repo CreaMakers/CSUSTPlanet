@@ -27,6 +27,13 @@ struct GradeQueryStatsSection: View {
                 GradeQueryStatItem(title: "课程总数", value: "0", color: .primary)
             }
         }
+        .apply { view in
+            if #unavailable(iOS 26.0, macOS 26.0) {
+                view.frame(maxWidth: 700)
+            } else {
+                view
+            }
+        }
         .frame(maxWidth: .infinity)
         .redacted(reason: analysis == nil && isLoading ? .placeholder : [])
         .padding(.horizontal)
@@ -38,6 +45,13 @@ struct GradeQueryStatsSection: View {
                     .padding(.horizontal)
             } else {
                 view.background(.ultraThinMaterial)
+            }
+        }
+        .apply { view in
+            if #available(iOS 26.0, macOS 26.0, *) {
+                view.frame(maxWidth: 700)
+            } else {
+                view
             }
         }
     }
